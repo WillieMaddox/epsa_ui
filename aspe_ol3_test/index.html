@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ASPE practice template</title>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="http://openlayers.org/en/v3.13.0/build/ol-debug.js"></script>
+<link rel="stylesheet" href="http://openlayers.org/en/v3.13.0/css/ol.css" type="text/css">
+<!-- <script src="http://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"></script> -->
+<script src="https://cdn.rawgit.com/bjornharrtell/jsts/gh-pages/lib/0.17.0/javascript.util.min.js"></script>
+<script src="https://cdn.rawgit.com/bjornharrtell/jsts/gh-pages/lib/0.17.0/jsts.min.js"></script>
+<link rel="stylesheet" href="css/main.css"></script>
+<link rel="stylesheet" href="css/ol3-layerswitcher.css"></script>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="row">
+
+		<div class="col-md-11" style="padding: 0px;">
+			<div id="map" class="map"></div>
+			<form class="form-inline" style="padding: 5px;">
+				<label>Units&nbsp;</label>
+				<select id="units">
+					<option value="degrees">degrees</option>
+					<option value="imperial">imperial inch</option>
+					<option value="us">us inch</option>
+					<option value="nautical">nautical mile</option>
+					<option value="metric">metric</option>
+				</select>
+				<label>Projection&nbsp;</label>
+				<select id="projection">
+					<option value="EPSG:4326">EPSG:4326</option>
+					<option value="EPSG:3857">EPSG:3857</option>
+				</select>
+				<label>Precision&nbsp;</label>
+				<input id="precision" type="number" min="0" max="12" value="4"/>
+				<div id="info" class="offset4 pull-right">
+					&nbsp;
+				</div>
+			</form>
+		</div>
+
+		<div class="col-md-1">
+			<div class="row-fluid aspe">
+				<button class="btn btn-load aspe-btn btn-block" id="loadProject">Load Sample</button>
+			</div>
+			<div id="draw-feature-type" class="btn-group-vertical btn-block">
+				<button class="btn btn-feature aspe-btn" id="AOR" value="Polygon">AOR</button>
+				<button class="btn btn-feature aspe-btn" id="Building" value="Polygon">Building</button>
+				<button class="btn btn-feature aspe-btn" id="Herbage" value="Polygon">Herbage</button>
+				<button class="btn btn-feature aspe-btn" id="Water" value="Polygon">Water</button>
+				<button class="btn btn-feature aspe-btn" id="Wall" value="LineString">Wall</button>
+				<button class="btn btn-feature aspe-btn" id="Road" value="LineString">Road</button>
+			</div>
+			<div>
+				<button class="btn btn-default btn-block" id="drawhole" disabled="disabled">Hole</button>
+			</div>
+			<div id="draw-sensor-type" class="btn-group-vertical btn-block">
+				<button class="btn btn-sensor aspe-btn" id="Camera" value="Point">Camera</button>
+				<button class="btn btn-sensor aspe-btn" id="Radio" value="Point">Radio</button>
+			</div>
+				
+
+		</div>
+
+	</div>
+</div>
+
+<script src="scripts/ol3-layerswitcher.js"></script>
+<script src="scripts/main.js"></script>
+
+</body>
+</html>
