@@ -201,9 +201,10 @@ var overlayStyleFunction = (function() {
 var bingkey = 'AsPHemiyjrAaLwkdh3DLil_xdTJN7QFGPaOi9-a4sf8hbAwA3Z334atxK8GxYcxy';
 
 var view = new ol.View({
-	center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
-	//center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
-	zoom: 15
+	// center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
+	// center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
+	center: [-8236600, 4975706],
+	zoom: 14
 });
 
 var thunderforestAttributions = [
@@ -242,7 +243,7 @@ var map = new ol.Map({
 				new ol.layer.Tile({
 					title: 'Aerial + Labels',
 					type: 'base',
-					visible: true,
+					visible: false,
 					source: new ol.source.BingMaps({
 						key: bingkey, 
 						imagerySet: 'AerialWithLabels'
@@ -334,31 +335,121 @@ var map = new ol.Map({
 			title: 'OSM Maps',
 			layers: [
 				new ol.layer.Tile({
-					title: 'OSM',
+					title: 'OSM local',
 					type: 'base',
 					visible: false,
-					source: new ol.source.OSM({
-                        url: 'http://gis.local.osm/osm_tiles/{z}/{x}/{y}.png'
-                    })
-				})
-			]
-		}),
-		new ol.layer.Group({
-			title: 'Extra',
-			layers: [
+					source: new ol.source.OSM({ url: 'http://gis.local.osm/osm_tiles/{z}/{x}/{y}.png' })
+				}),
 				new ol.layer.Tile({
-					title: 'Countries',
-					type: 'vector',
-					source: new ol.source.TileWMS({
-						url: 'http://demo.opengeo.org/geoserver/wms',
-						params: {'LAYERS': 'ne:ne_10m_admin_1_states_provinces_lines_shp'},
-						serverType: 'geoserver'
-					})
+					title: 'OSM',
+					type: 'base',
+					visible: true,
+					source: new ol.source.OSM()
 				})
 			]
-		})
+		})//,
+		// new ol.layer.Group({
+		// 	title: 'Extra',
+		// 	layers: [
+		// 		new ol.layer.Tile({
+		// 			title: 'Countries',
+		// 			type: 'vector',
+		// 			source: new ol.source.TileWMS({
+		// 				url: 'http://demo.opengeo.org/geoserver/wms',
+		// 				params: {'LAYERS': 'ne:ne_10m_admin_1_states_provinces_lines_shp'},
+		// 				serverType: 'geoserver'
+		// 			})
+		// 		})
+		// 	]
+		// })
 	]
 });
+
+// var url="http://gis.local.osm:8080/geoserver/wfs?service=wfs&version=1.1.0&request=GetFeature&typeName=cite:nyc_buildings";
+
+// sourceVector = new ol.source.Vector({
+// 	url: '/cgi-bin/proxy.py?url='+ encodeURIComponent(url),
+// 	format: new ol.format.WFS()
+// })
+
+//wfs-t
+url = 'http://gis.local.osm:8080/geoserver/wfs'
+url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
+url = /\?/.test(url) ? url + '&' : url + '?';
+var typeName = 'cite:nyc_buildings';
+var proj = 'EPSG:3857';
+var formatWFS = new ol.format.WFS()
+sourceVector = new ol.source.Vector({
+	// loader: function(extent) {
+	// 	$.ajax('/cgi-bin/proxy.py?url='+'http://gis.local.osm:8080/geoserver/wfs', {
+	// 		type: 'GET',
+	// 		data: {
+	// 			service: 'WFS',
+	// 			version: '2.0.0',
+	// 			request: 'GetFeature',
+	// 			typename: 'cite:nyc_buildings',
+	// 			srsname: 'EPSG:3857',
+	// 			bbox: extent.join(',') + ',EPSG:3857'
+	// 		},
+	// 	}).done(function(response) {
+	// 		formatWFS = new ol.format.WFS(),
+	// 			sourceVector.addFeatures(formatWFS.readFeatures(response))
+	// 	});
+	// },
+	loader: function (extent, res, mapProj) {
+		proj = proj || mapProj.getCode();
+		var request = new XMLHttpRequest();
+		request.onreadystatechange = function () {
+			if (request.readyState === 4 && request.status === 200) {
+				sourceVector.addFeatures(formatWFS.readFeatures(request.responseText, {
+					dataProjection: proj,
+					featureProjection: mapProj.getCode()
+				}));
+			}
+		};
+		url = url + 'SERVICE=WFS&REQUEST=GetFeature&TYPENAME=' + typeName + '&VERSION=1.1.0&SRSNAME=' + proj + '&BBOX=' + extent.join(',');
+		request.open('GET', '/cgi-bin/proxy.py?' + encodeURIComponent(url));
+		//request.open('GET', url);
+		request.send();
+	},
+	strategy: ol.loadingstrategy.bbox
+});
+
+var layerVector = new ol.layer.Vector({
+	title: 'WFS-T',
+	type: 'vector',
+	source: sourceVector
+});
+
+// var dirty = {};
+// var formatWFS = new ol.format.WFS();
+// var formatGML = new ol.format.GML({
+// 	featureNS: 'http://argeomatica.com',
+// 	featureType: 'cite:nyc_buildings',
+// 	srsName: 'EPSG:3857'
+// });
+// var transactWFS = function(p, f) {
+// 	switch (p) {
+// 		case 'insert':
+// 			node = formatWFS.writeTransaction([f], null, null, formatGML);
+// 			break;
+// 		case 'update':
+// 			node = formatWFS.writeTransaction(null, [f], null, formatGML);
+// 			break;
+// 		case 'delete':
+// 			node = formatWFS.writeTransaction(null, null, [f], formatGML);
+// 			break;
+// 	}
+// 	s = new XMLSerializer();
+// 	str = s.serializeToString(node);
+// 	$.ajax('http://gis.local.osm/geoserver/wfs', {
+// 		type: 'POST',
+// 		dataType: 'xml',
+// 		processData: false,
+// 		contentType: 'text/xml',
+// 		data: str
+// 	}).done();
+// }
 
 var vector_aor = new ol.layer.Vector({
 	title: 'AOR',
@@ -376,7 +467,8 @@ var projectGroup = new ol.layer.Group({
 	title: 'Project',
 	layers: [
 		vector_aor,
-		vector
+		vector,
+		layerVector
 	]
 });
 map.addLayer(projectGroup);
@@ -555,7 +647,7 @@ translate.setActive(false);
 /********** DRAW ***************/
 var draw;
 var drawType = document.getElementById('draw-feature-type');
-drawType.onclick = function(e) {
+drawType.onclick = function(event) {
 	if (draw) {
 		map.removeInteraction(draw)
 	};
@@ -566,8 +658,8 @@ drawType.onclick = function(e) {
 	//translate.setActive(false);
 	//modify.setActive(false);
 	select.setActive(false);
-	var geom_type = e.target.value;
-	var tobj_type = e.target.id;
+	var geom_type = event.target.value;
+	var tobj_type = event.target.id;
 	var source = tobj_type === 'AOR' ? vector_aor.getSource() : vector.getSource();
 	draw = new ol.interaction.Draw({
 		source: source,
@@ -593,6 +685,8 @@ drawType.onclick = function(e) {
 		evt.feature.set('type', tobj_type);
 		evt.feature.set('name', evt.feature.getId());
 		selectedFeature.push(evt.feature);
+
+		transactWFS('insert', evt.feature);
 
 		map.removeInteraction(draw);
 		select.setActive(true);
@@ -621,30 +715,31 @@ drawType.onclick = function(e) {
 
 /********** DRAW HOLE **********/
 var holeStyle = [
-new ol.style.Style({
-	stroke: new ol.style.Stroke({
-		color: 'rgba(0, 0, 0, 0.8)',
-		lineDash: [10, 10],
-		width: 3
-	}),
-	fill: new ol.style.Fill({
-		color: 'rgba(255, 255, 255, 0)'
-	})
-}),
-new ol.style.Style({
-	image: new ol.style.RegularShape({
-		fill: new ol.style.Fill({
-			color: 'rgba(255, 0, 0, 0.5)'
-		}),
+	new ol.style.Style({
 		stroke: new ol.style.Stroke({
-			color: 'black',
-			width: 1
+			color: 'rgba(0, 0, 0, 0.8)',
+			lineDash: [10, 10],
+			width: 3
 		}),
-		points: 4,
-		radius: 6,
-		angle: Math.PI / 4
+		fill: new ol.style.Fill({
+			color: 'rgba(255, 255, 255, 0)'
+		})
+	}),
+	new ol.style.Style({
+		image: new ol.style.RegularShape({
+			fill: new ol.style.Fill({
+				color: 'rgba(255, 0, 0, 0.5)'
+			}),
+			stroke: new ol.style.Stroke({
+				color: 'black',
+				width: 1
+			}),
+			points: 4,
+			radius: 6,
+			angle: Math.PI / 4
+		})
 	})
-})];
+];
 
 document.getElementById('drawhole').onclick = function () {
 	var selFeat = select.getFeatures();
@@ -814,7 +909,7 @@ var iconFeature = new ol.Feature({
     maxRange: 4000,
     minRange: 500,
     sourceHeight: 3,
-    targetHeight: 3,
+    targetHeight: 3
 });
 
 var iconStyle = new ol.style.Style({
@@ -950,10 +1045,10 @@ precisionInput.on('change', function() {
 /*******************************/
 
 
-//var overlayType = document.getElementById('overlay-type');
-//overlayType.onclick = function(e) {
-//	var bounds = [-105.54833333333333, -105.52694444444444, 39.76361111111111, 39.778055555555554];
-//};
+// var overlayType = document.getElementById('overlay-type');
+// overlayType.onclick = function(e) {
+// 	var bounds = [-105.54833333333333, -105.52694444444444, 39.76361111111111, 39.778055555555554];
+// };
 
 
 /**

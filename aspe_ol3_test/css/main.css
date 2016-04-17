@@ -19,7 +19,7 @@
 .map {
 	height: 600px;
 	width: 100%;
-	background: url(../resources/map-background.jpg) repeat;
+	background: url("../resources/map-background.jpg") repeat;
 }
 .aspe {
 	padding-left: 2px;
