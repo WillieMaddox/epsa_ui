@@ -338,7 +338,7 @@ var map = new ol.Map({
 					title: 'OSM local',
 					type: 'base',
 					visible: false,
-					source: new ol.source.OSM({ url: 'http://www.firefly.com/osm_tiles/{z}/{x}/{y}.png' })
+					source: new ol.source.OSM({ url: 'http://localhost/osm_tiles/{z}/{x}/{y}.png' })
 				}),
 				new ol.layer.Tile({
 					title: 'OSM',
@@ -373,13 +373,13 @@ var map = new ol.Map({
 // })
 
 //wfs-t
-url = 'http://gis.local.osm:8080/geoserver/wfs'
-url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
-url = /\?/.test(url) ? url + '&' : url + '?';
-var typeName = 'cite:nyc_buildings';
-var proj = 'EPSG:3857';
-var formatWFS = new ol.format.WFS()
-sourceVector = new ol.source.Vector({
+// url = 'http://gis.local.osm:8080/geoserver/wfs'
+// url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
+// url = /\?/.test(url) ? url + '&' : url + '?';
+// var typeName = 'cite:nyc_buildings';
+// var proj = 'EPSG:3857';
+// var formatWFS = new ol.format.WFS()
+// sourceVector = new ol.source.Vector({
 	// loader: function(extent) {
 	// 	$.ajax('/cgi-bin/proxy.py?url='+'http://gis.local.osm:8080/geoserver/wfs', {
 	// 		type: 'GET',
@@ -396,30 +396,30 @@ sourceVector = new ol.source.Vector({
 	// 			sourceVector.addFeatures(formatWFS.readFeatures(response))
 	// 	});
 	// },
-	loader: function (extent, res, mapProj) {
-		proj = proj || mapProj.getCode();
-		var request = new XMLHttpRequest();
-		request.onreadystatechange = function () {
-			if (request.readyState === 4 && request.status === 200) {
-				sourceVector.addFeatures(formatWFS.readFeatures(request.responseText, {
-					dataProjection: proj,
-					featureProjection: mapProj.getCode()
-				}));
-			}
-		};
-		url = url + 'SERVICE=WFS&REQUEST=GetFeature&TYPENAME=' + typeName + '&VERSION=1.1.0&SRSNAME=' + proj + '&BBOX=' + extent.join(',');
-		request.open('GET', '/cgi-bin/proxy.py?' + encodeURIComponent(url));
-		//request.open('GET', url);
-		request.send();
-	},
-	strategy: ol.loadingstrategy.bbox
-});
-
-var layerVector = new ol.layer.Vector({
-	title: 'WFS-T',
-	type: 'vector',
-	source: sourceVector
-});
+// 	loader: function (extent, res, mapProj) {
+// 		proj = proj || mapProj.getCode();
+// 		var request = new XMLHttpRequest();
+// 		request.onreadystatechange = function () {
+// 			if (request.readyState === 4 && request.status === 200) {
+// 				sourceVector.addFeatures(formatWFS.readFeatures(request.responseText, {
+// 					dataProjection: proj,
+// 					featureProjection: mapProj.getCode()
+// 				}));
+// 			}
+// 		};
+// 		url = url + 'SERVICE=WFS&REQUEST=GetFeature&TYPENAME=' + typeName + '&VERSION=1.1.0&SRSNAME=' + proj + '&BBOX=' + extent.join(',');
+// 		request.open('GET', '/cgi-bin/proxy.py?' + encodeURIComponent(url));
+// 		//request.open('GET', url);
+// 		request.send();
+// 	},
+// 	strategy: ol.loadingstrategy.bbox
+// });
+//
+// var layerVector = new ol.layer.Vector({
+// 	title: 'WFS-T',
+// 	type: 'vector',
+// 	source: sourceVector
+// });
 
 // var dirty = {};
 // var formatWFS = new ol.format.WFS();
@@ -467,8 +467,8 @@ var projectGroup = new ol.layer.Group({
 	title: 'Project',
 	layers: [
 		vector_aor,
-		vector,
-		layerVector
+		vector//,
+// 		layerVector
 	]
 });
 map.addLayer(projectGroup);
