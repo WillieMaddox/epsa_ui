@@ -338,7 +338,7 @@ var map = new ol.Map({
 					title: 'OSM local',
 					type: 'base',
 					visible: false,
-					source: new ol.source.OSM({ url: 'http://gis.local.osm/osm_tiles/{z}/{x}/{y}.png' })
+					source: new ol.source.OSM({ url: 'http://www.firefly.com/osm_tiles/{z}/{x}/{y}.png' })
 				}),
 				new ol.layer.Tile({
 					title: 'OSM',
