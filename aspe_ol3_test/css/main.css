@@ -2,7 +2,7 @@
 	border: 1px solid red !important;
 }*/
 .ol-mouse-position {
-  background-color: white;
+    background-color: white;
 }
 /*.container-fluid {
 	height: 100%;
@@ -17,9 +17,42 @@
 	height: auto;	
 }*/
 .map {
-	height: 600px;
 	width: 100%;
-	background: url("../resources/map-background.jpg") repeat;
+    /*height: 600px;*/
+    /*height: 100%;*/
+    height: 95vh;
+    background: url("../resources/map-background.jpg") repeat;
+}
+.ol-attribution ul {
+    font-size: 1em;
+}
+.ol-attribution img {
+    max-height: 1em;
+}
+.text-stroke {
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+.ol-mouse-position {
+    /*background-color: rgb(28, 117, 130);*/
+    color: white;
+    left: 0.5em;
+    top: 0.5em;
+    width: 20em;
+}
+.ol-scale-line {
+    background: rgba(0, 0, 0, 0);
+}
+.ol-scale-line-inner {
+    border: 1px solid #000;
+    border-top: none;
+    font-size: 1em;
+}
+.ol-control button {
+    background: rgb(28, 117, 130);
 }
 .aspe {
 	padding-left: 2px;
@@ -73,4 +106,11 @@
     color: #FFFFFF;
     background-color: #35DC2B;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.btn-building {
+    background: url("../resources/noun_134331_cc.png") no-repeat;
+    cursor: pointer;
+    border: none;
+    width: 20px;
+    height: 20px;
 }

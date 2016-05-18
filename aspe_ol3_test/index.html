@@ -22,19 +22,33 @@
 			<form class="form-inline" style="padding: 5px;">
 				<label>Units&nbsp;</label>
 				<select id="units">
-					<option value="degrees">degrees</option>
-					<option value="imperial">imperial inch</option>
-					<option value="us">us inch</option>
 					<option value="nautical">nautical mile</option>
+					<option value="imperial">imperial inch</option>
+					<option value="degrees">degrees</option>
 					<option value="metric">metric</option>
+					<option value="us">us inch</option>
 				</select>
+				<label>&nbsp;</label>
 				<label>Projection&nbsp;</label>
 				<select id="projection">
 					<option value="EPSG:4326">EPSG:4326</option>
 					<option value="EPSG:3857">EPSG:3857</option>
+					<option value="EPSG:31467">EPSG:31467</option>
+                    <option value="TILE">EPSG:31467</option>
 				</select>
-				<label>Precision&nbsp;</label>
-				<input id="precision" type="number" min="0" max="12" value="4"/>
+				<label>&nbsp;</label>
+				<label>Tile [</label>
+				<label>Z:</label>
+				<label id="zoomlevel"></label>
+                <label>&nbsp;</label>
+				<label>X:</label>
+				<label id="xtile"></label>
+                <label>&nbsp;</label>
+				<label>Y:</label>
+				<label id="ytile"></label>
+                <label>]</label>
+				<!--<label>Precision&nbsp;</label>-->
+				<!--<input id="precision" type="number" min="0" max="12" value="4"/>-->
 				<div id="info" class="offset4 pull-right">
 					&nbsp;
 				</div>
@@ -47,7 +61,7 @@
 			</div>
 			<div id="draw-feature-type" class="btn-group-vertical btn-block">
 				<button class="btn btn-feature aspe-btn" id="AOR" value="Polygon">AOR</button>
-				<button class="btn btn-feature aspe-btn" id="Building" value="Polygon">Building</button>
+				<button class="btn btn-feature aspe-btn btn-building" id="Building" value="Polygon"></button>
 				<button class="btn btn-feature aspe-btn" id="Herbage" value="Polygon">Herbage</button>
 				<button class="btn btn-feature aspe-btn" id="Water" value="Polygon">Water</button>
 				<button class="btn btn-feature aspe-btn" id="Wall" value="LineString">Wall</button>
@@ -60,8 +74,6 @@
 				<button class="btn btn-sensor aspe-btn" id="Camera" value="Point">Camera</button>
 				<button class="btn btn-sensor aspe-btn" id="Radio" value="Point">Radio</button>
 			</div>
-				
-
 		</div>
 
 	</div>
