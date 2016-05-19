@@ -231,20 +231,20 @@ function init() {
     view.on('change:resolution', function(evt) {
         var coord0 = evt.target.getCenter();
         var pixel0 = map.getPixelFromCoordinate(coord0);
-        var pixel1 = [pixel0[0] + 1.0, pixel0[1] - 1.0]
+        var pixel1 = [pixel0[0] + 1.0, pixel0[1] - 1.0];
         var coord1 = map.getCoordinateFromPixel(pixel1);
-        var currentProj = map.getView().getProjection().getCode()
+        var currentProj = map.getView().getProjection().getCode();
         if (mouseProjection !== currentProj) {
             coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
             coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
         };
-        var dx = Math.abs(coord1[0] - coord0[0])
-        var dy = Math.abs(coord1[1] - coord0[1])
+        var dx = Math.abs(coord1[0] - coord0[0]);
+        var dy = Math.abs(coord1[1] - coord0[1]);
 
         var xp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dx)))).toFixed());
         var yp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dy)))).toFixed());
 
-        mousePrecision = Math.max(xp, yp)
+        mousePrecision = Math.max(xp, yp);
         console.log(mousePrecision, dx, dy);
         var format = ol.coordinate.createStringXY(mousePrecision);
         mousePositionControl.setCoordinateFormat(format);
@@ -268,7 +268,7 @@ function init() {
         controls: [new ol.control.Attribution()],
         layers: [
             new ol.layer.Group({
-                title: 'Bing Maps',
+                title: 'Bing',
                 layers: [
                     new ol.layer.Tile({
                         title: 'Labels',
@@ -300,7 +300,7 @@ function init() {
                 ]
             }),
             new ol.layer.Group({
-                title: 'MapQuest Maps',
+                title: 'MapQuest',
                 layers: [
                     new ol.layer.Tile({
                         title: 'Labels',
@@ -376,20 +376,25 @@ function init() {
                             url: 'http://{a-c}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png',
                             attributions: thunderforestAttributions
                         })
-                    }),
+                    })
                 ]
             }),
             new ol.layer.Group({
-                title: 'OSM Maps',
+                title: 'OpenStreetMap',
                 layers: [
                     new ol.layer.Tile({
-                        title: 'OSM',
+                        title: 'OpenStreetMap',
                         type: 'base',
                         visible: true,
                         source: new ol.source.OSM()
-                    }),
+                    })
+                ]
+            }),
+            new ol.layer.Group({
+                title: 'Localhost',
+                layers: [
                     new ol.layer.Tile({
-                        title: 'OSM local',
+                        title: 'OpenStreetMap',
                         type: 'base',
                         visible: false,
                         source: new ol.source.OSM({ url: 'http://localhost/osm_tiles/{z}/{x}/{y}.png' })
@@ -590,12 +595,8 @@ function init() {
         };
         var zoom = view.getZoom()
         var xytile = deg2tile(coord[0], coord[1], zoom);
-        var zoomlevel = document.getElementById('zoomlevel');
-        zoomlevel.innerHTML = zoom;
-        var xtile = document.getElementById('xtile');
-        xtile.innerHTML = xytile[0];
-        var ytile = document.getElementById('ytile');
-        ytile.innerHTML = xytile[1];
+        var tile = document.getElementById('tile');
+        tile.innerHTML = "Tile: [Z: "+zoom+"  X: "+xytile[0]+"  Y: "+xytile[1]+"]";
 
         var feature = getFeatureAtPixel(pixel, coord);
         setMouseCursor(feature);
@@ -1084,22 +1085,13 @@ function init() {
 
     /******** MOUSEPOSITION ********/
     var mousePositionControl = new ol.control.MousePosition({
-        className: 'ol-mouse-position text-stroke',
+        // className: 'ol-mouse-position text-stroke',
         coordinateFormat: ol.coordinate.createStringXY(mousePrecision),
         projection: mouseProjection,
-        // undefinedHTML: '&nbsp;'
+        target: 'coordinates'
     });
     map.addControl(mousePositionControl);
 
-    mousePositionControl.on('change', function(evt) {
-        var xytile = deg2tile(evt.coords.longitude, evt.coords.latitude, view.zoom);
-        var zoomlevel = document.getElementById('zoomlevel');
-        zoomlevel.innerHTML = view.zoom;
-        var xtile = document.getElementById('xtile');
-        xtile.innerHTML = xytile[0];
-        var ytile = document.getElementById('ytile');
-        ytile.innerHTML = xytile[1];
-    });
     var projectionSelect = $('#projection');
     projectionSelect.on('change', function() {
         // mousePositionControl.setProjection(ol.proj.get(this.value));
@@ -1108,12 +1100,6 @@ function init() {
 
     });
     projectionSelect.val(mousePositionControl.getProjection().getCode());
-
-    // var precisionInput = $('#precision');
-    // precisionInput.on('change', function() {
-    //     var format = ol.coordinate.createStringXY(this.valueAsNumber);
-    //     mousePositionControl.setCoordinateFormat(format);
-    // });
 
     /*******************************/
     /******* BEHAVIOR TESTS ********/
