@@ -13,12 +13,8 @@
     <link rel="stylesheet" href="css/ol3-layerswitcher.css">
 </head>
 <body>
-<!--<div class="container-fluid">-->
 <div class="map-container">
-	<!--<div id="toolbar" class="toolbar"></div>-->
-    <!--<div id="layertree" class="layertree"></div>-->
 	<div id="layertree" class="layertree">
-		<!--<div class="row-fluid aspe">-->
 		<div class="aspe">
 			<button class="btn btn-load aspe-btn btn-block" id="loadProject">Load Sample</button>
 		</div>
@@ -39,11 +35,12 @@
 		</div>
 	</div>
 
+	<!--<div id="toolbar" class="toolbar"></div>-->
+
     <div id="map" class="map"></div>
     <div class="notification-bar">
-        <form class="form-inline">
-            <label>&nbsp;</label>
-			<label>Units</label>
+        <div>
+			<label>Units:</label>
             <label>&nbsp;</label>
 			<select id="units">
                 <option value="nautical">nautical mile</option>
@@ -52,26 +49,26 @@
 				<option value="metric">metric</option>
 				<option value="us">us inch</option>
             </select>
-			<label>&nbsp;</label>
-			<label>Projection</label>
+		</div>
+		<div>
+			<label>Projection:</label>
 			<label>&nbsp;</label>
 			<select id="projection">
 				<option value="EPSG:4326">EPSG:4326</option>
 				<option value="EPSG:3857">EPSG:3857</option>
 				<option value="EPSG:31467">EPSG:31467</option>
 			</select>
-			<label>&nbsp;</label>
-			<label id="coordinates"></label>
-            <label>&nbsp;</label>
-			<label id="tile"></label>
-            <label>&nbsp;</label>
-			<div id="info" class="offset4 pull-right">
-				&nbsp;
+		</div>
+		<div class="coordinates">
+        	<label id="coordinates"></label>
+        </div>
+		<div class="tile">
+        	<label id="tile"></label>
+        	<div id="info" class="offset4 pull-right">
+				<!--&nbsp;-->
 			</div>
-        </form>
+        </div>
     </div>
-
-	<!--<div class="col-md-1">-->
 
 </div>
 

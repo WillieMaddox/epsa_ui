@@ -90,15 +90,16 @@ body {
     height: 100%;
     display: table-cell;
     border: 1px solid grey;
-    width: 34%;
+    width: 25%;
     box-sizing: border-box;
     vertical-align: middle;
-}
-.notification-bar .message-bar {
-    width: 66%;
+    text-align: center;
 }
 .notification-bar .ol-mouse-position {
     position: static;
+}
+.notification-bar .tile {
+    width: 25%;
 }
 .ol-attribution ul {
     font-size: 1em;

@@ -1085,7 +1085,6 @@ function init() {
 
     /******** MOUSEPOSITION ********/
     var mousePositionControl = new ol.control.MousePosition({
-        // className: 'ol-mouse-position text-stroke',
         coordinateFormat: ol.coordinate.createStringXY(mousePrecision),
         projection: mouseProjection,
         target: 'coordinates'
