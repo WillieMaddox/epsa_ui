@@ -686,7 +686,7 @@ drawType.onclick = function(event) {
 		evt.feature.set('name', evt.feature.getId());
 		selectedFeature.push(evt.feature);
 
-		transactWFS('insert', evt.feature);
+// 		transactWFS('insert', evt.feature);
 
 		map.removeInteraction(draw);
 		select.setActive(true);
