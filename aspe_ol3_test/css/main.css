@@ -1,25 +1,128 @@
+body {
+    margin: 0px;
+}
 /** {
 	border: 1px solid red !important;
 }*/
-.ol-mouse-position {
-  background-color: white;
+.map-container {
+    width: 100%;
+    height: 100%; /*Fallback*/
+    height: 100vh;
 }
-/*.container-fluid {
-	height: 100%;
-	width: 100%;
-}
-.col-md-9 {
-	width: 75%;
-	height: auto;
-}
-.col-md-3 {
-	width: 25%;
-	height: auto;	
-}*/
 .map {
-	height: 600px;
-	width: 100%;
-	background: url("../resources/map-background.jpg") repeat;
+	max-width: 85%;
+    /*height: 600px;*/
+    /*height: 100%;*/
+    /*height: 95vh;*/
+    height: calc(100% - 1.5em);
+    overflow: hidden;
+    position: relative;
+    background: url("../resources/map-background.jpg") repeat;
+}
+.layertree {
+    width: 15%;
+    height: 100%;
+    float: left;
+    box-sizing: border-box;
+    border: 1px solid grey;
+    border-bottom: none;
+}
+.layertree .layertree-buttons {
+    height: 2em;
+    border-bottom: 1px solid grey;
+}
+.layertree .layercontainer {
+    position: relative;
+    height: calc(100% - 2em);
+    overflow-y: auto;
+}
+.layercontainer .layer {
+    position: relative;
+    border: 1px solid grey;
+    border-radius: .5em;
+    height: 2em;
+    margin: 2px 0 2px 0;
+    line-height: 2em;
+}
+.layer span:first-of-type {
+    position: absolute;
+    left: 1.5em;
+    max-width: calc(100% - 1.5em);
+    white-space: pre;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.layertree .ol-unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.toolbar {
+    height: 2em;
+    display: table;
+    padding-left: .2em;
+}
+.toolbar .ol-control {
+    position: static;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0;
+}
+.toolbar .ol-control button {
+    border-radius: 2px;
+    background-color: rgba(219,63,63,.5);
+    width: 2em;
+    display: inline-block;
+}
+.toolbar .ol-control button:hover {
+    background-color: rgba(219,63,63,1);
+}
+.notification-bar {
+    width: 85%;
+    height: 1.5em;
+    display: table;
+}
+.notification-bar > div {
+    height: 100%;
+    display: table-cell;
+    border: 1px solid grey;
+    width: 34%;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+.notification-bar .message-bar {
+    width: 66%;
+}
+.notification-bar .ol-mouse-position {
+    position: static;
+}
+.ol-attribution ul {
+    font-size: 1em;
+}
+.ol-attribution img {
+    max-height: 1em;
+}
+.text-stroke {
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+.ol-scale-line {
+    background: rgba(0, 0, 0, 0);
+}
+.ol-scale-line-inner {
+    border: 1px solid #000;
+    border-top: none;
+    font-size: 1em;
+}
+.ol-control button {
+    background: rgb(28, 117, 130);
 }
 .aspe {
 	padding-left: 2px;
@@ -73,4 +176,11 @@
     color: #FFFFFF;
     background-color: #35DC2B;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.btn-building {
+    background-image: url("../resources/noun_134331_cc.png");
+    cursor: pointer;
+    border: none;
+    width: 20px;
+    height: 20px;
 }
