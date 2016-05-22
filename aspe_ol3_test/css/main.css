@@ -8,30 +8,92 @@ body {
     width: 100%;
     height: 100%; /*Fallback*/
     height: 100vh;
+    display: flex;
 }
-.map {
-	max-width: 85%;
-    /*height: 600px;*/
-    /*height: 100%;*/
-    /*height: 95vh;*/
-    height: calc(100% - 1.5em);
-    overflow: hidden;
-    position: relative;
-    background: url("../resources/map-background.jpg") repeat;
-}
-.layertree {
+.sidebar {
     width: 15%;
     height: 100%;
+    box-sizing: border-box;
+}
+.sidebar .toolbar {
+    width: 100%;
+    height: 50%;
+    box-sizing: border-box;
+    display: table;
+    padding-left: .2em;
+}
+.sidebar .toolbar .ol-control {
+    height: 2em;
+    position: static;
+    display: table-cell;
+    /*vertical-align: middle;*/
+    /*padding: 0;*/
+}
+.sidebar .toolbar .ol-control button {
+    border-radius: 2px;
+    background-color: rgba(219,63,63,.5);
+    width: 2em;
+    display: inline-block;
+    vertical-align: middle;
+    background-size: 1em;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+.sidebar .toolbar .ol-control button:hover {
+    background-color: rgba(219,63,63,1);
+}
+.sidebar .toolbar .ol-control button.active {
+    background-color: rgba(234,129,8,1);
+}
+.sidebar .toolbar .ol-control button.active:hover {
+    background-color: rgba(234,129,8,1);
+}
+.sidebar .toolbar .ol-control button:disabled {
+    background-color: rgba(0,0,0,.2);
+}
+.sidebar .toolbar .ol-control button:disabled:hover {
+    background-color: rgba(0,0,0,.2);
+}
+.sidebar .toolbar .draw-aor button {
+    background-image: url(../res/biohazard_temp.png);
+}
+.sidebar .toolbar .draw-building button {
+    background-image: url(../res/button_measure.png);
+}
+.sidebar .toolbar .draw-herbage button {
+    background-image: url(../res/herbage_temp.png);
+}
+.sidebar .toolbar .draw-water button {
+    background-image: url(../res/water_temp.png);
+}
+.sidebar .toolbar .draw-wall button {
+    background-image: url(../res/radioactive_temp.png);
+}
+.sidebar .toolbar .draw-road button {
+    background-image: url(../res/road_temp.png);
+}
+.sidebar .toolbar .draw-camera button {
+    background-image: url(../res/camera-normal.png);
+}
+.sidebar .toolbar .draw-radio button {
+    background-image: url(../res/radio-normal.png);
+}
+.sidebar .toolbar .ol-measure button {
+    background-image: url(../res/button_measure.png);
+}
+.sidebar .layertree {
+    width: 100%;
+    height: 50%;
     float: left;
     box-sizing: border-box;
     border: 1px solid grey;
     border-bottom: none;
 }
-.layertree .layertree-buttons {
+.sidebar .layertree .layertree-buttons {
     height: 2em;
     border-bottom: 1px solid grey;
 }
-.layertree .layercontainer {
+.sidebar .layertree .layercontainer {
     position: relative;
     height: calc(100% - 2em);
     overflow-y: auto;
@@ -52,7 +114,7 @@ body {
     overflow-x: hidden;
     text-overflow: ellipsis;
 }
-.layertree .ol-unselectable {
+.layertree,.toolbar .ol-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -61,29 +123,81 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-.toolbar {
+.sidebar .layertree .layertree-buttons button {
     height: 2em;
-    display: table;
-    padding-left: .2em;
-}
-.toolbar .ol-control {
-    position: static;
-    display: table-cell;
-    vertical-align: middle;
-    padding: 0;
-}
-.toolbar .ol-control button {
-    border-radius: 2px;
-    background-color: rgba(219,63,63,.5);
     width: 2em;
+    padding: 0;
+    margin: 0 2px 0 2px;
+    border: none;
+    color: rgba(255,255,255,1);
+    background-color: rgba(0,0,0,.5);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    vertical-align: middle;
+}
+.sidebar .layertree .layertree-buttons button:hover {
+    background-color: rgba(0,0,0,1);
+}
+.layertree-buttons .addwms {
+    background-image: url(../res/button_wms.png);
+}
+.layertree-buttons .addwfs {
+    background-image: url(../res/button_wfs.png);
+}
+.layertree-buttons .addvector {
+    background-image: url(../res/button_vector.png);
+}
+.layertree-buttons .deletelayer {
+    background-image: url(../res/button_delete.png);
+}
+.layertree-buttons .newvector {
+    background-image: url(../res/button_newvector.png);
+}
+.toggleable {
+    position: fixed;
+    background-color: rgba(0,0,0,.5);
+    width: 100%;
+    height: 100vh;
+    top: 0;
+}
+.addlayer {
+    background-color: rgba(255,255,255,1);
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: inline-block;
 }
-.toolbar .ol-control button:hover {
-    background-color: rgba(219,63,63,1);
+.addlayer select {
+    min-width: 11.5em;
+    max-width: 11.5em;
 }
-.notification-bar {
+.buffering span::after {
+	content: '*';
+}
+.error {
+	border-color: red;
+}
+.mainwindow {
     width: 85%;
-    height: 1.5em;
+    height: 100%;
+}
+.mainwindow .map {
+    width: 100%;
+	height: calc(100% - 1.5em);
+    overflow: hidden;
+    position: relative;
+    background: url("../res/map-background.jpg") repeat;
+}
+.mainwindow .notification-bar {
+    width: 100%;
+	height: 1.5em;
     display: table;
 }
 .notification-bar > div {
@@ -122,9 +236,9 @@ body {
     border-top: none;
     font-size: 1em;
 }
-.ol-control button {
-    background: rgb(28, 117, 130);
-}
+/*.ol-control button {*/
+    /*background: rgb(28, 117, 130);*/
+/*}*/
 .aspe {
 	padding-left: 2px;
 	padding-right: 2px;
@@ -179,7 +293,7 @@ body {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
 }
 .btn-building {
-    background-image: url("../resources/noun_134331_cc.png");
+    background-image: url("../res/noun_134331_cc.png");
     cursor: pointer;
     border: none;
     width: 20px;

@@ -1,9 +1,269 @@
+var layerTree = function (options) {
+    'use strict';
+    if (!(this instanceof layerTree)) {
+        throw new Error('layerTree must be constructed with the new keyword.');
+    } else if (typeof options === 'object' && options.map && options.target) {
+        if (!(options.map instanceof ol.Map)) {
+            throw new Error('Please provide a valid OpenLayers 3 map object.');
+        }
+        this.map = options.map;
+        var containerDiv = document.getElementById(options.target);
+        if (containerDiv === null || containerDiv.nodeType !== 1) {
+            throw new Error('Please provide a valid element id.');
+        }
+        this.messages = document.getElementById(options.messages) || document.createElement('span');
+        var controlDiv = document.createElement('div');
+        controlDiv.className = 'layertree-buttons';
+        controlDiv.appendChild(this.createButton('addwms', 'Add WMS Layer', 'addlayer'));
+        controlDiv.appendChild(this.createButton('addwfs', 'Add WFS Layer', 'addlayer'));
+        containerDiv.appendChild(controlDiv);
+        this.layerContainer = document.createElement('div');
+        this.layerContainer.className = 'layercontainer';
+        containerDiv.appendChild(this.layerContainer);
+        var idCounter = 0;
+        this.createRegistry = function (layer, buffer) {
+            layer.set('id', 'layer_' + idCounter);
+            idCounter += 1;
+            var layerDiv = document.createElement('div');
+            layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
+            layerDiv.title = layer.get('name') || 'Unnamed Layer';
+            layerDiv.id = layer.get('id');
+            var layerSpan = document.createElement('span');
+            layerSpan.textContent = layerDiv.title;
+            layerDiv.appendChild(layerSpan);
+            this.layerContainer.insertBefore(layerDiv, this.layerContainer.firstChild);
+            return this;
+        };
+        this.map.getLayers().on('add', function (evt) {
+            if (evt.element instanceof ol.layer.Vector) {
+                this.createRegistry(evt.element, true);
+            }// else {
+                // this.createRegistry(evt.element);
+            // }
+        }, this);
+    } else {
+        throw new Error('Invalid parameter(s) provided.');
+    }
+};
+
+layerTree.prototype.createButton = function (elemName, elemTitle, elemType) {
+    var buttonElem = document.createElement('button');
+    buttonElem.className = elemName;
+    buttonElem.title = elemTitle;
+    switch (elemType) {
+        case 'addlayer':
+            buttonElem.addEventListener('click', function () {
+                document.getElementById(elemName).style.display = 'block';
+            });
+            return buttonElem;
+        default:
+            return false;
+    }
+};
+
+layerTree.prototype.addBufferIcon = function (layer) {
+    layer.getSource().on('change', function (evt) {
+        var layerElem = document.getElementById(layer.get('id'));
+        switch (evt.target.getState()) {
+            case 'ready':
+                layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
+                break;
+            case 'error':
+                layerElem.classList.add('error');
+                break;
+            default:
+                layerElem.classList.add('buffering');
+                break;
+        }
+    });
+};
+
+layerTree.prototype.removeContent = function (element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+    return this;
+};
+
+layerTree.prototype.createOption = function (optionValue) {
+    var option = document.createElement('option');
+    option.value = optionValue;
+    option.textContent = optionValue;
+    return option;
+};
+
+layerTree.prototype.checkWmsLayer = function (form) {
+    form.check.disabled = true;
+    var _this = this;
+    this.removeContent(form.layer).removeContent(form.format);
+    var url = form.server.value;
+    url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
+    form.server.value = url;
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            var parser = new ol.format.WMSCapabilities();
+            try {
+                var capabilities = parser.read(request.responseText);
+                var currentProj = _this.map.getView().getProjection().getCode();
+                var crs;
+                var messageText = 'Layers read successfully.';
+                if (capabilities.version === '1.3.0') {
+                    crs = capabilities.Capability.Layer.CRS;
+                } else {
+                    crs = [currentProj];
+                    messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
+                }
+                var layers = capabilities.Capability.Layer.Layer;
+                if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
+                    for (var i = 0; i < layers.length; i += 1) {
+                        form.layer.appendChild(_this.createOption(layers[i].Name));
+                    }
+                    var formats = capabilities.Capability.Request.GetMap.Format;
+                    for (i = 0; i < formats.length; i += 1) {
+                        form.format.appendChild(_this.createOption(formats[i]));
+                    }
+                    _this.messages.textContent = messageText;
+                }
+            } catch (error) {
+                _this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
+            } finally {
+                form.check.disabled = false;
+            }
+        } else if (request.status > 200) {
+            form.check.disabled = false;
+        }
+    };
+    url = /\?/.test(url) ? url + '&' : url + '?';
+    url = url + 'REQUEST=GetCapabilities&SERVICE=WMS';
+    // var url1 = '../../../cgi-bin/proxy.py?url=' + encodeURIComponent(url);
+    // var url2 = 'http://localhost:8050/cgi-bin/proxy.py?' + encodeURIComponent(url);
+    var url3 = 'http://www.firefly.com:8050/cgi-bin/proxy.py?' + url;
+    console.log(url3);
+    request.open('GET', url3, true);
+    request.send();
+};
+
+layerTree.prototype.addWmsLayer = function (form) {
+    var params = {
+        url: form.server.value,
+        params: {
+            layers: form.layer.value,
+            format: form.format.value
+        }
+    };
+    var layer;
+    if (form.tiled.checked) {
+        layer = new ol.layer.Tile({
+            source: new ol.source.TileWMS(params),
+            name: form.displayname.value
+        });
+    } else {
+        layer = new ol.layer.Image({
+            source: new ol.source.ImageWMS(params),
+            name: form.displayname.value
+        });
+    }
+    this.map.addLayer(layer);
+    this.messages.textContent = 'WMS layer added successfully.';
+    return this;
+};
+
+layerTree.prototype.addWfsLayer = function (form) {
+    var url = form.server.value;
+    url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
+    url = /\?/.test(url) ? url + '&' : url + '?';
+    var typeName = form.layer.value;
+    var mapProj = this.map.getView().getProjection().getCode();
+    var proj = form.projection.value || mapProj;
+    var parser = new ol.format.WFS();
+    var source = new ol.source.Vector({
+        strategy: ol.loadingstrategy.bbox
+    });
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            source.addFeatures(parser.readFeatures(request.responseText, {
+                dataProjection: proj,
+                featureProjection: mapProj
+            }));
+        }
+    };
+    url = url + 'SERVICE=WFS&REQUEST=GetFeature&TYPENAME=' + typeName + '&VERSION=1.1.0&SRSNAME=' + proj;
+    // request.open('GET', '../../../cgi-bin/proxy.py?' + encodeURIComponent(url));
+    var url3 = 'http://www.firefly.com:8050/cgi-bin/proxy.py?' + url;
+    request.open('GET', url3);
+    request.send();
+    var layer = new ol.layer.Vector({
+        source: source,
+        name: form.displayname.value
+    });
+    this.addBufferIcon(layer);
+    this.map.addLayer(layer);
+    this.messages.textContent = 'WFS layer added successfully.';
+    return this;
+};
+
+var toolBar = function (options) {
+    'use strict';
+    if (!(this instanceof toolBar)) {
+        throw new Error('toolBar must be constructed with the new keyword.');
+    } else if (typeof options === 'object' && options.map && options.target && options.layertree) {
+        if (!(options.map instanceof ol.Map)) {
+            throw new Error('Please provide a valid OpenLayers 3 map object.');
+        }
+        this.map = options.map;
+        this.toolbar = document.getElementById(options.target);
+        this.layertree = options.layertree;
+        this.controls = new ol.Collection();
+    } else {
+        throw new Error('Invalid parameter(s) provided.');
+    }
+};
+
+toolBar.prototype.addControl = function (control) {
+    if (!(control instanceof ol.control.Control)) {
+        throw new Error('Only controls can be added to the toolbar.');
+    }
+    if (control.get('type') === 'toggle') {
+        control.on('change:active', function () {
+            if (control.get('active')) {
+                this.controls.forEach(function (controlToDisable) {
+                    if (controlToDisable.get('type') === 'toggle' && controlToDisable !== control) {
+                        controlToDisable.set('active', false);
+                    }
+                });
+            }
+        }, this);
+    }
+    control.setTarget(this.toolbar);
+    this.controls.push(control);
+    this.map.addControl(control);
+    return this;
+};
+
+toolBar.prototype.removeControl = function (control) {
+    this.controls.remove(control);
+    this.map.removeControl(control);
+    return this;
+};
+
+
 function init() {
     document.removeEventListener('DOMContentLoaded', init);
 
     function exists(x) {
         return (x !== undefined && x !== null);
     }
+    function toRad(x) {
+        return x*Math.PI/180.0
+    };
+    function toInt(x) {
+        return ~~x
+    };
+    function mod(n, m) {
+        return ((n % m) + m) % m
+    };
 
     var FID = (function() {
         /**
@@ -45,86 +305,6 @@ function init() {
         }
     })();
 
-    /*
-    var tobjectsStyleFunction2 = (function() {
-        var fillopacity = 0.1;
-        var strokeopacity = 1;
-        var styles = {};
-        var image = new ol.style.Circle({
-            radius: 5,
-            fill: null,
-            stroke: new ol.style.Stroke({color: 'orange', width: 2})
-        });
-        styles['AOR'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['AOR'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['AOR'].concat(fillOpacity['AOR'])
-            })
-        })];
-        styles['Building'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['Building'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['Building'].concat(fillopacity)
-            })
-        })];
-        styles['Herbage'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['Herbage'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['Herbage'].concat(fillopacity)
-            })
-        })];
-        styles['Water'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['Water'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['Water'].concat(fillopacity)
-            })
-        })];
-        styles['Wall'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['Wall'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['Wall'].concat(fillOpacity['Wall'])
-            })
-        })];
-        styles['Road'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['Road'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['Road'].concat(fillOpacity['Road'])
-            })
-        })];
-        styles['default'] = [new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: tobjectColors['default'].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: tobjectColors['default'].concat(fillopacity),
-            }),
-            image: image
-        })];
-        return function(feature, resolution) {
-            var style = styles[feature.get('type')];
-            return styles[feature.get('type')] || styles['default'];
-        };
-    })();
-    */
     var tobjectColors = {
         'AOR': [0, 0, 0],
         'Building': [128, 128, 128],
@@ -134,7 +314,6 @@ function init() {
         'Road': [192, 51, 52],
         'default': [255, 0, 0]
     };
-
     var fillOpacity = {
         'AOR': 0,
         'Building': 0.1,
@@ -144,7 +323,6 @@ function init() {
         'Road': 0,
         'default': 0.1
     };
-
     var highlight;
     var highlightStyleCache = {};
 
@@ -166,7 +344,6 @@ function init() {
             return setStyle(feature.get('type'));
         };
     })();
-
     var overlayStyleFunction = (function() {
         var strokeopacity = 1;
         var setStyle = function(type, text) {
@@ -203,15 +380,6 @@ function init() {
 
     var bingkey = 'AsPHemiyjrAaLwkdh3DLil_xdTJN7QFGPaOi9-a4sf8hbAwA3Z334atxK8GxYcxy';
 
-    function toRad(x) {
-        return x*Math.PI/180.0
-    };
-    function toInt(x) {
-        return ~~x
-    };
-    function mod(n, m) {
-        return ((n % m) + m) % m
-    };
     var deg2tile = function(lon_deg, lat_deg, zoom) {
         var lat_rad = toRad(lat_deg);
         var n = Math.pow(2, zoom);
@@ -245,7 +413,6 @@ function init() {
         var yp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dy)))).toFixed());
 
         mousePrecision = Math.max(xp, yp);
-        console.log(mousePrecision, dx, dy);
         var format = ol.coordinate.createStringXY(mousePrecision);
         mousePositionControl.setCoordinateFormat(format);
     });
@@ -262,10 +429,10 @@ function init() {
         target: document.getElementById('map'),
         view: view,
         logo: {
-            src: 'resources/saic-logo2.png',
+            src: 'res/saic-logo2.png',
             href: 'http://www.saic.com'
         },
-        controls: [new ol.control.Attribution()],
+        controls: [new ol.control.Attribution(), new ol.control.Zoom()],
         layers: [
             new ol.layer.Group({
                 title: 'Bing',
@@ -419,36 +586,35 @@ function init() {
     });
 
     // var url="http://gis.local.osm:8080/geoserver/wfs?service=wfs&version=1.1.0&request=GetFeature&typeName=cite:nyc_buildings";
-
     // sourceVector = new ol.source.Vector({
     // 	url: '/cgi-bin/proxy.py?url='+ encodeURIComponent(url),
     // 	format: new ol.format.WFS()
-    // })
+    // });
 
     //wfs-t
-    // url = 'http://gis.local.osm:8080/geoserver/wfs'
+    // url = 'http://gis.local.osm:8080/geoserver/wfs';
     // url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
     // url = /\?/.test(url) ? url + '&' : url + '?';
     // var typeName = 'cite:nyc_buildings';
     // var proj = 'EPSG:3857';
-    // var formatWFS = new ol.format.WFS()
+    // var formatWFS = new ol.format.WFS();
     // sourceVector = new ol.source.Vector({
-        // loader: function(extent) {
-        // 	$.ajax('/cgi-bin/proxy.py?url='+'http://gis.local.osm:8080/geoserver/wfs', {
-        // 		type: 'GET',
-        // 		data: {
-        // 			service: 'WFS',
-        // 			version: '2.0.0',
-        // 			request: 'GetFeature',
-        // 			typename: 'cite:nyc_buildings',
-        // 			srsname: 'EPSG:3857',
-        // 			bbox: extent.join(',') + ',EPSG:3857'
-        // 		},
-        // 	}).done(function(response) {
-        // 		formatWFS = new ol.format.WFS(),
-        // 			sourceVector.addFeatures(formatWFS.readFeatures(response))
-        // 	});
-        // },
+    //     loader: function(extent) {
+    //     	$.ajax('/cgi-bin/proxy.py?url='+'http://gis.local.osm:8080/geoserver/wfs', {
+    //     		type: 'GET',
+    //     		data: {
+    //     			service: 'WFS',
+    //     			version: '2.0.0',
+    //     			request: 'GetFeature',
+    //     			typename: 'cite:nyc_buildings',
+    //     			srsname: 'EPSG:3857',
+    //     			bbox: extent.join(',') + ',EPSG:3857'
+    //     		},
+    //     	}).done(function(response) {
+    //     		formatWFS = new ol.format.WFS(),
+    //     			sourceVector.addFeatures(formatWFS.readFeatures(response))
+    //     	});
+    //     },
     // 	loader: function (extent, res, mapProj) {
     // 		proj = proj || mapProj.getCode();
     // 		var request = new XMLHttpRequest();
@@ -467,7 +633,7 @@ function init() {
     // 	},
     // 	strategy: ol.loadingstrategy.bbox
     // });
-    //
+
     // var layerVector = new ol.layer.Vector({
     // 	title: 'WFS-T',
     // 	type: 'vector',
@@ -502,16 +668,47 @@ function init() {
     // 		contentType: 'text/xml',
     // 		data: str
     // 	}).done();
-    // }
+    // };
+
+    var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
+        // .createRegistry(map.getLayers().item(0))
+        // .createRegistry(map.getLayers().item(1));
+
+    var tools = new toolBar({
+        map: map,
+        target: 'toolbar',
+        layertree: tree
+    });
+
+
+    document.getElementById('checkwmslayer').addEventListener('click', function () {
+        tree.checkWmsLayer(this.form);
+    });
+    document.getElementById('addwms_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.addWmsLayer(this);
+        this.parentNode.style.display = 'none';
+    });
+    document.getElementById('wmsurl').addEventListener('change', function () {
+        tree.removeContent(this.form.layer)
+            .removeContent(this.form.format);
+    });
+    document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.addWfsLayer(this);
+        this.parentNode.style.display = 'none';
+    });
 
     var vector_aor = new ol.layer.Vector({
         title: 'AOR',
+        name: 'AOR',
         type: 'vector',
         source: new ol.source.Vector(),
         style: tobjectsStyleFunction
     });
     var vector = new ol.layer.Vector({
         title: 'tobjects',
+        name: 'tobjects',
         type: 'vector',
         source: new ol.source.Vector(),
         style: tobjectsStyleFunction
@@ -537,7 +734,7 @@ function init() {
         var smallestArea = 5.1e14, // approximate surface area of the earth.
             smallestFeature;
         var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-            var geom = feature.getGeometry()
+            var geom = feature.getGeometry();
             if (geom instanceof ol.geom.Point) {
             //Need to add functionality for sensors here.
             //     return feature;
@@ -570,7 +767,7 @@ function init() {
             map.getTarget().style.cursor = 'pointer';
         } else {
             map.getTarget().style.cursor = '';
-        };
+        }
     };
 
     var displayFeatureInfo = function(feature) {
@@ -592,8 +789,8 @@ function init() {
         var proj = view.getProjection().getCode();
         if (proj !== 'EPSG:4326') {
             coord = ol.proj.transform(coord, proj, 'EPSG:4326')
-        };
-        var zoom = view.getZoom()
+        }
+        var zoom = view.getZoom();
         var xytile = deg2tile(coord[0], coord[1], zoom);
         var tile = document.getElementById('tile');
         tile.innerHTML = "Tile: [Z: "+zoom+"  X: "+xytile[0]+"  Y: "+xytile[1]+"]";
@@ -662,7 +859,7 @@ function init() {
         // Handle deselect first so we can update the feature in the python code.
         if (evt.deselected.length == 1) {
             feature = evt.deselected[0]
-            info.innerHTML = '&nbsp;';
+            // info.innerHTML = '&nbsp;';
             modify.setActive(false);
             //translate.setActive(false);
             $('#drawhole').prop('disabled', true);
@@ -670,7 +867,7 @@ function init() {
         };
         if (evt.selected.length == 1) {
             feature = evt.selected[0]
-            info.innerHTML = feature.get('type') + ': ' + feature.get('name');
+            // info.innerHTML = feature.get('type') + ': ' + feature.get('name');
             modify.setActive(true);
             //translate.setActive(true);
             geom = feature.getGeometry()
@@ -754,23 +951,23 @@ function init() {
             select.setActive(true);
             //$('#drawhole').prop('disabled', false);
             map.on('pointermove', hoverDisplay);
-            info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
+            // info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
             featureadded = true;
-            source.once('addfeature', function(evt) {
-                var parser = new ol.format.GeoJSON();
-                var features = source.getFeatures();
-                var featuresGeoJSON = parser.writeFeatures(features, {
-                    featureProjection: 'EPSG:3857',
-                });
-                console.log(featuresGeoJSON)
-                $.ajax({
-                    url: 'test_project/features.geojson', // what about aor?
-                    type: 'POST',
-                    data: featuresGeoJSON
-                }).then(function(response) {
-                    console.log(response);
-                });
-            });
+            // source.once('addfeature', function(evt) {
+            //     var parser = new ol.format.GeoJSON();
+            //     var features = source.getFeatures();
+            //     var featuresGeoJSON = parser.writeFeatures(features, {
+            //         featureProjection: 'EPSG:3857',
+            //     });
+            //     console.log(featuresGeoJSON)
+            //     $.ajax({
+            //         url: 'test_project/features.geojson', // what about aor?
+            //         type: 'POST',
+            //         data: featuresGeoJSON
+            //     }).then(function(response) {
+            //         console.log(response);
+            //     });
+            // });
             $(document).off('keyup')
         });
     };
@@ -989,63 +1186,63 @@ function init() {
         features: [iconFeature]
     });
 
-    var loadProject = document.getElementById('loadProject');
-    loadProject.onclick = function(e) {
-
-        map.removeLayer(featureOverlay);
-        map.removeLayer(projectGroup);
-
-        var bounds = [-105.54833333333333, 39.76361111111111, -105.52694444444444, 39.778055555555554];
-
-        var image = new ol.layer.Image({
-            title: 'camera',
-            type: 'overlay',
-            source: new ol.source.ImageStatic({
-                url: 'test_project/package_patched2.png',
-                imageExtent: ol.proj.transformExtent(bounds, 'EPSG:4326', 'EPSG:3857')
-            }),
-            // Replace with an opacity slider-bar.
-            opacity: 0.2
-        });
-        vector_aor = new ol.layer.Vector({
-            title: 'AOR',
-            type: 'overlay',
-            source: new ol.source.Vector({
-                url: 'test_project/aor.geojson',
-                format: new ol.format.GeoJSON()
-            }),
-            style: tobjectsStyleFunction
-        });
-        vector = new ol.layer.Vector({
-            title: 'tobjects',
-            type: 'overlay',
-            source: new ol.source.Vector({
-                url: 'test_project/tobjects.geojson',
-                format: new ol.format.GeoJSON()
-            }),
-            style: tobjectsStyleFunction
-        });
-        projectGroup = new ol.layer.Group({
-            title: 'Project',
-            layers: [
-                image,
-                vector_aor,
-                vector
-            ]
-        });
-
-        map.addLayer(projectGroup);
-        map.addLayer(featureOverlay);
-
-        // Need to add in auto-zoom-in functionality here.
-
-        vector_aor.getSource().on('change', function(evt) {
-            var source = evt.target;
-            if (source.getState() === 'ready') {
-                view.setCenter(ol.extent.getCenter(source.getExtent()));
-            };
-        });
-    }
+    // var loadProject = document.getElementById('loadProject');
+    // loadProject.onclick = function(e) {
+    //
+    //     map.removeLayer(featureOverlay);
+    //     map.removeLayer(projectGroup);
+    //
+    //     var bounds = [-105.54833333333333, 39.76361111111111, -105.52694444444444, 39.778055555555554];
+    //
+    //     var image = new ol.layer.Image({
+    //         title: 'camera',
+    //         type: 'overlay',
+    //         source: new ol.source.ImageStatic({
+    //             url: 'test_project/package_patched2.png',
+    //             imageExtent: ol.proj.transformExtent(bounds, 'EPSG:4326', 'EPSG:3857')
+    //         }),
+    //         // Replace with an opacity slider-bar.
+    //         opacity: 0.2
+    //     });
+    //     vector_aor = new ol.layer.Vector({
+    //         title: 'AOR',
+    //         type: 'overlay',
+    //         source: new ol.source.Vector({
+    //             url: 'test_project/aor.geojson',
+    //             format: new ol.format.GeoJSON()
+    //         }),
+    //         style: tobjectsStyleFunction
+    //     });
+    //     vector = new ol.layer.Vector({
+    //         title: 'tobjects',
+    //         type: 'overlay',
+    //         source: new ol.source.Vector({
+    //             url: 'test_project/tobjects.geojson',
+    //             format: new ol.format.GeoJSON()
+    //         }),
+    //         style: tobjectsStyleFunction
+    //     });
+    //     projectGroup = new ol.layer.Group({
+    //         title: 'Project',
+    //         layers: [
+    //             image,
+    //             vector_aor,
+    //             vector
+    //         ]
+    //     });
+    //
+    //     map.addLayer(projectGroup);
+    //     map.addLayer(featureOverlay);
+    //
+    //     // Need to add in auto-zoom-in functionality here.
+    //
+    //     vector_aor.getSource().on('change', function(evt) {
+    //         var source = evt.target;
+    //         if (source.getState() === 'ready') {
+    //             view.setCenter(ol.extent.getCenter(source.getExtent()));
+    //         };
+    //     });
+    // }
 
 
     /*******************************/
@@ -1093,8 +1290,7 @@ function init() {
 
     var projectionSelect = $('#projection');
     projectionSelect.on('change', function() {
-        // mousePositionControl.setProjection(ol.proj.get(this.value));
-        mouseProjection = ol.proj.get(this.value)
+        mouseProjection = ol.proj.get(this.value);
         mousePositionControl.setProjection(mouseProjection);
 
     });

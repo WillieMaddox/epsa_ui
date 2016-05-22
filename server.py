@@ -8,7 +8,7 @@ cgitb.enable()  ## This line enables CGI error reporting
 
 server = BaseHTTPServer.HTTPServer
 handler = CGIHTTPServer.CGIHTTPRequestHandler
-server_address = ("gis.local.osm", 8050)
+server_address = ("www.firefly.com", 8050)
 # handler.cgi_directories = ["/"]
 httpd = server(server_address, handler)
 print '*******************************'
