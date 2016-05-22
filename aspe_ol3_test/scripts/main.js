@@ -786,6 +786,10 @@ function init() {
         if (evt.dragging) return;
         var pixel = map.getEventPixel(evt.originalEvent);
         var coord = map.getCoordinateFromPixel(pixel);
+        var feature = getFeatureAtPixel(pixel, coord);
+        setMouseCursor(feature);
+        displayFeatureInfo(feature);
+
         var proj = view.getProjection().getCode();
         if (proj !== 'EPSG:4326') {
             coord = ol.proj.transform(coord, proj, 'EPSG:4326')
@@ -794,10 +798,6 @@ function init() {
         var xytile = deg2tile(coord[0], coord[1], zoom);
         var tile = document.getElementById('tile');
         tile.innerHTML = "Tile: [Z: "+zoom+"  X: "+xytile[0]+"  Y: "+xytile[1]+"]";
-
-        var feature = getFeatureAtPixel(pixel, coord);
-        setMouseCursor(feature);
-        displayFeatureInfo(feature);
     };
 
     /*
