@@ -11,7 +11,7 @@ body {
     display: flex;
 }
 .sidebar {
-    width: 15%;
+    width: 250px;
     height: 100%;
     box-sizing: border-box;
 }
@@ -22,14 +22,13 @@ body {
     display: table;
     padding-left: .2em;
 }
-.sidebar .toolbar .ol-control {
+.toolbar .ol-control {
     height: 2em;
     position: static;
     display: table-cell;
-    /*vertical-align: middle;*/
-    /*padding: 0;*/
+    padding: 0;
 }
-.sidebar .toolbar .ol-control button {
+.toolbar .ol-control button {
     border-radius: 2px;
     background-color: rgba(219,63,63,.5);
     width: 2em;
@@ -39,46 +38,46 @@ body {
     background-repeat: no-repeat;
     background-position: 50%;
 }
-.sidebar .toolbar .ol-control button:hover {
+.toolbar .ol-control button:hover {
     background-color: rgba(219,63,63,1);
 }
-.sidebar .toolbar .ol-control button.active {
+.toolbar .ol-control button.active {
     background-color: rgba(234,129,8,1);
 }
-.sidebar .toolbar .ol-control button.active:hover {
+.toolbar .ol-control button.active:hover {
     background-color: rgba(234,129,8,1);
 }
-.sidebar .toolbar .ol-control button:disabled {
+.toolbar .ol-control button:disabled {
     background-color: rgba(0,0,0,.2);
 }
-.sidebar .toolbar .ol-control button:disabled:hover {
+.toolbar .ol-control button:disabled:hover {
     background-color: rgba(0,0,0,.2);
 }
-.sidebar .toolbar .draw-aor button {
+.toolbar .draw-aor button {
     background-image: url(../res/biohazard_temp.png);
 }
-.sidebar .toolbar .draw-building button {
-    background-image: url(../res/button_measure.png);
+.toolbar .draw-building button {
+    background-image: url(../res/building_temp.png);
 }
-.sidebar .toolbar .draw-herbage button {
+.toolbar .draw-herbage button {
     background-image: url(../res/herbage_temp.png);
 }
-.sidebar .toolbar .draw-water button {
+.toolbar .draw-water button {
     background-image: url(../res/water_temp.png);
 }
-.sidebar .toolbar .draw-wall button {
+.toolbar .draw-wall button {
     background-image: url(../res/radioactive_temp.png);
 }
-.sidebar .toolbar .draw-road button {
+.toolbar .draw-road button {
     background-image: url(../res/road_temp.png);
 }
-.sidebar .toolbar .draw-camera button {
+.toolbar .draw-camera button {
     background-image: url(../res/camera-normal.png);
 }
-.sidebar .toolbar .draw-radio button {
+.toolbar .draw-radio button {
     background-image: url(../res/radio-normal.png);
 }
-.sidebar .toolbar .ol-measure button {
+.toolbar .ol-measure button {
     background-image: url(../res/button_measure.png);
 }
 .sidebar .layertree {
@@ -89,31 +88,6 @@ body {
     border: 1px solid grey;
     border-bottom: none;
 }
-.sidebar .layertree .layertree-buttons {
-    height: 2em;
-    border-bottom: 1px solid grey;
-}
-.sidebar .layertree .layercontainer {
-    position: relative;
-    height: calc(100% - 2em);
-    overflow-y: auto;
-}
-.layercontainer .layer {
-    position: relative;
-    border: 1px solid grey;
-    border-radius: .5em;
-    height: 2em;
-    margin: 2px 0 2px 0;
-    line-height: 2em;
-}
-.layer span:first-of-type {
-    position: absolute;
-    left: 1.5em;
-    max-width: calc(100% - 1.5em);
-    white-space: pre;
-    overflow-x: hidden;
-    text-overflow: ellipsis;
-}
 .layertree,.toolbar .ol-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -123,7 +97,11 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-.sidebar .layertree .layertree-buttons button {
+.layertree .layertree-buttons {
+    height: 2em;
+    border-bottom: 1px solid grey;
+}
+.layertree .layertree-buttons button {
     height: 2em;
     width: 2em;
     padding: 0;
@@ -141,7 +119,7 @@ body {
     transform: translateY(-50%);
     vertical-align: middle;
 }
-.sidebar .layertree .layertree-buttons button:hover {
+.layertree .layertree-buttons button:hover {
     background-color: rgba(0,0,0,1);
 }
 .layertree-buttons .addwms {
@@ -158,6 +136,74 @@ body {
 }
 .layertree-buttons .newvector {
     background-image: url(../res/button_newvector.png);
+}
+.layertree .layercontainer {
+    position: relative;
+    height: calc(100% - 2em);
+    overflow-y: auto;
+}
+.layercontainer .layer {
+    position: relative;
+    border: 1px solid grey;
+    border-radius: .5em;
+    height: 2em;
+    margin: 2px 0 2px 0;
+    line-height: 2em;
+}
+.layercontainer .layer.active {
+    border-color: orange;
+    min-height: 2em;
+    height: auto;
+}
+.layer div {
+    display: none;
+}
+.layer.active div {
+    display: block;
+}
+.layer .visible {
+    top: .5em;
+}
+.layer.over {
+    border-top: 3px solid black;
+}
+.layer span:first-of-type {
+    position: absolute;
+    left: 1.5em;
+    max-width: calc(100% - 1.5em);
+    white-space: pre;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.popup {
+    border: 1px solid grey;
+    background-color: rgba(255,255,255,1);
+    border-radius: .5em;
+}
+.popup span {
+    float: left;
+    width: 40%;
+}
+.popup input[type=text], .popup input[type=number] {
+    width: 60%;
+    box-sizing: border-box;
+}
+.popup input[type=button], .popup input[type=submit] {
+    width: 10%;
+    float: right;
+    background-color: rgba(0,0,0,.5);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    border-radius: 2px;
+    color: rgba(255,255,255,1);
+    font-weight: 700;
+}
+.popup .delete {
+    background-image: url(../../res/button_delete.png);
+}
+.popup .save {
+    background-image: url(../../res/button_save.png);
 }
 .toggleable {
     position: fixed;
@@ -185,7 +231,7 @@ body {
 	border-color: red;
 }
 .mainwindow {
-    width: 85%;
+    width: calc(100% - 250px);
     height: 100%;
 }
 .mainwindow .map {
@@ -229,39 +275,13 @@ body {
     1px 1px 0 #000;
 }
 .ol-scale-line {
-    background: rgba(0, 0, 0, 0);
+    background: rgba(0, 60, 136, 0.5);
 }
-.ol-scale-line-inner {
-    border: 1px solid #000;
-    border-top: none;
-    font-size: 1em;
-}
-/*.ol-control button {*/
-    /*background: rgb(28, 117, 130);*/
+/*.ol-scale-line-inner {*/
+    /*border: 1px solid #000;*/
+    /*border-top: none;*/
+    /*font-size: 1em;*/
 /*}*/
-.aspe {
-	padding-left: 2px;
-	padding-right: 2px;
-}
-.aspe-btn {
-	margin-top: 5px;
-	margin-bottom: 5px;
-}
-.btn-load {
-    color: #FFFFFF;
-    background-color: #BEDE1B;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    transition: .2s ease-out;
-    transition-property: initial;
-    transition-duration: 0.2s;
-    transition-timing-function: ease-out;
-    transition-delay: initial;
-}
-.btn-load:hover {
-	color: #73AD21;
-    background-color: #FFFFFF;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-}
 .btn-feature {
     color: #FFFFFF;
     background-color: #0A7D84;
@@ -276,26 +296,4 @@ body {
 	color: #FFFFFF;
     background-color: #0CB3BD;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-}
-.btn-sensor {
-    color: #FFFFFF;
-    background-color: rgb(51, 154, 45);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    transition: .2s ease-out;
-    transition-property: initial;
-    transition-duration: 0.2s;
-    transition-timing-function: ease-out;
-    transition-delay: initial;
-}
-.btn-sensor:hover {
-    color: #FFFFFF;
-    background-color: #35DC2B;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-}
-.btn-building {
-    background-image: url("../res/noun_134331_cc.png");
-    cursor: pointer;
-    border: none;
-    width: 20px;
-    height: 20px;
 }

@@ -1,3 +1,63 @@
+
+function exists(x) {
+    return (x !== undefined && x !== null);
+}
+function toRad(x) {
+    return x*Math.PI/180.0
+}
+function toInt(x) {
+    return ~~x
+}
+function mod(n, m) {
+    return ((n % m) + m) % m
+}
+var deg2tile = function(lon_deg, lat_deg, zoom) {
+    var lat_rad = toRad(lat_deg);
+    var n = Math.pow(2, zoom);
+    var xtile = toInt(mod((lon_deg + 180.0) / 360.0, 1) * n);
+    var ytile = toInt((1.0 - Math.log(Math.tan(lat_rad) + (1 / Math.cos(lat_rad))) / Math.PI) / 2.0 * n);
+    return [xtile, ytile]
+};
+var FID = (function() {
+    /**
+     * Feature Id Generator based on
+     * Linear Congruential Generator
+     *Variant of a Lehman Generator
+     *m is chosen to be large (as it is the max period)
+     *and for its relationships to a and c
+     *Make sure...
+     *1: a - 1 is divisible by all prime factors of m.
+     *2: a - 1 is divisible by 4 if m is divisible by 4.
+     *3: m and c are co-prime (i.e. No prime number divides both m and c).
+     */
+    var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", // candidate char values
+        chlength = chars.length, // number of candidate characters.
+        idlength = 4, // number of chars to be put in the Id tag.
+        idtag = "", // string to hold the id tag.
+        t = 0, // dummy variable used in gen function.
+        m = 14776336, // chars.length ** idlength --> 62**4
+        a = 476657, // 62**3 + 1
+        c = 1013904223, // offset. (prime number much larger than m.)
+        z = seed = Math.round(Math.random() * m); // default random seed,
+    return {
+        setSeed: function(val) {
+            z = seed = exists(val) ? val : Math.round(Math.random() * m);
+        },
+        getSeed: function() {
+            return seed;
+        },
+        gen: function() {
+            idtag = "";
+            z = (a * z + c) % m;
+            for (i = 0; i < idlength; i++) {
+                t = Math.floor(z / Math.pow(chlength, i)) % chlength;
+                idtag += chars.charAt(t);
+            }
+            return idtag;
+        }
+    }
+})();
+
 var layerTree = function (options) {
     'use strict';
     if (!(this instanceof layerTree)) {
@@ -12,15 +72,36 @@ var layerTree = function (options) {
             throw new Error('Please provide a valid element id.');
         }
         this.messages = document.getElementById(options.messages) || document.createElement('span');
+        var observer = new MutationObserver(function (mutations) {
+            if (mutations[0].target.textContent) {
+                var oldText = mutations[0].target.textContent;
+                var timeoutFunction = function () {
+                    if (oldText !== mutations[0].target.textContent) {
+                        oldText = mutations[0].target.textContent;
+                        setTimeout(timeoutFunction, 10000);
+                    } else {
+                        oldText = '';
+                        mutations[0].target.textContent = '';
+                    }
+                };
+            	setTimeout(timeoutFunction, 10000);
+            }
+        });
+        observer.observe(this.messages, {childList: true});
         var controlDiv = document.createElement('div');
         controlDiv.className = 'layertree-buttons';
         controlDiv.appendChild(this.createButton('addwms', 'Add WMS Layer', 'addlayer'));
         controlDiv.appendChild(this.createButton('addwfs', 'Add WFS Layer', 'addlayer'));
+        controlDiv.appendChild(this.createButton('newvector', 'New Vector Layer', 'addlayer'));
+        controlDiv.appendChild(this.createButton('addvector', 'Add Vector Layer', 'addlayer'));
+        controlDiv.appendChild(this.createButton('deletelayer', 'Remove Layer', 'deletelayer'));
         containerDiv.appendChild(controlDiv);
         this.layerContainer = document.createElement('div');
         this.layerContainer.className = 'layercontainer';
         containerDiv.appendChild(this.layerContainer);
         var idCounter = 0;
+        this.selectedLayer = null;
+        this.selectEventEmitter = new ol.Observable();
         this.createRegistry = function (layer, buffer) {
             layer.set('id', 'layer_' + idCounter);
             idCounter += 1;
@@ -28,18 +109,130 @@ var layerTree = function (options) {
             layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
             layerDiv.title = layer.get('name') || 'Unnamed Layer';
             layerDiv.id = layer.get('id');
+            this.addSelectEvent(layerDiv);
+            var _this = this;
+            layerDiv.draggable = true;
+            layerDiv.addEventListener('dragstart', function (evt) {
+                evt.dataTransfer.effectAllowed = 'move';
+                evt.dataTransfer.setData('Text', this.id);
+            });
+            layerDiv.addEventListener('dragenter', function (evt) {
+                this.classList.add('over');
+            });
+            layerDiv.addEventListener('dragleave', function (evt) {
+                this.classList.remove('over');
+            });
+            layerDiv.addEventListener('dragover', function (evt) {
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'move';
+            });
+            layerDiv.addEventListener('drop', function (evt) {
+                evt.preventDefault();
+                this.classList.remove('over');
+                var sourceLayerDiv = document.getElementById(evt.dataTransfer.getData('Text'));
+                if (sourceLayerDiv !== this) {
+                    _this.layerContainer.removeChild(sourceLayerDiv);
+                    _this.layerContainer.insertBefore(sourceLayerDiv, this);
+                    var htmlArray = [].slice.call(_this.layerContainer.children);
+                    var index = htmlArray.length - htmlArray.indexOf(sourceLayerDiv) - 1;
+                    var sourceLayer = _this.getLayerById(sourceLayerDiv.id);
+                    var layers = _this.map.getLayers().getArray();
+                    layers.splice(layers.indexOf(sourceLayer), 1);
+                    layers.splice(index, 0, sourceLayer);
+                    _this.map.render();
+                    _this.map.getLayers().changed();
+                }
+            });
             var layerSpan = document.createElement('span');
             layerSpan.textContent = layerDiv.title;
-            layerDiv.appendChild(layerSpan);
+            layerDiv.appendChild(this.addSelectEvent(layerSpan, true));
+            layerSpan.addEventListener('dblclick', function () {
+                this.contentEditable = true;
+                layerDiv.draggable = false;
+                layerDiv.classList.remove('ol-unselectable');
+                this.focus();
+            });
+            layerSpan.addEventListener('blur', function () {
+                if (this.contentEditable) {
+                    this.contentEditable = false;
+                    layerDiv.draggable = true;
+                    layer.set('name', this.textContent);
+                    layerDiv.classList.add('ol-unselectable');
+                    layerDiv.title = this.textContent;
+                    this.scrollTo(0, 0);
+                }
+            });
+            var visibleBox = document.createElement('input');
+            visibleBox.type = 'checkbox';
+            visibleBox.className = 'visible';
+            visibleBox.checked = layer.getVisible();
+            visibleBox.addEventListener('change', function () {
+                if (this.checked) {
+                    layer.setVisible(true);
+                } else {
+                    layer.setVisible(false);
+                }
+            });
+            layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
+            var layerControls = document.createElement('div');
+            this.addSelectEvent(layerControls, true);
+            var opacityHandler = document.createElement('input');
+            opacityHandler.type = 'range';
+            opacityHandler.min = 0;
+            opacityHandler.max = 1;
+            opacityHandler.step = 0.1;
+            opacityHandler.value = layer.getOpacity();
+            opacityHandler.addEventListener('input', function () {
+                layer.setOpacity(this.value);
+            });
+            opacityHandler.addEventListener('change', function () {
+                layer.setOpacity(this.value);
+            });
+            opacityHandler.addEventListener('mousedown', function () {
+                layerDiv.draggable = false;
+            });
+            opacityHandler.addEventListener('mouseup', function () {
+                layerDiv.draggable = true;
+            });
+            layerControls.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
+            if (layer instanceof ol.layer.Vector) {
+                layerControls.appendChild(document.createElement('br'));
+                var attributeOptions = document.createElement('select');
+                layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
+                layerControls.appendChild(document.createElement('br'));
+                var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
+                var graduatedStyle = this.createButton('stylelayer', 'Graduated', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(graduatedStyle, 'click'));
+                var categorizedStyle = this.createButton('stylelayer', 'Categorized', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(categorizedStyle, 'click'));
+                layer.set('style', layer.getStyle());
+                layer.on('propertychange', function (evt) {
+                    if (evt.key === 'headers') {
+                        this.removeContent(attributeOptions);
+                        var headers = layer.get('headers');
+                        for (var i in headers) {
+                            attributeOptions.appendChild(this.createOption(i));
+                        }
+                    }
+                }, this);
+            }
+            layerDiv.appendChild(layerControls);
             this.layerContainer.insertBefore(layerDiv, this.layerContainer.firstChild);
             return this;
         };
         this.map.getLayers().on('add', function (evt) {
             if (evt.element instanceof ol.layer.Vector) {
-                this.createRegistry(evt.element, true);
-            }// else {
-                // this.createRegistry(evt.element);
-            // }
+                if (evt.element.get('type') !== 'overlay') {
+                    this.createRegistry(evt.element, true);
+                }
+            } else {
+                this.createRegistry(evt.element);
+            }
+        }, this);
+        this.map.getLayers().on('remove', function (evt) {
+            this.removeRegistry(evt.element);
+            this.selectEventEmitter.changed();
         }, this);
     } else {
         throw new Error('Invalid parameter(s) provided.');
@@ -55,6 +248,34 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType) {
             buttonElem.addEventListener('click', function () {
                 document.getElementById(elemName).style.display = 'block';
             });
+            return buttonElem;
+        case 'deletelayer':
+            var _this = this;
+            buttonElem.addEventListener('click', function () {
+                if (_this.selectedLayer) {
+                    var layer = _this.getLayerById(_this.selectedLayer.id);
+                    console.log(layer);
+                    _this.map.removeLayer(layer);
+                    _this.messages.textContent = 'Layer removed successfully.';
+                } else {
+                    _this.messages.textContent = 'No selected layer to remove.';
+                }
+            });
+            return buttonElem;
+        case 'stylelayer':
+            var _this = this;
+            buttonElem.textContent = elemTitle;
+            if (elemTitle === 'Default') {
+                buttonElem.addEventListener('click', function () {
+                    layer.setStyle(layer.get('style'));
+                });
+            } else {
+                var styleFunction = elemTitle === 'Graduated' ? this.styleGraduated : this.styleCategorized;
+                buttonElem.addEventListener('click', function () {
+                    var attribute = buttonElem.parentNode.querySelector('select').value;
+                    styleFunction.call(_this, layer, attribute);
+                });
+            }
             return buttonElem;
         default:
             return false;
@@ -204,6 +425,211 @@ layerTree.prototype.addWfsLayer = function (form) {
     return this;
 };
 
+layerTree.prototype.addVectorLayer = function (form) {
+    var file = form.file.files[0];
+    var currentProj = this.map.getView().getProjection();
+    try {
+        var fr = new FileReader();
+        var sourceFormat;
+        var source = new ol.source.Vector();
+        fr.onload = function (evt) {
+            var vectorData = evt.target.result;
+            switch (form.format.value) {
+                case 'geojson':
+                    sourceFormat = new ol.format.GeoJSON();
+                    break;
+                case 'topojson':
+                    sourceFormat = new ol.format.TopoJSON();
+                    break;
+                case 'kml':
+                    sourceFormat = new ol.format.KML();
+                    break;
+                case 'osm':
+                    sourceFormat = new ol.format.OSMXML();
+                    break;
+                default:
+                    return false;
+            }
+            var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
+            source.addFeatures(sourceFormat.readFeatures(vectorData, {
+                dataProjection: dataProjection,
+                featureProjection: currentProj
+            }));
+        };
+        fr.readAsText(file);
+        var layer = new ol.layer.Vector({
+            source: source,
+            name: form.displayname.value,
+            strategy: ol.loadingstrategy.bbox
+        });
+        this.addBufferIcon(layer);
+        this.map.addLayer(layer);
+        this.messages.textContent = 'Vector layer added successfully.';
+        return this;
+    } catch (error) {
+        this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
+        return error;
+    }
+};
+
+layerTree.prototype.newVectorLayer = function (form) {
+    var type = form.type.value;
+    if (type !== 'point' && type !== 'line' && type !== 'polygon' && type !== 'geomcollection') {
+        this.messages.textContent = 'Unrecognized layer type.';
+        return false;
+    }
+    var layer = new ol.layer.Vector({
+        source: new ol.source.Vector(),
+        name: form.displayname.value || 'Unnamed Layer',
+        type: type
+    });
+    this.addBufferIcon(layer);
+    this.map.addLayer(layer);
+    layer.getSource().changed();
+    this.messages.textContent = 'New vector layer created successfully.';
+    return this;
+};
+
+layerTree.prototype.addSelectEvent = function (node, isChild) {
+    var _this = this;
+    node.addEventListener('click', function (evt) {
+        var targetNode = evt.target;
+        if (isChild) {
+            evt.stopPropagation();
+            targetNode = targetNode.parentNode;
+        }
+        if (_this.selectedLayer) {
+            _this.selectedLayer.classList.remove('active');
+        }
+        _this.selectedLayer = targetNode;
+        targetNode.classList.add('active');
+        _this.selectEventEmitter.changed();
+    });
+    return node;
+};
+
+layerTree.prototype.addSelectEvent = function (node, isChild) {
+    var _this = this;
+    node.addEventListener('click', function (evt) {
+        var targetNode = evt.target;
+        if (isChild) {
+            evt.stopPropagation();
+            targetNode = targetNode.parentNode;
+        }
+        if (_this.selectedLayer) {
+            _this.selectedLayer.classList.remove('active');
+        }
+        _this.selectedLayer = targetNode;
+        targetNode.classList.add('active');
+        _this.selectEventEmitter.changed();
+    });
+    return node;
+};
+
+layerTree.prototype.removeRegistry = function (layer) {
+    var layerDiv = document.getElementById(layer.get('id'));
+    this.layerContainer.removeChild(layerDiv);
+    return this;
+};
+
+layerTree.prototype.getLayerById = function (id) {
+    var layers = this.map.getLayers().getArray();
+    for (var i = 0; i < layers.length; i += 1) {
+        if (layers[i].get('id') === id) {
+            return layers[i];
+        }
+    }
+    return false;
+};
+
+layerTree.prototype.stopPropagationOnEvent = function (node, event) {
+    node.addEventListener(event, function (evt) {
+        evt.stopPropagation();
+    });
+    return node;
+};
+
+layerTree.prototype.styleGraduated = function (layer, attribute) {
+    if (layer.get('headers')[attribute] === 'string') {
+        this.messages.textContent = 'A numeric column is required for graduated symbology.';
+    } else {
+        var attributeArray = [];
+        layer.getSource().forEachFeature(function (feat) {
+            attributeArray.push(feat.get(attribute));
+        });
+        var max = Math.max.apply(null, attributeArray);
+        var min = Math.min.apply(null, attributeArray);
+        var step = (max - min) / 5;
+        var colors = this.graduatedColorFactory(5, [254, 240, 217], [179, 0, 0]);
+        layer.setStyle(function (feature, res) {
+            var property = feature.get(attribute);
+            var color = property < min + step * 1 ? colors[0] :
+                property < min + step * 2 ? colors[1] :
+                property < min + step * 3 ? colors[2] :
+                property < min + step * 4 ? colors[3] : colors[4];
+            var style = new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: [0, 0, 0, 1],
+                    width: 1
+                }),
+                fill: new ol.style.Fill({
+                    color: color
+                })
+            });
+            return [style];
+        });
+    }
+};
+
+layerTree.prototype.graduatedColorFactory = function (intervals, rgb1, rgb2) {
+    var colors = [];
+    var step = intervals - 1;
+    var redStep = (rgb2[0] - rgb1[0]) / step;
+    var greenStep = (rgb2[1] - rgb1[1]) / step;
+    var blueStep = (rgb2[2] - rgb1[2]) / step;
+    for (var i = 0; i < step; i += 1) {
+        var red = Math.ceil(rgb1[0] + redStep * i);
+        var green = Math.ceil(rgb1[1] + greenStep * i);
+        var blue = Math.ceil(rgb1[2] + blueStep * i);
+        colors.push([red, green, blue, 1]);
+    }
+    colors.push([rgb2[0], rgb2[1], rgb2[2], 1]);
+    return colors;
+};
+
+layerTree.prototype.styleCategorized = function (layer, attribute) {
+    var attributeArray = [];
+    var colorArray = [];
+    var randomColor;
+    layer.getSource().forEachFeature(function (feat) {
+        var property = feat.get(attribute).toString();
+        if (attributeArray.indexOf(property) === -1) {
+            attributeArray.push(property);
+            do {
+                randomColor = this.randomHexColor();
+            } while (colorArray.indexOf(randomColor) !== -1);
+            colorArray.push(randomColor);
+        }
+    }, this);
+    layer.setStyle(function (feature, res) {
+        var index = attributeArray.indexOf(feature.get(attribute).toString());
+        var style = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: [0, 0, 0, 1],
+                width: 1
+            }),
+            fill: new ol.style.Fill({
+                color: colorArray[index]
+            })
+        });
+        return [style];
+    });
+};
+
+layerTree.prototype.randomHexColor = function() {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+};
+
 var toolBar = function (options) {
     'use strict';
     if (!(this instanceof toolBar)) {
@@ -248,62 +674,235 @@ toolBar.prototype.removeControl = function (control) {
     return this;
 };
 
+ol.control.Interaction = function (opt_options) {
+    var options = opt_options || {};
+    var controlDiv = document.createElement('div');
+    controlDiv.className = options.className || 'ol-unselectable ol-control';
+    var controlButton = document.createElement('button');
+    controlButton.textContent = options.label || 'I';
+    controlButton.title = options.tipLabel || 'Custom interaction';
+    controlDiv.appendChild(controlButton);
+    this.setDisabled = function (bool) {
+        if (typeof bool === 'boolean') {
+            controlButton.disabled = bool;
+            return this;
+        }
+    };
+    var _this = this;
+    controlButton.addEventListener('click', function () {
+        if (_this.get('interaction').getActive()) {
+            _this.set('active', false);
+        } else {
+            _this.set('active', true);
+        }
+    });
+    var interaction = options.interaction;
+    ol.control.Control.call(this, {
+        element: controlDiv,
+        target: options.target
+    });
+    this.setProperties({
+        interaction: interaction,
+        active: false,
+        type: 'toggle',
+        destroyFunction: function (evt) {
+            if (evt.element === _this) {
+                this.removeInteraction(_this.get('interaction'));
+            }
+        }
+    });
+    this.on('change:active', function () {
+        this.get('interaction').setActive(this.get('active'));
+        if (this.get('active')) {
+            controlButton.classList.add('active');
+        } else {
+            controlButton.classList.remove('active');
+        }
+    }, this);
+};
+ol.inherits(ol.control.Interaction, ol.control.Control);
+
+ol.control.Interaction.prototype.setMap = function (map) {
+    ol.control.Control.prototype.setMap.call(this, map);
+    var interaction = this.get('interaction');
+    if (map === null) {
+        ol.Observable.unByKey(this.get('eventId'));
+    } else if (map.getInteractions().getArray().indexOf(interaction) === -1) {
+        map.addInteraction(interaction);
+        interaction.setActive(false);
+        this.set('eventId', map.getControls().on('remove', this.get('destroyFunction'), map));
+    }
+};
+
+toolBar.prototype.addSelectControls = function () {
+    var layertree = this.layertree;
+    var selectInteraction = new ol.interaction.Select({
+        layers: function (layer) {
+            if (layertree.selectedLayer) {
+                if (layer === layertree.getLayerById(layertree.selectedLayer.id)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    });
+    var selectSingle = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Select feature',
+        className: 'ol-singleselect ol-unselectable ol-control',
+        interaction: selectInteraction
+    });
+    var boxInteraction = new ol.interaction.DragBox();
+    var selectMulti = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Select features with a box',
+        className: 'ol-multiselect ol-unselectable ol-control',
+        interaction: boxInteraction
+    });
+    boxInteraction.on('boxend', function (evt) {
+        selectInteraction.getFeatures().clear();
+        var extent = boxInteraction.getGeometry().getExtent();
+        if (this.layertree.selectedLayer) {
+            var source = layertree.getLayerById(layertree.selectedLayer.id).getSource();
+            if (source instanceof ol.source.Vector) {
+                source.forEachFeatureIntersectingExtent(extent, function (feature) {
+                    selectInteraction.getFeatures().push(feature);
+                });
+            }
+        }
+    }, this);
+    var controlDiv = document.createElement('div');
+    controlDiv.className = 'ol-deselect ol-unselectable ol-control';
+    var controlButton = document.createElement('button');
+    controlButton.title = 'Remove selection(s)';
+    controlDiv.appendChild(controlButton);
+    controlButton.addEventListener('click', function () {
+        selectInteraction.getFeatures().clear();
+    });
+    var deselectControl = new ol.control.Control({
+        element: controlDiv
+    });
+    this.addControl(selectSingle)
+        .addControl(selectMulti)
+        .addControl(deselectControl);
+    return this;
+};
+
+toolBar.prototype.addDrawToolBar = function () {
+    var layertree = this.layertree;
+    this.drawControls = new ol.Collection();
+    var drawAOR = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add AOR',
+        className: 'draw-aor ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+    }).setDisabled(true);
+    this.drawControls.push(drawAOR);
+    var drawBuilding = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add Building',
+        className: 'draw-building ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+    }).setDisabled(true);
+    this.drawControls.push(drawBuilding);
+    var drawHerbage = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add Herbage',
+        className: 'draw-herbage ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+    }).setDisabled(true);
+    this.drawControls.push(drawHerbage);
+    var drawWater = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add Water',
+        className: 'draw-water ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+    }).setDisabled(true);
+    this.drawControls.push(drawWater);
+    var drawWall = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add Wall',
+        className: 'draw-wall ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
+    }).setDisabled(true);
+    this.drawControls.push(drawWall);
+    var drawRoad = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add Road',
+        className: 'draw-road ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
+    }).setDisabled(true);
+    this.drawControls.push(drawRoad);
+
+    this.activeFeatures = new ol.Collection();
+
+    layertree.selectEventEmitter.on('change', function () {
+        var layer = layertree.getLayerById(layertree.selectedLayer.id);
+        if (layer instanceof ol.layer.Vector) {
+            this.drawControls.forEach(function (control) {
+                control.setDisabled(false);
+            });
+            var layerType = layer.get('type');
+            if (layerType !== 'point' && layerType !== 'geomcollection') drawPoint.setDisabled(true).set('active', false);
+            if (layerType !== 'line' && layerType !== 'geomcollection') drawLine.setDisabled(true).set('active', false);
+            if (layerType !== 'polygon' && layerType !== 'geomcollection') drawPolygon.setDisabled(true).set('active', false);
+            var _this = this;
+            setTimeout(function () {
+                _this.activeFeatures.clear();
+                _this.activeFeatures.extend(layer.getSource().getFeatures());
+            }, 0);
+        } else {
+            this.drawControls.forEach(function (control) {
+                control.set('active', false);
+                control.setDisabled(true);
+            });
+        }
+    }, this);
+    this.addControl(drawAOR).addControl(drawBuilding).addControl(drawHerbage)
+        .addControl(drawWater).addControl(drawWall).addControl(drawRoad);
+    return this;
+};
+
+toolBar.prototype.handleEvents = function (interaction, type) {
+    if (type !== 'point') {
+        interaction.on('drawstart', function (evt) {
+            var error = false;
+            if (this.layertree.selectedLayer) {
+                var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+                var layerType = selectedLayer.get('type');
+                error = (layerType !== type && layerType !== 'geomcollection') ? true : false;
+            } else {
+                error = true;
+            }
+            if (error) {
+                interaction.finishDrawing();
+            }
+        }, this);
+    }
+    interaction.on('drawend', function (evt) {
+        var error = '';
+        errorcheck: if (this.layertree.selectedLayer) {
+            var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+            error = selectedLayer instanceof ol.layer.Vector ? '' : 'Please select a valid vector layer.';
+            if (error) break errorcheck;
+            var layerType = selectedLayer.get('type');
+            error = (layerType === type || layerType === 'geomcollection') ? '' : 'Selected layer has a different vector type.';
+        } else {
+            error = 'Please select a layer first.';
+        }
+        if (! error) {
+            selectedLayer.getSource().addFeature(evt.feature);
+            this.activeFeatures.push(evt.feature);
+        } else {
+            this.layertree.messages.textContent = error;
+        }
+    }, this);
+    return interaction;
+};
+
 
 function init() {
     document.removeEventListener('DOMContentLoaded', init);
-
-    function exists(x) {
-        return (x !== undefined && x !== null);
-    }
-    function toRad(x) {
-        return x*Math.PI/180.0
-    };
-    function toInt(x) {
-        return ~~x
-    };
-    function mod(n, m) {
-        return ((n % m) + m) % m
-    };
-
-    var FID = (function() {
-        /**
-         * Feature Id Generator based on
-         * Linear Congruential Generator
-         *Variant of a Lehman Generator
-         *m is chosen to be large (as it is the max period)
-         *and for its relationships to a and c
-         *Make sure...
-         *1: a - 1 is divisible by all prime factors of m.
-         *2: a - 1 is divisible by 4 if m is divisible by 4.
-         *3: m and c are co-prime (i.e. No prime number divides both m and c).
-         */
-        var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", // candidate char values
-            chlength = chars.length, // number of candidate characters.
-            idlength = 4, // number of chars to be put in the Id tag.
-            idtag = "", // string to hold the id tag.
-            t = 0, // dummy variable used in gen function.
-            m = 14776336, // chars.length ** idlength --> 62**4
-            a = 476657, // 62**3 + 1
-            c = 1013904223, // offset. (prime number much larger than m.)
-            z = seed = Math.round(Math.random() * m); // default random seed,
-        return {
-            setSeed: function(val) {
-                z = seed = exists(val) ? val : Math.round(Math.random() * m);
-            },
-            getSeed: function() {
-                return seed;
-            },
-            gen: function() {
-                idtag = "";
-                z = (a * z + c) % m;
-                for (i = 0; i < idlength; i++) {
-                    t = Math.floor(z / Math.pow(chlength, i)) % chlength;
-                    idtag += chars.charAt(t);
-                }
-                return idtag;
-            }
-        }
-    })();
 
     var tobjectColors = {
         'AOR': [0, 0, 0],
@@ -325,7 +924,6 @@ function init() {
     };
     var highlight;
     var highlightStyleCache = {};
-
     var tobjectsStyleFunction = (function() {
         var strokeopacity = 1;
         var setStyle = function(type) {
@@ -380,13 +978,6 @@ function init() {
 
     var bingkey = 'AsPHemiyjrAaLwkdh3DLil_xdTJN7QFGPaOi9-a4sf8hbAwA3Z334atxK8GxYcxy';
 
-    var deg2tile = function(lon_deg, lat_deg, zoom) {
-        var lat_rad = toRad(lat_deg);
-        var n = Math.pow(2, zoom);
-        var xtile = toInt(mod((lon_deg + 180.0) / 360.0, 1) * n);
-        var ytile = toInt((1.0 - Math.log(Math.tan(lat_rad) + (1 / Math.cos(lat_rad))) / Math.PI) / 2.0 * n);
-        return [xtile, ytile]
-    };
     var mouseProjection = 'EPSG:4326';
     var mousePrecision = 4;
     var view = new ol.View({
@@ -423,7 +1014,7 @@ function init() {
         }),
         ol.source.OSM.ATTRIBUTION
     ];
-
+    
     var map = new ol.Map({
         interactions: ol.interaction.defaults({ doubleClickZoom: false }),
         target: document.getElementById('map'),
@@ -671,8 +1262,6 @@ function init() {
     // };
 
     var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
-        // .createRegistry(map.getLayers().item(0))
-        // .createRegistry(map.getLayers().item(1));
 
     var tools = new toolBar({
         map: map,
@@ -680,6 +1269,8 @@ function init() {
         layertree: tree
     });
 
+    // tools.addSelectControls();
+    tools.addDrawToolBar();
 
     document.getElementById('checkwmslayer').addEventListener('click', function () {
         tree.checkWmsLayer(this.form);
@@ -698,34 +1289,44 @@ function init() {
         tree.addWfsLayer(this);
         this.parentNode.style.display = 'none';
     });
+    document.getElementById('addvector_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.addVectorLayer(this);
+        this.parentNode.style.display = 'none';
+    });
+    document.getElementById('newvector_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.newVectorLayer(this);
+        this.parentNode.style.display = 'none';
+    });
 
-    var vector_aor = new ol.layer.Vector({
-        title: 'AOR',
-        name: 'AOR',
-        type: 'vector',
-        source: new ol.source.Vector(),
-        style: tobjectsStyleFunction
-    });
-    var vector = new ol.layer.Vector({
-        title: 'tobjects',
-        name: 'tobjects',
-        type: 'vector',
-        source: new ol.source.Vector(),
-        style: tobjectsStyleFunction
-    });
-    var projectGroup = new ol.layer.Group({
-        title: 'Project',
-        layers: [
-            // layerVector,
-            vector_aor,
-            vector
-        ]
-    });
-    map.addLayer(projectGroup);
+    // var vector_aor = new ol.layer.Vector({
+    //     title: 'AOR',
+    //     name: 'AOR',
+    //     type: 'vector',
+    //     source: new ol.source.Vector(),
+    //     style: tobjectsStyleFunction
+    // });
+    // var vector = new ol.layer.Vector({
+    //     title: 'tobjects',
+    //     name: 'tobjects',
+    //     type: 'vector',
+    //     source: new ol.source.Vector(),
+    //     style: tobjectsStyleFunction
+    // });
+    // var projectGroup = new ol.layer.Group({
+    //     title: 'Project',
+    //     layers: [
+    //         // layerVector,
+    //         vector_aor,
+    //         vector
+    //     ]
+    // });
+    // map.addLayer(projectGroup);
 
     var featureOverlay = new ol.layer.Vector({
         source: new ol.source.Vector(),
-        //map: map,
+        type: 'overlay',
         style: overlayStyleFunction
     });
     map.addLayer(featureOverlay);
@@ -761,7 +1362,6 @@ function init() {
         });
         return exists(feature) ? feature : smallestFeature;
     };
-
     var setMouseCursor = function(feature) {
         if (feature) {
             map.getTarget().style.cursor = 'pointer';
@@ -769,7 +1369,6 @@ function init() {
             map.getTarget().style.cursor = '';
         }
     };
-
     var displayFeatureInfo = function(feature) {
         if (feature !== highlight) {
             if (highlight) {
@@ -781,7 +1380,6 @@ function init() {
             highlight = feature;
         }
     };
-
     var hoverDisplay = function(evt) {
         if (evt.dragging) return;
         var pixel = map.getEventPixel(evt.originalEvent);
@@ -864,7 +1462,7 @@ function init() {
             //translate.setActive(false);
             $('#drawhole').prop('disabled', true);
             console.log('deselect:', feature.get('name'), feature.getRevision());
-        };
+        }
         if (evt.selected.length == 1) {
             feature = evt.selected[0]
             // info.innerHTML = feature.get('type') + ': ' + feature.get('name');
@@ -877,7 +1475,7 @@ function init() {
                 $('#drawhole').prop('disabled', true);
             }
             console.log('select:    ', feature.get('name'), feature.getRevision())
-        };
+        }
     });
 
     /*********** MODIFY ************/
@@ -904,221 +1502,221 @@ function init() {
     */
 
     /********** DRAW ***************/
-    var draw;
-    var drawType = document.getElementById('draw-feature-type');
-    drawType.onclick = function(event) {
-        if (draw) {
-            map.removeInteraction(draw)
-        };
-        map.un('pointermove', hoverDisplay);
-        var selectedFeature = select.getFeatures();
-        selectedFeature.forEach(selectedFeature.remove, selectedFeature);
-        $('#drawhole').prop('disabled', true);
-        //translate.setActive(false);
-        //modify.setActive(false);
-        select.setActive(false);
-        var geom_type = event.target.value;
-        var tobj_type = event.target.id;
-        var source = tobj_type === 'AOR' ? vector_aor.getSource() : vector.getSource();
-        draw = new ol.interaction.Draw({
-            source: source,
-            type: geom_type,
-        });
-        map.addInteraction(draw);
-
-        $(document).on('keyup', function(evt) {
-            if (evt.keyCode == 189 || evt.keyCode == 109) {
-                draw.removeLastPoint();
-            } else if (evt.keyCode == 27) {
-                map.removeInteraction(draw);
-                select.setActive(true);
-                //modify.setActive(true);
-                //translate.setActive(true);
-                //$('#drawhole').prop('disabled', false);
-                map.on('pointermove', hoverDisplay);
-                $(document).off('keyup')
-            }
-        });
-        draw.on('drawend', function(evt) {
-            evt.feature.setId(FID.gen());
-            evt.feature.set('type', tobj_type);
-            evt.feature.set('name', evt.feature.getId());
-            selectedFeature.push(evt.feature);
-
-            // transactWFS('insert', evt.feature);
-
-            map.removeInteraction(draw);
-            select.setActive(true);
-            //$('#drawhole').prop('disabled', false);
-            map.on('pointermove', hoverDisplay);
-            // info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
-            featureadded = true;
-            // source.once('addfeature', function(evt) {
-            //     var parser = new ol.format.GeoJSON();
-            //     var features = source.getFeatures();
-            //     var featuresGeoJSON = parser.writeFeatures(features, {
-            //         featureProjection: 'EPSG:3857',
-            //     });
-            //     console.log(featuresGeoJSON)
-            //     $.ajax({
-            //         url: 'test_project/features.geojson', // what about aor?
-            //         type: 'POST',
-            //         data: featuresGeoJSON
-            //     }).then(function(response) {
-            //         console.log(response);
-            //     });
-            // });
-            $(document).off('keyup')
-        });
-    };
+    // var draw;
+    // var drawType = document.getElementById('draw-feature-type');
+    // drawType.onclick = function(event) {
+    //     if (draw) {
+    //         map.removeInteraction(draw)
+    //     }
+    //     map.un('pointermove', hoverDisplay);
+    //     var selectedFeature = select.getFeatures();
+    //     selectedFeature.forEach(selectedFeature.remove, selectedFeature);
+    //     $('#drawhole').prop('disabled', true);
+    //     //translate.setActive(false);
+    //     //modify.setActive(false);
+    //     select.setActive(false);
+    //     var geom_type = event.target.value;
+    //     var tobj_type = event.target.id;
+    //     var source = tobj_type === 'AOR' ? vector_aor.getSource() : vector.getSource();
+    //     draw = new ol.interaction.Draw({
+    //         source: source,
+    //         type: geom_type
+    //     });
+    //     map.addInteraction(draw);
+    //
+    //     $(document).on('keyup', function(evt) {
+    //         if (evt.keyCode == 189 || evt.keyCode == 109) {
+    //             draw.removeLastPoint();
+    //         } else if (evt.keyCode == 27) {
+    //             map.removeInteraction(draw);
+    //             select.setActive(true);
+    //             //modify.setActive(true);
+    //             //translate.setActive(true);
+    //             //$('#drawhole').prop('disabled', false);
+    //             map.on('pointermove', hoverDisplay);
+    //             $(document).off('keyup')
+    //         }
+    //     });
+    //     draw.on('drawend', function(evt) {
+    //         evt.feature.setId(FID.gen());
+    //         evt.feature.set('type', tobj_type);
+    //         evt.feature.set('name', evt.feature.getId());
+    //         selectedFeature.push(evt.feature);
+    //
+    //         // transactWFS('insert', evt.feature);
+    //
+    //         map.removeInteraction(draw);
+    //         select.setActive(true);
+    //         //$('#drawhole').prop('disabled', false);
+    //         map.on('pointermove', hoverDisplay);
+    //         // info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
+    //         featureadded = true;
+    //         // source.once('addfeature', function(evt) {
+    //         //     var parser = new ol.format.GeoJSON();
+    //         //     var features = source.getFeatures();
+    //         //     var featuresGeoJSON = parser.writeFeatures(features, {
+    //         //         featureProjection: 'EPSG:3857',
+    //         //     });
+    //         //     console.log(featuresGeoJSON)
+    //         //     $.ajax({
+    //         //         url: 'test_project/features.geojson', // what about aor?
+    //         //         type: 'POST',
+    //         //         data: featuresGeoJSON
+    //         //     }).then(function(response) {
+    //         //         console.log(response);
+    //         //     });
+    //         // });
+    //         $(document).off('keyup')
+    //     });
+    // };
 
     /********** DRAW HOLE **********/
-    var holeStyle = [
-        new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(0, 0, 0, 0.8)',
-                lineDash: [10, 10],
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0)'
-            })
-        }),
-        new ol.style.Style({
-            image: new ol.style.RegularShape({
-                fill: new ol.style.Fill({
-                    color: 'rgba(255, 0, 0, 0.5)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'black',
-                    width: 1
-                }),
-                points: 4,
-                radius: 6,
-                angle: Math.PI / 4
-            })
-        })
-    ];
-
-    document.getElementById('drawhole').onclick = function() {
-        var selFeat = select.getFeatures();
-        // Clone and original selected geometry so we can test new vertex points against it in the geometryFunction.
-        var selFeatGeom = selFeat.getArray()[0].getGeometry().clone();
-        var geomTypeSelected = selFeat.getArray()[0].getGeometry().getType();
-        if (geomTypeSelected != "Polygon") {
-        // if (geomTypeSelected.search("Polygon") < 0) {
-            alert("Only Polygon (or MultiPolygon) geometry selections. Not " + geomTypeSelected);
-            return;
-        }
-
-        var isMultiPolygon = geomTypeSelected == "MultiPolygon";
-        var vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
-
-        //create a hole draw interaction
-        source = new ol.source.Vector()
-        var holeDraw = new ol.interaction.Draw({
-            source: source,
-            type: 'Polygon',
-            style: holeStyle,
-            //add the geometry function in order to disable hole creation outside selected polygon
-            geometryFunction: function(coords, geom) {
-                var retGeom; //define the geometry to return
-                if (typeof(geom) !== 'undefined') { //if it is defined, set its coordinates
-                    geom.setCoordinates(coords);
-                } else {
-                    retGeom = new ol.geom.Polygon(coords);
-                }
-                if (coords[0].length > vertsCouter) { //this is the case where new vertex has been drawn
-                    //check if vertex drawn is within the "original" selected polygon
-                    var isIn = isPointInPoly(selFeatGeom, coords[0][coords[0].length - 1]);
-                    //if outside get rid of it
-                    if (isIn !== true) {
-                        coords[0].pop(); //remove the last coordinate element
-                        retGeom = new ol.geom.Polygon(coords); //reconstruct the geometry
-                    }
-                    vertsCouter = coords[0].length; //reset the length of vertex counter
-                }
-                return retGeom;
-            }
-        });
-
-        map.un('pointermove', hoverDisplay);
-        select.setActive(false);
-        modify.setActive(false);
-        map.addInteraction(holeDraw);
-
-        holeDraw.on('drawstart', function(evt) {
-            var feature = evt.feature; // the hole feature
-            var ringAdded = false; //init boolen var to clarify whether drawn hole has already been added or not
-            //set the change feature listener so we get the hole like visual effect
-            feature.on('change', function(e) {
-                //get draw hole feature geometry
-                var drawCoords = feature.getGeometry().getCoordinates(false)[0];
-                //if hole has more than two cordinate pairs, add the interior ring to feature
-                if (drawCoords.length > 2) {
-                    //if interior ring has not been added yet, append it and set it as true
-                    if (ringAdded === false) {
-                        selFeat.getArray()[0].getGeometry().appendLinearRing(
-                            new ol.geom.LinearRing(feature.getGeometry().getCoordinates(false)[0]));
-                        ringAdded = true;
-                    } else { //if interior ring has already been added we need to remove it and add back the updated one
-                        var setCoords = selFeat.getArray()[0].getGeometry().getCoordinates();
-                        setCoords.pop(); //pop the dirty hole
-                        setCoords.push(feature.getGeometry().getCoordinates(false)[0]); //push the updated hole
-                        selFeat.getArray()[0].getGeometry().setCoordinates(setCoords); //update selFeat with new geometry
-                    }
-                }
-            });
-        });
-
-        $(document).on('keyup', function(evt) {
-            if (evt.keyCode == 189 || evt.keyCode == 109) {
-                holeDraw.removeLastPoint();
-            } else if (evt.keyCode == 27) {
-                selFeat.getArray()[0].getGeometry().setCoordinates(selFeatGeom.getCoordinates());
-                map.removeInteraction(holeDraw);
-                select.setActive(true);
-                //modify.setActive(true);
-                //translate.setActive(true);
-                //$('#drawhole').prop('disabled', false);
-                map.on('pointermove', hoverDisplay);
-                $(document).off('keyup')
-            }
-        });
-
-        //create a listener when finish drawing and so remove the hole interaction
-        holeDraw.on('drawend', function(evt) {
-
-            var rings = selFeat.getArray()[0].getGeometry().getCoordinates();
-            holecoords = rings.pop();
-
-            if (doesPolyCoverHole(selFeatGeom, holecoords)) {
-                source.once('addfeature', function(e) {
-                    var featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
-                        selFeat.getArray(), {
-                            featureProjection: 'EPSG:3857',
-                        }
-                    );
-                    console.log(featuresGeoJSON)
-                })
-            } else {
-                selFeat.getArray()[0].getGeometry().setCoordinates(rings);
-            };
-
-            map.removeInteraction(holeDraw);
-            //reinitialise modify interaction. If you don't do that, holes may not be modifed
-            modify.setActive(true);
-            /*map.removeInteraction(modify);
-            modify = new ol.interaction.Modify({
-                features: selFeat
-            });
-            map.addInteraction(modify);
-            */
-            select.setActive(true);
-            map.on('pointermove', hoverDisplay);
-            $(document).off('keyup')
-        })
-    };
+    // var holeStyle = [
+    //     new ol.style.Style({
+    //         stroke: new ol.style.Stroke({
+    //             color: 'rgba(0, 0, 0, 0.8)',
+    //             lineDash: [10, 10],
+    //             width: 3
+    //         }),
+    //         fill: new ol.style.Fill({
+    //             color: 'rgba(255, 255, 255, 0)'
+    //         })
+    //     }),
+    //     new ol.style.Style({
+    //         image: new ol.style.RegularShape({
+    //             fill: new ol.style.Fill({
+    //                 color: 'rgba(255, 0, 0, 0.5)'
+    //             }),
+    //             stroke: new ol.style.Stroke({
+    //                 color: 'black',
+    //                 width: 1
+    //             }),
+    //             points: 4,
+    //             radius: 6,
+    //             angle: Math.PI / 4
+    //         })
+    //     })
+    // ];
+    //
+    // document.getElementById('drawhole').onclick = function() {
+    //     var selFeat = select.getFeatures();
+    //     // Clone and original selected geometry so we can test new vertex points against it in the geometryFunction.
+    //     var selFeatGeom = selFeat.getArray()[0].getGeometry().clone();
+    //     var geomTypeSelected = selFeat.getArray()[0].getGeometry().getType();
+    //     if (geomTypeSelected != "Polygon") {
+    //     // if (geomTypeSelected.search("Polygon") < 0) {
+    //         alert("Only Polygon (or MultiPolygon) geometry selections. Not " + geomTypeSelected);
+    //         return;
+    //     }
+    //
+    //     var isMultiPolygon = geomTypeSelected == "MultiPolygon";
+    //     var vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
+    //
+    //     //create a hole draw interaction
+    //     source = new ol.source.Vector()
+    //     var holeDraw = new ol.interaction.Draw({
+    //         source: source,
+    //         type: 'Polygon',
+    //         style: holeStyle,
+    //         //add the geometry function in order to disable hole creation outside selected polygon
+    //         geometryFunction: function(coords, geom) {
+    //             var retGeom; //define the geometry to return
+    //             if (typeof(geom) !== 'undefined') { //if it is defined, set its coordinates
+    //                 geom.setCoordinates(coords);
+    //             } else {
+    //                 retGeom = new ol.geom.Polygon(coords);
+    //             }
+    //             if (coords[0].length > vertsCouter) { //this is the case where new vertex has been drawn
+    //                 //check if vertex drawn is within the "original" selected polygon
+    //                 var isIn = isPointInPoly(selFeatGeom, coords[0][coords[0].length - 1]);
+    //                 //if outside get rid of it
+    //                 if (isIn !== true) {
+    //                     coords[0].pop(); //remove the last coordinate element
+    //                     retGeom = new ol.geom.Polygon(coords); //reconstruct the geometry
+    //                 }
+    //                 vertsCouter = coords[0].length; //reset the length of vertex counter
+    //             }
+    //             return retGeom;
+    //         }
+    //     });
+    //
+    //     map.un('pointermove', hoverDisplay);
+    //     select.setActive(false);
+    //     modify.setActive(false);
+    //     map.addInteraction(holeDraw);
+    //
+    //     holeDraw.on('drawstart', function(evt) {
+    //         var feature = evt.feature; // the hole feature
+    //         var ringAdded = false; //init boolen var to clarify whether drawn hole has already been added or not
+    //         //set the change feature listener so we get the hole like visual effect
+    //         feature.on('change', function(e) {
+    //             //get draw hole feature geometry
+    //             var drawCoords = feature.getGeometry().getCoordinates(false)[0];
+    //             //if hole has more than two cordinate pairs, add the interior ring to feature
+    //             if (drawCoords.length > 2) {
+    //                 //if interior ring has not been added yet, append it and set it as true
+    //                 if (ringAdded === false) {
+    //                     selFeat.getArray()[0].getGeometry().appendLinearRing(
+    //                         new ol.geom.LinearRing(feature.getGeometry().getCoordinates(false)[0]));
+    //                     ringAdded = true;
+    //                 } else { //if interior ring has already been added we need to remove it and add back the updated one
+    //                     var setCoords = selFeat.getArray()[0].getGeometry().getCoordinates();
+    //                     setCoords.pop(); //pop the dirty hole
+    //                     setCoords.push(feature.getGeometry().getCoordinates(false)[0]); //push the updated hole
+    //                     selFeat.getArray()[0].getGeometry().setCoordinates(setCoords); //update selFeat with new geometry
+    //                 }
+    //             }
+    //         });
+    //     });
+    //
+    //     $(document).on('keyup', function(evt) {
+    //         if (evt.keyCode == 189 || evt.keyCode == 109) {
+    //             holeDraw.removeLastPoint();
+    //         } else if (evt.keyCode == 27) {
+    //             selFeat.getArray()[0].getGeometry().setCoordinates(selFeatGeom.getCoordinates());
+    //             map.removeInteraction(holeDraw);
+    //             select.setActive(true);
+    //             //modify.setActive(true);
+    //             //translate.setActive(true);
+    //             //$('#drawhole').prop('disabled', false);
+    //             map.on('pointermove', hoverDisplay);
+    //             $(document).off('keyup')
+    //         }
+    //     });
+    //
+    //     //create a listener when finish drawing and so remove the hole interaction
+    //     holeDraw.on('drawend', function(evt) {
+    //
+    //         var rings = selFeat.getArray()[0].getGeometry().getCoordinates();
+    //         holecoords = rings.pop();
+    //
+    //         if (doesPolyCoverHole(selFeatGeom, holecoords)) {
+    //             source.once('addfeature', function(e) {
+    //                 var featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
+    //                     selFeat.getArray(), {
+    //                         featureProjection: 'EPSG:3857'
+    //                     }
+    //                 );
+    //                 console.log(featuresGeoJSON)
+    //             })
+    //         } else {
+    //             selFeat.getArray()[0].getGeometry().setCoordinates(rings);
+    //         };
+    //
+    //         map.removeInteraction(holeDraw);
+    //         //reinitialise modify interaction. If you don't do that, holes may not be modifed
+    //         modify.setActive(true);
+    //         /*map.removeInteraction(modify);
+    //         modify = new ol.interaction.Modify({
+    //             features: selFeat
+    //         });
+    //         map.addInteraction(modify);
+    //         */
+    //         select.setActive(true);
+    //         map.on('pointermove', hoverDisplay);
+    //         $(document).off('keyup')
+    //     })
+    // };
 
     /**
      * check whether the point consists of pointcoords is inside the supplied polygon geometry
@@ -1162,29 +1760,26 @@ function init() {
         return geomA.covers(geomB);
     }
 
-    var iconFeature = new ol.Feature({
-        geometry: new ol.geom.Point([0, 0]),
-        name: 'Camera',
-        maxRange: 4000,
-        minRange: 500,
-        sourceHeight: 3,
-        targetHeight: 3
-    });
-
-    var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [0.5, 46],
-            anchorXUnits: 'fraction',
-            anchorYUnits: 'pixels',
-            src: 'resources/camera-normal.png'
-        })
-    });
-
-    iconFeature.setStyle(iconStyle);
-
-    var vectorSource = new ol.source.Vector({
-        features: [iconFeature]
-    });
+    // var iconFeature = new ol.Feature({
+    //     geometry: new ol.geom.Point([0, 0]),
+    //     name: 'Camera',
+    //     maxRange: 4000,
+    //     minRange: 500,
+    //     sourceHeight: 3,
+    //     targetHeight: 3
+    // });
+    // var iconStyle = new ol.style.Style({
+    //     image: new ol.style.Icon({
+    //         anchor: [0.5, 46],
+    //         anchorXUnits: 'fraction',
+    //         anchorYUnits: 'pixels',
+    //         src: 'resources/camera-normal.png'
+    //     })
+    // });
+    // iconFeature.setStyle(iconStyle);
+    // var vectorSource = new ol.source.Vector({
+    //     features: [iconFeature]
+    // });
 
     // var loadProject = document.getElementById('loadProject');
     // loadProject.onclick = function(e) {
@@ -1270,7 +1865,7 @@ function init() {
 
     /********** SCALELINE **********/
     var scaleLineControl = new ol.control.ScaleLine({
-        className: 'ol-scale-line ol-scale-line-inner text-stroke',
+        // className: 'ol-scale-line ol-scale-line-inner text-stroke',
     });
     map.addControl(scaleLineControl);
 

@@ -3,8 +3,8 @@
     <head>
         <title>ASPE practice template</title>
         <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
+        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
         <script src="./js/ol3-3.13.1/ol-debug.js"></script>
         <link rel="stylesheet" href="./js/ol3-3.13.1/ol.css" type="text/css">
         <script src="./js/jsts-0.17.0/javascript.util.min.js"></script>
@@ -16,18 +16,18 @@
         <div class="map-container">
             <div id="sidebar" class="sidebar">
                 <div id="toolbar" class="toolbar">
-                    <div id="draw-feature-type" class="ol-unselectable ol-control">
+                    <!--<div id="draw-feature-type" class="ol-unselectable ol-control">-->
                         <!--<button id="loadProject">L</button>-->
-                        <button class="ol-unselectable ol-control draw-aor" id="AOR" value="Polygon"></button>
-                        <button class="ol-unselectable ol-control draw-building" id="Building" value="Polygon"></button>
-                        <button class="ol-unselectable ol-control draw-herbage" id="Herbage" value="Polygon"></button>
-                        <button class="ol-unselectable ol-control draw-water" id="Water" value="Polygon"></button>
-                        <button class="ol-unselectable ol-control draw-wall" id="Wall" value="LineString"></button>
-                        <button class="ol-unselectable ol-control draw-road" id="Road" value="LineString"></button>
-                    </div>
-                    <div class="ol-unselectable ol-control">
-                        <button class="ol-unselectable ol-control" id="drawhole" disabled="disabled">H</button>
-                    </div>
+                        <!--<button class="ol-unselectable ol-control draw-aor" id="AOR" value="Polygon"></button>-->
+                        <!--<button class="ol-unselectable ol-control draw-building" id="Building" value="Polygon"></button>-->
+                        <!--<button class="ol-unselectable ol-control draw-herbage" id="Herbage" value="Polygon"></button>-->
+                        <!--<button class="ol-unselectable ol-control draw-water" id="Water" value="Polygon"></button>-->
+                        <!--<button class="ol-unselectable ol-control draw-wall" id="Wall" value="LineString"></button>-->
+                        <!--<button class="ol-unselectable ol-control draw-road" id="Road" value="LineString"></button>-->
+                    <!--</div>-->
+                    <!--<div class="ol-unselectable ol-control">-->
+                        <!--<button class="ol-unselectable ol-control" id="drawhole" disabled="disabled">H</button>-->
+                    <!--</div>-->
                     <!--<div id="draw-sensor-type" class="ol-unselectable ol-control">-->
                         <!--<button class="draw-camera" id="Camera" value="Point"></button>-->
                         <!--<button class="draw-radio" id="Radio" value="Point"></button>-->
@@ -121,6 +121,62 @@
                     <tr>
                         <td>Projection:</td>
                         <td><input name="projection" type="text" value="EPSG:4326"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" value="Add layer"></td>
+                        <td><input type="button" value="Cancel" onclick="this.form.parentNode.style.display = 'none'"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="addvector" class="toggleable" style="display: none;">
+            <form id="addvector_form" class="addlayer">
+                <p>Add Vector layer</p>
+                <table>
+                    <tr>
+                        <td>Vector file:</td>
+                        <td><input name="file" type="file" required="required"></td>
+                    </tr>
+                    <tr>
+                        <td>Display name:</td>
+                        <td><input name="displayname" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td>Format:</td>
+                        <td><select name="format" required="required">
+                            <option value="geojson">GeoJSON</option>
+                            <option value="topojson">TopoJSON</option>
+                            <option value="kml">KML</option>
+                            <option value="osm">OSM</option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td>Projection:</td>
+                        <td><input name="projection" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" value="Add layer"></td>
+                        <td><input type="button" value="Cancel" onclick="this.form.parentNode.style.display = 'none'"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="newvector" class="toggleable" style="display: none;">
+            <form id="newvector_form" class="addlayer">
+                <p>New Vector layer</p>
+                <table>
+                    <tr>
+                        <td>Display name:</td>
+                        <td><input name="displayname" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td>Type:</td>
+                        <td><select name="type" required="required">
+                            <option value="point">Point</option>
+                            <option value="line">Line</option>
+                            <option value="polygon">Polygon</option>
+                            <option value="geomcollection">Geometry Collection</option>
+                        </select></td>
                     </tr>
                     <tr>
                         <td><input type="submit" value="Add layer"></td>
