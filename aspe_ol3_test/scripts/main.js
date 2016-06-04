@@ -751,8 +751,25 @@ ol.control.Interaction = function (opt_options) {
         this.get('interaction').setActive(this.get('active'));
         if (this.get('active')) {
             controlButton.classList.add('active');
+            $(document).on('keyup', function(evt) {
+                if (evt.keyCode == 189 || evt.keyCode == 109) {
+                    _this.get('interaction').removeLastPoint();
+                } else if (evt.keyCode == 27) {
+                    _this.set('active', false);
+                    // map.removeInteraction(draw);
+                    // select.setActive(true);
+                    // modify.setActive(true);
+                    // translate.setActive(true);
+                    // $('#drawhole').prop('disabled', false);
+                    // map.on('pointermove', hoverDisplay);
+                    // $(document).off('keyup')
+                }
+            });
+
         } else {
             controlButton.classList.remove('active');
+            $(document).off('keyup')
+
         }
     }, this);
 };
@@ -954,29 +971,17 @@ toolBar.prototype.addDrawToolBar = function () {
 
 toolBar.prototype.handleEvents = function (interaction, type) {
 
-    $(document).on('keyup', function(evt) {
-        if (evt.keyCode == 189 || evt.keyCode == 109) {
-            interaction.removeLastPoint();
-        // } else if (evt.keyCode == 27) {
-        //     map.removeInteraction(draw);
-        //     select.setActive(true);
-        //     //modify.setActive(true);
-        //     //translate.setActive(true);
-        //     //$('#drawhole').prop('disabled', false);
-        //     map.on('pointermove', hoverDisplay);
-        //     $(document).off('keyup')
-        }
-    });
     interaction.on('drawend', function (evt) {
-        var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
-        selectedLayer.getSource().addFeature(evt.feature);
 
         // evt.feature.set('type', tobj_type);
         // evt.feature.set('name', FID.gen());
+
+        var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+        selectedLayer.getSource().addFeature(evt.feature);
+
         this.activeFeatures.push(evt.feature);
 
         // transactWFS('insert', evt.feature);
-
         // map.removeInteraction(draw);
         // select.setActive(true);
         //$('#drawhole').prop('disabled', false);
@@ -998,7 +1003,7 @@ toolBar.prototype.handleEvents = function (interaction, type) {
         //         console.log(response);
         //     });
         // });
-        $(document).off('keyup')
+
     }, this);
     return interaction;
 };
@@ -1248,6 +1253,7 @@ layerInteractor.prototype.addInteractions = function () {
             // var geom_type = event.target.value;
             // var tobj_type = event.target.id;
             // var source = tobj_type === 'AOR' ? vector_aor.getSource() : vector.getSource();
+
         } else {
             _this.select.setActive(true);
             //$('#drawhole').prop('disabled', false);
