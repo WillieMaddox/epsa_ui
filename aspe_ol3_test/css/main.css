@@ -11,7 +11,7 @@ body {
     display: flex;
 }
 .sidebar {
-    width: 250px;
+    width: 360px;
     height: 100%;
     box-sizing: border-box;
 }
@@ -53,23 +53,32 @@ body {
 .toolbar .ol-control button:disabled:hover {
     background-color: rgba(0,0,0,.2);
 }
+.toolbar .ol-addpoint button {
+    background-image: url(../res/button_addpoint.png);
+}
+.toolbar .ol-addline button {
+    background-image: url(../res/button_addline.png);
+}
+.toolbar .ol-addpolygon button {
+    background-image: url(../res/button_addpolygon.png);
+}
 .toolbar .draw-aor button {
-    background-image: url(../res/biohazard_temp.png);
+    background-image: url(../res/aor_temp.png);
 }
 .toolbar .draw-building button {
     background-image: url(../res/building_temp.png);
 }
 .toolbar .draw-herbage button {
-    background-image: url(../res/herbage_temp.png);
+    background-image: url(../res/herbage2_temp.png);
 }
 .toolbar .draw-water button {
     background-image: url(../res/water_temp.png);
 }
 .toolbar .draw-wall button {
-    background-image: url(../res/radioactive_temp.png);
+    background-image: url(../res/wall_temp.png);
 }
 .toolbar .draw-road button {
-    background-image: url(../res/road_temp.png);
+    background-image: url(../res/road2_temp.png);
 }
 .toolbar .draw-camera button {
     background-image: url(../res/camera-normal.png);
@@ -231,7 +240,7 @@ body {
 	border-color: red;
 }
 .mainwindow {
-    width: calc(100% - 250px);
+    width: calc(100% - 360px);
     height: 100%;
 }
 .mainwindow .map {
@@ -250,7 +259,7 @@ body {
     height: 100%;
     display: table-cell;
     border: 1px solid grey;
-    width: 25%;
+    width: 20%;
     box-sizing: border-box;
     vertical-align: middle;
     text-align: center;
@@ -259,7 +268,7 @@ body {
     position: static;
 }
 .notification-bar .tile {
-    width: 25%;
+    width: 30%;
 }
 .ol-attribution ul {
     font-size: 1em;

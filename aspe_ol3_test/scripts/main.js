@@ -57,6 +57,46 @@ var FID = (function() {
         }
     }
 })();
+/**
+ * check whether the point consists of pointcoords is inside the supplied polygon geometry
+ * @{ol.geometry.Polygon} geom
+ * @{Array()} a two elements array representing the point coordinates
+ * @returns {Boolean} true||false
+ */
+function isPointInPoly(geom, pointcoords) {
+    var geomA = new jsts.io.GeoJSONReader().read(
+        new ol.format.GeoJSON().writeFeatureObject(
+            new ol.Feature({
+                geometry: geom
+            })
+        )
+    ).geometry;
+    var geomB = new jsts.io.GeoJSONReader().read(
+        new ol.format.GeoJSON().writeFeatureObject(
+            new ol.Feature({
+                geometry: new ol.geom.Point(pointcoords)
+            })
+        )
+    ).geometry;
+    return geomB.within(geomA);
+}
+function doesPolyCoverHole(geom, holecoords) {
+    var geomA = new jsts.io.GeoJSONReader().read(
+        new ol.format.GeoJSON().writeFeatureObject(
+            new ol.Feature({
+                geometry: geom
+            })
+        )
+    ).geometry;
+    var geomB = new jsts.io.GeoJSONReader().read(
+        new ol.format.GeoJSON().writeFeatureObject(
+            new ol.Feature({
+                geometry: new ol.geom.Polygon([holecoords])
+            })
+        )
+    ).geometry;
+    return geomA.covers(geomB);
+}
 
 var layerTree = function (options) {
     'use strict';
@@ -239,7 +279,7 @@ var layerTree = function (options) {
     }
 };
 
-layerTree.prototype.createButton = function (elemName, elemTitle, elemType) {
+layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
     var buttonElem = document.createElement('button');
     buttonElem.className = elemName;
     buttonElem.title = elemTitle;
@@ -254,7 +294,6 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType) {
             buttonElem.addEventListener('click', function () {
                 if (_this.selectedLayer) {
                     var layer = _this.getLayerById(_this.selectedLayer.id);
-                    console.log(layer);
                     _this.map.removeLayer(layer);
                     _this.messages.textContent = 'Layer removed successfully.';
                 } else {
@@ -288,6 +327,7 @@ layerTree.prototype.addBufferIcon = function (layer) {
         switch (evt.target.getState()) {
             case 'ready':
                 layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
+                layer.buildHeaders();
                 break;
             case 'error':
                 layerElem.classList.add('error');
@@ -501,26 +541,12 @@ layerTree.prototype.addSelectEvent = function (node, isChild) {
         if (_this.selectedLayer) {
             _this.selectedLayer.classList.remove('active');
         }
-        _this.selectedLayer = targetNode;
-        targetNode.classList.add('active');
-        _this.selectEventEmitter.changed();
-    });
-    return node;
-};
-
-layerTree.prototype.addSelectEvent = function (node, isChild) {
-    var _this = this;
-    node.addEventListener('click', function (evt) {
-        var targetNode = evt.target;
-        if (isChild) {
-            evt.stopPropagation();
-            targetNode = targetNode.parentNode;
+        if (_this.selectedLayer !== targetNode) {
+            _this.selectedLayer = targetNode;
+            _this.selectedLayer.classList.add('active');
+        } else {
+            _this.selectedLayer = null;
         }
-        if (_this.selectedLayer) {
-            _this.selectedLayer.classList.remove('active');
-        }
-        _this.selectedLayer = targetNode;
-        targetNode.classList.add('active');
         _this.selectEventEmitter.changed();
     });
     return node;
@@ -540,6 +566,35 @@ layerTree.prototype.getLayerById = function (id) {
         }
     }
     return false;
+};
+
+layerTree.prototype.getLayerGeomType = function (layer) {
+    if (layer.get('type')) {
+        return layer;
+    }
+    var types = [];
+    layer.getSource().forEachFeature(function (feat) {
+        var geom = feat.getGeometry();
+        var type;
+        if (geom instanceof ol.geom.Point || geom instanceof ol.geom.MultiPoint) {
+            type = 'point';
+        } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
+            type = 'linestring';
+        } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+            type = 'polygon';
+        } else {
+            type = 'geomcollection';
+        }
+        if (types.indexOf(type) === -1) {
+            types.push(type);
+            if (type === 'geomcollection' || types.length >= 2) {
+                return true;
+            }
+        }
+    });
+
+    layer.set('type', types.length === 1 ? types[0] : 'geomcollection');
+    return layer;
 };
 
 layerTree.prototype.stopPropagationOnEvent = function (node, event) {
@@ -601,12 +656,15 @@ layerTree.prototype.styleCategorized = function (layer, attribute) {
     var attributeArray = [];
     var colorArray = [];
     var randomColor;
+    var color = new RColor;
+
     layer.getSource().forEachFeature(function (feat) {
         var property = feat.get(attribute).toString();
         if (attributeArray.indexOf(property) === -1) {
             attributeArray.push(property);
             do {
-                randomColor = this.randomHexColor();
+                // randomColor = this.randomHexColor();
+                randomColor = color.get(true, 0.8);
             } while (colorArray.indexOf(randomColor) !== -1);
             colorArray.push(randomColor);
         }
@@ -627,50 +685,25 @@ layerTree.prototype.styleCategorized = function (layer, attribute) {
 };
 
 layerTree.prototype.randomHexColor = function() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    var num = Math.floor(Math.random() * 16777215).toString(16);
+    return '#' + String.prototype.repeat.call('0', 6 - num.length) + num;
 };
 
-var toolBar = function (options) {
-    'use strict';
-    if (!(this instanceof toolBar)) {
-        throw new Error('toolBar must be constructed with the new keyword.');
-    } else if (typeof options === 'object' && options.map && options.target && options.layertree) {
-        if (!(options.map instanceof ol.Map)) {
-            throw new Error('Please provide a valid OpenLayers 3 map object.');
-        }
-        this.map = options.map;
-        this.toolbar = document.getElementById(options.target);
-        this.layertree = options.layertree;
-        this.controls = new ol.Collection();
-    } else {
-        throw new Error('Invalid parameter(s) provided.');
-    }
-};
-
-toolBar.prototype.addControl = function (control) {
-    if (!(control instanceof ol.control.Control)) {
-        throw new Error('Only controls can be added to the toolbar.');
-    }
-    if (control.get('type') === 'toggle') {
-        control.on('change:active', function () {
-            if (control.get('active')) {
-                this.controls.forEach(function (controlToDisable) {
-                    if (controlToDisable.get('type') === 'toggle' && controlToDisable !== control) {
-                        controlToDisable.set('active', false);
-                    }
-                });
+ol.layer.Vector.prototype.buildHeaders = function () {
+    var oldHeaders = this.get('headers') || {};
+    var headers = {};
+    var features = this.getSource().getFeatures();
+    for (var i = 0; i < features.length; i += 1) {
+        var attributes = features[i].getProperties();
+        for (var j in attributes) {
+            if (typeof attributes[j] !== 'object' && !(j in headers)) {
+                headers[j] = attributes[j];
+            } else if (j in oldHeaders) {
+                headers[j] = oldHeaders[j];
             }
-        }, this);
+        }
     }
-    control.setTarget(this.toolbar);
-    this.controls.push(control);
-    this.map.addControl(control);
-    return this;
-};
-
-toolBar.prototype.removeControl = function (control) {
-    this.controls.remove(control);
-    this.map.removeControl(control);
+    this.set('headers', headers);
     return this;
 };
 
@@ -682,12 +715,7 @@ ol.control.Interaction = function (opt_options) {
     controlButton.textContent = options.label || 'I';
     controlButton.title = options.tipLabel || 'Custom interaction';
     controlDiv.appendChild(controlButton);
-    this.setDisabled = function (bool) {
-        if (typeof bool === 'boolean') {
-            controlButton.disabled = bool;
-            return this;
-        }
-    };
+
     var _this = this;
     controlButton.addEventListener('click', function () {
         if (_this.get('interaction').getActive()) {
@@ -701,10 +729,18 @@ ol.control.Interaction = function (opt_options) {
         element: controlDiv,
         target: options.target
     });
+
+    this.setDisabled = function (bool) {
+        if (typeof bool === 'boolean') {
+            controlButton.disabled = bool;
+            return this;
+        }
+    };
     this.setProperties({
         interaction: interaction,
+        tobj_type: options.tipLabel,
         active: false,
-        type: 'toggle',
+        type: 'radio',
         destroyFunction: function (evt) {
             if (evt.element === _this) {
                 this.removeInteraction(_this.get('interaction'));
@@ -734,63 +770,91 @@ ol.control.Interaction.prototype.setMap = function (map) {
     }
 };
 
-toolBar.prototype.addSelectControls = function () {
-    var layertree = this.layertree;
-    var selectInteraction = new ol.interaction.Select({
-        layers: function (layer) {
-            if (layertree.selectedLayer) {
-                if (layer === layertree.getLayerById(layertree.selectedLayer.id)) {
-                    return true;
-                }
-            }
-            return false;
+var toolBar = function (options) {
+    'use strict';
+    if (!(this instanceof toolBar)) {
+        throw new Error('toolBar must be constructed with the new keyword.');
+    } else if (typeof options === 'object' && options.map && options.target && options.layertree) {
+        if (!(options.map instanceof ol.Map)) {
+            throw new Error('Please provide a valid OpenLayers 3 map object.');
         }
-    });
-    var selectSingle = new ol.control.Interaction({
-        label: ' ',
-        tipLabel: 'Select feature',
-        className: 'ol-singleselect ol-unselectable ol-control',
-        interaction: selectInteraction
-    });
-    var boxInteraction = new ol.interaction.DragBox();
-    var selectMulti = new ol.control.Interaction({
-        label: ' ',
-        tipLabel: 'Select features with a box',
-        className: 'ol-multiselect ol-unselectable ol-control',
-        interaction: boxInteraction
-    });
-    boxInteraction.on('boxend', function (evt) {
-        selectInteraction.getFeatures().clear();
-        var extent = boxInteraction.getGeometry().getExtent();
-        if (this.layertree.selectedLayer) {
-            var source = layertree.getLayerById(layertree.selectedLayer.id).getSource();
-            if (source instanceof ol.source.Vector) {
-                source.forEachFeatureIntersectingExtent(extent, function (feature) {
-                    selectInteraction.getFeatures().push(feature);
+        this.map = options.map;
+        this.toolbar = document.getElementById(options.target);
+        this.layertree = options.layertree;
+        this.controls = new ol.Collection();
+        this.controlEventEmitter = new ol.Observable();
+        this.active = false;
+    } else {
+        throw new Error('Invalid parameter(s) provided.');
+    }
+};
+
+toolBar.prototype.addControl = function (control) {
+    if (!(control instanceof ol.control.Control)) {
+        throw new Error('Only controls can be added to the toolbar.');
+    }
+    // var bit2 = 0;
+    // var bit3 = 0;
+    if (control.get('type') === 'radio') {
+        control.on('change:active', function () {
+            if (!(this.bit2 | this.bit3)) {
+                this.active = true;
+                // console.log('drawing ON = ', this.active);
+                this.controlEventEmitter.changed()
+            }
+            this.bit2 ^= 1;
+            if (control.get('active')) {
+                this.controls.forEach(function (controlToDisable) {
+                    if (controlToDisable.get('type') === 'radio' && controlToDisable !== control) {
+                        controlToDisable.set('active', false);
+                    }
                 });
             }
-        }
-    }, this);
-    var controlDiv = document.createElement('div');
-    controlDiv.className = 'ol-deselect ol-unselectable ol-control';
-    var controlButton = document.createElement('button');
-    controlButton.title = 'Remove selection(s)';
-    controlDiv.appendChild(controlButton);
-    controlButton.addEventListener('click', function () {
-        selectInteraction.getFeatures().clear();
-    });
-    var deselectControl = new ol.control.Control({
-        element: controlDiv
-    });
-    this.addControl(selectSingle)
-        .addControl(selectMulti)
-        .addControl(deselectControl);
+            this.bit3 ^= 1;
+            if (!(this.bit2 | this.bit3)) {
+                this.active = false;
+                // console.log('drawing ON = ', this.active);
+                this.controlEventEmitter.changed()
+            }
+        }, this);
+    }
+    control.setTarget(this.toolbar);
+    this.controls.push(control);
+    this.map.addControl(control);
+    return this;
+};
+
+toolBar.prototype.removeControl = function (control) {
+    this.controls.remove(control);
+    this.map.removeControl(control);
     return this;
 };
 
 toolBar.prototype.addDrawToolBar = function () {
     var layertree = this.layertree;
+
     this.drawControls = new ol.Collection();
+    var drawPoint = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add points',
+        className: 'ol-addpoint ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'point')
+    }).setDisabled(true);
+    this.drawControls.push(drawPoint);
+    var drawLine = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add lines',
+        className: 'ol-addline ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
+    }).setDisabled(true);
+    this.drawControls.push(drawLine);
+    var drawPolygon = new ol.control.Interaction({
+        label: ' ',
+        tipLabel: 'Add polygons',
+        className: 'ol-addpolygon ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+    }).setDisabled(true);
+    this.drawControls.push(drawPolygon);
     var drawAOR = new ol.control.Interaction({
         label: ' ',
         tipLabel: 'Add AOR',
@@ -837,15 +901,34 @@ toolBar.prototype.addDrawToolBar = function () {
     this.activeFeatures = new ol.Collection();
 
     layertree.selectEventEmitter.on('change', function () {
-        var layer = layertree.getLayerById(layertree.selectedLayer.id);
+        var layer;
+        if (layertree.selectedLayer) {
+            layer = layertree.getLayerById(layertree.selectedLayer.id);
+        } else {
+            layer = null;
+        }
+
         if (layer instanceof ol.layer.Vector) {
             this.drawControls.forEach(function (control) {
                 control.setDisabled(false);
             });
+            layertree.getLayerGeomType(layer);
             var layerType = layer.get('type');
-            if (layerType !== 'point' && layerType !== 'geomcollection') drawPoint.setDisabled(true).set('active', false);
-            if (layerType !== 'line' && layerType !== 'geomcollection') drawLine.setDisabled(true).set('active', false);
-            if (layerType !== 'polygon' && layerType !== 'geomcollection') drawPolygon.setDisabled(true).set('active', false);
+            if (layerType !== 'point' && layerType !== 'geomcollection') {
+                drawPoint.setDisabled(true).set('active', false);
+            }
+            if (layerType !== 'line' && layerType !== 'geomcollection') {
+                drawWall.setDisabled(true).set('active', false);
+                drawRoad.setDisabled(true).set('active', false);
+                drawLine.setDisabled(true).set('active', false);
+            }
+            if (layerType !== 'polygon' && layerType !== 'geomcollection') {
+                drawAOR.setDisabled(true).set('active', false);
+                drawWater.setDisabled(true).set('active', false);
+                drawHerbage.setDisabled(true).set('active', false);
+                drawBuilding.setDisabled(true).set('active', false);
+                drawPolygon.setDisabled(true).set('active', false);
+            }
             var _this = this;
             setTimeout(function () {
                 _this.activeFeatures.clear();
@@ -858,100 +941,146 @@ toolBar.prototype.addDrawToolBar = function () {
             });
         }
     }, this);
-    this.addControl(drawAOR).addControl(drawBuilding).addControl(drawHerbage)
-        .addControl(drawWater).addControl(drawWall).addControl(drawRoad);
+
+    this.drawControls.forEach(function (control) {
+        this.addControl(control)
+    }, this);
+
+    // this.addControl(drawAOR).addControl(drawBuilding).addControl(drawHerbage)
+    //     .addControl(drawWater).addControl(drawWall).addControl(drawRoad)
+    //     .addControl(drawPolygon).addControl(drawLine).addControl(drawPoint);
     return this;
 };
 
 toolBar.prototype.handleEvents = function (interaction, type) {
-    if (type !== 'point') {
-        interaction.on('drawstart', function (evt) {
-            var error = false;
-            if (this.layertree.selectedLayer) {
-                var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
-                var layerType = selectedLayer.get('type');
-                error = (layerType !== type && layerType !== 'geomcollection') ? true : false;
-            } else {
-                error = true;
-            }
-            if (error) {
-                interaction.finishDrawing();
-            }
-        }, this);
-    }
+
+    $(document).on('keyup', function(evt) {
+        if (evt.keyCode == 189 || evt.keyCode == 109) {
+            interaction.removeLastPoint();
+        // } else if (evt.keyCode == 27) {
+        //     map.removeInteraction(draw);
+        //     select.setActive(true);
+        //     //modify.setActive(true);
+        //     //translate.setActive(true);
+        //     //$('#drawhole').prop('disabled', false);
+        //     map.on('pointermove', hoverDisplay);
+        //     $(document).off('keyup')
+        }
+    });
     interaction.on('drawend', function (evt) {
-        var error = '';
-        errorcheck: if (this.layertree.selectedLayer) {
-            var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
-            error = selectedLayer instanceof ol.layer.Vector ? '' : 'Please select a valid vector layer.';
-            if (error) break errorcheck;
-            var layerType = selectedLayer.get('type');
-            error = (layerType === type || layerType === 'geomcollection') ? '' : 'Selected layer has a different vector type.';
-        } else {
-            error = 'Please select a layer first.';
-        }
-        if (! error) {
-            selectedLayer.getSource().addFeature(evt.feature);
-            this.activeFeatures.push(evt.feature);
-        } else {
-            this.layertree.messages.textContent = error;
-        }
+        var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+        selectedLayer.getSource().addFeature(evt.feature);
+
+        // evt.feature.set('type', tobj_type);
+        // evt.feature.set('name', FID.gen());
+        this.activeFeatures.push(evt.feature);
+
+        // transactWFS('insert', evt.feature);
+
+        // map.removeInteraction(draw);
+        // select.setActive(true);
+        //$('#drawhole').prop('disabled', false);
+        // map.on('pointermove', hoverDisplay);
+        // info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
+        // featureadded = true;
+        // source.once('addfeature', function(evt) {
+        //     var parser = new ol.format.GeoJSON();
+        //     var features = source.getFeatures();
+        //     var featuresGeoJSON = parser.writeFeatures(features, {
+        //         featureProjection: 'EPSG:3857',
+        //     });
+        //     console.log(featuresGeoJSON)
+        //     $.ajax({
+        //         url: 'test_project/features.geojson', // what about aor?
+        //         type: 'POST',
+        //         data: featuresGeoJSON
+        //     }).then(function(response) {
+        //         console.log(response);
+        //     });
+        // });
+        $(document).off('keyup')
     }, this);
     return interaction;
 };
 
+toolBar.prototype.addInteraction = function () {};
 
-function init() {
-    document.removeEventListener('DOMContentLoaded', init);
+var layerInteractor = function (options) {
+    'use strict';
+    if (!(this instanceof layerInteractor)) {
+        throw new Error('interactor must be constructed with the new keyword.');
+    } else if (typeof options === 'object' && options.map && options.layertree && options.toolbar) {
+        if (!(options.map instanceof ol.Map)) {
+            throw new Error('Please provide a valid OpenLayers 3 map object.');
+        }
+        this.map = options.map;
+        this.layertree = options.layertree;
+        this.toolbar = options.toolbar;
+        this.toolbarColors = {
+            'AOR': [0, 0, 0],
+            'Building': [128, 128, 128],
+            'Herbage': [0, 200, 0],
+            'Water': [0, 0, 200],
+            'Wall': [64, 64, 64],
+            'Road': [192, 51, 52],
+            'default': [255, 0, 0]
+        };
+        this.fillOpacity = {
+            'AOR': 0,
+            'Building': 0.1,
+            'Herbage': 0.1,
+            'Water': 0.1,
+            'Wall': 0,
+            'Road': 0,
+            'default': 0.1
+        };
+        this.highlight = undefined;
+        var _this = this;
+        this.hoverDisplay = function(evt) {
+            if (evt.dragging) return;
+            var pixel = _this.map.getEventPixel(evt.originalEvent);
+            var feature = _this.getFeatureAtPixel(pixel);
+            _this.setMouseCursor(feature);
+            _this.displayFeatureInfo(feature);
+        };
+        this.featureOverlay = this.createFeatureOverlay();
+        this.map.addLayer(this.featureOverlay);
+        this.addInteractions();
 
-    var tobjectColors = {
-        'AOR': [0, 0, 0],
-        'Building': [128, 128, 128],
-        'Herbage': [0, 200, 0],
-        'Water': [0, 0, 200],
-        'Wall': [64, 64, 64],
-        'Road': [192, 51, 52],
-        'default': [255, 0, 0]
-    };
-    var fillOpacity = {
-        'AOR': 0,
-        'Building': 0.1,
-        'Herbage': 0.1,
-        'Water': 0.1,
-        'Wall': 0,
-        'Road': 0,
-        'default': 0.1
-    };
-    var highlight;
+        this.map.addInteraction(this.select);
+        this.select.setActive(true);
+
+        document.getElementById('map').addEventListener('mouseleave', function () {
+            if (_this.highlight) {
+                _this.featureOverlay.getSource().removeFeature(_this.highlight);
+                _this.highlight = undefined;
+            }
+        });
+
+        this.map.on('pointermove', this.hoverDisplay);
+        this.map.addInteraction(this.modify);
+        this.modify.setActive(false);
+
+    } else {
+        throw new Error('Invalid parameter(s) provided.');
+    }
+
+};
+
+layerInteractor.prototype.createFeatureOverlay = function() {
     var highlightStyleCache = {};
-    var tobjectsStyleFunction = (function() {
-        var strokeopacity = 1;
-        var setStyle = function(type) {
-            style = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: tobjectColors[type].concat(strokeopacity),
-                    width: 3
-                }),
-                fill: new ol.style.Fill({
-                    color: tobjectColors[type].concat(fillOpacity[type])
-                })
-            });
-            return [style]
-        };
-        return function(feature, resolution) {
-            return setStyle(feature.get('type'));
-        };
-    })();
+    var _this = this;
     var overlayStyleFunction = (function() {
         var strokeopacity = 1;
         var setStyle = function(type, text) {
-            style = new ol.style.Style({
+            type = type? type : 'default';
+            var style = new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: tobjectColors[type].concat(strokeopacity),
+                    color: _this.toolbarColors[type].concat(strokeopacity),
                     width: 4
                 }),
                 fill: new ol.style.Fill({
-                    color: tobjectColors[type].concat(fillOpacity[type])
+                    color: _this.toolbarColors[type].concat(_this.fillOpacity[type])
                 }),
                 text: new ol.style.Text({
                     font: '14px Calibri,sans-serif',
@@ -968,15 +1097,168 @@ function init() {
             return [style]
         };
         return function(feature, resolution) {
-            var text = resolution < 5000 ? feature.get('name') : '';
+            var text = resolution < 50000 ? feature.get('name') : '';
             if (!highlightStyleCache[text]) {
                 highlightStyleCache[text] = setStyle(feature.get('type'), text);
             }
             return highlightStyleCache[text];
         }
     })();
+    var featureOverlay = new ol.layer.Vector({
+        source: new ol.source.Vector(),
+        type: 'overlay',
+        style: overlayStyleFunction,
+        zIndex: 9999
+    });
+    return featureOverlay
+};
 
-    var bingkey = 'AsPHemiyjrAaLwkdh3DLil_xdTJN7QFGPaOi9-a4sf8hbAwA3Z334atxK8GxYcxy';
+layerInteractor.prototype.getFeatureAtPixel = function(pixel) {
+    var coord = this.map.getCoordinateFromPixel(pixel);
+    var smallestArea = 5.1e14; // approximate surface area of the earth
+    var smallestFeature = null;
+    // var _this = this;
+    var feature = this.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+        var geom = feature.getGeometry();
+        if (geom instanceof ol.geom.Point) {
+        //Need to add functionality for sensors here.
+        //     return feature;
+        } else if (geom instanceof ol.geom.LineString) {
+            return feature;
+        } else if (geom instanceof ol.geom.MultiLineString) {
+            return feature;
+        } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+            if (feature.get('type') === 'AOR') {
+                var point = geom.getClosestPoint(coord);
+                var pixel0 = this.map.getPixelFromCoordinate(coord);
+                var pixel1 = this.map.getPixelFromCoordinate(point);
+                if (Math.abs(pixel0[0]-pixel1[0]) < 4 && Math.abs(pixel0[1]-pixel1[1]) < 4) {
+                    return feature;
+                }
+            } else {
+                var area = geom.getArea();
+                if (area < smallestArea) {
+                    smallestArea = area;
+                    smallestFeature = feature;
+                }
+            }
+        }
+    }, this, function(layer) {
+        if (this.layertree.selectedLayer) {
+            return layer === this.layertree.getLayerById(this.layertree.selectedLayer.id)
+        }
+    }, this);
+    return exists(feature) ? feature : smallestFeature;
+};
+
+layerInteractor.prototype.setMouseCursor = function(feature) {
+    if (feature) {
+        this.map.getTarget().style.cursor = 'pointer';
+    } else {
+        this.map.getTarget().style.cursor = '';
+    }
+};
+
+layerInteractor.prototype.displayFeatureInfo = function(feature) {
+    if (feature !== this.highlight) {
+        if (this.highlight) {
+            this.featureOverlay.getSource().removeFeature(this.highlight);
+        }
+        if (feature) {
+            this.featureOverlay.getSource().addFeature(feature);
+        }
+        this.highlight = feature;
+    }
+};
+
+layerInteractor.prototype.tobjectsStyleFunction = (function() {
+    var _this = this;
+    var strokeopacity = 1;
+    var setStyle = function(type) {
+        var style = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: _this.toolbarColors[type].concat(strokeopacity),
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: _this.toolbarColors[type].concat(_this.fillOpacity[type])
+            })
+        });
+        return [style]
+    };
+    return function(feature, resolution) {
+        return setStyle(feature.get('type'));
+    };
+})();
+
+layerInteractor.prototype.addInteractions = function () {
+    this.select = new ol.interaction.Select({
+        layers: [this.featureOverlay],
+        toggleCondition: ol.events.condition.never,
+        /*condition: function(evt) {
+            if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
+                if (featureadded) {
+                    featureadded = false;
+                    return false;
+                };
+                return true;
+            };
+        },*/
+        style: new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(255, 255, 255, 1)',
+                width: 4
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.1)'
+            })
+        })
+    });
+
+    var _this = this;
+    this.select.on('select', function(evt) {
+        var feature;
+        // Handle deselect first so we can update the feature in the python code.
+        if (evt.deselected.length == 1) {
+            feature = evt.deselected[0];
+            _this.modify.setActive(false);
+            console.log('deselect:', feature.get('name'), feature.getRevision());
+        }
+        if (evt.selected.length == 1) {
+            feature = evt.selected[0];
+            _this.modify.setActive(true);
+            console.log('select:    ', feature.get('name'), feature.getRevision())
+        }
+    });
+
+    this.modify = new ol.interaction.Modify({
+        features: this.select.getFeatures()
+    });
+
+    this.toolbar.controlEventEmitter.on('change', function (evt) {
+        console.log('toolbar.consoleEventEmitter changed')
+        if (_this.toolbar.active == true) {
+            _this.map.un('pointermove', _this.hoverDisplay);
+            var selectedFeature = _this.select.getFeatures();
+            selectedFeature.forEach(selectedFeature.remove, selectedFeature);
+            // $('#drawhole').prop('disabled', true);
+            // translate.setActive(false);
+            // modify.setActive(false);
+            _this.select.setActive(false);
+            // var geom_type = event.target.value;
+            // var tobj_type = event.target.id;
+            // var source = tobj_type === 'AOR' ? vector_aor.getSource() : vector.getSource();
+        } else {
+            _this.select.setActive(true);
+            //$('#drawhole').prop('disabled', false);
+            _this.map.on('pointermove', _this.hoverDisplay);
+
+        }
+    });
+};
+
+function init() {
+    document.removeEventListener('DOMContentLoaded', init);
 
     var mouseProjection = 'EPSG:4326';
     var mousePrecision = 4;
@@ -996,7 +1278,7 @@ function init() {
         if (mouseProjection !== currentProj) {
             coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
             coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
-        };
+        }
         var dx = Math.abs(coord1[0] - coord0[0]);
         var dy = Math.abs(coord1[1] - coord0[1]);
 
@@ -1008,13 +1290,14 @@ function init() {
         mousePositionControl.setCoordinateFormat(format);
     });
 
+    var bingkey = 'AsPHemiyjrAaLwkdh3DLil_xdTJN7QFGPaOi9-a4sf8hbAwA3Z334atxK8GxYcxy';
     var thunderforestAttributions = [
         new ol.Attribution({
             html: 'Tiles &copy; <a href="http://www.thunderforest.com/">Thunderforest</a>'
         }),
         ol.source.OSM.ATTRIBUTION
     ];
-    
+
     var map = new ol.Map({
         interactions: ol.interaction.defaults({ doubleClickZoom: false }),
         target: document.getElementById('map'),
@@ -1158,30 +1441,113 @@ function init() {
                         source: new ol.source.OSM({ url: 'http://localhost/osm_tiles/{z}/{x}/{y}.png' })
                     })
                 ]
-            }),
-            new ol.layer.Group({
-                title: 'Extra',
-                layers: [
-                    new ol.layer.Tile({
-                        title: 'Countries',
-                        type: 'vector',
-                        source: new ol.source.TileWMS({
-                            url: 'http://demo.opengeo.org/geoserver/wms',
-                            params: {'LAYERS': 'ne:ne_10m_admin_1_states_provinces_lines_shp'},
-                            serverType: 'geoserver'
-                        })
-                    })
-                ]
             })
+            // new ol.layer.Group({
+            //     title: 'Extra',
+            //     layers: [
+            //         new ol.layer.Tile({
+            //             title: 'Countries',
+            //             type: 'vector',
+            //             source: new ol.source.TileWMS({
+            //                 url: 'http://demo.opengeo.org/geoserver/wms',
+            //                 params: {'LAYERS': 'ne:ne_10m_admin_1_states_provinces_lines_shp'},
+            //                 serverType: 'geoserver'
+            //             })
+            //         })
+            //     ]
+            // })
         ]
     });
 
+    var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
+
+    document.getElementById('checkwmslayer').addEventListener('click', function () {
+        tree.checkWmsLayer(this.form);
+    });
+    document.getElementById('addwms_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.addWmsLayer(this);
+        this.parentNode.style.display = 'none';
+    });
+    document.getElementById('wmsurl').addEventListener('change', function () {
+        tree.removeContent(this.form.layer)
+            .removeContent(this.form.format);
+    });
+    document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.addWfsLayer(this);
+        this.parentNode.style.display = 'none';
+    });
+    document.getElementById('addvector_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.addVectorLayer(this);
+        this.parentNode.style.display = 'none';
+    });
+    document.getElementById('newvector_form').addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        tree.newVectorLayer(this);
+        this.parentNode.style.display = 'none';
+    });
+
+    var tools = new toolBar({map: map, target: 'toolbar', layertree: tree});
+
+    tools.addDrawToolBar();
+
+    var interactor = new layerInteractor({map: map, toolbar: tools, layertree: tree});
+
+
+    // var vector_aor = new ol.layer.Vector({
+    //     title: 'AOR',
+    //     name: 'AOR',
+    //     type: 'vector',
+    //     source: new ol.source.Vector(),
+    //     style: tobjectsStyleFunction
+    // });
+    // var vector = new ol.layer.Vector({
+    //     title: 'tobjects',
+    //     name: 'tobjects',
+    //     type: 'vector',
+    //     source: new ol.source.Vector(),
+    //     style: tobjectsStyleFunction
+    // });
+    // var projectGroup = new ol.layer.Group({
+    //     title: 'Project',
+    //     layers: [
+    //         // layerVector,
+    //         vector_aor,
+    //         vector
+    //     ]
+    // });
+    // map.addLayer(projectGroup);
+
+    // map.addLayer(featureOverlay);
+
+    // var selectedFeature = null;
+    // var getSelectedFeatureAtPixel = function(pixel) {
+    //     var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+    //         if (feature.getId() == selectedFeature.getId()) {
+    //             return feature;
+    //         } else {
+    //             return undefined;
+    //         }
+    //     })
+    //     return feature;
+    // };
+    //
+    // var setSelectMousePointer = function(evt) {
+    //     if (evt.dragging) return;
+    //     var pixel = map.getEventPixel(evt.originalEvent);
+    //     var intersectingFeature = getSelectedFeatureAtPixel(pixel);
+    //     setMouseCursor(intersectingFeature)
+    // };
+
+    /*********** WFS-T *************/
     // var url="http://gis.local.osm:8080/geoserver/wfs?service=wfs&version=1.1.0&request=GetFeature&typeName=cite:nyc_buildings";
     // sourceVector = new ol.source.Vector({
     // 	url: '/cgi-bin/proxy.py?url='+ encodeURIComponent(url),
     // 	format: new ol.format.WFS()
     // });
-
+    //
     //wfs-t
     // url = 'http://gis.local.osm:8080/geoserver/wfs';
     // url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
@@ -1224,13 +1590,13 @@ function init() {
     // 	},
     // 	strategy: ol.loadingstrategy.bbox
     // });
-
+    //
     // var layerVector = new ol.layer.Vector({
     // 	title: 'WFS-T',
     // 	type: 'vector',
     // 	source: sourceVector
     // });
-
+    //
     // var dirty = {};
     // var formatWFS = new ol.format.WFS();
     // var formatGML = new ol.format.GML({
@@ -1261,246 +1627,6 @@ function init() {
     // 	}).done();
     // };
 
-    var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
-
-    var tools = new toolBar({
-        map: map,
-        target: 'toolbar',
-        layertree: tree
-    });
-
-    // tools.addSelectControls();
-    tools.addDrawToolBar();
-
-    document.getElementById('checkwmslayer').addEventListener('click', function () {
-        tree.checkWmsLayer(this.form);
-    });
-    document.getElementById('addwms_form').addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        tree.addWmsLayer(this);
-        this.parentNode.style.display = 'none';
-    });
-    document.getElementById('wmsurl').addEventListener('change', function () {
-        tree.removeContent(this.form.layer)
-            .removeContent(this.form.format);
-    });
-    document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        tree.addWfsLayer(this);
-        this.parentNode.style.display = 'none';
-    });
-    document.getElementById('addvector_form').addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        tree.addVectorLayer(this);
-        this.parentNode.style.display = 'none';
-    });
-    document.getElementById('newvector_form').addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        tree.newVectorLayer(this);
-        this.parentNode.style.display = 'none';
-    });
-
-    // var vector_aor = new ol.layer.Vector({
-    //     title: 'AOR',
-    //     name: 'AOR',
-    //     type: 'vector',
-    //     source: new ol.source.Vector(),
-    //     style: tobjectsStyleFunction
-    // });
-    // var vector = new ol.layer.Vector({
-    //     title: 'tobjects',
-    //     name: 'tobjects',
-    //     type: 'vector',
-    //     source: new ol.source.Vector(),
-    //     style: tobjectsStyleFunction
-    // });
-    // var projectGroup = new ol.layer.Group({
-    //     title: 'Project',
-    //     layers: [
-    //         // layerVector,
-    //         vector_aor,
-    //         vector
-    //     ]
-    // });
-    // map.addLayer(projectGroup);
-
-    var featureOverlay = new ol.layer.Vector({
-        source: new ol.source.Vector(),
-        type: 'overlay',
-        style: overlayStyleFunction
-    });
-    map.addLayer(featureOverlay);
-
-    var getFeatureAtPixel = function(pixel, coord) {
-        var smallestArea = 5.1e14, // approximate surface area of the earth.
-            smallestFeature;
-        var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-            var geom = feature.getGeometry();
-            if (geom instanceof ol.geom.Point) {
-            //Need to add functionality for sensors here.
-            //     return feature;
-            } else if (geom instanceof ol.geom.LineString) {
-                return feature;
-            } else if (geom instanceof ol.geom.MultiLineString) {
-                return feature;
-            } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
-                if (feature.get('type') === 'AOR') {
-                    var point = geom.getClosestPoint(coord);
-                    var pixel0 = map.getPixelFromCoordinate(coord);
-                    var pixel1 = map.getPixelFromCoordinate(point);
-                    if (Math.abs(pixel0[0]-pixel1[0]) < 4 && Math.abs(pixel0[1]-pixel1[1]) < 4) {
-                        return feature;
-                    }
-                } else {
-                    var area = geom.getArea();
-                    if (area < smallestArea) {
-                        smallestArea = area;
-                        smallestFeature = feature;
-                    }
-                }
-            }
-        });
-        return exists(feature) ? feature : smallestFeature;
-    };
-    var setMouseCursor = function(feature) {
-        if (feature) {
-            map.getTarget().style.cursor = 'pointer';
-        } else {
-            map.getTarget().style.cursor = '';
-        }
-    };
-    var displayFeatureInfo = function(feature) {
-        if (feature !== highlight) {
-            if (highlight) {
-                featureOverlay.getSource().removeFeature(highlight);
-            }
-            if (feature) {
-                featureOverlay.getSource().addFeature(feature);
-            }
-            highlight = feature;
-        }
-    };
-    var hoverDisplay = function(evt) {
-        if (evt.dragging) return;
-        var pixel = map.getEventPixel(evt.originalEvent);
-        var coord = map.getCoordinateFromPixel(pixel);
-        var feature = getFeatureAtPixel(pixel, coord);
-        setMouseCursor(feature);
-        displayFeatureInfo(feature);
-
-        var proj = view.getProjection().getCode();
-        if (proj !== 'EPSG:4326') {
-            coord = ol.proj.transform(coord, proj, 'EPSG:4326')
-        }
-        var zoom = view.getZoom();
-        var xytile = deg2tile(coord[0], coord[1], zoom);
-        var tile = document.getElementById('tile');
-        tile.innerHTML = "Tile: [Z: "+zoom+"  X: "+xytile[0]+"  Y: "+xytile[1]+"]";
-    };
-
-    /*
-    var selectedFeature = null;
-    var getSelectedFeatureAtPixel = function(pixel) {
-        var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-            if (feature.getId() == selectedFeature.getId()) {
-                return feature;
-            } else {
-                return undefined;
-            }
-        })
-        return feature;
-    };
-
-    var setSelectMousePointer = function(evt) {
-        if (evt.dragging) return;
-        var pixel = map.getEventPixel(evt.originalEvent);
-        var intersectingFeature = getSelectedFeatureAtPixel(pixel);
-        setMouseCursor(intersectingFeature)
-    };
-    */
-
-    /*******************************/
-    /******** INTERACTIONS *********/
-    /*******************************/
-
-    /*********** SELECT ************/
-    var featureadded = false;
-    var select = new ol.interaction.Select({
-        layers: [featureOverlay],
-        toggleCondition: ol.events.condition.never,
-        /*condition: function(evt) {
-            if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
-                if (featureadded) {
-                    featureadded = false;
-                    return false;
-                };
-                return true;
-            };
-        },*/
-        style: new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(255, 255, 255, 1)',
-                width: 4
-            }),
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.1)'
-            })
-        })
-    });
-    map.addInteraction(select);
-    select.setActive(true);
-    map.on('pointermove', hoverDisplay);
-
-    select.on('select', function(evt) {
-        var info = document.getElementById('info');
-        var feature;
-        // Handle deselect first so we can update the feature in the python code.
-        if (evt.deselected.length == 1) {
-            feature = evt.deselected[0]
-            // info.innerHTML = '&nbsp;';
-            modify.setActive(false);
-            //translate.setActive(false);
-            $('#drawhole').prop('disabled', true);
-            console.log('deselect:', feature.get('name'), feature.getRevision());
-        }
-        if (evt.selected.length == 1) {
-            feature = evt.selected[0]
-            // info.innerHTML = feature.get('type') + ': ' + feature.get('name');
-            modify.setActive(true);
-            //translate.setActive(true);
-            geom = feature.getGeometry()
-            if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
-                $('#drawhole').prop('disabled', false);
-            } else {
-                $('#drawhole').prop('disabled', true);
-            }
-            console.log('select:    ', feature.get('name'), feature.getRevision())
-        }
-    });
-
-    /*********** MODIFY ************/
-    var modify = new ol.interaction.Modify({
-        features: select.getFeatures()
-    });
-    map.addInteraction(modify);
-    modify.setActive(false);
-
-    /********* TRANSLATE ***********/
-    /**
-     * When the translate interaction is active, it
-     * causes the mouse cursor to turn into a
-     * pointer when hovering over the interior
-     * of the AOR. Need to find out why.
-     * Disable until solution is found.
-     */
-    /**
-    var translate = new ol.interaction.Translate({
-        features: select.getFeatures()
-    });
-    map.addInteraction(translate);
-    translate.setActive(false);
-    */
-
     /********** DRAW ***************/
     // var draw;
     // var drawType = document.getElementById('draw-feature-type');
@@ -1511,7 +1637,7 @@ function init() {
     //     map.un('pointermove', hoverDisplay);
     //     var selectedFeature = select.getFeatures();
     //     selectedFeature.forEach(selectedFeature.remove, selectedFeature);
-    //     $('#drawhole').prop('disabled', true);
+    //     //$('#drawhole').prop('disabled', true);
     //     //translate.setActive(false);
     //     //modify.setActive(false);
     //     select.setActive(false);
@@ -1569,6 +1695,92 @@ function init() {
     //         $(document).off('keyup')
     //     });
     // };
+
+    /*********** SELECT ************/
+    // var featureadded = false;
+    // var select = new ol.interaction.Select({
+    //     layers: [featureOverlay],
+    //     toggleCondition: ol.events.condition.never,
+    //     /*condition: function(evt) {
+    //         if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
+    //             if (featureadded) {
+    //                 featureadded = false;
+    //                 return false;
+    //             };
+    //             return true;
+    //         };
+    //     },*/
+    //     style: new ol.style.Style({
+    //         stroke: new ol.style.Stroke({
+    //             color: 'rgba(255, 255, 255, 1)',
+    //             width: 4
+    //         }),
+    //         fill: new ol.style.Fill({
+    //             color: 'rgba(255, 255, 255, 0.1)'
+    //         })
+    //     })
+    // });
+    // map.addInteraction(select);
+    // select.setActive(true);
+    // map.on('pointermove', hoverDisplay);
+    //
+    // select.on('select', function(evt) {
+    //     var info = document.getElementById('info');
+    //     var feature;
+    //     // Handle deselect first so we can update the feature in the python code.
+    //     if (evt.deselected.length == 1) {
+    //         feature = evt.deselected[0]
+    //         // info.innerHTML = '&nbsp;';
+    //         modify.setActive(false);
+    //         //translate.setActive(false);
+    //         $('#drawhole').prop('disabled', true);
+    //         console.log('deselect:', feature.get('name'), feature.getRevision());
+    //     }
+    //     if (evt.selected.length == 1) {
+    //         feature = evt.selected[0]
+    //         // info.innerHTML = feature.get('type') + ': ' + feature.get('name');
+    //         modify.setActive(true);
+    //         //translate.setActive(true);
+    //         geom = feature.getGeometry()
+    //         if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+    //             $('#drawhole').prop('disabled', false);
+    //         } else {
+    //             $('#drawhole').prop('disabled', true);
+    //         }
+    //         console.log('select:    ', feature.get('name'), feature.getRevision())
+    //     }
+    // });
+
+    /*********** MODIFY ************/
+    // var modify = new ol.interaction.Modify({
+    //     features: select.getFeatures()
+    // });
+    // map.addInteraction(modify);
+    // modify.setActive(false);
+
+    /********* TRANSLATE ***********/
+    // When the translate interaction is active, it
+    // causes the mouse cursor to turn into a
+    // pointer when hovering over the interior
+    // of the AOR. Need to find out why.
+    // Disable until solution is found.
+    //
+    // var translate = new ol.interaction.Translate({
+    //     features: select.getFeatures()
+    // });
+    // map.addInteraction(translate);
+    // translate.setActive(false);
+
+    /*********** REMOVE ************/
+    // var keyDown = function(evt) {
+    //     console.log(evt.keyCode);
+    //     if (exists(highlight) && evt.keyCode == 46) { //delete key pressed
+    //         vector.getSource().removeFeature(highlight);
+    //         featureOverlay.getSource().removeFeature(highlight);
+    //         highlight = undefined;
+    //     }
+    // };
+    // document.addEventListener('keydown', keyDown, false);
 
     /********** DRAW HOLE **********/
     // var holeStyle = [
@@ -1718,48 +1930,7 @@ function init() {
     //     })
     // };
 
-    /**
-     * check whether the point consists of pointcoords is inside the supplied polygon geometry
-     * @{ol.geometry.Polygon} geom
-     * @{Array()} a two elements array representing the point coordinates
-     * @returns {Boolean} true||false
-     */
-    function isPointInPoly(geom, pointcoords) {
-        var geomA = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: geom
-                })
-            )
-        ).geometry;
-        var geomB = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: new ol.geom.Point(pointcoords)
-                })
-            )
-        ).geometry;
-        return geomB.within(geomA);
-    };
-
-    function doesPolyCoverHole(geom, holecoords) {
-        var geomA = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: geom
-                })
-            )
-        ).geometry;
-        var geomB = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: new ol.geom.Polygon([holecoords])
-                })
-            )
-        ).geometry;
-        return geomA.covers(geomB);
-    }
-
+    /********* ADD SENSOR **********/
     // var iconFeature = new ol.Feature({
     //     geometry: new ol.geom.Point([0, 0]),
     //     name: 'Camera',
@@ -1781,6 +1952,7 @@ function init() {
     //     features: [iconFeature]
     // });
 
+    /********* ADD PROJECT *********/
     // var loadProject = document.getElementById('loadProject');
     // loadProject.onclick = function(e) {
     //
@@ -1839,26 +2011,6 @@ function init() {
     //     });
     // }
 
-
-    /*******************************/
-    /*********** EVENTS ************/
-    /*******************************/
-
-    var keyDown = function(evt) {
-        console.log(evt.keyCode)
-        if (exists(highlight) && evt.keyCode == 46) { //delete key pressed
-            vector.getSource().removeFeature(highlight);
-            featureOverlay.getSource().removeFeature(highlight);
-            highlight = undefined;
-        }
-    };
-    document.addEventListener('keydown', keyDown, false);
-
-
-    /*******************************/
-    /********** CONTROLS ***********/
-    /*******************************/
-
     /******* LAYER SWITCHER ********/
     var layerSwitcher = new ol.control.LayerSwitcher();
     map.addControl(layerSwitcher);
@@ -1891,16 +2043,16 @@ function init() {
     });
     projectionSelect.val(mousePositionControl.getProjection().getCode());
 
-    /*******************************/
-    /******* BEHAVIOR TESTS ********/
-    /*******************************/
-
-
-    // var overlayType = document.getElementById('overlay-type');
-    // overlayType.onclick = function(e) {
-    //     var bounds = [-105.54833333333333, -105.52694444444444, 39.76361111111111, 39.778055555555554];
-    // };
-
+    var mousePositionControl2 = new ol.control.MousePosition({
+        coordinateFormat: function (coordinates) {
+            var zoom = view.getZoom();
+            var xytile = deg2tile(coordinates[0], coordinates[1], zoom);
+            return "Tile: [Z: "+zoom+"  X: "+xytile[0]+"  Y: "+xytile[1]+"]";
+        },
+        projection: 'EPSG:4326',
+        target: 'tile'
+    });
+    map.addControl(mousePositionControl2);
 
     /**
      * TODO: Need to integrate the opacity sliders from this code into the layerswitcher code.

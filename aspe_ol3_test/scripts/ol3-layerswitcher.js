@@ -58,7 +58,6 @@ ol.control.LayerSwitcher = function(opt_options) {
     });
 
 };
-
 ol.inherits(ol.control.LayerSwitcher, ol.control.Control);
 
 /**
