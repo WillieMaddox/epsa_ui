@@ -30,7 +30,7 @@ body {
 }
 .toolbar .ol-control button {
     border-radius: 2px;
-    background-color: rgba(219,63,63,.5);
+    background-color: rgba(0,0,0,.4);
     width: 2em;
     display: inline-block;
     vertical-align: middle;
@@ -62,23 +62,77 @@ body {
 .toolbar .ol-addpolygon button {
     background-image: url(../res/button_addpolygon.png);
 }
-.toolbar .draw-aor button {
+.toolbar .ol-addaor button {
     background-image: url(../res/aor_temp.png);
 }
-.toolbar .draw-building button {
+.toolbar .ol-addaor button:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.toolbar .ol-addaor button.active {
+    background-color: rgba(0, 0, 0, 1);
+}
+.toolbar .ol-addaor button.active:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.toolbar .ol-addbuilding button {
     background-image: url(../res/building_temp.png);
 }
-.toolbar .draw-herbage button {
+.toolbar .ol-addbuilding button:hover {
+    background-color: rgba(128, 128, 128, 0.5);
+}
+.toolbar .ol-addbuilding button.active {
+    background-color: rgba(128, 128, 128, 1);
+}
+.toolbar .ol-addbuilding button.active:hover {
+    background-color: rgba(128, 128, 128, 0.5);
+}
+.toolbar .ol-addherbage button {
     background-image: url(../res/herbage2_temp.png);
 }
-.toolbar .draw-water button {
+.toolbar .ol-addherbage button:hover {
+    background-color: rgba(0, 200, 0, 0.5);
+}
+.toolbar .ol-addherbage button.active {
+    background-color: rgba(0, 200, 0, 1);
+}
+.toolbar .ol-addherbage button.active:hover {
+    background-color: rgba(0, 200, 0, 0.5);
+}
+.toolbar .ol-addwater button {
     background-image: url(../res/water_temp.png);
 }
-.toolbar .draw-wall button {
+.toolbar .ol-addwater button:hover {
+    background-color: rgba(0, 0, 200, 0.5);
+}
+.toolbar .ol-addwater button.active {
+    background-color: rgba(0, 0, 200, 1);
+}
+.toolbar .ol-addwater button.active:hover {
+    background-color: rgba(0, 0, 200, 0.5);
+}
+.toolbar .ol-addwall button {
     background-image: url(../res/wall_temp.png);
 }
-.toolbar .draw-road button {
+.toolbar .ol-addwall button:hover {
+    background-color: rgba(64, 64, 64, 0.5);
+}
+.toolbar .ol-addwall button.active {
+    background-color: rgba(64, 64, 64, 1);
+}
+.toolbar .ol-addwall button.active:hover {
+    background-color: rgba(64, 64, 64, 0.5);
+}
+.toolbar .ol-addroad button {
     background-image: url(../res/road2_temp.png);
+}
+.toolbar .ol-addroad button:hover {
+    background-color: rgba(192, 51, 52, 0.5);
+}
+.toolbar .ol-addroad button.active {
+    background-color: rgba(192, 51, 52, 1);
+}
+.toolbar .ol-addroad button.active:hover {
+    background-color: rgba(192, 51, 52, 0.5);
 }
 .toolbar .draw-camera button {
     background-image: url(../res/camera-normal.png);
@@ -209,10 +263,10 @@ body {
     font-weight: 700;
 }
 .popup .delete {
-    background-image: url(../../res/button_delete.png);
+    background-image: url(../res/button_delete.png);
 }
 .popup .save {
-    background-image: url(../../res/button_save.png);
+    background-image: url(../res/button_save.png);
 }
 .toggleable {
     position: fixed;
@@ -286,11 +340,6 @@ body {
 .ol-scale-line {
     background: rgba(0, 60, 136, 0.5);
 }
-/*.ol-scale-line-inner {*/
-    /*border: 1px solid #000;*/
-    /*border-top: none;*/
-    /*font-size: 1em;*/
-/*}*/
 .btn-feature {
     color: #FFFFFF;
     background-color: #0A7D84;

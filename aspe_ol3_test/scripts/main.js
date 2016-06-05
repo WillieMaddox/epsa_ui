@@ -98,6 +98,24 @@ function doesPolyCoverHole(geom, holecoords) {
     return geomA.covers(geomB);
 }
 
+var featureColors = {
+    'AOR': [0, 0, 0],
+    'Building': [128, 128, 128],
+    'Herbage': [0, 200, 0],
+    'Water': [0, 0, 200],
+    'Wall': [64, 64, 64],
+    'Road': [192, 51, 52],
+    'Generic': [218, 188, 163]
+};
+var fillOpacity = {
+    'Polygon': 0.1,
+    'LineString': 0,
+    'Point': 0,
+    'MultiPolygon': 0.1,
+    'MultiLineString': 0,
+    'MultiPoint': 0
+};
+
 var layerTree = function (options) {
     'use strict';
     if (!(this instanceof layerTree)) {
@@ -521,7 +539,8 @@ layerTree.prototype.newVectorLayer = function (form) {
     var layer = new ol.layer.Vector({
         source: new ol.source.Vector(),
         name: form.displayname.value || 'Unnamed Layer',
-        type: type
+        type: type,
+        style: this.tobjectsStyleFunction
     });
     this.addBufferIcon(layer);
     this.map.addLayer(layer);
@@ -569,7 +588,7 @@ layerTree.prototype.getLayerById = function (id) {
 };
 
 layerTree.prototype.getLayerGeomType = function (layer) {
-    if (layer.get('type')) {
+    if (layer.get('geom_type')) {
         return layer;
     }
     var types = [];
@@ -593,7 +612,7 @@ layerTree.prototype.getLayerGeomType = function (layer) {
         }
     });
 
-    layer.set('type', types.length === 1 ? types[0] : 'geomcollection');
+    layer.set('geom_type', types.length === 1 ? types[0] : 'geomcollection');
     return layer;
 };
 
@@ -689,6 +708,38 @@ layerTree.prototype.randomHexColor = function() {
     return '#' + String.prototype.repeat.call('0', 6 - num.length) + num;
 };
 
+layerTree.prototype.tobjectsStyleFunction = (function() {
+    var setStyle = function(color, opacity) {
+        var style = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: color.concat(1),
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: color.concat(opacity)
+            })
+        });
+        return [style]
+    };
+    return function(feature, resolution) {
+
+        var color;
+        var opacity;
+
+        color = featureColors[feature.get('feature_type')];
+        color = color ? color : [255, 0, 0];
+
+        if (feature.get('feature_type') === 'AOR') {
+            opacity = 0
+        } else {
+            opacity = fillOpacity[feature.getGeometry().getType()];
+            opacity = opacity ? opacity : 0;
+        }
+
+        return setStyle(color, opacity);
+    };
+})();
+
 ol.layer.Vector.prototype.buildHeaders = function () {
     var oldHeaders = this.get('headers') || {};
     var headers = {};
@@ -713,7 +764,7 @@ ol.control.Interaction = function (opt_options) {
     controlDiv.className = options.className || 'ol-unselectable ol-control';
     var controlButton = document.createElement('button');
     controlButton.textContent = options.label || 'I';
-    controlButton.title = options.tipLabel || 'Custom interaction';
+    controlButton.title = 'Add '+options.feature_type || 'Custom interaction';
     controlDiv.appendChild(controlButton);
 
     var _this = this;
@@ -724,7 +775,6 @@ ol.control.Interaction = function (opt_options) {
             _this.set('active', true);
         }
     });
-    var interaction = options.interaction;
     ol.control.Control.call(this, {
         element: controlDiv,
         target: options.target
@@ -736,11 +786,14 @@ ol.control.Interaction = function (opt_options) {
             return this;
         }
     };
+
+    var interaction = options.interaction;
+
     this.setProperties({
         interaction: interaction,
-        tobj_type: options.tipLabel,
         active: false,
-        type: 'radio',
+        button_type: 'radio',
+        feature_type: options.feature_type,
         destroyFunction: function (evt) {
             if (evt.element === _this) {
                 this.removeInteraction(_this.get('interaction'));
@@ -756,20 +809,11 @@ ol.control.Interaction = function (opt_options) {
                     _this.get('interaction').removeLastPoint();
                 } else if (evt.keyCode == 27) {
                     _this.set('active', false);
-                    // map.removeInteraction(draw);
-                    // select.setActive(true);
-                    // modify.setActive(true);
-                    // translate.setActive(true);
-                    // $('#drawhole').prop('disabled', false);
-                    // map.on('pointermove', hoverDisplay);
-                    // $(document).off('keyup')
                 }
             });
-
         } else {
+            $(document).off('keyup');
             controlButton.classList.remove('active');
-            $(document).off('keyup')
-
         }
     }, this);
 };
@@ -799,8 +843,10 @@ var toolBar = function (options) {
         this.toolbar = document.getElementById(options.target);
         this.layertree = options.layertree;
         this.controls = new ol.Collection();
-        this.controlEventEmitter = new ol.Observable();
+        this.activeControl = undefined;
         this.active = false;
+        this.controlEventEmitter = new ol.Observable();
+        this.addedFeature = null;
     } else {
         throw new Error('Invalid parameter(s) provided.');
     }
@@ -812,25 +858,25 @@ toolBar.prototype.addControl = function (control) {
     }
     // var bit2 = 0;
     // var bit3 = 0;
-    if (control.get('type') === 'radio') {
+    if (control.get('button_type') === 'radio') {
         control.on('change:active', function () {
             if (!(this.bit2 | this.bit3)) {
+                this.activeControl = control;
                 this.active = true;
-                // console.log('drawing ON = ', this.active);
                 this.controlEventEmitter.changed()
             }
             this.bit2 ^= 1;
             if (control.get('active')) {
                 this.controls.forEach(function (controlToDisable) {
-                    if (controlToDisable.get('type') === 'radio' && controlToDisable !== control) {
+                    if (controlToDisable.get('button_type') === 'radio' && controlToDisable !== control) {
                         controlToDisable.set('active', false);
                     }
                 });
             }
             this.bit3 ^= 1;
             if (!(this.bit2 | this.bit3)) {
+                this.activeControl = undefined;
                 this.active = false;
-                // console.log('drawing ON = ', this.active);
                 this.controlEventEmitter.changed()
             }
         }, this);
@@ -853,65 +899,74 @@ toolBar.prototype.addDrawToolBar = function () {
     this.drawControls = new ol.Collection();
     var drawPoint = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add points',
+        feature_type: 'Generic',
+        geometry_type: 'Point',
         className: 'ol-addpoint ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'point')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'Generic')
     }).setDisabled(true);
     this.drawControls.push(drawPoint);
     var drawLine = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add lines',
+        feature_type: 'Generic',
+        geometry_type: 'LineString',
         className: 'ol-addline ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'Generic')
     }).setDisabled(true);
     this.drawControls.push(drawLine);
     var drawPolygon = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add polygons',
+        feature_type: 'Generic',
+        geometry_type: 'Polygon',
         className: 'ol-addpolygon ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Generic')
     }).setDisabled(true);
     this.drawControls.push(drawPolygon);
     var drawAOR = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add AOR',
-        className: 'draw-aor ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+        feature_type: 'AOR',
+        geometry_type: 'Polygon',
+        className: 'ol-addaor ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'AOR')
     }).setDisabled(true);
     this.drawControls.push(drawAOR);
     var drawBuilding = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add Building',
-        className: 'draw-building ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+        feature_type: 'Building',
+        geometry_type: 'Polygon',
+        className: 'ol-addbuilding ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Building')
     }).setDisabled(true);
     this.drawControls.push(drawBuilding);
     var drawHerbage = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add Herbage',
-        className: 'draw-herbage ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+        feature_type: 'Herbage',
+        geometry_type: 'Polygon',
+        className: 'ol-addherbage ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Herbage')
     }).setDisabled(true);
     this.drawControls.push(drawHerbage);
     var drawWater = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add Water',
-        className: 'draw-water ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
+        feature_type: 'Water',
+        geometry_type: 'Polygon',
+        className: 'ol-addwater ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Water')
     }).setDisabled(true);
     this.drawControls.push(drawWater);
     var drawWall = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add Wall',
-        className: 'draw-wall ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
+        feature_type: 'Wall',
+        geometry_type: 'LineString',
+        className: 'ol-addwall ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'Wall')
     }).setDisabled(true);
     this.drawControls.push(drawWall);
     var drawRoad = new ol.control.Interaction({
         label: ' ',
-        tipLabel: 'Add Road',
-        className: 'draw-road ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
+        feature_type: 'Road',
+        geometry_type: 'LineString',
+        className: 'ol-addroad ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'Road')
     }).setDisabled(true);
     this.drawControls.push(drawRoad);
 
@@ -930,7 +985,7 @@ toolBar.prototype.addDrawToolBar = function () {
                 control.setDisabled(false);
             });
             layertree.getLayerGeomType(layer);
-            var layerType = layer.get('type');
+            var layerType = layer.get('geom_type');
             if (layerType !== 'point' && layerType !== 'geomcollection') {
                 drawPoint.setDisabled(true).set('active', false);
             }
@@ -969,12 +1024,12 @@ toolBar.prototype.addDrawToolBar = function () {
     return this;
 };
 
-toolBar.prototype.handleEvents = function (interaction, type) {
+toolBar.prototype.handleEvents = function (interaction, feature_type) {
 
     interaction.on('drawend', function (evt) {
 
-        // evt.feature.set('type', tobj_type);
-        // evt.feature.set('name', FID.gen());
+        evt.feature.set('feature_type', feature_type);
+        evt.feature.set('name', FID.gen());
 
         var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
         selectedLayer.getSource().addFeature(evt.feature);
@@ -982,12 +1037,9 @@ toolBar.prototype.handleEvents = function (interaction, type) {
         this.activeFeatures.push(evt.feature);
 
         // transactWFS('insert', evt.feature);
-        // map.removeInteraction(draw);
-        // select.setActive(true);
         //$('#drawhole').prop('disabled', false);
-        // map.on('pointermove', hoverDisplay);
         // info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
-        // featureadded = true;
+        this.addedFeature = evt.feature;
         // source.once('addfeature', function(evt) {
         //     var parser = new ol.format.GeoJSON();
         //     var features = source.getFeatures();
@@ -1004,11 +1056,10 @@ toolBar.prototype.handleEvents = function (interaction, type) {
         //     });
         // });
 
+        this.activeControl.set('active', false);
     }, this);
     return interaction;
 };
-
-toolBar.prototype.addInteraction = function () {};
 
 var layerInteractor = function (options) {
     'use strict';
@@ -1021,26 +1072,10 @@ var layerInteractor = function (options) {
         this.map = options.map;
         this.layertree = options.layertree;
         this.toolbar = options.toolbar;
-        this.toolbarColors = {
-            'AOR': [0, 0, 0],
-            'Building': [128, 128, 128],
-            'Herbage': [0, 200, 0],
-            'Water': [0, 0, 200],
-            'Wall': [64, 64, 64],
-            'Road': [192, 51, 52],
-            'default': [255, 0, 0]
-        };
-        this.fillOpacity = {
-            'AOR': 0,
-            'Building': 0.1,
-            'Herbage': 0.1,
-            'Water': 0.1,
-            'Wall': 0,
-            'Road': 0,
-            'default': 0.1
-        };
         this.highlight = undefined;
         var _this = this;
+        this.featureOverlay = this.createFeatureOverlay();
+        this.map.addLayer(this.featureOverlay);
         this.hoverDisplay = function(evt) {
             if (evt.dragging) return;
             var pixel = _this.map.getEventPixel(evt.originalEvent);
@@ -1048,8 +1083,6 @@ var layerInteractor = function (options) {
             _this.setMouseCursor(feature);
             _this.displayFeatureInfo(feature);
         };
-        this.featureOverlay = this.createFeatureOverlay();
-        this.map.addLayer(this.featureOverlay);
         this.addInteractions();
 
         this.map.addInteraction(this.select);
@@ -1076,16 +1109,14 @@ layerInteractor.prototype.createFeatureOverlay = function() {
     var highlightStyleCache = {};
     var _this = this;
     var overlayStyleFunction = (function() {
-        var strokeopacity = 1;
-        var setStyle = function(type, text) {
-            type = type? type : 'default';
+        var setStyle = function(color, opacity, text) {
             var style = new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: _this.toolbarColors[type].concat(strokeopacity),
+                    color: color.concat(1),
                     width: 4
                 }),
                 fill: new ol.style.Fill({
-                    color: _this.toolbarColors[type].concat(_this.fillOpacity[type])
+                    color: color.concat(opacity)
                 }),
                 text: new ol.style.Text({
                     font: '14px Calibri,sans-serif',
@@ -1102,9 +1133,24 @@ layerInteractor.prototype.createFeatureOverlay = function() {
             return [style]
         };
         return function(feature, resolution) {
+
+            var color;
+            var opacity;
+
+            color = featureColors[feature.get('feature_type')];
+            color = color ? color : [255, 0, 0];
+
+            if (feature.get('feature_type') === 'AOR') {
+                opacity = 0
+            } else {
+                opacity = fillOpacity[feature.getGeometry().getType()];
+                opacity = opacity ? opacity : 0;
+            }
+
             var text = resolution < 50000 ? feature.get('name') : '';
+
             if (!highlightStyleCache[text]) {
-                highlightStyleCache[text] = setStyle(feature.get('type'), text);
+                highlightStyleCache[text] = setStyle(color, opacity, text);
             }
             return highlightStyleCache[text];
         }
@@ -1127,17 +1173,15 @@ layerInteractor.prototype.getFeatureAtPixel = function(pixel) {
         var geom = feature.getGeometry();
         if (geom instanceof ol.geom.Point) {
         //Need to add functionality for sensors here.
-        //     return feature;
-        } else if (geom instanceof ol.geom.LineString) {
             return feature;
-        } else if (geom instanceof ol.geom.MultiLineString) {
+        } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
             return feature;
         } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
-            if (feature.get('type') === 'AOR') {
+            if (feature.get('feature_type') === 'AOR') {
                 var point = geom.getClosestPoint(coord);
                 var pixel0 = this.map.getPixelFromCoordinate(coord);
                 var pixel1 = this.map.getPixelFromCoordinate(point);
-                if (Math.abs(pixel0[0]-pixel1[0]) < 4 && Math.abs(pixel0[1]-pixel1[1]) < 4) {
+                if (Math.abs(pixel0[0]-pixel1[0]) < 8 && Math.abs(pixel0[1]-pixel1[1]) < 8) {
                     return feature;
                 }
             } else {
@@ -1176,39 +1220,20 @@ layerInteractor.prototype.displayFeatureInfo = function(feature) {
     }
 };
 
-layerInteractor.prototype.tobjectsStyleFunction = (function() {
-    var _this = this;
-    var strokeopacity = 1;
-    var setStyle = function(type) {
-        var style = new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: _this.toolbarColors[type].concat(strokeopacity),
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: _this.toolbarColors[type].concat(_this.fillOpacity[type])
-            })
-        });
-        return [style]
-    };
-    return function(feature, resolution) {
-        return setStyle(feature.get('type'));
-    };
-})();
-
 layerInteractor.prototype.addInteractions = function () {
+    var _this = this;
     this.select = new ol.interaction.Select({
         layers: [this.featureOverlay],
         toggleCondition: ol.events.condition.never,
-        /*condition: function(evt) {
+        condition: function(evt) {
             if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
-                if (featureadded) {
-                    featureadded = false;
+                if (_this.toolbar.addedFeature) {
+                    _this.toolbar.addedFeature = null;
                     return false;
-                };
+                }
                 return true;
-            };
-        },*/
+            }
+        },
         style: new ol.style.Style({
             stroke: new ol.style.Stroke({
                 color: 'rgba(255, 255, 255, 1)',
@@ -1220,18 +1245,27 @@ layerInteractor.prototype.addInteractions = function () {
         })
     });
 
-    var _this = this;
     this.select.on('select', function(evt) {
         var feature;
         // Handle deselect first so we can update the feature in the python code.
         if (evt.deselected.length == 1) {
             feature = evt.deselected[0];
             _this.modify.setActive(false);
+
+            // translate.setActive(false);
+            // $('#drawhole').prop('disabled', true);
             console.log('deselect:', feature.get('name'), feature.getRevision());
         }
         if (evt.selected.length == 1) {
             feature = evt.selected[0];
             _this.modify.setActive(true);
+            //translate.setActive(true);
+            // geom = feature.getGeometry()
+            // if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+            //     $('#drawhole').prop('disabled', false);
+            // } else {
+            //     $('#drawhole').prop('disabled', true);
+            // }
             console.log('select:    ', feature.get('name'), feature.getRevision())
         }
     });
@@ -1240,25 +1274,34 @@ layerInteractor.prototype.addInteractions = function () {
         features: this.select.getFeatures()
     });
 
+    var keyDown = function(evt) {
+        console.log(evt.keyCode);
+        if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
+            var layer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
+            layer.getSource().removeFeature(_this.highlight);
+            _this.featureOverlay.getSource().removeFeature(_this.highlight);
+            _this.highlight = undefined;
+        }
+    };
+    document.addEventListener('keydown', keyDown, false);
+
     this.toolbar.controlEventEmitter.on('change', function (evt) {
-        console.log('toolbar.consoleEventEmitter changed')
+        var selectedFeature = _this.select.getFeatures();
         if (_this.toolbar.active == true) {
             _this.map.un('pointermove', _this.hoverDisplay);
-            var selectedFeature = _this.select.getFeatures();
             selectedFeature.forEach(selectedFeature.remove, selectedFeature);
             // $('#drawhole').prop('disabled', true);
             // translate.setActive(false);
             // modify.setActive(false);
             _this.select.setActive(false);
-            // var geom_type = event.target.value;
-            // var tobj_type = event.target.id;
-            // var source = tobj_type === 'AOR' ? vector_aor.getSource() : vector.getSource();
-
         } else {
             _this.select.setActive(true);
             //$('#drawhole').prop('disabled', false);
             _this.map.on('pointermove', _this.hoverDisplay);
-
+            if (_this.toolbar.addedFeature) {
+                selectedFeature.push(_this.toolbar.addedFeature);
+            }
+            console.log('here')
         }
     });
 };
@@ -1662,9 +1705,9 @@ function init() {
     //         } else if (evt.keyCode == 27) {
     //             map.removeInteraction(draw);
     //             select.setActive(true);
-    //             //modify.setActive(true);
-    //             //translate.setActive(true);
-    //             //$('#drawhole').prop('disabled', false);
+    //             modify.setActive(true);
+    //             translate.setActive(true);
+    //             $('#drawhole').prop('disabled', false);
     //             map.on('pointermove', hoverDisplay);
     //             $(document).off('keyup')
     //         }
