@@ -98,6 +98,33 @@ function doesPolyCoverHole(geom, holecoords) {
     return geomA.covers(geomB);
 }
 
+var featureSubTypes = {
+    'AOR': null,
+    'Building': ['metal', 'glass'],
+    'Herbage': ['dense', 'sparse'],
+    'Water': ['warm', 'cool', 'frozen'],
+    'Wall': ['metal', 'stone'],
+    'Road': ['cement', 'gravel', 'dirt'],
+    'Generic': null
+};
+var featureHeights = {
+    'AOR': null,
+    'Building': 10,
+    'Herbage': 10,
+    'Water': null,
+    'Wall': 10,
+    'Road': null,
+    'Generic': null
+};
+var featureThickness = {
+    'AOR': null,
+    'Building': null,
+    'Herbage': null,
+    'Water': null,
+    'Wall': 10,
+    'Road': 10,
+    'Generic': null
+};
 var featureColors = {
     'AOR': [0, 0, 0],
     'Building': [128, 128, 128],
@@ -154,9 +181,11 @@ var layerTree = function (options) {
         controlDiv.appendChild(this.createButton('addvector', 'Add Vector Layer', 'addlayer'));
         controlDiv.appendChild(this.createButton('deletelayer', 'Remove Layer', 'deletelayer'));
         containerDiv.appendChild(controlDiv);
+        
         this.layerContainer = document.createElement('div');
         this.layerContainer.className = 'layercontainer';
         containerDiv.appendChild(this.layerContainer);
+        
         var idCounter = 0;
         this.selectedLayer = null;
         this.selectEventEmitter = new ol.Observable();
@@ -843,6 +872,8 @@ var toolBar = function (options) {
         this.toolbar = document.getElementById(options.target);
         this.layertree = options.layertree;
         this.controls = new ol.Collection();
+        this.bitA = 0;
+        this.bitB = 0;
         this.activeControl = undefined;
         this.active = false;
         this.controlEventEmitter = new ol.Observable();
@@ -856,16 +887,14 @@ toolBar.prototype.addControl = function (control) {
     if (!(control instanceof ol.control.Control)) {
         throw new Error('Only controls can be added to the toolbar.');
     }
-    // var bit2 = 0;
-    // var bit3 = 0;
     if (control.get('button_type') === 'radio') {
         control.on('change:active', function () {
-            if (!(this.bit2 | this.bit3)) {
+            if (!(this.bitA | this.bitB)) {
                 this.activeControl = control;
                 this.active = true;
                 this.controlEventEmitter.changed()
             }
-            this.bit2 ^= 1;
+            this.bitA ^= 1;
             if (control.get('active')) {
                 this.controls.forEach(function (controlToDisable) {
                     if (controlToDisable.get('button_type') === 'radio' && controlToDisable !== control) {
@@ -873,8 +902,8 @@ toolBar.prototype.addControl = function (control) {
                     }
                 });
             }
-            this.bit3 ^= 1;
-            if (!(this.bit2 | this.bit3)) {
+            this.bitB ^= 1;
+            if (!(this.bitA | this.bitB)) {
                 this.activeControl = undefined;
                 this.active = false;
                 this.controlEventEmitter.changed()
@@ -1028,8 +1057,11 @@ toolBar.prototype.handleEvents = function (interaction, feature_type) {
 
     interaction.on('drawend', function (evt) {
 
+        var id = FID.gen();
+
+        evt.feature.setId(id);
         evt.feature.set('feature_type', feature_type);
-        evt.feature.set('name', FID.gen());
+        evt.feature.set('name', feature_type+'-'+id);
 
         var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
         selectedLayer.getSource().addFeature(evt.feature);
@@ -1038,7 +1070,6 @@ toolBar.prototype.handleEvents = function (interaction, feature_type) {
 
         // transactWFS('insert', evt.feature);
         //$('#drawhole').prop('disabled', false);
-        // info.innerHTML = evt.feature.get('type') + ': ' + evt.feature.get('name');
         this.addedFeature = evt.feature;
         // source.once('addfeature', function(evt) {
         //     var parser = new ol.format.GeoJSON();
@@ -1061,6 +1092,327 @@ toolBar.prototype.handleEvents = function (interaction, feature_type) {
     return interaction;
 };
 
+var featureEditor = function (options) {
+    'use strict';
+    if (!(this instanceof featureEditor)) {
+        throw new Error('featureEditor must be constructed with the new keyword.');
+    } else if (typeof options === 'object' && options.target) {
+        this.featureeditor = document.getElementById(options.target);
+        this.featureeditor.className = 'featureeditor';
+    } else {
+        throw new Error('Invalid parameter(s) provided.');
+    }
+
+    // var div_addvector = document.createElement('div');
+    // div_addvector.id = "addvector";
+    // div_addvector.style.display = "block";
+    // var form_addvector_form = document.createElement('form');
+    // form_addvector_form.id = "addvector_form";
+    // var p_0 = document.createElement('p');
+    // p_0.appendChild( document.createTextNode("Add Vector layer") );
+    // form_addvector_form.appendChild( p_0 );
+    // var table_0 = document.createElement('table');
+    // var tr_0 = document.createElement('tr');
+    // var td_0 = document.createElement('td');
+    // td_0.appendChild( document.createTextNode("Vector file:") );
+    // tr_0.appendChild( td_0 );
+    // var td_1 = document.createElement('td');
+    // var input_0 = document.createElement('input');
+    // input_0.required = "required";
+    // input_0.type = "file";
+    // input_0.name = "file";
+    // td_1.appendChild( input_0 );
+    // tr_0.appendChild( td_1 );
+    // table_0.appendChild( tr_0 );
+    //
+    // var tr_1 = document.createElement('tr');
+    // var td_2 = document.createElement('td');
+    // td_2.appendChild( document.createTextNode("Display name:") );
+    // tr_1.appendChild( td_2 );
+    // var td_3 = document.createElement('td');
+    // var input_1 = document.createElement('input');
+    // input_1.type = "text";
+    // input_1.name = "displayname";
+    // input_1.value = "Bull Shit";
+    // td_3.appendChild( input_1 );
+    // tr_1.appendChild( td_3 );
+    // table_0.appendChild( tr_1 );
+    //
+    // var tr_2 = document.createElement('tr');
+    // var td_4 = document.createElement('td');
+    // td_4.appendChild( document.createTextNode("Format:") );
+    // tr_2.appendChild( td_4 );
+    //
+    // var td_5 = document.createElement('td');
+    // var select_0 = document.createElement('select');
+    // select_0.required = "required";
+    // select_0.name = "format";
+    // var option_0 = document.createElement('option');
+    // option_0.value = "geojson";
+    // option_0.appendChild( document.createTextNode("GeoJSON") );
+    // select_0.appendChild( option_0 );
+    // var option_1 = document.createElement('option');
+    // option_1.value = "topojson";
+    // option_1.appendChild( document.createTextNode("TopoJSON") );
+    // select_0.appendChild( option_1 );
+    // var option_2 = document.createElement('option');
+    // option_2.value = "kml";
+    // option_2.appendChild( document.createTextNode("KML") );
+    // select_0.appendChild( option_2 );
+    // var option_3 = document.createElement('option');
+    // option_3.value = "osm";
+    // option_3.appendChild( document.createTextNode("OSM") );
+    // select_0.appendChild( option_3 );
+    // td_5.appendChild( select_0 );
+    // tr_2.appendChild( td_5 );
+    // table_0.appendChild( tr_2 );
+    //
+    // var tr_3 = document.createElement('tr');
+    // var td_6 = document.createElement('td');
+    // td_6.appendChild( document.createTextNode("Projection:") );
+    // tr_3.appendChild( td_6 );
+    // var td_7 = document.createElement('td');
+    // var input_2 = document.createElement('input');
+    // input_2.type = "text";
+    // input_2.name = "projection";
+    // td_7.appendChild( input_2 );
+    // tr_3.appendChild( td_7 );
+    // table_0.appendChild( tr_3 );
+    //
+    // var tr_4 = document.createElement('tr');
+    // var td_8 = document.createElement('td');
+    // var input_3 = document.createElement('input');
+    // input_3.type = "submit";
+    // input_3.value = "Add layer";
+    // td_8.appendChild( input_3 );
+    // tr_4.appendChild( td_8 );
+    // var td_9 = document.createElement('td');
+    // var input_4 = document.createElement('input');
+    // input_4.onclick = function(){
+    //     this.form.parentNode.style.display = 'none'
+    // };
+    // input_4.type = "button";
+    // input_4.value = "Cancel";
+    // td_9.appendChild( input_4 );
+    // tr_4.appendChild( td_9 );
+    // table_0.appendChild( tr_4 );
+    // form_addvector_form.appendChild( table_0 );
+    // div_addvector.appendChild( form_addvector_form );
+    // this.featureeditor.appendChild( div_addvector );
+
+};
+
+featureEditor.prototype.createForm = function(options) {
+
+    var form = document.createElement('form');
+    form.id = 'featureproperties';
+    form.style.display = 'none';
+
+    var p_0 = document.createElement('p');
+    p_0.appendChild( document.createTextNode("Edit Feature") );
+    form.appendChild( p_0 );
+
+    var p_1 = this.addLayer();
+    form.appendChild( p_1 );
+    var p_2 = this.addLayerGeometry();
+    form.appendChild( p_2 );
+
+    var table = document.createElement('table');
+
+    var tr_2 = this.addName();
+    table.appendChild( tr_2 );
+    var tr_3 = this.addFeatureType();
+    table.appendChild( tr_3 );
+    var tr_4 = this.addGeometryType();
+    table.appendChild( tr_4 );
+    // // TODO: Add draw-hole (polygons)
+    // var tr_5 = this.addHoleButton();
+    // table.appendChild( tr_5 );
+    var tr_6 = this.addSubType();
+    table.appendChild( tr_6 );
+    var tr_7 = this.addHeight();
+    table.appendChild( tr_7 );
+    var tr_8 = this.addThickness();
+    table.appendChild( tr_8 );
+    // // TODO: Add length (parameter)
+    // var tr_9 = this.addLength(geometry_type);
+    // table.appendChild( tr_9 );
+    // // TODO: Add area
+    // var tr_10 = this.addArea(geometry_type);
+    // table.appendChild( tr_10 );
+
+    form.appendChild( table );
+    this.featureeditor.appendChild(form);
+};
+
+featureEditor.prototype.createOption = function (optionValue) {
+    var option = document.createElement('option');
+    option.value = optionValue;
+    option.textContent = optionValue;
+    return option;
+};
+featureEditor.prototype.removeContent = function (element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+    return this;
+};
+
+featureEditor.prototype.addInputField = function(options) {
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode(options.label);
+    td_1.appendChild(label);
+
+    var td_2 = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = "text";
+    input.name = options.name;
+    input.value = options.value;
+    td_2.appendChild(input);
+
+    tr.appendChild(td_1);
+    tr.appendChild(td_2);
+    return tr;
+};
+
+featureEditor.prototype.addLayer = function() {
+    // readonly
+    var p = document.createElement('p');
+    p.appendChild( document.createTextNode("layer Name:") );
+    return p
+};
+featureEditor.prototype.addLayerGeometry = function() {
+    // readonly
+    var p = document.createElement('p');
+    p.appendChild( document.createTextNode("layer Geometry:") );
+    return p
+};
+featureEditor.prototype.addName = function() {
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode("Name:");
+    td_1.appendChild(label);
+    tr.appendChild(td_1);
+
+    var td_2 = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = "text";
+    input.name = "name";
+    input.value = null;
+    td_2.appendChild(input);
+    tr.appendChild(td_2);
+
+    return tr;
+};
+featureEditor.prototype.addFeatureType = function() {
+    // options menu.
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode("Feature type:");
+    td_1.appendChild(label);
+    tr.appendChild(td_1);
+
+    var td_2 = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = "text";
+    input.name = "feature_type";
+    input.value = null;
+    td_2.appendChild(input);
+    tr.appendChild(td_2);
+
+    return tr;
+};
+featureEditor.prototype.addGeometryType = function() {
+    //readonly
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode("Geometry type:");
+    td_1.appendChild(label);
+    tr.appendChild(td_1);
+
+    var td_2 = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = "text";
+    input.name = "geometry_type";
+    input.readonly = true;
+    td_2.appendChild(input);
+    tr.appendChild(td_2);
+
+    return tr;
+};
+
+// featureEditor.prototype.addHoleButton = function() {
+//     // Only for Polygons.
+// };
+featureEditor.prototype.addSubType = function() {
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode("Sub type:");
+    td_1.appendChild(label);
+    tr.appendChild(td_1);
+
+    var td_2 = document.createElement('td');
+    var select = document.createElement('select');
+    select.required = "required";
+    select.name = "sub_type";
+    td_2.appendChild( select );
+    tr.appendChild(td_2);
+
+    return tr;
+};
+featureEditor.prototype.addHeight = function() {
+    // add height slider.
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode("Height:");
+    td_1.appendChild(label);
+    tr.appendChild(td_1);
+
+    var td_2 = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = "number";
+    input.name = "height";
+    input.value = null;
+    td_2.appendChild(input);
+    tr.appendChild(td_2);
+
+    return tr;
+};
+featureEditor.prototype.addThickness = function() {
+    // add thickness slider
+    var tr = document.createElement('tr');
+
+    var td_1 = document.createElement('td');
+    var label = document.createTextNode("Thickness:");
+    td_1.appendChild(label);
+    tr.appendChild(td_1);
+
+    var td_2 = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = "number";
+    input.name = "thickness";
+    input.value = null;
+    td_2.appendChild(input);
+    tr.appendChild(td_2);
+
+    return tr;
+};
+// featureEditor.prototype.addLength = function() {
+//     // readonly
+//     // needs geometry
+// };
+// featureEditor.prototype.addArea = function() {
+//     // readonly
+//     // only for polygons
+// };
+
 var layerInteractor = function (options) {
     'use strict';
     if (!(this instanceof layerInteractor)) {
@@ -1072,6 +1424,8 @@ var layerInteractor = function (options) {
         this.map = options.map;
         this.layertree = options.layertree;
         this.toolbar = options.toolbar;
+        this.form = new featureEditor({'target': 'featureeditor'});
+        this.form.createForm();
         this.highlight = undefined;
         var _this = this;
         this.featureOverlay = this.createFeatureOverlay();
@@ -1103,6 +1457,64 @@ var layerInteractor = function (options) {
         throw new Error('Invalid parameter(s) provided.');
     }
 
+};
+
+layerInteractor.prototype.activateForm = function (feature) {
+    var form = document.getElementById('featureproperties');
+
+    form.style.display = 'block';
+
+    form.name.value = feature.get('name');
+    form.feature_type.value = feature.get('feature_type');
+    form.geometry_type.value = feature.getGeometry().getType();
+
+    if (featureSubTypes[feature.get('feature_type')]) {
+        featureSubTypes[feature.get('feature_type')].forEach( function (sub_type) {
+            form.sub_type.appendChild(this.form.createOption(sub_type));
+        }, this);
+        if (feature.get('sub_type')) {
+            form.sub_type.value = feature.get('sub_type');
+        }
+    } else {
+        form.sub_type.disabled = true;
+    }
+
+    if (feature.get('height')) {
+        form.height.value = feature.get('height');
+    } else if (featureHeights[feature.get('feature_type')]) {
+        form.height.value = featureHeights[feature.get('feature_type')];
+    } else {
+        form.height.disabled = true;
+    }
+
+    if (feature.get('thickness')) {
+        form.thickness.value = feature.get('thickness');
+    } else if (featureThickness[feature.get('feature_type')]) {
+        form.thickness.value = featureThickness[feature.get('feature_type')];
+    } else {
+        form.thickness.disabled = true;
+    }
+};
+
+layerInteractor.prototype.deactivateForm = function (feature) {
+    var form = document.getElementById('featureproperties');
+
+    feature.set('name', form.name.value);
+    feature.set('feature_type', form.feature_type.value);
+
+    feature.set('sub_type', form.sub_type.value);
+    this.form.removeContent(form.sub_type);
+    form.sub_type.disabled = false;
+
+    feature.set('height', form.height.value);
+    form.height.value = null;
+    form.height.disabled = false;
+
+    feature.set('thickness', form.thickness.value);
+    form.thickness.value = null;
+    form.thickness.disabled = false;
+
+    form.style.display = 'none';
 };
 
 layerInteractor.prototype.createFeatureOverlay = function() {
@@ -1255,6 +1667,12 @@ layerInteractor.prototype.addInteractions = function () {
             // translate.setActive(false);
             // $('#drawhole').prop('disabled', true);
             console.log('deselect:', feature.get('name'), feature.getRevision());
+            _this.deactivateForm(feature);
+
+            // var selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
+            // selectedLayer.getSource().addFeature(feature);
+            // _this.activeFeatures.push(feature);
+
         }
         if (evt.selected.length == 1) {
             feature = evt.selected[0];
@@ -1267,6 +1685,7 @@ layerInteractor.prototype.addInteractions = function () {
             //     $('#drawhole').prop('disabled', true);
             // }
             console.log('select:    ', feature.get('name'), feature.getRevision())
+            _this.activateForm(feature);
         }
     });
 
@@ -1274,7 +1693,20 @@ layerInteractor.prototype.addInteractions = function () {
         features: this.select.getFeatures()
     });
 
-    var keyDown = function(evt) {
+    /********* TRANSLATE ***********/
+    // When the translate interaction is active, it
+    // causes the mouse cursor to turn into a
+    // pointer when hovering over the interior
+    // of the AOR. Need to find out why.
+    // Disable until solution is found.
+    //
+    // var translate = new ol.interaction.Translate({
+    //     features: select.getFeatures()
+    // });
+    // map.addInteraction(translate);
+    // translate.setActive(false);
+
+    var remove = function(evt) {
         console.log(evt.keyCode);
         if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
             var layer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
@@ -1283,25 +1715,43 @@ layerInteractor.prototype.addInteractions = function () {
             _this.highlight = undefined;
         }
     };
-    document.addEventListener('keydown', keyDown, false);
+    document.addEventListener('keydown', remove, false);
 
     this.toolbar.controlEventEmitter.on('change', function (evt) {
-        var selectedFeature = _this.select.getFeatures();
+        var selectedFeatures = _this.select.getFeatures();
+        var selectedFeature;
         if (_this.toolbar.active == true) {
             _this.map.un('pointermove', _this.hoverDisplay);
-            selectedFeature.forEach(selectedFeature.remove, selectedFeature);
+
+            if (selectedFeatures.getArray().length === 1) {
+                selectedFeature = selectedFeatures.getArray()[0];
+                console.log('deselect:', selectedFeature.get('name'), selectedFeature.getRevision());
+                _this.deactivateForm(selectedFeature);
+
+                // var selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
+                // selectedLayer.getSource().addFeature(feature);
+                // _this.activeFeatures.push(feature);
+
+                selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
+            }
+
             // $('#drawhole').prop('disabled', true);
             // translate.setActive(false);
-            // modify.setActive(false);
+            _this.modify.setActive(false);
             _this.select.setActive(false);
         } else {
             _this.select.setActive(true);
+            _this.modify.setActive(true);
+            // translate.setActive(true);
             //$('#drawhole').prop('disabled', false);
-            _this.map.on('pointermove', _this.hoverDisplay);
             if (_this.toolbar.addedFeature) {
-                selectedFeature.push(_this.toolbar.addedFeature);
+                selectedFeatures.push(_this.toolbar.addedFeature);
+
+                selectedFeature = selectedFeatures.getArray()[0];
+                console.log('select:    ', selectedFeature.get('name'), selectedFeature.getRevision());
+                _this.activateForm(selectedFeature);
             }
-            console.log('here')
+            _this.map.on('pointermove', _this.hoverDisplay);
         }
     });
 };
@@ -1542,6 +1992,8 @@ function init() {
 
     tools.addDrawToolBar();
 
+    // var featureedit = new featureEditor({target: 'featureeditor'});
+    // featureedit.createForm({feature_type: "Herbage"})
     var interactor = new layerInteractor({map: map, toolbar: tools, layertree: tree});
 
 

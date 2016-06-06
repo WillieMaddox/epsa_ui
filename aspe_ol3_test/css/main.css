@@ -17,11 +17,12 @@ body {
 }
 .sidebar .toolbar {
     width: 100%;
-    height: 50%;
+    height: 2em;
     box-sizing: border-box;
     display: table;
     padding-left: .2em;
 }
+
 .toolbar .ol-control {
     height: 2em;
     position: static;
@@ -142,6 +143,11 @@ body {
 }
 .toolbar .ol-measure button {
     background-image: url(../res/button_measure.png);
+}
+.sidebar .featureeditor {
+    position: relative;
+    height: calc(50% - 2em);
+    overflow-y: auto;
 }
 .sidebar .layertree {
     width: 100%;
