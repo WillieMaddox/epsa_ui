@@ -1124,7 +1124,6 @@ toolBar.prototype.handleEvents = function (interaction, feature_type) {
         this.activeFeatures.push(evt.feature);
 
         // transactWFS('insert', evt.feature);
-        //$('#drawhole').prop('disabled', false);
         this.addedFeature = evt.feature;
         // source.once('addfeature', function(evt) {
         //     var parser = new ol.format.GeoJSON();
@@ -1272,6 +1271,9 @@ featureEditor.prototype.createForm = function(options) {
     table.appendChild( tr_4 );
     var tr_2 = this.addName();
     table.appendChild( tr_2 );
+    // TODO: Add draw-hole (polygons)
+    var tr_5 = this.addHoleButton();
+    table.appendChild( tr_5 );
     var tr_3 = this.addFeatureType();
     table.appendChild( tr_3 );
     var tr_6 = this.addSubType();
@@ -1281,9 +1283,6 @@ featureEditor.prototype.createForm = function(options) {
     var tr_8 = this.addThickness();
     table.appendChild( tr_8 );
 
-    // TODO: Add draw-hole (polygons)
-    // var tr_5 = this.addHoleButton();
-    // table.appendChild( tr_5 );
     // TODO: Add length (parameter)
     // var tr_9 = this.addLength(geometry_type);
     // table.appendChild( tr_9 );
@@ -1328,20 +1327,31 @@ featureEditor.prototype.addLabelElement = function(label) {
 };
 featureEditor.prototype.addInputElement = function(name, type) {
     var td = document.createElement('td');
-    var input = document.createElement('input');
-    input.name = name;
-    input.type = type;
-    input.required = true;
-    td.appendChild(input);
+    var element = document.createElement('input');
+    element.name = name;
+    element.type = type;
+    element.required = true;
+    td.appendChild(element);
+    return td;
+};
+featureEditor.prototype.addButtonElement = function(name, id) {
+    var td = document.createElement('td');
+    var element = document.createElement('input');
+    element.value = "Draw Hole";
+    element.title = "Draw a hole";
+    element.id = id;
+    element.type = "button";
+    element.name = name;
+    td.appendChild(element);
     return td;
 };
 featureEditor.prototype.addMenuElement = function(name, id) {
     var td = document.createElement('td');
-    var select = document.createElement('select');
-    select.name = name;
-    select.type = "text";
-    select.id = id;
-    td.appendChild( select );
+    var element = document.createElement('select');
+    element.name = name;
+    element.type = "text";
+    element.id = id;
+    td.appendChild(element);
     return td;
 };
 featureEditor.prototype.addGeometryType = function() {
@@ -1358,6 +1368,16 @@ featureEditor.prototype.addName = function() {
     tr.appendChild(td_1);
     var td_2 = this.addInputElement("name", "text");
     tr.appendChild(td_2);
+    return tr;
+};
+featureEditor.prototype.addHoleButton = function() {
+    // Only for Polygons.
+    var tr = document.createElement('tr');
+    var td_1 = this.addLabelElement("Draw Hole:");
+    tr.appendChild(td_1);
+    var td_2 = this.addButtonElement("add_hole", "drawhole");
+    // tr.appendChild(td_2);
+    tr.appendChild(this.stopPropagationOnEvent(td_2, 'click'));
     return tr;
 };
 featureEditor.prototype.addFeatureType = function() {
@@ -1415,9 +1435,6 @@ featureEditor.prototype.addThickness = function() {
     return tr;
 };
 
-// featureEditor.prototype.addHoleButton = function() {
-//     // Only for Polygons.
-// };
 // featureEditor.prototype.addLength = function() {
 //     // readonly
 //     // needs geometry
@@ -1476,9 +1493,163 @@ var layerInteractor = function (options) {
         this.map.addInteraction(this.modify);
         this.modify.setActive(false);
 
+        var holeElem = document.getElementById('drawhole');
+        holeElem.addEventListener('click', function () {
+            _this.drawHole();
+        });
+        this.holeadded = false;
+
     } else {
         throw new Error('Invalid parameter(s) provided.');
     }
+};
+
+layerInteractor.prototype.drawHole = function () {
+    var holeStyle = [
+        new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 0.8)',
+                lineDash: [10, 10],
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0)'
+            })
+        }),
+        new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 0, 0, 0.5)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: 'black',
+                    width: 1
+                }),
+                points: 4,
+                radius: 6,
+                angle: Math.PI / 4
+            })
+        })
+    ];
+
+    var selFeat = this.select.getFeatures();
+    // Clone and original selected geometry so we can test new vertex points against it in the geometryFunction.
+    var selFeatGeom = selFeat.getArray()[0].getGeometry().clone();
+    var geomTypeSelected = selFeat.getArray()[0].getGeometry().getType();
+    if (geomTypeSelected != "Polygon") {
+        // if (geomTypeSelected.search("Polygon") < 0) {
+        alert("Only Polygon (or MultiPolygon) geometry selections. Not " + geomTypeSelected);
+        return;
+    }
+
+    var isMultiPolygon = geomTypeSelected == "MultiPolygon";
+    var vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
+
+    //create a hole draw interaction
+    var source = new ol.source.Vector();
+    var holeDraw = new ol.interaction.Draw({
+        source: source,
+        type: 'Polygon',
+        style: holeStyle,
+        //add the geometry function in order to disable hole creation outside selected polygon
+        geometryFunction: function(coords, geom) {
+            var retGeom; //define the geometry to return
+            if (typeof(geom) !== 'undefined') { //if it is defined, set its coordinates
+                geom.setCoordinates(coords);
+            } else {
+                retGeom = new ol.geom.Polygon(coords);
+            }
+            if (coords[0].length > vertsCouter) { //this is the case where new vertex has been drawn
+                //check if vertex drawn is within the "original" selected polygon
+                var test_point = coords[0][coords[0].length - 1]
+                var isIn = isPointInPoly(selFeatGeom, test_point);
+                //if outside get rid of it
+                if (isIn !== true) {
+                    coords[0].pop(); //remove the last coordinate element
+                    retGeom = new ol.geom.Polygon(coords); //reconstruct the geometry
+                }
+                vertsCouter = coords[0].length; //reset the length of vertex counter
+            }
+            return retGeom;
+        }
+    });
+
+    this.map.un('pointermove', this.hoverDisplay);
+    this.select.setActive(false);
+    this.modify.setActive(false);
+    this.map.addInteraction(holeDraw);
+
+    holeDraw.on('drawstart', function(evt) {
+        var feature = evt.feature; // the hole feature
+        var ringAdded = false; //init boolen var to clarify whether drawn hole has already been added or not
+        //set the change feature listener so we get the hole like visual effect
+        feature.on('change', function(e) {
+            //get draw hole feature geometry
+            var drawCoords = feature.getGeometry().getCoordinates(false)[0];
+            //if hole has more than two cordinate pairs, add the interior ring to feature
+            if (drawCoords.length > 2) {
+                //if interior ring has not been added yet, append it and set it as true
+                if (ringAdded === false) {
+                    selFeat.getArray()[0].getGeometry().appendLinearRing(
+                        new ol.geom.LinearRing(feature.getGeometry().getCoordinates(false)[0]));
+                    ringAdded = true;
+                } else { //if interior ring has already been added we need to remove it and add back the updated one
+                    var setCoords = selFeat.getArray()[0].getGeometry().getCoordinates();
+                    setCoords.pop(); //pop the dirty hole
+                    setCoords.push(feature.getGeometry().getCoordinates(false)[0]); //push the updated hole
+                    selFeat.getArray()[0].getGeometry().setCoordinates(setCoords); //update selFeat with new geometry
+                }
+            }
+        });
+    });
+
+    $(document).on('keyup', function(evt) {
+        if (evt.keyCode == 189 || evt.keyCode == 109) {
+            holeDraw.removeLastPoint();
+        } else if (evt.keyCode == 27) {
+            selFeat.getArray()[0].getGeometry().setCoordinates(selFeatGeom.getCoordinates());
+            this.map.removeInteraction(holeDraw);
+            this.select.setActive(true);
+            //modify.setActive(true);
+            //translate.setActive(true);
+            this.map.on('pointermove', this.hoverDisplay);
+            $(document).off('keyup')
+        }
+    }, this);
+
+    //create a listener when finish drawing and so remove the hole interaction
+    holeDraw.on('drawend', function(evt) {
+
+        var rings = selFeat.getArray()[0].getGeometry().getCoordinates();
+        holecoords = rings.pop();
+
+        if (doesPolyCoverHole(selFeatGeom, holecoords)) {
+            source.once('addfeature', function(e) {
+                var featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
+                    selFeat.getArray(), {
+                        featureProjection: 'EPSG:3857'
+                    }
+                );
+                console.log(featuresGeoJSON)
+            })
+        } else {
+            selFeat.getArray()[0].getGeometry().setCoordinates(rings);
+        }
+
+        this.map.removeInteraction(holeDraw);
+        //reinitialise modify interaction. If you don't do that, holes may not be modifed
+        this.modify.setActive(true);
+        /*map.removeInteraction(modify);
+         modify = new ol.interaction.Modify({
+         features: selFeat
+         });
+         map.addInteraction(modify);
+         */
+        this.select.setActive(true);
+        this.holeadded = true;
+        this.map.on('pointermove', this.hoverDisplay);
+        // $(document).off('keyup')
+    }, this);
 };
 
 layerInteractor.prototype.loadFeature = function (feature_type) {
@@ -1544,6 +1715,8 @@ layerInteractor.prototype.activateForm = function (feature) {
     form.name.value = feature.get('name');
     form.geometry_type.value = feature.getGeometry().getType();
     form.geometry_type.readOnly = true;
+
+    form.add_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
 
     var feature_properties = defaultFeatureProperties[feature_type];
     for (var key in defaultFeatureProperties) {
@@ -1729,8 +1902,9 @@ layerInteractor.prototype.addInteractions = function () {
         toggleCondition: ol.events.condition.never,
         condition: function(evt) {
             if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
-                if (_this.toolbar.addedFeature) {
+                if (_this.toolbar.addedFeature || _this.holeadded) {
                     _this.toolbar.addedFeature = null;
+                    _this.holeadded = false;
                     return false;
                 }
                 return true;
@@ -1755,7 +1929,6 @@ layerInteractor.prototype.addInteractions = function () {
             _this.modify.setActive(false);
 
             // translate.setActive(false);
-            // $('#drawhole').prop('disabled', true);
             console.log('deselect:', feature.get('name'), feature.getRevision());
             _this.deactivateForm(feature);
 
@@ -1768,13 +1941,7 @@ layerInteractor.prototype.addInteractions = function () {
             feature = evt.selected[0];
             _this.modify.setActive(true);
             //translate.setActive(true);
-            // geom = feature.getGeometry()
-            // if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
-            //     $('#drawhole').prop('disabled', false);
-            // } else {
-            //     $('#drawhole').prop('disabled', true);
-            // }
-            console.log('select:    ', feature.get('name'), feature.getRevision())
+            console.log('select:  ', feature.get('name'), feature.getRevision())
             _this.activateForm(feature);
         }
     });
@@ -1825,7 +1992,6 @@ layerInteractor.prototype.addInteractions = function () {
                 selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
             }
 
-            // $('#drawhole').prop('disabled', true);
             // translate.setActive(false);
             _this.modify.setActive(false);
             _this.select.setActive(false);
@@ -1833,7 +1999,6 @@ layerInteractor.prototype.addInteractions = function () {
             _this.select.setActive(true);
             _this.modify.setActive(true);
             // translate.setActive(true);
-            //$('#drawhole').prop('disabled', false);
             if (_this.toolbar.addedFeature) {
                 selectedFeatures.push(_this.toolbar.addedFeature);
 
@@ -2416,7 +2581,7 @@ function init() {
     //     var vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
     //
     //     //create a hole draw interaction
-    //     source = new ol.source.Vector()
+    //     source = new ol.source.Vector();
     //     var holeDraw = new ol.interaction.Draw({
     //         source: source,
     //         type: 'Polygon',
@@ -2504,7 +2669,7 @@ function init() {
     //             })
     //         } else {
     //             selFeat.getArray()[0].getGeometry().setCoordinates(rings);
-    //         };
+    //         }
     //
     //         map.removeInteraction(holeDraw);
     //         //reinitialise modify interaction. If you don't do that, holes may not be modifed
