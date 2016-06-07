@@ -1294,7 +1294,6 @@ featureEditor.prototype.createForm = function(options) {
     this.featureeditor.appendChild(form);
     return this;
 };
-
 featureEditor.prototype.createOption = function (optionValue) {
     var option = document.createElement('option');
     option.value = optionValue;
@@ -1703,6 +1702,7 @@ layerInteractor.prototype.loadFeature = function (feature_type) {
     form.feature_type.value = feature_type;
     return this;
 };
+
 layerInteractor.prototype.activateForm = function (feature) {
     var form = document.getElementById('featureproperties');
 
