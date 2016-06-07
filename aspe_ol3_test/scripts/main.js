@@ -1560,7 +1560,7 @@ layerInteractor.prototype.drawHole = function () {
             }
             if (coords[0].length > vertsCouter) { //this is the case where new vertex has been drawn
                 //check if vertex drawn is within the "original" selected polygon
-                var test_point = coords[0][coords[0].length - 1]
+                var test_point = coords[0][coords[0].length - 1];
                 var isIn = isPointInPoly(selFeatGeom, test_point);
                 //if outside get rid of it
                 if (isIn !== true) {
@@ -1568,6 +1568,7 @@ layerInteractor.prototype.drawHole = function () {
                     retGeom = new ol.geom.Polygon(coords); //reconstruct the geometry
                 }
                 vertsCouter = coords[0].length; //reset the length of vertex counter
+                console.log(test_point)
             }
             return retGeom;
         }
@@ -1586,7 +1587,7 @@ layerInteractor.prototype.drawHole = function () {
             //get draw hole feature geometry
             var drawCoords = feature.getGeometry().getCoordinates(false)[0];
             //if hole has more than two cordinate pairs, add the interior ring to feature
-            if (drawCoords.length > 2) {
+            if (drawCoords.length > 3) {
                 //if interior ring has not been added yet, append it and set it as true
                 if (ringAdded === false) {
                     selFeat.getArray()[0].getGeometry().appendLinearRing(
