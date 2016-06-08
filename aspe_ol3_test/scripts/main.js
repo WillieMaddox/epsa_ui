@@ -101,7 +101,7 @@ function isPolyValid(coords) {
     var geom = new jsts.io.GeoJSONReader().read(
         new ol.format.GeoJSON().writeFeatureObject(
             new ol.Feature({
-                geometry: new ol.geom.Polygon([holecoords])
+                geometry: new ol.geom.Polygon([coords])
             })
         )
     ).geometry;
@@ -1546,14 +1546,13 @@ layerInteractor.prototype.drawHole = function () {
     var origFeatGeom = currFeat.getArray()[0].getGeometry().clone();
     var geomTypeSelected = currFeat.getArray()[0].getGeometry().getType();
     if (geomTypeSelected != "Polygon") {
-        // if (geomTypeSelected.search("Polygon") < 0) {
-        alert("Only Polygon (or MultiPolygon) geometry selections. Not " + geomTypeSelected);
+        // TODO: Handle MultiPolygons
+        alert("Only Polygon geometries can have holes at this time. Not " + geomTypeSelected);
         return;
     }
 
-    var isMultiPolygon = geomTypeSelected == "MultiPolygon";
     var vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
-
+    var hasStarted = false;
     //create a hole draw interaction
     var source = new ol.source.Vector();
     var holeDraw = new ol.interaction.Draw({
@@ -1565,13 +1564,14 @@ layerInteractor.prototype.drawHole = function () {
             var retGeom; //define the geometry to return
             if (coords[0].length > vertsCouter) { //this is the case where new vertex has been drawn
                 //check if vertex drawn is within the "original" selected polygon
-                var test_point = coords[0][coords[0].length - 1];
-                var isIn = isPointInPoly(origFeatGeom, test_point);
+                var newPoint = coords[0][coords[0].length - 1];
                 //if outside get rid of it
-                if (isIn !== true) {
+                if (isPointInPoly(origFeatGeom, newPoint) !== true) {
                     coords[0].pop(); //remove the last coordinate element
                     retGeom = new ol.geom.Polygon(coords); //reconstruct the geometry
                 }
+                vertsCouter = coords[0].length; //reset the length of vertex counter
+            } else if (coords[0].length < vertsCouter) {
                 vertsCouter = coords[0].length; //reset the length of vertex counter
             }
             if (typeof(geom) !== 'undefined') { //if it is defined, set its coordinates
@@ -1588,43 +1588,58 @@ layerInteractor.prototype.drawHole = function () {
     this.modify.setActive(false);
     this.map.addInteraction(holeDraw);
 
+    var _this = this;
+
+    var finishHole = function () {
+        _this.map.removeInteraction(holeDraw);
+        _this.modify.setActive(true);
+        _this.select.setActive(true);
+        //translate.setActive(true);
+        _this.map.on('pointermove', _this.hoverDisplay);
+        $(document).off('keyup')
+    };
+
+    $(document).on('keyup', function(evt) {
+        if (evt.keyCode == 189 || evt.keyCode == 109) {
+            if (vertsCouter === 1) {
+                currFeat.getArray()[0].getGeometry().setCoordinates(origFeatGeom.getCoordinates());
+                finishHole()
+            } else {
+                holeDraw.removeLastPoint();
+            }
+        } else if (evt.keyCode == 27) {
+            currFeat.getArray()[0].getGeometry().setCoordinates(origFeatGeom.getCoordinates());
+            finishHole()
+        }
+    });
+
     holeDraw.on('drawstart', function(evt) {
         var feature = evt.feature; // the hole feature
         var ringAdded = false; //init boolen var to clarify whether drawn hole has already been added or not
+        hasStarted = true;
         //set the change feature listener so we get the hole like visual effect
         feature.on('change', function(e) {
             //get draw hole feature geometry
             var currCoords = feature.getGeometry().getCoordinates(false)[0];
             //if hole has 2 or more coordinate pairs, add the interior ring to feature
-            if (currCoords.length >= 3) {
+            if (currCoords.length >= 3 && ringAdded === false) {
                 //if interior ring has not been added yet, append it and set it as true
-                if (ringAdded === false) {
-                    currFeat.getArray()[0].getGeometry().appendLinearRing(
-                        new ol.geom.LinearRing(currCoords));
-                    ringAdded = true;
-                } else { //if interior ring has already been added we need to remove it and add back the updated one
-                    var setCoords = currFeat.getArray()[0].getGeometry().getCoordinates();
-                    setCoords.pop(); //pop the dirty hole
-                    setCoords.push(currCoords); //push the updated hole
-                    currFeat.getArray()[0].getGeometry().setCoordinates(setCoords); //update currFeat with new geometry
-                }
+                currFeat.getArray()[0].getGeometry().appendLinearRing(
+                    new ol.geom.LinearRing(currCoords));
+                ringAdded = true;
+            } else if (currCoords.length >= 3 && ringAdded === true) { //if interior ring has already been added we need to remove it and add back the updated one
+                var setCoords = currFeat.getArray()[0].getGeometry().getCoordinates();
+                setCoords.pop(); //pop the dirty hole
+                setCoords.push(currCoords); //push the updated hole
+                currFeat.getArray()[0].getGeometry().setCoordinates(setCoords); //update currFeat with new geometry
+            } else if (currCoords.length == 2 && ringAdded === true ) {
+                var setCoords = currFeat.getArray()[0].getGeometry().getCoordinates();
+                setCoords.pop(); //pop the dirty hole
+                currFeat.getArray()[0].getGeometry().setCoordinates(setCoords); //update currFeat with new geometry
+                ringAdded = false;
             }
         });
     });
-
-    $(document).on('keyup', function(evt) {
-        if (evt.keyCode == 189 || evt.keyCode == 109) {
-            holeDraw.removeLastPoint();
-        } else if (evt.keyCode == 27) {
-            currFeat.getArray()[0].getGeometry().setCoordinates(origFeatGeom.getCoordinates());
-            this.map.removeInteraction(holeDraw);
-            this.select.setActive(true);
-            //modify.setActive(true);
-            //translate.setActive(true);
-            this.map.on('pointermove', this.hoverDisplay);
-            $(document).off('keyup')
-        }
-    }, this);
 
     //create a listener when finish drawing and so remove the hole interaction
     holeDraw.on('drawend', function(evt) {
@@ -1647,19 +1662,8 @@ layerInteractor.prototype.drawHole = function () {
             currFeat.getArray()[0].getGeometry().setCoordinates(rings);
         }
 
-        this.map.removeInteraction(holeDraw);
-        //reinitialise modify interaction. If you don't do that, holes may not be modifed
-        this.modify.setActive(true);
-        /*map.removeInteraction(modify);
-         modify = new ol.interaction.Modify({
-         features: currFeat
-         });
-         map.addInteraction(modify);
-         */
-        this.select.setActive(true);
         this.holeadded = true;
-        this.map.on('pointermove', this.hoverDisplay);
-        // $(document).off('keyup')
+        finishHole();
     }, this);
 };
 
