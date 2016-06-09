@@ -1168,7 +1168,9 @@ featureEditor.prototype.createForm = function(options) {
     table.appendChild( tr_4 );
     var tr_2 = this.addName();
     table.appendChild( tr_2 );
-    var tr_5 = this.addHoleButton();
+    var tr_5 = this.addDrawHoleButton();
+    table.appendChild( tr_5 );
+    var tr_5 = this.addDeleteHoleButton();
     table.appendChild( tr_5 );
     var tr_3 = this.addFeatureType();
     table.appendChild( tr_3 );
@@ -1240,6 +1242,17 @@ featureEditor.prototype.addButtonElement = function(name, id) {
     td.appendChild(element);
     return td;
 };
+featureEditor.prototype.addButtonElement = function(name1, name2) {
+    var td = document.createElement('td');
+    var element = document.createElement('input');
+    element.value = name1 + " " + name2;
+    element.title = name1 + " a " + name2;
+    element.name = name1 + "_" + name2;
+    element.type = "button";
+    element.id = name1 + name2;
+    td.appendChild(element);
+    return td;
+};
 featureEditor.prototype.addMenuElement = function(name, id) {
     var td = document.createElement('td');
     var element = document.createElement('select');
@@ -1265,12 +1278,22 @@ featureEditor.prototype.addName = function() {
     tr.appendChild(td_2);
     return tr;
 };
-featureEditor.prototype.addHoleButton = function() {
+featureEditor.prototype.addDrawHoleButton = function() {
     // Only for Polygons.
     var tr = document.createElement('tr');
-    var td_1 = this.addLabelElement("Draw Hole:");
+    var td_1 = this.addLabelElement("Draw");
     tr.appendChild(td_1);
-    var td_2 = this.addButtonElement("add_hole", "drawhole");
+    var td_2 = this.addButtonElement("draw", "hole");
+    // tr.appendChild(td_2);
+    tr.appendChild(this.stopPropagationOnEvent(td_2, 'click'));
+    return tr;
+};
+featureEditor.prototype.addDeleteHoleButton = function() {
+    // Only for Polygons.
+    var tr = document.createElement('tr');
+    var td_1 = this.addLabelElement("Delete");
+    tr.appendChild(td_1);
+    var td_2 = this.addButtonElement("delete", "hole");
     // tr.appendChild(td_2);
     tr.appendChild(this.stopPropagationOnEvent(td_2, 'click'));
     return tr;
@@ -1388,9 +1411,13 @@ var layerInteractor = function (options) {
         this.map.addInteraction(this.modify);
         this.modify.setActive(false);
 
-        var holeElem = document.getElementById('drawhole');
-        holeElem.addEventListener('click', function () {
+        var drawholeElem = document.getElementById('drawhole');
+        drawholeElem.addEventListener('click', function () {
             _this.drawHole();
+        });
+        var deleteholeElem = document.getElementById('deletehole');
+        deleteholeElem.addEventListener('click', function () {
+            _this.deleteHole();
         });
         this.holeadded = false;
 
@@ -1398,7 +1425,6 @@ var layerInteractor = function (options) {
         throw new Error('Invalid parameter(s) provided.');
     }
 };
-
 layerInteractor.prototype.drawHole = function () {
     var holeStyle = [
         new ol.style.Style({
@@ -1588,7 +1614,7 @@ layerInteractor.prototype.drawHole = function () {
                 var featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
                     [currFeat], { featureProjection: 'EPSG:3857' }
                 );
-                console.log(featuresGeoJSON)
+                // console.log(featuresGeoJSON)
             })
         } else {
             currFeat.getGeometry().setCoordinates(rings);
@@ -1610,7 +1636,78 @@ layerInteractor.prototype.drawHole = function () {
         finishHole();
     }, this);
 };
+layerInteractor.prototype.deleteHole = function () {
+    var holeStyle = [
+        new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 0.8)',
+                lineDash: [10, 10],
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.8)'
+            })
+        })
+    ];
 
+    var currFeat = this.select.getFeatures().getArray()[0];
+
+    this.map.un('pointermove', this.hoverDisplay);
+    this.select.setActive(false);
+    this.modify.setActive(false);
+
+    var source = new ol.source.Vector();
+    var holeOverlay = new ol.layer.Vector({
+        source: source,
+        type: 'overlay',
+        style: holeStyle,
+        zIndex: 9999
+    });
+
+    this.map.addLayer(holeOverlay);
+    var holeSelect = new ol.interaction.Select({
+        layers: [holeOverlay]
+    });
+
+    var currGeom = currFeat.getGeometry();
+    var feature;
+    var isMultiPolygon = currGeom.getType() === 'MultiPolygon';
+
+    var addHoles = function (poly) {
+        var skip = true;
+        poly.getLinearRings().forEach( function (ring) {
+            if (skip) {
+                skip = false;
+            } else {
+                feature = new ol.Feature(new ol.geom.Polygon([ring.getCoordinates()]));
+                holeOverlay.getSource().addFeature(feature);
+                console.log('hole added');
+            }
+        })
+    };
+
+    if (isMultiPolygon) {
+        currGeom.getPolygons().forEach( function (poly) {
+            addHoles(poly)
+        })
+    } else {
+        addHoles(currGeom)
+    }
+
+    this.map.addInteraction(holeSelect);
+
+    holeSelect.on('select', function(evt) {
+        if (evt.deselected.length == 1) {
+            console.log('deselect');
+            feature = evt.deselected[0];
+        }
+        if (evt.selected.length == 1) {
+            console.log('select');
+            feature = evt.selected[0];
+        }
+    });
+
+};
 layerInteractor.prototype.loadFeature = function (feature_type) {
     console.log(feature_type);
     var form = document.getElementById('featureproperties');
@@ -1662,7 +1759,6 @@ layerInteractor.prototype.loadFeature = function (feature_type) {
     form.feature_type.value = feature_type;
     return this;
 };
-
 layerInteractor.prototype.activateForm = function (feature) {
     var form = document.getElementById('featureproperties');
 
@@ -1676,7 +1772,8 @@ layerInteractor.prototype.activateForm = function (feature) {
     form.geometry_type.value = feature.getGeometry().getType();
     form.geometry_type.readOnly = true;
 
-    form.add_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
+    form.draw_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
+    form.delete_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
 
     var feature_properties = defaultFeatureProperties[feature_type];
     for (var key in defaultFeatureProperties) {
@@ -1715,7 +1812,6 @@ layerInteractor.prototype.activateForm = function (feature) {
         form.thickness.disabled = true;
     }
 };
-
 layerInteractor.prototype.deactivateForm = function (feature) {
     var form = document.getElementById('featureproperties');
 
@@ -1739,7 +1835,6 @@ layerInteractor.prototype.deactivateForm = function (feature) {
 
     form.style.display = 'none';
 };
-
 layerInteractor.prototype.createFeatureOverlay = function() {
     var highlightStyleCache = {};
     var _this = this;
@@ -1794,11 +1889,10 @@ layerInteractor.prototype.createFeatureOverlay = function() {
         source: new ol.source.Vector(),
         type: 'overlay',
         style: overlayStyleFunction,
-        zIndex: 9999
+        zIndex: 9900
     });
     return featureOverlay
 };
-
 layerInteractor.prototype.getFeatureAtPixel = function(pixel) {
     var coord = this.map.getCoordinateFromPixel(pixel);
     var smallestArea = 5.1e14; // approximate surface area of the earth
@@ -1834,7 +1928,6 @@ layerInteractor.prototype.getFeatureAtPixel = function(pixel) {
     }, this);
     return exists(feature) ? feature : smallestFeature;
 };
-
 layerInteractor.prototype.setMouseCursor = function(feature) {
     if (feature) {
         this.map.getTarget().style.cursor = 'pointer';
@@ -1842,7 +1935,6 @@ layerInteractor.prototype.setMouseCursor = function(feature) {
         this.map.getTarget().style.cursor = '';
     }
 };
-
 layerInteractor.prototype.displayFeatureInfo = function(feature) {
     if (feature !== this.highlight) {
         if (this.highlight) {
@@ -1854,7 +1946,6 @@ layerInteractor.prototype.displayFeatureInfo = function(feature) {
         this.highlight = feature;
     }
 };
-
 layerInteractor.prototype.addInteractions = function () {
     var _this = this;
     this.select = new ol.interaction.Select({
@@ -1901,7 +1992,7 @@ layerInteractor.prototype.addInteractions = function () {
             feature = evt.selected[0];
             _this.modify.setActive(true);
             //translate.setActive(true);
-            console.log('select:  ', feature.get('name'), feature.getRevision())
+            console.log('select:  ', feature.get('name'), feature.getRevision());
             _this.activateForm(feature);
         }
     });
