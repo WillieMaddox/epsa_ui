@@ -1469,7 +1469,6 @@ layerInteractor.prototype.drawHole = function () {
             var polygons = origGeomMP.getPolygons();
             for (var i = 0; i < polygons.length; i++) {
                 if (isPointInPoly(polygons[i], points[0])) {
-                    // currGeom = polygons[i];
                     currGeom = origGeomMP.getPolygon(i);
                     origGeom = currGeom.clone();
                 } else {
@@ -1501,11 +1500,7 @@ layerInteractor.prototype.drawHole = function () {
                 //if outside get rid of it
                 if (isPointInPoly(origGeom, newPoint) !== true) {
                     coords[0].pop(); //remove the last coordinate element
-                    // retGeom = new ol.geom.Polygon(coords); //reconstruct the geometry
                 }
-            //     vertsCouter = coords[0].length; //reset the length of vertex counter
-            // } else if (coords[0].length < vertsCouter) {
-            //     vertsCouter = coords[0].length; //reset the length of vertex counter
             }
             vertsCouter = coords[0].length; //reset the length of vertex counter
             if (typeof(geom) === 'undefined') {
@@ -1540,7 +1535,6 @@ layerInteractor.prototype.drawHole = function () {
                 if (isMultiPolygon) {
                     currColl.getArray()[0].setGeometry(origGeomMP);
                 }
-                // currColl.getArray()[0].getGeometry().setCoordinates(origGeom.getCoordinates());
                 finishHole()
             } else {
                 holeDraw.removeLastPoint();
@@ -1549,7 +1543,6 @@ layerInteractor.prototype.drawHole = function () {
             if (isMultiPolygon) {
                 currColl.getArray()[0].setGeometry(origGeomMP);
             } else {
-                // currColl.getArray()[0].getGeometry().setCoordinates(origGeom.getCoordinates());
                 currColl.getArray()[0].setGeometry(origGeom);
             }
             finishHole()
@@ -1625,14 +1618,25 @@ layerInteractor.prototype.drawHole = function () {
                         featureProjection: 'EPSG:3857'
                     }
                 );
-                console.log(featuresGeoJSON)
+                // console.log(featuresGeoJSON)
             })
         } else {
             currColl.getArray()[0].getGeometry().setCoordinates(rings);
         }
         if (isMultiPolygon) {
-            currGeomMP.appendPolygon(currGeom);
+            console.log('- origGeom  ', origGeom.getType(), origGeom.getCoordinates());
+            console.log('- origGeomMP', origGeomMP.getType(), origGeomMP.getCoordinates());
+            console.log('- currGeom  ', currGeom.getType(), currGeom.getCoordinates());
+            if (origGeomMP.getCoordinates().length == 1) {
+                currGeomMP = new ol.geom.MultiPolygon([currGeom.getCoordinates()]);
+            } else {
+                currGeomMP.appendPolygon(currGeom);
+            }
             currColl.getArray()[0].setGeometry(currGeomMP);
+            console.log('+ currGeomMP', currGeomMP.getType(), currGeomMP.getCoordinates());
+            console.log('+ currColl  ', currColl.getArray()[0].getGeometry().getType(), currColl.getArray()[0].getGeometry().getCoordinates());
+
+
         }
 
         this.holeadded = true;
