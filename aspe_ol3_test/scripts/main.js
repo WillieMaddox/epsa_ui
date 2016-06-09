@@ -1448,14 +1448,6 @@ layerInteractor.prototype.drawHole = function () {
     var origGeom = currColl.getArray()[0].getGeometry().clone();
     var currGeom = null;
     var isMultiPolygon = false;
-    // if (geomTypeSelected === 'MultiPolygon') {
-    //     origGeomMP = currColl.getArray()[0].getGeometry().clone();
-    // } else if (geomTypeSelected === 'Polygon') {
-    //     origGeom = currColl.getArray()[0].getGeometry().clone();
-    // } else {
-    //     alert("Only Polygon and MultiPolygon geometries can have holes. Not " + geomTypeSelected);
-    //     return;
-    // }
     if (!(geomTypeSelected.endsWith("Polygon"))) {
         alert("Only Polygon and MultiPolygon geometries can have holes. Not " + geomTypeSelected);
         return;
@@ -1624,19 +1616,12 @@ layerInteractor.prototype.drawHole = function () {
             currColl.getArray()[0].getGeometry().setCoordinates(rings);
         }
         if (isMultiPolygon) {
-            console.log('- origGeom  ', origGeom.getType(), origGeom.getCoordinates());
-            console.log('- origGeomMP', origGeomMP.getType(), origGeomMP.getCoordinates());
-            console.log('- currGeom  ', currGeom.getType(), currGeom.getCoordinates());
             if (origGeomMP.getCoordinates().length == 1) {
                 currGeomMP = new ol.geom.MultiPolygon([currGeom.getCoordinates()]);
             } else {
                 currGeomMP.appendPolygon(currGeom);
             }
             currColl.getArray()[0].setGeometry(currGeomMP);
-            console.log('+ currGeomMP', currGeomMP.getType(), currGeomMP.getCoordinates());
-            console.log('+ currColl  ', currColl.getArray()[0].getGeometry().getType(), currColl.getArray()[0].getGeometry().getCoordinates());
-
-
         }
 
         this.holeadded = true;
@@ -1903,15 +1888,16 @@ layerInteractor.prototype.addInteractions = function () {
                 return true;
             }
         },
-        style: new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(255, 255, 255, 1)',
-                width: 4
-            }),
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.1)'
-            })
-        })
+        style: this.featureOverlay.getStyle()
+        // style: new ol.style.Style({
+        //     stroke: new ol.style.Stroke({
+        //         color: 'rgba(255, 255, 255, 1)',
+        //         width: 4
+        //     }),
+        //     fill: new ol.style.Fill({
+        //         color: 'rgba(255, 255, 255, 0.1)'
+        //     })
+        // })
     });
 
     this.select.on('select', function(evt) {
@@ -1943,6 +1929,15 @@ layerInteractor.prototype.addInteractions = function () {
         features: this.select.getFeatures()
     });
 
+    this.modify.on('modifystart', function(evt) {
+        console.log('------------');
+        console.log(evt.features.getArray()[0].getGeometry().getPolygons().length);
+        console.log(evt.features.getArray()[0].getGeometry().getFlatCoordinates().length);
+    });
+    this.modify.on('modifyend', function(evt) {
+        console.log(evt.features.getArray()[0].getGeometry().getPolygons().length);
+        console.log(evt.features.getArray()[0].getGeometry().getFlatCoordinates().length);
+    });
     /********* TRANSLATE ***********/
     // When the translate interaction is active, it
     // causes the mouse cursor to turn into a
