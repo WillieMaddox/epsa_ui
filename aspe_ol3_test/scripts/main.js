@@ -97,17 +97,26 @@ function doesPolyCoverHole(geom, holecoords) {
     ).geometry;
     return geomA.covers(geomB);
 }
-function isPolyValid(coords) {
+function isPolyValid(poly) {
     var geom = new jsts.io.GeoJSONReader().read(
         new ol.format.GeoJSON().writeFeatureObject(
             new ol.Feature({
-                geometry: new ol.geom.Polygon([coords])
+                geometry: poly
             })
         )
     ).geometry;
     return geom.isValid();
 }
-
+function getJSTSgeom(origGeom) {
+    var geom = new jsts.io.GeoJSONReader().read(
+        new ol.format.GeoJSON().writeFeatureObject(
+            new ol.Feature({
+                geometry: origGeom
+            })
+        )
+    ).geometry;
+    return geom;
+}
 
 var defaultFeatureProperties = {
     'AOR': {
@@ -390,7 +399,6 @@ var layerTree = function (options) {
         throw new Error('Invalid parameter(s) provided.');
     }
 };
-
 layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
     var buttonElem = document.createElement('button');
     buttonElem.className = elemName;
@@ -432,7 +440,6 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType, laye
             return false;
     }
 };
-
 layerTree.prototype.addBufferIcon = function (layer) {
     layer.getSource().on('change', function (evt) {
         var layerElem = document.getElementById(layer.get('id'));
@@ -450,21 +457,18 @@ layerTree.prototype.addBufferIcon = function (layer) {
         }
     });
 };
-
 layerTree.prototype.removeContent = function (element) {
     while (element.firstChild) {
         element.removeChild(element.firstChild);
     }
     return this;
 };
-
 layerTree.prototype.createOption = function (optionValue) {
     var option = document.createElement('option');
     option.value = optionValue;
     option.textContent = optionValue;
     return option;
 };
-
 layerTree.prototype.checkWmsLayer = function (form) {
     form.check.disabled = true;
     var _this = this;
@@ -516,7 +520,6 @@ layerTree.prototype.checkWmsLayer = function (form) {
     request.open('GET', url3, true);
     request.send();
 };
-
 layerTree.prototype.addWmsLayer = function (form) {
     var params = {
         url: form.server.value,
@@ -541,7 +544,6 @@ layerTree.prototype.addWmsLayer = function (form) {
     this.messages.textContent = 'WMS layer added successfully.';
     return this;
 };
-
 layerTree.prototype.addWfsLayer = function (form) {
     var url = form.server.value;
     url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
@@ -576,7 +578,6 @@ layerTree.prototype.addWfsLayer = function (form) {
     this.messages.textContent = 'WFS layer added successfully.';
     return this;
 };
-
 layerTree.prototype.addVectorLayer = function (form) {
     var file = form.file.files[0];
     var currentProj = this.map.getView().getProjection();
@@ -623,7 +624,6 @@ layerTree.prototype.addVectorLayer = function (form) {
         return error;
     }
 };
-
 layerTree.prototype.newVectorLayer = function (form) {
     var type = form.type.value;
     if (type !== 'point' && type !== 'line' && type !== 'polygon' && type !== 'geomcollection') {
@@ -642,7 +642,6 @@ layerTree.prototype.newVectorLayer = function (form) {
     this.messages.textContent = 'New vector layer created successfully.';
     return this;
 };
-
 layerTree.prototype.addSelectEvent = function (node, isChild) {
     var _this = this;
     node.addEventListener('click', function (evt) {
@@ -664,13 +663,11 @@ layerTree.prototype.addSelectEvent = function (node, isChild) {
     });
     return node;
 };
-
 layerTree.prototype.removeRegistry = function (layer) {
     var layerDiv = document.getElementById(layer.get('id'));
     this.layerContainer.removeChild(layerDiv);
     return this;
 };
-
 layerTree.prototype.getLayerById = function (id) {
     var layers = this.map.getLayers().getArray();
     for (var i = 0; i < layers.length; i += 1) {
@@ -680,7 +677,6 @@ layerTree.prototype.getLayerById = function (id) {
     }
     return false;
 };
-
 layerTree.prototype.getLayerGeomType = function (layer) {
     if (layer.get('geom_type')) {
         return layer;
@@ -709,14 +705,12 @@ layerTree.prototype.getLayerGeomType = function (layer) {
     layer.set('geom_type', types.length === 1 ? types[0] : 'geomcollection');
     return layer;
 };
-
 layerTree.prototype.stopPropagationOnEvent = function (node, event) {
     node.addEventListener(event, function (evt) {
         evt.stopPropagation();
     });
     return node;
 };
-
 layerTree.prototype.styleGraduated = function (layer, attribute) {
     if (layer.get('headers')[attribute] === 'string') {
         this.messages.textContent = 'A numeric column is required for graduated symbology.';
@@ -748,7 +742,6 @@ layerTree.prototype.styleGraduated = function (layer, attribute) {
         });
     }
 };
-
 layerTree.prototype.graduatedColorFactory = function (intervals, rgb1, rgb2) {
     var colors = [];
     var step = intervals - 1;
@@ -764,7 +757,6 @@ layerTree.prototype.graduatedColorFactory = function (intervals, rgb1, rgb2) {
     colors.push([rgb2[0], rgb2[1], rgb2[2], 1]);
     return colors;
 };
-
 layerTree.prototype.styleCategorized = function (layer, attribute) {
     var attributeArray = [];
     var colorArray = [];
@@ -796,12 +788,10 @@ layerTree.prototype.styleCategorized = function (layer, attribute) {
         return [style];
     });
 };
-
 layerTree.prototype.randomHexColor = function() {
     var num = Math.floor(Math.random() * 16777215).toString(16);
     return '#' + String.prototype.repeat.call('0', 6 - num.length) + num;
 };
-
 layerTree.prototype.tobjectsStyleFunction = (function() {
     var setStyle = function(color, opacity) {
         var style = new ol.style.Style({
@@ -947,7 +937,6 @@ var toolBar = function (options) {
         throw new Error('Invalid parameter(s) provided.');
     }
 };
-
 toolBar.prototype.addControl = function (control) {
     if (!(control instanceof ol.control.Control)) {
         throw new Error('Only controls can be added to the toolbar.');
@@ -980,13 +969,11 @@ toolBar.prototype.addControl = function (control) {
     this.map.addControl(control);
     return this;
 };
-
 toolBar.prototype.removeControl = function (control) {
     this.controls.remove(control);
     this.map.removeControl(control);
     return this;
 };
-
 toolBar.prototype.addDrawToolBar = function () {
     var layertree = this.layertree;
 
@@ -1117,7 +1104,6 @@ toolBar.prototype.addDrawToolBar = function () {
     //     .addControl(drawPolygon).addControl(drawLine).addControl(drawPoint);
     return this;
 };
-
 toolBar.prototype.handleEvents = function (interaction, feature_type) {
 
     interaction.on('drawend', function (evt) {
@@ -1167,7 +1153,6 @@ var featureEditor = function (options) {
         throw new Error('Invalid parameter(s) provided.');
     }
 };
-
 featureEditor.prototype.createForm = function(options) {
 
     var form = document.createElement('form');
@@ -1442,10 +1427,11 @@ layerInteractor.prototype.drawHole = function () {
         })
     ];
 
-    var currColl = this.select.getFeatures();
+    // var currColl = this.select.getFeatures();
+    var currFeat = this.select.getFeatures().getArray()[0];
+    var geomTypeSelected = currFeat.getGeometry().getType();
     // Clone and original selected geometry so we can test new vertex points against it in the geometryFunction.
-    var geomTypeSelected = currColl.getArray()[0].getGeometry().getType();
-    var origGeom = currColl.getArray()[0].getGeometry().clone();
+    var origGeom = currFeat.getGeometry().clone();
     var currGeom = null;
     var isMultiPolygon = false;
     if (!(geomTypeSelected.endsWith("Polygon"))) {
@@ -1486,11 +1472,9 @@ layerInteractor.prototype.drawHole = function () {
         //add the geometry function in order to disable hole creation outside selected polygon
         geometryFunction: function(coords, geom) {
             var retGeom; //define the geometry to return
-            if (coords[0].length > vertsCouter) { //this is the case where new vertex has been drawn
-                //check if vertex drawn is within the "original" selected polygon
+            if (coords[0].length > vertsCouter) { //check if the new vertex drawn is within the "original" selected polygon
                 var newPoint = coords[0][coords[0].length - 1];
-                //if outside get rid of it
-                if (isPointInPoly(origGeom, newPoint) !== true) {
+                if (isPointInPoly(origGeom, newPoint) !== true) { //if outside get rid of it
                     coords[0].pop(); //remove the last coordinate element
                 }
             }
@@ -1525,7 +1509,8 @@ layerInteractor.prototype.drawHole = function () {
         if (evt.keyCode == 189 || evt.keyCode == 109) {
             if (vertsCouter === 1) {
                 if (isMultiPolygon) {
-                    currColl.getArray()[0].setGeometry(origGeomMP);
+                    // currColl.getArray()[0].setGeometry(origGeomMP);
+                    currFeat.setGeometry(origGeomMP);
                 }
                 finishHole()
             } else {
@@ -1533,9 +1518,11 @@ layerInteractor.prototype.drawHole = function () {
             }
         } else if (evt.keyCode == 27) {
             if (isMultiPolygon) {
-                currColl.getArray()[0].setGeometry(origGeomMP);
+                // currColl.getArray()[0].setGeometry(origGeomMP);
+                currFeat.setGeometry(origGeomMP);
             } else {
-                currColl.getArray()[0].setGeometry(origGeom);
+                // currColl.getArray()[0].setGeometry(origGeom);
+                currFeat.setGeometry(origGeom);
             }
             finishHole()
         }
@@ -1548,16 +1535,13 @@ layerInteractor.prototype.drawHole = function () {
 
         if (isMultiPolygon) {
             origGeomMP = origGeom.clone();
-            pickPoly(feature);
-            if (currGeom) {
-                currColl.getArray()[0].setGeometry(currGeom);
-            }
         } else {
-            currGeom = currColl.getArray()[0].getGeometry();
+            currGeom = currFeat.getGeometry();
         }
 
         //set the change feature listener so we get the hole like visual effect
         feature.on('change', function(e) {
+            var setCoords;
             //get draw hole feature geometry
             var currCoords = feature.getGeometry().getCoordinates(false)[0];
             //if hole has 3 or more coordinate pairs, add the interior ring to feature
@@ -1567,18 +1551,17 @@ layerInteractor.prototype.drawHole = function () {
                     new ol.geom.LinearRing(currCoords));
                 ringAdded = true;
             } else if (currCoords.length >= 3 && ringAdded === true) { //if interior ring has already been added we need to remove it and add back the updated one
-                var setCoords = currGeom.getCoordinates();
+                setCoords = currGeom.getCoordinates();
                 setCoords.pop(); //pop the dirty hole
                 setCoords.push(currCoords); //push the updated hole
                 currGeom.setCoordinates(setCoords); //update currGeom with new coordinates
             } else if (currCoords.length == 2 && ringAdded === true ) {
-                var setCoords = currGeom.getCoordinates();
+                setCoords = currGeom.getCoordinates();
                 setCoords.pop(); //pop the dirty hole
                 currGeom.setCoordinates(setCoords); //update currGeom with new coordinates
                 ringAdded = false;
             }
             if (isMultiPolygon) {
-
                 if (currCoords.length == 1 && currGeom) {
                     origGeom = origGeomMP.clone();
                     currGeom = null;
@@ -1587,41 +1570,41 @@ layerInteractor.prototype.drawHole = function () {
                     pickPoly(feature)
                 }
                 if (currGeom) {
-                    currColl.getArray()[0].setGeometry(currGeom);
+                    currFeat.setGeometry(currGeom);
                 }
-
             }
-
         });
     }, this);
 
-    //create a listener when finish drawing and so remove the hole interaction
+    // Check if the hole is valid and remove the hole interaction
     holeDraw.on('drawend', function(evt) {
 
         var rings = currGeom.getCoordinates();
         var holecoords = rings.pop();
 
-        var isValid = isPolyValid(holecoords);
+        var isValid = isPolyValid(new ol.geom.Polygon([holecoords]));
         var isInside = doesPolyCoverHole(origGeom, holecoords);
         if (isValid && isInside) {
             source.once('addfeature', function(e) {
                 var featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
-                    currColl.getArray(), {
-                        featureProjection: 'EPSG:3857'
-                    }
+                    [currFeat], { featureProjection: 'EPSG:3857' }
                 );
-                // console.log(featuresGeoJSON)
+                console.log(featuresGeoJSON)
             })
         } else {
-            currColl.getArray()[0].getGeometry().setCoordinates(rings);
+            currFeat.getGeometry().setCoordinates(rings);
         }
         if (isMultiPolygon) {
+            console.log('origGeom  ', origGeom.getCoordinates());
+            console.log('origGeomMP', origGeomMP.getCoordinates());
+            console.log('currGeom  ', currGeom.getCoordinates());
+            console.log('currGeomMP', currGeomMP.getCoordinates());
             if (origGeomMP.getCoordinates().length == 1) {
                 currGeomMP = new ol.geom.MultiPolygon([currGeom.getCoordinates()]);
             } else {
                 currGeomMP.appendPolygon(currGeom);
             }
-            currColl.getArray()[0].setGeometry(currGeomMP);
+            currFeat.setGeometry(currGeomMP);
         }
 
         this.holeadded = true;
@@ -1906,7 +1889,6 @@ layerInteractor.prototype.addInteractions = function () {
         if (evt.deselected.length == 1) {
             feature = evt.deselected[0];
             _this.modify.setActive(false);
-
             // translate.setActive(false);
             console.log('deselect:', feature.get('name'), feature.getRevision());
             _this.deactivateForm(feature);
@@ -1925,18 +1907,45 @@ layerInteractor.prototype.addInteractions = function () {
         }
     });
 
+    /*********** MODIFY ************/
     this.modify = new ol.interaction.Modify({
         features: this.select.getFeatures()
     });
 
+    var modifiedFeature;
+    var origGeom;
+
+    // var geom;
+    // var geomE;
+    // var geomI;
+    // this.modify.on('change', function() {
+    //     if (isPolyValid(modifiedFeature.getGeometry())) {
+    //         console.log('+++++', true, modifiedFeature.getGeometry().getCoordinates());
+    //         geom = getJSTSgeom(modifiedFeature.getGeometry());
+    //         geomE = geom.getExteriorRing().getCoordinates();
+    //         geomI = geom.getInteriorRingN(0).getCoordinates();
+    //         console.log('geomE', jsts.algorithm.CGAlgorithms.isCCW(geomE), geomE);
+    //         console.log('geomI', !(jsts.algorithm.CGAlgorithms.isCCW(geomI)), geomI);
+    //     } else {
+    //         getJSTSgeom(modifiedFeature.getGeometry());
+    //         console.log('-----', false, modifiedFeature.getGeometry().getCoordinates());
+    //         geom = getJSTSgeom(modifiedFeature.getGeometry());
+    //         geomE = geom.getExteriorRing().getCoordinates();
+    //         geomI = geom.getInteriorRingN(0).getCoordinates();
+    //         console.log('geomE', jsts.algorithm.CGAlgorithms.isCCW(geomE), geomE);
+    //         console.log('geomI', !(jsts.algorithm.CGAlgorithms.isCCW(geomI)), geomI);
+    //     }
+    // });
+
     this.modify.on('modifystart', function(evt) {
-        console.log('------------');
-        console.log(evt.features.getArray()[0].getGeometry().getPolygons().length);
-        console.log(evt.features.getArray()[0].getGeometry().getFlatCoordinates().length);
+        modifiedFeature = evt.features.getArray()[0];
+        origGeom = modifiedFeature.getGeometry().clone();
     });
     this.modify.on('modifyend', function(evt) {
-        console.log(evt.features.getArray()[0].getGeometry().getPolygons().length);
-        console.log(evt.features.getArray()[0].getGeometry().getFlatCoordinates().length);
+        if (!(isPolyValid(modifiedFeature.getGeometry()))) {
+            modifiedFeature.setGeometry(origGeom)
+        }
+        modifiedFeature = null;
     });
     /********* TRANSLATE ***********/
     // When the translate interaction is active, it
