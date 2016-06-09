@@ -1509,7 +1509,6 @@ layerInteractor.prototype.drawHole = function () {
         if (evt.keyCode == 189 || evt.keyCode == 109) {
             if (vertsCouter === 1) {
                 if (isMultiPolygon) {
-                    // currColl.getArray()[0].setGeometry(origGeomMP);
                     currFeat.setGeometry(origGeomMP);
                 }
                 finishHole()
@@ -1518,10 +1517,10 @@ layerInteractor.prototype.drawHole = function () {
             }
         } else if (evt.keyCode == 27) {
             if (isMultiPolygon) {
-                // currColl.getArray()[0].setGeometry(origGeomMP);
-                currFeat.setGeometry(origGeomMP);
+                if (origGeomMP) {
+                    currFeat.setGeometry(origGeomMP);
+                }
             } else {
-                // currColl.getArray()[0].setGeometry(origGeom);
                 currFeat.setGeometry(origGeom);
             }
             finishHole()
