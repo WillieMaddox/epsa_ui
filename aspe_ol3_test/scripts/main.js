@@ -1233,17 +1233,6 @@ featureEditor.prototype.addInputElement = function(name, type) {
     td.appendChild(element);
     return td;
 };
-featureEditor.prototype.addButtonElement = function(name, id) {
-    var td = document.createElement('td');
-    var element = document.createElement('input');
-    element.value = "Draw Hole";
-    element.title = "Draw a hole";
-    element.name = name;
-    element.type = "button";
-    element.id = id;
-    td.appendChild(element);
-    return td;
-};
 featureEditor.prototype.addButtonElement = function(name1, name2) {
     var td = document.createElement('td');
     var element = document.createElement('input');
@@ -1386,11 +1375,11 @@ ol.interaction.ChooseHole = function (opt_options) {
                         layer.getSource().removeFeature(feature);
                         this.get('holes').remove(feature);
                         this.set('hole', feature);
-                        this.emitter.changed();
                     }
                 }, this
             );
             this.set('deleteCandidate', null);
+            this.emitter.changed();
         }
     });
     this.setProperties({
@@ -1525,29 +1514,22 @@ layerInteractor.prototype.deleteHole = function () {
                 }
             }
         });
-        return found ? newPoly : null;
+        return found ? newPoly : poly;
     };
 
     var removeHole = function (feature) {
         console.log("---------------------");
         var geom = feature.getGeometry();
-        var newPoly = null;
+        var newGeom = new ol.geom.MultiPolygon(null);
         if (currGeom.getType() === 'MultiPolygon') {
             currGeom.getPolygons().forEach(function (poly) {
-                newPoly = testCoords(poly, geom.getFirstCoordinate());
-                if (newPoly) {
-                    poly.setCoordinates(newPoly.getCoordinates());
-                    return true;
-                }
-            })
+                var newPoly = testCoords(poly, geom.getFirstCoordinate());
+                newGeom.appendPolygon(newPoly);
+            });
         } else {
-            newPoly = testCoords(currGeom, geom.getFirstCoordinate());
-            if (newPoly) {
-                currGeom.setCoordinates(newPoly.getCoordinates());
-                return true;
-            }
+            newGeom = testCoords(currGeom, geom.getFirstCoordinate());
         }
-        return false;
+        currGeom.setCoordinates(newGeom.getCoordinates());
     };
 
     var _this = this;
@@ -1559,8 +1541,18 @@ layerInteractor.prototype.deleteHole = function () {
         _this.select.setActive(true);
         // _this.translate.setActive(true);
         _this.map.on('pointermove', _this.hoverDisplay);
+        document.getElementById('drawhole').disabled = false;
+        document.getElementById('deletehole').disabled = (holeFeats.getArray().length == 0);
+        $(document).off('keyup')
     };
+    $(document).on('keyup', function(evt) {
+        if (evt.keyCode == 27) {
+            finishHole()
+        }
+    });
 
+    document.getElementById('drawhole').disabled = true;
+    document.getElementById('deletehole').disabled = true;
     this.map.un('pointermove', this.hoverDisplay);
     this.select.setActive(false);
     this.modify.setActive(false);
@@ -1590,11 +1582,9 @@ layerInteractor.prototype.deleteHole = function () {
     chooseHole.emitter.on('change', function () {
         feature = chooseHole.get('hole');
         if (feature !== null) {
-            var res = removeHole(feature);
+            removeHole(feature);
         }
-        if (res) {
-            finishHole();
-        }
+        finishHole();
     });
 };
 layerInteractor.prototype.drawHole = function () {
@@ -1686,6 +1676,9 @@ layerInteractor.prototype.drawHole = function () {
         }
     });
 
+    var deleteHoleIsDisabled = document.getElementById('deletehole').disabled;
+    document.getElementById('drawhole').disabled = true;
+    document.getElementById('deletehole').disabled = true;
     this.map.un('pointermove', this.hoverDisplay);
     this.select.setActive(false);
     this.modify.setActive(false);
@@ -1700,6 +1693,7 @@ layerInteractor.prototype.drawHole = function () {
         _this.select.setActive(true);
         // _this.translate.setActive(true);
         _this.map.on('pointermove', _this.hoverDisplay);
+        document.getElementById('drawhole').disabled = false;
         $(document).off('keyup')
     };
 
@@ -1709,6 +1703,7 @@ layerInteractor.prototype.drawHole = function () {
                 if (isMultiPolygon) {
                     currFeat.setGeometry(origGeomMP);
                 }
+                document.getElementById('deletehole').disabled = deleteHoleIsDisabled;
                 finishHole()
             } else {
                 holeDraw.removeLastPoint();
@@ -1721,6 +1716,7 @@ layerInteractor.prototype.drawHole = function () {
             } else {
                 currFeat.setGeometry(origGeom);
             }
+            document.getElementById('deletehole').disabled = deleteHoleIsDisabled;
             finishHole()
         }
     });
@@ -1792,10 +1788,6 @@ layerInteractor.prototype.drawHole = function () {
             currFeat.getGeometry().setCoordinates(rings);
         }
         if (isMultiPolygon) {
-            console.log('origGeom  ', origGeom.getCoordinates());
-            console.log('origGeomMP', origGeomMP.getCoordinates());
-            console.log('currGeom  ', currGeom.getCoordinates());
-            console.log('currGeomMP', currGeomMP.getCoordinates());
             if (origGeomMP.getCoordinates().length == 1) {
                 currGeomMP = new ol.geom.MultiPolygon([currGeom.getCoordinates()]);
             } else {
@@ -1805,6 +1797,7 @@ layerInteractor.prototype.drawHole = function () {
         }
 
         this.autoselect = true;
+        document.getElementById('deletehole').disabled = false;
         finishHole();
     }, this);
 };
@@ -1871,9 +1864,21 @@ layerInteractor.prototype.activateForm = function (feature) {
     form.name.value = feature.get('name');
     form.geometry_type.value = feature.getGeometry().getType();
     form.geometry_type.readOnly = true;
-
-    form.draw_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
-    form.delete_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
+    form.draw_hole.disabled = true;
+    form.delete_hole.disabled = true;
+    if (feature.getGeometry().getType().endsWith('Polygon')) {
+        form.draw_hole.disabled = false;
+        if (feature.getGeometry().getType() === 'MultiPolygon') {
+            for (i = 0; i < feature.getGeometry().getPolygons().length; i++)
+                if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
+                    form.delete_hole.disabled = false;
+                }
+        } else if (feature.getGeometry().getLinearRingCount() > 1) {
+            form.delete_hole.disabled = false;
+        }
+    }
+    // form.draw_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
+    // form.delete_hole.disabled = (!(feature.getGeometry().getType().endsWith('Polygon')));
 
     var feature_properties = defaultFeatureProperties[feature_type];
     for (var key in defaultFeatureProperties) {
@@ -1918,6 +1923,9 @@ layerInteractor.prototype.deactivateForm = function (feature) {
     feature.set('name', form.name.value);
     form.name.value = null;
     form.name.disabled = false;
+
+    form.draw_hole.disabled = true;
+    form.delete_hole.disabled = true;
 
     feature.set('feature_type', form.feature_type.value);
     this.form.removeContent(form.feature_type);
@@ -2186,6 +2194,7 @@ layerInteractor.prototype.addInteractions = function () {
             _this.select.setActive(true);
             _this.modify.setActive(true);
             // translate.setActive(true);
+
             if (_this.toolbar.addedFeature) {
                 selectedFeatures.push(_this.toolbar.addedFeature);
 
@@ -2193,6 +2202,7 @@ layerInteractor.prototype.addInteractions = function () {
                 console.log('select:    ', selectedFeature.get('name'), selectedFeature.getRevision());
                 _this.activateForm(selectedFeature);
             }
+
             _this.map.on('pointermove', _this.hoverDisplay);
         }
     });
