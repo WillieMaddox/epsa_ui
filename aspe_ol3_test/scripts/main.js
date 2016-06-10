@@ -392,8 +392,10 @@ var layerTree = function (options) {
             }
         }, this);
         this.map.getLayers().on('remove', function (evt) {
-            this.removeRegistry(evt.element);
-            this.selectEventEmitter.changed();
+            if (evt.element.get('type') !== 'overlay') {
+                this.removeRegistry(evt.element);
+                this.selectEventEmitter.changed();
+            }
         }, this);
     } else {
         throw new Error('Invalid parameter(s) provided.');
@@ -1362,6 +1364,42 @@ featureEditor.prototype.addThickness = function() {
 //     // only for polygons
 // };
 
+ol.interaction.ChooseHole = function (opt_options) {
+
+    this.emitter = new ol.Observable();
+
+    ol.interaction.Pointer.call(this, {
+        handleDownEvent: function (evt) {
+            this.set('deleteCandidate', evt.map.forEachFeatureAtPixel(evt.pixel,
+                function (feature, layer) {
+                    if (this.get('holes').getArray().indexOf(feature) !== -1) {
+                        return feature;
+                    }
+                }, this
+            ));
+            return !!this.get('deleteCandidate');
+        },
+        handleUpEvent: function (evt) {
+            evt.map.forEachFeatureAtPixel(evt.pixel,
+                function (feature, layer) {
+                    if (feature === this.get('deleteCandidate')) {
+                        layer.getSource().removeFeature(feature);
+                        this.get('holes').remove(feature);
+                        this.set('hole', feature);
+                        this.emitter.changed();
+                    }
+                }, this
+            );
+            this.set('deleteCandidate', null);
+        }
+    });
+    this.setProperties({
+        holes: opt_options.holes,
+        deleteCandidate: null
+    });
+};
+ol.inherits(ol.interaction.ChooseHole, ol.interaction.Pointer);
+
 var layerInteractor = function (options) {
     'use strict';
     if (!(this instanceof layerInteractor)) {
@@ -1419,11 +1457,145 @@ var layerInteractor = function (options) {
         deleteholeElem.addEventListener('click', function () {
             _this.deleteHole();
         });
-        this.holeadded = false;
+        this.autoselect = false;
 
     } else {
         throw new Error('Invalid parameter(s) provided.');
     }
+};
+layerInteractor.prototype.deleteHole = function () {
+    var holeStyle = [
+        new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 0.8)',
+                lineDash: [10, 10],
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.8)'
+            })
+        })
+    ];
+
+    var getPolyHoles = function (poly) {
+        var skip = true;
+        var holes = [];
+        poly.getLinearRings().forEach( function (ring) {
+            if (skip) { // assume the first ring is the exterior ring.
+                skip = false;
+            } else {
+                feature = new ol.Feature(new ol.geom.Polygon([ring.getCoordinates()]));
+                holes.push(feature);
+            }
+        });
+        return holes;
+    };
+
+    var getHoles = function (currGeom) {
+        var holefeats = new ol.Collection();
+        var polyholes;
+        if (currGeom.getType() === 'MultiPolygon') {
+            currGeom.getPolygons().forEach(function (poly) {
+                polyholes = getPolyHoles(poly);
+                holefeats.extend(polyholes)
+            })
+        } else {
+            polyholes = getPolyHoles(currGeom);
+            holefeats.extend(polyholes)
+        }
+        return holefeats;
+    };
+
+    var testCoords = function (poly, coord) {
+        var newPoly = null;
+        var skip = true;
+        var found = false;
+        console.log(coord);
+        poly.getLinearRings().forEach( function (ring) {
+            if (skip) { // assume the first ring is the exterior ring.
+                newPoly = new ol.geom.Polygon([ring.getCoordinates()]);
+                skip = false;
+            } else {
+                var rcoord = ring.getFirstCoordinate();
+                console.log(rcoord);
+                if (rcoord[0] !== coord[0] || rcoord[1] !== coord[1]) {
+                    newPoly.appendLinearRing(ring);
+                } else {
+                    found = true;
+                }
+            }
+        });
+        return found ? newPoly : null;
+    };
+
+    var removeHole = function (feature) {
+        console.log("---------------------");
+        var geom = feature.getGeometry();
+        var newPoly = null;
+        if (currGeom.getType() === 'MultiPolygon') {
+            currGeom.getPolygons().forEach(function (poly) {
+                newPoly = testCoords(poly, geom.getFirstCoordinate());
+                if (newPoly) {
+                    poly.setCoordinates(newPoly.getCoordinates());
+                    return true;
+                }
+            })
+        } else {
+            newPoly = testCoords(currGeom, geom.getFirstCoordinate());
+            if (newPoly) {
+                currGeom.setCoordinates(newPoly.getCoordinates());
+                return true;
+            }
+        }
+        return false;
+    };
+
+    var _this = this;
+    var finishHole = function () {
+        _this.autoselect = true;
+        _this.map.removeInteraction(chooseHole);
+        _this.map.removeLayer(holeOverlay);
+        _this.modify.setActive(true);
+        _this.select.setActive(true);
+        // _this.translate.setActive(true);
+        _this.map.on('pointermove', _this.hoverDisplay);
+    };
+
+    this.map.un('pointermove', this.hoverDisplay);
+    this.select.setActive(false);
+    this.modify.setActive(false);
+
+    var feature = null;
+    var currFeat = this.select.getFeatures().getArray()[0];
+    var currGeom = currFeat.getGeometry();
+    var holeFeats = getHoles(currGeom);
+
+    var source = new ol.source.Vector({
+        features: holeFeats
+    });
+    var holeOverlay = new ol.layer.Vector({
+        source: source,
+        type: 'overlay',
+        style: holeStyle,
+        zIndex: 9999
+    });
+    // holeOverlay.getSource().addFeatures(holeFeats);
+    this.map.addLayer(holeOverlay);
+
+    var chooseHole = new ol.interaction.ChooseHole({
+        holes: holeFeats
+    });
+    this.map.addInteraction(chooseHole);
+
+    chooseHole.emitter.on('change', function () {
+        feature = chooseHole.get('hole');
+        if (feature !== null) {
+            var res = removeHole(feature);
+        }
+        if (res) {
+            finishHole();
+        }
+    });
 };
 layerInteractor.prototype.drawHole = function () {
     var holeStyle = [
@@ -1632,81 +1804,9 @@ layerInteractor.prototype.drawHole = function () {
             currFeat.setGeometry(currGeomMP);
         }
 
-        this.holeadded = true;
+        this.autoselect = true;
         finishHole();
     }, this);
-};
-layerInteractor.prototype.deleteHole = function () {
-    var holeStyle = [
-        new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(0, 0, 0, 0.8)',
-                lineDash: [10, 10],
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.8)'
-            })
-        })
-    ];
-
-    var currFeat = this.select.getFeatures().getArray()[0];
-
-    this.map.un('pointermove', this.hoverDisplay);
-    this.select.setActive(false);
-    this.modify.setActive(false);
-
-    var source = new ol.source.Vector();
-    var holeOverlay = new ol.layer.Vector({
-        source: source,
-        type: 'overlay',
-        style: holeStyle,
-        zIndex: 9999
-    });
-
-    this.map.addLayer(holeOverlay);
-    var holeSelect = new ol.interaction.Select({
-        layers: [holeOverlay]
-    });
-
-    var currGeom = currFeat.getGeometry();
-    var feature;
-    var isMultiPolygon = currGeom.getType() === 'MultiPolygon';
-
-    var addHoles = function (poly) {
-        var skip = true;
-        poly.getLinearRings().forEach( function (ring) {
-            if (skip) {
-                skip = false;
-            } else {
-                feature = new ol.Feature(new ol.geom.Polygon([ring.getCoordinates()]));
-                holeOverlay.getSource().addFeature(feature);
-                console.log('hole added');
-            }
-        })
-    };
-
-    if (isMultiPolygon) {
-        currGeom.getPolygons().forEach( function (poly) {
-            addHoles(poly)
-        })
-    } else {
-        addHoles(currGeom)
-    }
-
-    this.map.addInteraction(holeSelect);
-
-    holeSelect.on('select', function(evt) {
-        if (evt.deselected.length == 1) {
-            console.log('deselect');
-            feature = evt.deselected[0];
-        }
-        if (evt.selected.length == 1) {
-            console.log('select');
-            feature = evt.selected[0];
-        }
-    });
-
 };
 layerInteractor.prototype.loadFeature = function (feature_type) {
     console.log(feature_type);
@@ -1953,9 +2053,9 @@ layerInteractor.prototype.addInteractions = function () {
         toggleCondition: ol.events.condition.never,
         condition: function(evt) {
             if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
-                if (_this.toolbar.addedFeature || _this.holeadded) {
+                if (_this.toolbar.addedFeature || _this.autoselect) {
                     _this.toolbar.addedFeature = null;
-                    _this.holeadded = false;
+                    _this.autoselect = false;
                     return false;
                 }
                 return true;
