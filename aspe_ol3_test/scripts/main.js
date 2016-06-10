@@ -1343,15 +1343,46 @@ featureEditor.prototype.addThickness = function() {
     tr.appendChild(td_2);
     return tr;
 };
-
-// featureEditor.prototype.addLength = function() {
-//     // readonly
-//     // needs geometry
-// };
-// featureEditor.prototype.addArea = function() {
-//     // readonly
-//     // only for polygons
-// };
+featureEditor.prototype.addCoordsLat = function() {
+    // readonly
+    // only for Points (not MultiPoints)
+    var tr = document.createElement('tr');
+    var td_1 = this.addLabelElement("Lat:");
+    tr.appendChild(td_1);
+    var td_2 = this.addInputElement("lattitude", "number");
+    tr.appendChild(td_2);
+    return tr;
+};
+featureEditor.prototype.addCoordsLon = function() {
+    // readonly
+    // only for Points (not MultiPoints)
+    var tr = document.createElement('tr');
+    var td_1 = this.addLabelElement("Lon:");
+    tr.appendChild(td_1);
+    var td_2 = this.addInputElement("longitude", "number");
+    tr.appendChild(td_2);
+    return tr;
+};
+featureEditor.prototype.addLength = function() {
+    // readonly
+    // only for Lines and LineStrings
+    var tr = document.createElement('tr');
+    var td_1 = this.addLabelElement("Length:");
+    tr.appendChild(td_1);
+    var td_2 = this.addInputElement("length", "text");
+    tr.appendChild(td_2);
+    return tr;
+};
+featureEditor.prototype.addArea = function() {
+    // readonly
+    // only for Polygons and MultiPolygons
+    var tr = document.createElement('tr');
+    var td_1 = this.addLabelElement("Area:");
+    tr.appendChild(td_1);
+    var td_2 = this.addInputElement("area", "text");
+    tr.appendChild(td_2);
+    return tr;
+};
 
 ol.interaction.ChooseHole = function (opt_options) {
 
@@ -1408,11 +1439,6 @@ var layerInteractor = function (options) {
         this.highlight = undefined;
         var _this = this;
 
-        var featureChanger = document.getElementById('feature-type');
-        featureChanger.addEventListener('change', function () {
-            _this.loadFeature(this.value);
-        });
-
         this.featureOverlay = this.createFeatureOverlay();
         this.map.addLayer(this.featureOverlay);
         this.hoverDisplay = function(evt) {
@@ -1427,17 +1453,20 @@ var layerInteractor = function (options) {
         this.map.addInteraction(this.select);
         this.select.setActive(true);
 
+        this.map.on('pointermove', this.hoverDisplay);
+        this.map.addInteraction(this.modify);
+        this.modify.setActive(false);
+
         document.getElementById('map').addEventListener('mouseleave', function () {
             if (_this.highlight) {
                 _this.featureOverlay.getSource().removeFeature(_this.highlight);
                 _this.highlight = undefined;
             }
         });
-
-        this.map.on('pointermove', this.hoverDisplay);
-        this.map.addInteraction(this.modify);
-        this.modify.setActive(false);
-
+        var featureChanger = document.getElementById('feature-type');
+        featureChanger.addEventListener('change', function () {
+            _this.loadFeature(this.value);
+        });
         var drawholeElem = document.getElementById('drawhole');
         drawholeElem.addEventListener('click', function () {
             _this.drawHole();
