@@ -149,6 +149,14 @@ body {
     height: calc(50% - 2em);
     overflow-y: auto;
 }
+.featureeditor span {
+    float: left;
+    width: 40%;
+}
+.featureeditor input[type=text], .featureeditor input[type=number] {
+    width: 60%;
+    box-sizing: border-box;
+}
 .sidebar .layertree {
     width: 100%;
     height: 50%;
@@ -244,36 +252,36 @@ body {
     overflow-x: hidden;
     text-overflow: ellipsis;
 }
-.popup {
-    border: 1px solid grey;
-    background-color: rgba(255,255,255,1);
-    border-radius: .5em;
-}
-.popup span {
-    float: left;
-    width: 40%;
-}
-.popup input[type=text], .popup input[type=number] {
-    width: 60%;
-    box-sizing: border-box;
-}
-.popup input[type=button], .popup input[type=submit] {
-    width: 10%;
-    float: right;
-    background-color: rgba(0,0,0,.5);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: 50%;
-    border-radius: 2px;
-    color: rgba(255,255,255,1);
-    font-weight: 700;
-}
-.popup .delete {
-    background-image: url(../res/button_delete.png);
-}
-.popup .save {
-    background-image: url(../res/button_save.png);
-}
+/*.popup {*/
+    /*border: 1px solid grey;*/
+    /*background-color: rgba(255,255,255,1);*/
+    /*border-radius: .5em;*/
+/*}*/
+/*.popup span {*/
+    /*float: left;*/
+    /*width: 40%;*/
+/*}*/
+/*.popup input[type=text], .popup input[type=number] {*/
+    /*width: 60%;*/
+    /*box-sizing: border-box;*/
+/*}*/
+/*.popup input[type=button], .popup input[type=submit] {*/
+    /*width: 10%;*/
+    /*float: right;*/
+    /*background-color: rgba(0,0,0,.5);*/
+    /*background-size: contain;*/
+    /*background-repeat: no-repeat;*/
+    /*background-position: 50%;*/
+    /*border-radius: 2px;*/
+    /*color: rgba(255,255,255,1);*/
+    /*font-weight: 700;*/
+/*}*/
+/*.popup .delete {*/
+    /*background-image: url(../res/button_delete.png);*/
+/*}*/
+/*.popup .save {*/
+    /*background-image: url(../res/button_save.png);*/
+/*}*/
 .toggleable {
     position: fixed;
     background-color: rgba(0,0,0,.5);
