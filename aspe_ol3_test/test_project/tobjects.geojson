@@ -10,12 +10,9 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Building",
-                "name": "building-0",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
+                "type": "building",
+                "name": "Building-0",
+                "height" : 20.0,
                 "subtype" : "metal"
 
             },
@@ -51,12 +48,9 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Building",
-                "name": "building-2",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
+                "type": "building",
+                "name": "Building-2",
+                "height" : 20.0,
                 "subtype" : "metal"
 
             },
@@ -92,12 +86,9 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Building",
-                "name": "building-3",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
+                "type": "building",
+                "name": "Building-3",
+                "height" : 20.0,
                 "subtype" : "metal"
 
             },
@@ -133,12 +124,9 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Building",
-                "name": "building-4",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
+                "type": "building",
+                "name": "Building-4",
+                "height" : 20.0,
                 "subtype" : "metal"
 
             },
@@ -174,13 +162,10 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Herbage",
-                "name": "herbage-0",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "subtype" : "thick"
+                "type": "herbage",
+                "name": "Herbage-0",
+                "height" : 20.0,
+                "subtype" : "sparse"
 
             },
             "id": "herbage-0",
@@ -215,13 +200,10 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Herbage",
-                "name": "herbage-1",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "subtype" : "thick"
+                "type": "herbage",
+                "name": "Herbage-1",
+                "height" : 20.0,
+                "subtype" : "dense"
 
             },
             "id": "herbage-1",
@@ -256,13 +238,10 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Herbage",
-                "name": "herbage-2",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "subtype" : "thick"
+                "type": "herbage",
+                "name": "Herbage-2",
+                "height" : 20.0,
+                "subtype" : "sparse"
 
             },
             "id": "herbage-2",
@@ -297,13 +276,10 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Herbage",
-                "name": "herbage-3",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "subtype" : "thick"
+                "type": "herbage",
+                "name": "Herbage-3",
+                "height" : 20.0,
+                "subtype" : "dense"
 
             },
             "id": "herbage-3",
@@ -338,16 +314,10 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Wall",
-                "name": "wall-0",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "thickness" : { 
-                    "units" : "meter",
-                    "value" : 5.0
-                },
+                "type": "wall",
+                "name": "Wall-0",
+                "height" : 20.0,
+                "thickness" : 5.0,
                 "subtype" : "metal"
 
             },
@@ -377,61 +347,10 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Wall",
-                "name": "wall-1",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "thickness" : { 
-                    "units" : "meter",
-                    "value" : 5.0
-                },
-                "subtype" : "metal"
-
-            },
-            "id": "wall-1",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [
-                            -105.54082611656496,
-                              39.76584108626548
-                        ],
-                        [
-                            -105.54089048957769,
-                             39.76711109420864
-                        ],
-                        [
-                            -105.53930262183987,
-                             39.7671605745635
-                        ],
-                        [
-                            -105.53921679115619,
-                             39.7659730362328
-                        ],
-                        [
-                            -105.54082611656496,
-                             39.76584108626548
-                        ]
-                    ]
-                ]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "type": "Wall",
-                "name": "wall-2",
-                "height" : { 
-                    "units" : "meter",
-                    "value" : 20.0
-                },
-                "thickness" : { 
-                    "units" : "meter",
-                    "value" : 5.0
-                },
+                "type": "wall",
+                "name": "Wall-2",
+                "height" : 20.0,
+                "thickness" : 5.0,
                 "subtype" : "metal"
 
             },
@@ -461,8 +380,8 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Water",
-                "name": "water-0"
+                "type": "water",
+                "name": "Water-0"
             },
             "id": "water-0",
             "geometry": {
@@ -508,8 +427,8 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "Water",
-                "name": "water-1"
+                "type": "water",
+                "name": "Water-1"
             },
             "id": "water-1",
             "geometry": {

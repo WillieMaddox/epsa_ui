@@ -121,47 +121,47 @@ function getJSTSgeom(origGeom) {
 }
 
 var defaultFeatureProperties = {
-    'AOR': {
+    'aor': {
         'geometry_type': 'Polygon',
-        'sub_type': null,
-        'height': null,
-        'thickness': null,
+        // 'subtype': null,
+        // 'height': null,
+        // 'thickness': null,
         'color': [0, 0, 0]},
-    'Building': {
+    'building': {
         'geometry_type': 'Polygon',
-        'sub_type': ['metal', 'glass'],
+        'subtype': ['metal', 'glass'],
         'height': 10,
-        'thickness': null,
+        // 'thickness': null,
         'color': [128, 128, 128]},
-    'Herbage': {
+    'herbage': {
         'geometry_type': 'Polygon',
-        'sub_type': ['dense', 'sparse'],
+        'subtype': ['dense', 'sparse'],
         'height': 10,
-        'thickness': null,
+        // 'thickness': null,
         'color': [0, 200, 0]},
-    'Water': {
+    'water': {
         'geometry_type': 'Polygon',
-        'sub_type': ['warm', 'cool', 'frozen'],
-        'height': null,
-        'thickness': null,
+        'subtype': ['warm', 'cool', 'frozen'],
+        // 'height': null,
+        // 'thickness': null,
         'color': [0, 0, 200]},
-    'Wall': {
+    'wall': {
         'geometry_type': 'LineString',
-        'sub_type': ['metal', 'stone'],
+        'subtype': ['metal', 'stone'],
         'height': 10,
         'thickness': 10,
         'color': [64, 64, 64]},
-    'Road': {
+    'road': {
         'geometry_type': 'LineString',
-        'sub_type': ['cement', 'gravel', 'dirt'],
-        'height': null,
+        'subtype': ['cement', 'gravel', 'dirt'],
+        // 'height': null,
         'thickness': 10,
         'color': [192, 51, 52]},
-    'Generic': {
-        'geometry_type': null,
-        'sub_type': null,
-        'height': null,
-        'thickness': null,
+    'generic': {
+        // 'geometry_type': null,
+        // 'subtype': null,
+        // 'height': null,
+        // 'thickness': null,
         'color': [218, 188, 163]}
 };
 
@@ -627,7 +627,8 @@ layerTree.prototype.addVectorLayer = function (form) {
         var layer = new ol.layer.Vector({
             source: source,
             name: form.displayname.value,
-            strategy: ol.loadingstrategy.bbox
+            strategy: ol.loadingstrategy.bbox,
+            style: this.tobjectsStyleFunction
         });
         this.addBufferIcon(layer);
         this.map.addLayer(layer);
@@ -692,7 +693,7 @@ layerTree.prototype.getLayerById = function (id) {
     return false;
 };
 layerTree.prototype.getLayerGeomType = function (layer) {
-    if (layer.get('geom_type')) {
+    if (layer.get('type')) {
         return layer;
     }
     var types = [];
@@ -716,7 +717,7 @@ layerTree.prototype.getLayerGeomType = function (layer) {
         }
     });
 
-    layer.set('geom_type', types.length === 1 ? types[0] : 'geomcollection');
+    layer.set('type', types.length === 1 ? types[0] : 'geomcollection');
     return layer;
 };
 layerTree.prototype.stopPropagationOnEvent = function (node, event) {
@@ -823,11 +824,12 @@ layerTree.prototype.tobjectsStyleFunction = (function () {
 
         var color;
         var opacity;
-
-        color = featureColors[feature.get('feature_type')];
-        color = color ? color : [255, 0, 0];
-
-        if (feature.get('feature_type') === 'AOR') {
+        if (exists(feature.get('type'))) {
+            color = defaultFeatureProperties[feature.get('type')]['color'];
+        } else {
+            color = [255, 0, 0];
+        }
+        if (feature.get('type') === 'aor') {
             opacity = 0
         } else {
             opacity = fillOpacity[feature.getGeometry().getType()];
@@ -994,74 +996,74 @@ toolBar.prototype.addDrawToolBar = function () {
     this.drawControls = new ol.Collection();
     var drawPoint = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Generic',
+        feature_type: 'generic',
         geometry_type: 'Point',
         className: 'ol-addpoint ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'Generic')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'generic')
     }).setDisabled(true);
     this.drawControls.push(drawPoint);
     var drawLine = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Generic',
+        feature_type: 'generic',
         geometry_type: 'LineString',
         className: 'ol-addline ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'Generic')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'generic')
     }).setDisabled(true);
     this.drawControls.push(drawLine);
     var drawPolygon = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Generic',
+        feature_type: 'generic',
         geometry_type: 'Polygon',
         className: 'ol-addpolygon ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Generic')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'generic')
     }).setDisabled(true);
     this.drawControls.push(drawPolygon);
     var drawAOR = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'AOR',
+        feature_type: 'aor',
         geometry_type: 'Polygon',
         className: 'ol-addaor ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'AOR')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'aor')
     }).setDisabled(true);
     this.drawControls.push(drawAOR);
     var drawBuilding = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Building',
+        feature_type: 'building',
         geometry_type: 'Polygon',
         className: 'ol-addbuilding ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Building')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'building')
     }).setDisabled(true);
     this.drawControls.push(drawBuilding);
     var drawHerbage = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Herbage',
+        feature_type: 'herbage',
         geometry_type: 'Polygon',
         className: 'ol-addherbage ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Herbage')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'herbage')
     }).setDisabled(true);
     this.drawControls.push(drawHerbage);
     var drawWater = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Water',
+        feature_type: 'water',
         geometry_type: 'Polygon',
         className: 'ol-addwater ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'Water')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'water')
     }).setDisabled(true);
     this.drawControls.push(drawWater);
     var drawWall = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Wall',
+        feature_type: 'wall',
         geometry_type: 'LineString',
         className: 'ol-addwall ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'Wall')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'wall')
     }).setDisabled(true);
     this.drawControls.push(drawWall);
     var drawRoad = new ol.control.Interaction({
         label: ' ',
-        feature_type: 'Road',
+        feature_type: 'road',
         geometry_type: 'LineString',
         className: 'ol-addroad ol-unselectable ol-control',
-        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'Road')
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'road')
     }).setDisabled(true);
     this.drawControls.push(drawRoad);
 
@@ -1080,7 +1082,7 @@ toolBar.prototype.addDrawToolBar = function () {
                 control.setDisabled(false);
             });
             layertree.getLayerGeomType(layer);
-            var layerType = layer.get('geom_type');
+            var layerType = layer.get('type');
             if (layerType !== 'point' && layerType !== 'geomcollection') {
                 drawPoint.setDisabled(true).set('active', false);
             }
@@ -1128,8 +1130,8 @@ toolBar.prototype.handleEvents = function (interaction, feature_type) {
             var id = FID.gen();
 
             evt.feature.setId(id);
-            evt.feature.set('feature_type', feature_type);
-            evt.feature.set('name', feature_type + '-' + id);
+            evt.feature.set('type', feature_type);
+            evt.feature.set('name', feature_type.capitalizeFirstLetter() + '-' + id);
 
             //TODO: The feature shouldn't be added to the layer yet.
             //TODO: Only after deselect should the layer be updated.
@@ -1355,7 +1357,7 @@ toolBar.prototype.handleEvents = function (interaction, feature_type) {
 // featureEditor.prototype.addSubType = function () {
 //     var tr = document.createElement('tr');
 //     tr.appendChild(this.createLabel("Sub type:"));
-//     tr.appendChild(this.createMenu("sub_type", ""));
+//     tr.appendChild(this.createMenu("subtype", ""));
 //     return tr;
 // };
 // featureEditor.prototype.addSliderElement = function (name) {
@@ -1552,11 +1554,19 @@ featureInteractor.prototype.createForm = function (options) {
     var attributeSpan = document.createElement('span');
     attributeSpan.textContent = 'Geometry type: ';
     rowElem.appendChild(attributeSpan);
-    var geometryType = document.createElement('input');
-    geometryType.name = "geometry_type";
-    geometryType.type = "text";
-    geometryType.readOnly = true;
+    var geometryType = document.createElement('div');
+    geometryType.id = "geometry-type";
     rowElem.appendChild(geometryType);
+    form.appendChild(rowElem);
+
+    var rowElem = document.createElement('div');
+    var attributeSpan = document.createElement('span');
+    attributeSpan.id = 'measure-label'
+    attributeSpan.textContent = 'Measure: ';
+    rowElem.appendChild(attributeSpan);
+    var measure = document.createElement('div');
+    measure.id = 'measure-feature';
+    rowElem.appendChild(measure);
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
@@ -1577,14 +1587,13 @@ featureInteractor.prototype.createForm = function (options) {
     rowElem.appendChild(this.createButton3("deletehole", "Delete", "deletehole"));
     form.appendChild(rowElem);
 
-
     var rowElem = document.createElement('div');
     var attributeSpan = document.createElement('span');
     attributeSpan.textContent = 'Feature type:';
     rowElem.appendChild(attributeSpan);
     var featureType = document.createElement('select');
-    featureType.name = "feature_type";
     featureType.id = "feature-type";
+    featureType.name = "feature_type";
     rowElem.appendChild(featureType);
     form.appendChild(rowElem);
 
@@ -1593,8 +1602,8 @@ featureInteractor.prototype.createForm = function (options) {
     attributeSpan.textContent = 'Sub Type: ';
     rowElem.appendChild(attributeSpan);
     var subType = document.createElement('select');
-    subType.name = "sub_type";
-    subType.id = "";
+    subType.id = "sub-type";
+    subType.name = "subtype";
     rowElem.appendChild(subType);
     form.appendChild(rowElem);
 
@@ -1642,24 +1651,41 @@ featureInteractor.prototype.createForm = function (options) {
     var attributeSpan = document.createElement('span');
     attributeSpan.textContent = 'Thickness: ';
     rowElem.appendChild(attributeSpan);
-    var thickness = document.createElement('input');
-    thickness.name = "thickness";
-    thickness.type = "number";
-    thickness.required = true;
-    rowElem.appendChild(thickness);
+    var thicknessSlider = document.createElement('div');
+    thicknessSlider.id = 'thickness-slider';
+    thicknessSlider.name = "thicknessslider";
+    noUiSlider.create(thicknessSlider, {
+        start: 5, // Handle start position
+        margin: 20, // Handles must be more than '20' apart
+        connect: 'lower', // Display a colored bar between the handles
+        behaviour: 'tap', // Move handle on tap, bar is draggable
+        range: { // Slider can select '0' to '100'
+            'min': 0,
+            'max': 50
+        }
+    });
+
+    var thicknessInput = document.createElement('input');
+    thicknessInput.name = "thicknessinput";
+    thicknessInput.type = "number";
+    thicknessInput.id = 'thickness-input';
+    rowElem.appendChild(thicknessInput);
     form.appendChild(rowElem);
 
+
+    // When the slider value changes, update the input and span
+    thicknessSlider.noUiSlider.on('update', function( values, handle ) {
+        thicknessInput.value = values[handle];
+    });
+    // When the input changes, set the slider value
+    thicknessInput.addEventListener('change', function(){
+        thicknessSlider.noUiSlider.set(this.value);
+    });
+
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
-    attributeSpan.id = 'measure-label'
-    attributeSpan.textContent = 'Measure: ';
-    rowElem.appendChild(attributeSpan);
-    var measure = document.createElement('div');
-    measure.id = 'measure-feature';
-    // measure.name = "measure";
-    // measure.type = "text";
-    rowElem.appendChild(measure);
+    rowElem.appendChild(thicknessSlider);
     form.appendChild(rowElem);
+
 
     // var table = document.createElement('table');
     // table.appendChild(this.addGeometryType());
@@ -1811,28 +1837,8 @@ featureInteractor.prototype.addFeatureType = function () {
 featureInteractor.prototype.addSubType = function () {
     var tr = document.createElement('tr');
     tr.appendChild(this.createLabel("Sub type:"));
-    tr.appendChild(this.createMenu("sub_type", ""));
+    tr.appendChild(this.createMenu("subtype", ""));
     return tr;
-};
-featureInteractor.prototype.addSliderElement = function (name) {
-
-    var td = document.createElement('td');
-    var slider = document.createElement('input');
-    slider.name = name;
-    slider.type = 'range';
-    slider.min = 0;
-    slider.max = 1;
-    slider.step = 0.1;
-    slider.value = layer.getOpacity();
-    slider.addEventListener('input', function () {
-        layer.setOpacity(this.value);
-    });
-    slider.addEventListener('change', function () {
-        layer.setOpacity(this.value);
-    });
-    // td.appendChild(this.stopPropagationOnEvent(slider, 'click'));
-    td.appendChild(slider);
-    return td;
 };
 featureInteractor.prototype.addHeight = function () {
     // add slider.
@@ -2287,7 +2293,7 @@ featureInteractor.prototype.loadFeature = function (feature_type) {
                     form.name.value = form.name.value.replace(key, feature_type);
                 }
             }
-        } else if (key === 'Generic') {
+        } else if (key === 'generic') {
             if (form.name.value.startsWith(key)) {
                 form.name.value = form.name.value.replace(key, feature_type);
             }
@@ -2295,8 +2301,8 @@ featureInteractor.prototype.loadFeature = function (feature_type) {
     }
 
     this.removeContent(form.sub_type);
-    if (feature_properties['sub_type']) {
-        feature_properties['sub_type'].forEach( function (sub_type) {
+    if (feature_properties['subtype']) {
+        feature_properties['subtype'].forEach( function (sub_type) {
             form.sub_type.appendChild(this.createOption(sub_type));
         }, this);
         form.sub_type.disabled = false;
@@ -2331,72 +2337,13 @@ featureInteractor.prototype.activateForm = function (feature) {
 
     form.style.display = 'block';
 
-    var feature_type = feature.get('feature_type');
+    var feature_type = feature.get('type');
     if (!(feature_type && feature_type in defaultFeatureProperties)) {
-        feature_type = 'Generic';
-    }
-    form.name.value = feature.get('name');
-    form.geometry_type.value = feature.getGeometry().getType();
-    form.drawhole.disabled = true;
-    form.deletehole.disabled = true;
-    if (feature.getGeometry().getType().endsWith('Polygon')) {
-        form.drawhole.disabled = false;
-        if (feature.getGeometry().getType() === 'MultiPolygon') {
-            for (i = 0; i < feature.getGeometry().getPolygons().length; i++)
-                if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
-                    form.deletehole.disabled = false;
-                }
-        } else if (feature.getGeometry().getLinearRingCount() > 1) {
-            form.deletehole.disabled = false;
-        }
+        feature_type = 'generic';
     }
 
-    var feature_properties = defaultFeatureProperties[feature_type];
-    for (var key in defaultFeatureProperties) {
-        if (feature.getGeometry().getType().endsWith(defaultFeatureProperties[key]["geometry_type"])) {
-            form.feature_type.appendChild(this.createOption(key));
-        }
-    }
-    form.feature_type.appendChild(this.createOption('Generic'));
-    form.feature_type.value = feature_type;
-
-    if (feature_properties['sub_type']) {
-        feature_properties['sub_type'].forEach( function (sub_type) {
-            form.sub_type.appendChild(this.createOption(sub_type));
-        }, this);
-        if (feature.get('sub_type')) {
-            form.sub_type.value = feature.get('sub_type');
-        }
-        form.sub_type.disabled = false;
-    } else {
-        form.sub_type.disabled = true;
-    }
-
-    var heightslider = document.getElementById('height-slider');
-
-    if (feature.get('height')) {
-        form.heightinput.disabled = false;
-        form.heightinput.value = feature.get('height');
-        heightslider.removeAttribute('disabled');
-        heightslider.noUiSlider.set(form.heightinput.value);
-    } else if (feature_properties['height']) {
-        form.heightinput.disabled = false;
-        form.heightinput.value = feature_properties['height'];
-        heightslider.removeAttribute('disabled');
-        heightslider.noUiSlider.set(form.heightinput.value);
-    } else {
-        form.heightinput.disabled = true;
-        form.heightinput.value = null;
-        heightslider.setAttribute('disabled', true);
-    }
-
-    if (feature.get('thickness')) {
-        form.thickness.value = feature.get('thickness');
-    } else if (feature_properties['thickness']) {
-        form.thickness.value = feature_properties['thickness'];
-    } else {
-        form.thickness.disabled = true;
-    }
+    var geometry_type = document.getElementById('geometry-type');
+    geometry_type.innerHTML = feature.getGeometry().getType();
 
     var measureLabel = document.getElementById('measure-label');
     var measure;
@@ -2413,6 +2360,78 @@ featureInteractor.prototype.activateForm = function (feature) {
     this.listener = feature.getGeometry().on('change', function(evt) {
         measureValue.innerHTML = measure(evt.target);
     });
+
+    form.name.value = feature.get('name');
+
+    form.drawhole.disabled = true;
+    form.deletehole.disabled = true;
+    if (feature.getGeometry().getType().endsWith('Polygon')) {
+        form.drawhole.disabled = false;
+        if (feature.getGeometry().getType() === 'MultiPolygon') {
+            for (i = 0; i < feature.getGeometry().getPolygons().length; i++)
+                if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
+                    form.deletehole.disabled = false;
+                }
+        } else if (feature.getGeometry().getLinearRingCount() > 1) {
+            form.deletehole.disabled = false;
+        }
+    }
+
+    for (var key in defaultFeatureProperties) {
+        if (feature.getGeometry().getType().endsWith(defaultFeatureProperties[key]["geometry_type"])) {
+            form.feature_type.appendChild(this.createOption(key));
+        }
+    }
+    form.feature_type.appendChild(this.createOption('generic'));
+
+    form.feature_type.value = feature_type;
+    var feature_properties = defaultFeatureProperties[feature_type];
+    if (feature_properties['subtype']) {
+        feature_properties['subtype'].forEach( function (sub_type) {
+            form.subtype.appendChild(this.createOption(sub_type));
+        }, this);
+        if (feature.get('subtype')) {
+            form.subtype.value = feature.get('subtype');
+        }
+        form.subtype.disabled = false;
+    } else {
+        form.subtype.disabled = true;
+    }
+
+    var heightslider = document.getElementById('height-slider');
+    var heightinput = document.getElementById('height-input');
+    if (feature.get('height')) {
+        heightinput.disabled = false;
+        heightinput.value = feature.get('height');
+        heightslider.removeAttribute('disabled');
+        heightslider.noUiSlider.set(feature.get('height'));
+    } else if (feature_properties['height']) {
+        heightinput.disabled = false;
+        heightinput.value = feature_properties['height'];
+        heightslider.removeAttribute('disabled');
+        heightslider.noUiSlider.set(feature_properties['height']);
+    } else {
+        heightinput.disabled = true;
+        heightslider.setAttribute('disabled', true);
+    }
+
+    var thicknessinput = document.getElementById('thickness-input');
+    var thicknessslider = document.getElementById('thickness-slider');
+    if (feature.get('thickness')) {
+        thicknessinput.disabled = false;
+        thicknessinput.value = feature.get('thickness');
+        thicknessslider.removeAttribute('disabled');
+        thicknessslider.noUiSlider.set(feature.get('thickness'));
+    } else if (feature_properties['thickness']) {
+        thicknessinput.disabled = false;
+        thicknessinput.value = feature_properties['thickness'];
+        thicknessslider.removeAttribute('disabled');
+        thicknessslider.noUiSlider.set(feature_properties['thickness']);
+    } else {
+        thicknessinput.disabled = true;
+        thicknessslider.noUiSlider.set(null);
+        thicknessslider.setAttribute('disabled', true);
+    }
 };
 featureInteractor.prototype.deactivateForm = function (feature) {
     var form = document.getElementById('featureproperties');
@@ -2421,22 +2440,24 @@ featureInteractor.prototype.deactivateForm = function (feature) {
     form.name.value = null;
     form.name.disabled = false;
 
-    form.drawhole.disabled = true;
-    form.deletehole.disabled = true;
+    document.getElementById('drawhole').disabled = true;
+    document.getElementById('deletehole').disabled = true;
 
-    feature.set('feature_type', form.feature_type.value);
+    feature.set('type', form.feature_type.value);
     this.removeContent(form.feature_type);
 
-    feature.set('sub_type', form.sub_type.value);
-    this.removeContent(form.sub_type);
+    feature.set('subtype', form.subtype.value);
+    this.removeContent(form.subtype);
 
-    feature.set('height', form.heightinput.value);
-    form.heightinput.value = null;
-    form.heightinput.disabled = true;
+    var heightinput = document.getElementById('height-input');
+    feature.set('height', heightinput.value);
+    heightinput.value = null;
+    heightinput.disabled = true;
 
-    feature.set('thickness', form.thickness.value);
-    form.thickness.value = null;
-    form.thickness.disabled = false;
+    var thicknessinput = document.getElementById('thickness-input');
+    feature.set('thickness', thicknessinput.value);
+    thicknessinput.value = null;
+    thicknessinput.disabled = false;
 
     form.style.display = 'none';
 
@@ -2474,19 +2495,18 @@ featureInteractor.prototype.createFeatureOverlay = function () {
 
             var color;
             var opacity;
-
-            color = featureColors[feature.get('feature_type')];
-            color = color ? color : [255, 0, 0];
-
-            if (feature.get('feature_type') === 'AOR') {
+            if (exists(feature.get('type'))) {
+                color = defaultFeatureProperties[feature.get('type')]['color'];
+            } else {
+                color = [255, 0, 0];
+            }
+            if (feature.get('type') === 'aor') {
                 opacity = 0
             } else {
                 opacity = fillOpacity[feature.getGeometry().getType()];
                 opacity = opacity ? opacity : 0;
             }
-
             var text = resolution < 50000 ? feature.get('name') : '';
-
             if (!highlightStyleCache[text]) {
                 highlightStyleCache[text] = setStyle(color, opacity, text);
             }
@@ -2514,7 +2534,7 @@ featureInteractor.prototype.getFeatureAtPixel = function (pixel) {
         } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
             return feature;
         } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
-            if (feature.get('feature_type') === 'AOR') {
+            if (feature.get('type') === 'aor') {
                 var point = geom.getClosestPoint(coord);
                 var pixel0 = this.map.getPixelFromCoordinate(coord);
                 var pixel1 = this.map.getPixelFromCoordinate(point);
