@@ -814,6 +814,16 @@ layerTree.prototype.randomHexColor = function () {
 layerTree.prototype.tobjectsStyleFunction = (function () {
     var setStyle = function (color, opacity) {
         var style = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: color.concat(1),
+                    width: 2
+                }),
+                fill: new ol.style.Fill({
+                    color: color.concat(0.6)
+                })
+            }),
             stroke: new ol.style.Stroke({
                 color: color.concat(1),
                 width: 3
@@ -2184,7 +2194,7 @@ featureInteractor.prototype.deleteHole = function () {
         finishHole();
     });
 };
-featureInteractor.prototype.formatLength = function(line) {
+featureInteractor.prototype.formatLength = function(line, proj) {
     var length;
     // if (geodesicCheckbox.checked) {
     //     var coordinates = line.getCoordinates();
@@ -2207,7 +2217,7 @@ featureInteractor.prototype.formatLength = function(line) {
     }
     return output;
 };
-featureInteractor.prototype.formatArea = function(polygon) {
+featureInteractor.prototype.formatArea = function(polygon, proj) {
     var area;
     // if (geodesicCheckbox.checked) {
     //     var sourceProj = map.getView().getProjection();
@@ -2221,16 +2231,23 @@ featureInteractor.prototype.formatArea = function(polygon) {
     var output;
     var squared = "2";
     if (area > 10000) {
-        // output = (Math.round(area / 1000000 * 100) / 100) + "km²";
         output = (Math.round(area / 1000000 * 100) / 100) + " km" + squared.sup();
     } else {
         output = (Math.round(area * 100) / 100) + " m" + squared.sup();
     }
     return output;
 };
+featureInteractor.prototype.formatPosition = function (point, sourceProj) {
+    var geom = point.clone().transform(sourceProj, 'EPSG:4326');
+    var coords = geom.getCoordinates();
+    var coord_x = coords[0].toFixed(6);
+    var coord_y = coords[1].toFixed(6);
+    return coord_x + ', ' + coord_y;
+};
 
 featureInteractor.prototype.activateForm = function (feature) {
 
+    var _this = this;
     document.getElementById('featureproperties').style.display = 'block';
 
     var geometry_type = document.getElementById('geometry-type');
@@ -2244,12 +2261,15 @@ featureInteractor.prototype.activateForm = function (feature) {
     } else if (feature.getGeometry() instanceof ol.geom.LineString || feature.getGeometry() instanceof ol.geom.MultiLineString) {
         measureLabel.innerHTML = 'Length:';
         measure = this.formatLength;
+    } else if (feature.getGeometry() instanceof ol.geom.Point) {
+        measureLabel.innerHTML = 'Lon, Lat';
+        measure = this.formatPosition;
     }
 
     var measureValue = document.getElementById('measure-feature');
-    measureValue.innerHTML = measure(feature.getGeometry());
+    measureValue.innerHTML = measure(feature.getGeometry(), this.map.getView().getProjection());
     this.listener = feature.getGeometry().on('change', function(evt) {
-        measureValue.innerHTML = measure(evt.target);
+        measureValue.innerHTML = measure(evt.target, _this.map.getView().getProjection());
     });
 
     document.getElementById('feature-name').value = feature.get('name');
@@ -2475,7 +2495,7 @@ featureInteractor.prototype.createFeatureOverlay = function () {
             if (feature.get('type') === 'aor') {
                 opacity = 0
             } else {
-                opacity = fillOpacity[feature.getGeometry().getType()];
+                opacity = fillOpacity[feature.getGeometry().getType()] * 2;
                 opacity = opacity ? opacity : 0;
             }
             var text = resolution < 50000 ? feature.get('name') : '';
