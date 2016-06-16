@@ -1555,42 +1555,63 @@ featureInteractor.prototype.createForm = function (options) {
     featureeditor.className = 'featureeditor';
 
     var form = document.createElement('form');
+    form.className = 'form';
     form.id = 'featureproperties';
     form.style.display = 'none';
 
     form.appendChild(this.addLayerGeometry());
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Geometry type: ';
     rowElem.appendChild(attributeSpan);
     var geometryType = document.createElement('div');
+    geometryType.className = 'form-value';
     geometryType.id = "geometry-type";
     rowElem.appendChild(geometryType);
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
-    attributeSpan.id = 'measure-label';
-    attributeSpan.textContent = 'Measure: ';
+    rowElem.className = 'form-row';
+
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
+    attributeSpan.style.display = 'flex';
+    var measureLabel = document.createElement('div');
+    measureLabel.id = 'measure-label';
+    measureLabel.textContent = 'Measure: ';
+    attributeSpan.appendChild(measureLabel);
+    var geodesic = document.createElement('input');
+    geodesic.id = "geodesic";
+    geodesic.type = "checkbox";
+    geodesic.title = "Use geodesic measures";
+    attributeSpan.appendChild(geodesic);
     rowElem.appendChild(attributeSpan);
+
     var measure = document.createElement('div');
     measure.id = 'measure-feature';
     rowElem.appendChild(measure);
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Name: ';
     rowElem.appendChild(attributeSpan);
     var featureName = document.createElement('input');
+    featureName.className = 'form-value';
     featureName.id = "feature-name";
     featureName.type = "text";
     rowElem.appendChild(featureName);
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Hole: ';
     rowElem.appendChild(attributeSpan);
     rowElem.appendChild(this.createHoleButton("draw"));
@@ -1598,10 +1619,13 @@ featureInteractor.prototype.createForm = function (options) {
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Feature type:';
     rowElem.appendChild(attributeSpan);
     var featureType = document.createElement('select');
+    featureType.className = 'form-value';
     featureType.id = "feature-type";
     featureType.addEventListener('change', function () {
         _this.loadFeature(this.value);
@@ -1611,16 +1635,21 @@ featureInteractor.prototype.createForm = function (options) {
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Sub Type: ';
     rowElem.appendChild(attributeSpan);
     var subType = document.createElement('select');
+    subType.className = 'form-value';
     subType.id = "sub-type";
     rowElem.appendChild(subType);
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Height: ';
     rowElem.appendChild(attributeSpan);
     var heightSlider = document.createElement('div');
@@ -1634,6 +1663,7 @@ featureInteractor.prototype.createForm = function (options) {
     });
 
     var heightInput = document.createElement('input');
+    heightInput.className = 'form-value';
     heightInput.id = 'height-input';
     heightInput.type = 'number';
     rowElem.appendChild(heightInput);
@@ -1655,7 +1685,9 @@ featureInteractor.prototype.createForm = function (options) {
     
 
     var rowElem = document.createElement('div');
-    var attributeSpan = document.createElement('span');
+    rowElem.className = 'form-row';
+    var attributeSpan = document.createElement('div');
+    attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Thickness: ';
     rowElem.appendChild(attributeSpan);
     var thicknessSlider = document.createElement('div');
@@ -1669,6 +1701,7 @@ featureInteractor.prototype.createForm = function (options) {
     });
 
     var thicknessInput = document.createElement('input');
+    thicknessInput.className = 'form-value';
     thicknessInput.id = 'thickness-input';
     thicknessInput.type = "number";
     rowElem.appendChild(thicknessInput);
@@ -2194,40 +2227,17 @@ featureInteractor.prototype.deleteHole = function () {
         finishHole();
     });
 };
-featureInteractor.prototype.formatLength = function(line, proj) {
-    var length;
-    // if (geodesicCheckbox.checked) {
-    //     var coordinates = line.getCoordinates();
-    //     length = 0;
-    //     var sourceProj = map.getView().getProjection();
-    //     for (var i = 0, ii = coordinates.length - 1; i < ii; ++i) {
-    //         var c1 = ol.proj.transform(coordinates[i], sourceProj, 'EPSG:4326');
-    //         var c2 = ol.proj.transform(coordinates[i + 1], sourceProj, 'EPSG:4326');
-    //         length += this.wgs84Sphere.haversineDistance(c1, c2);
-    //     }
-    // } else {
-    //     length = Math.round(line.getLength() * 100) / 100;
-    // }
-    length = Math.round(line.getLength() * 100) / 100;
-    var output;
-    if (length > 100) {
-        output = (Math.round(length / 1000 * 100) / 100) + ' km';
-    } else {
-        output = (Math.round(length * 100) / 100) + ' m';
-    }
-    return output;
-};
-featureInteractor.prototype.formatArea = function(polygon, proj) {
+featureInteractor.prototype.formatArea = function(polygon, sourceProj, sphere) {
+
     var area;
-    // if (geodesicCheckbox.checked) {
-    //     var sourceProj = map.getView().getProjection();
-    //     var geom = polygon.clone().transform(sourceProj, 'EPSG:4326');
-    //     var coordinates = geom.getLinearRing(0).getCoordinates();
-    //     area = Math.abs(this.wgs84Sphere.geodesicArea(coordinates));
-    // } else {
-    //     area = polygon.getArea();
-    // }
-    area = polygon.getArea();
+    if (document.getElementById('geodesic').checked) {
+        // var wgs84Sphere = new ol.Sphere(6378137);
+        var geom = polygon.clone().transform(sourceProj, 'EPSG:4326');
+        var coordinates = geom.getLinearRing(0).getCoordinates();
+        area = Math.abs(sphere.geodesicArea(coordinates));
+    } else {
+        area = polygon.getArea();
+    }
     var output;
     var squared = "2";
     if (area > 10000) {
@@ -2237,7 +2247,29 @@ featureInteractor.prototype.formatArea = function(polygon, proj) {
     }
     return output;
 };
-featureInteractor.prototype.formatPosition = function (point, sourceProj) {
+featureInteractor.prototype.formatLength = function(line, sourceProj, sphere) {
+    var length;
+    if (document.getElementById('geodesic').checked) {
+        // var wgs84Sphere = new ol.Sphere(6378137);
+        var coordinates = line.getCoordinates();
+        length = 0;
+        for (var i = 0, ii = coordinates.length - 1; i < ii; ++i) {
+            var c1 = ol.proj.transform(coordinates[i], sourceProj, 'EPSG:4326');
+            var c2 = ol.proj.transform(coordinates[i + 1], sourceProj, 'EPSG:4326');
+            length += sphere.haversineDistance(c1, c2);
+        }
+    } else {
+        length = Math.round(line.getLength() * 100) / 100;
+    }
+    var output;
+    if (length > 100) {
+        output = (Math.round(length / 1000 * 100) / 100) + ' km';
+    } else {
+        output = (Math.round(length * 100) / 100) + ' m';
+    }
+    return output;
+};
+featureInteractor.prototype.formatPosition = function (point, sourceProj, sphere) {
     var geom = point.clone().transform(sourceProj, 'EPSG:4326');
     var coords = geom.getCoordinates();
     var coord_x = coords[0].toFixed(6);
@@ -2265,12 +2297,15 @@ featureInteractor.prototype.activateForm = function (feature) {
         measureLabel.innerHTML = 'Lon, Lat';
         measure = this.formatPosition;
     }
-
     var measureValue = document.getElementById('measure-feature');
-    measureValue.innerHTML = measure(feature.getGeometry(), this.map.getView().getProjection());
-    this.listener = feature.getGeometry().on('change', function(evt) {
-        measureValue.innerHTML = measure(evt.target, _this.map.getView().getProjection());
+    measureValue.innerHTML = measure(feature.getGeometry(), this.map.getView().getProjection(), this.wgs84Sphere);
+    this.geometrylistener = feature.getGeometry().on('change', function(evt) {
+        measureValue.innerHTML = measure(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
     });
+    this.geodesiclistener = function () {
+        measureValue.innerHTML = measure(_this.geometrylistener.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
+    };
+    document.getElementById('geodesic').addEventListener('change', this.geodesiclistener);
 
     document.getElementById('feature-name').value = feature.get('name');
 
@@ -2453,7 +2488,10 @@ featureInteractor.prototype.deactivateForm = function (feature) {
 
     document.getElementById('featureproperties').style.display = 'none';
 
-    ol.Observable.unByKey(this.listener);
+    document.getElementById('geodesic').removeEventListener('change', this.geodesiclistener);
+    ol.Observable.unByKey(this.geometrylistener);
+    this.geometrylistener = null;
+    this.geodesiclistener = null;
 };
 
 featureInteractor.prototype.createFeatureOverlay = function () {

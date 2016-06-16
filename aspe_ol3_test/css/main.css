@@ -149,11 +149,32 @@ body {
     height: calc(50% - 2em);
     overflow-y: auto;
 }
-.featureeditor span {
-    float: left;
+.form .form-row {
+    display: flex;
+    width: 100%;
+}
+.form-row .form-label {
+    position: relative;
     width: 40%;
 }
-.featureeditor input[type=text], .featureeditor input[type=number] {
+.form-label #measure-label {
+    position: relative;
+    width: 80%;
+}
+.form-label #geodesic {
+    position: relative;
+    width: 20%;
+    float: right;
+    box-sizing: border-box;
+    margin: 0;
+    /*margin-top: 1px;*/
+    /*margin-right: 1px;*/
+    /*margin-bottom: 1px;*/
+    /*margin-left: 1px;*/
+}
+ /*input[type=text], .featureeditor input[type=number] */
+.form-row .form-value {
+    position: relative;
     width: 60%;
     box-sizing: border-box;
 }
