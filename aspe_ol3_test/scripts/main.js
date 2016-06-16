@@ -1656,10 +1656,15 @@ featureInteractor.prototype.createForm = function (options) {
     heightSlider.id = 'height-slider';
     noUiSlider.create(heightSlider, {
         start: null,
-        margin: 20,
         connect: 'lower',
         behaviour: 'tap',
-        range: {'min': 0, 'max': 100}
+        range: {
+            'min': 0,
+            '25%': 1,
+            '50%': 10,
+            '75%': 100,
+            'max': 1000
+        }
     });
 
     var heightInput = document.createElement('input');
@@ -2240,7 +2245,7 @@ featureInteractor.prototype.formatArea = function(polygon, sourceProj, sphere) {
     }
     var output;
     var squared = "2";
-    if (area > 10000) {
+    if (area > 100000) {
         output = (Math.round(area / 1000000 * 100) / 100) + " km" + squared.sup();
     } else {
         output = (Math.round(area * 100) / 100) + " m" + squared.sup();
@@ -2262,7 +2267,7 @@ featureInteractor.prototype.formatLength = function(line, sourceProj, sphere) {
         length = Math.round(line.getLength() * 100) / 100;
     }
     var output;
-    if (length > 100) {
+    if (length > 1000) {
         output = (Math.round(length / 1000 * 100) / 100) + ' km';
     } else {
         output = (Math.round(length * 100) / 100) + ' m';
