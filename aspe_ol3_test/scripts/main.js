@@ -1710,47 +1710,6 @@ featureInteractor.prototype.createInput = function (name, type) {
     td.appendChild(element);
     return td;
 };
-featureInteractor.prototype.createButton = function (name1, name2) {
-    var td = document.createElement('td');
-    var element = document.createElement('input');
-    element.id = name1 + name2;
-    element.type = "button";
-    element.name = name1 + name2;
-    element.value = name1 + " " + name2;
-    element.title = name1 + " a " + name2;
-    element.className = name1 + name2;
-    td.appendChild(element);
-    return td;
-};
-featureInteractor.prototype.createButton2 = function (elemName, elemTitle, elemType, layer) {
-    var td = document.createElement('td');
-    var buttonElem = document.createElement('input');
-    buttonElem.id = elemName;
-    buttonElem.type = "button";
-    buttonElem.name = elemName;
-    buttonElem.value = elemName;
-    buttonElem.title = elemTitle;
-    buttonElem.className = elemName;
-    buttonElem.textContent = elemTitle;
-    var _this = this;
-
-    switch (elemType) {
-        case 'drawhole':
-            buttonElem.addEventListener('click', function () {
-                _this.drawHole();
-            });
-            td.appendChild(buttonElem);
-            return td;
-        case 'deletehole':
-            buttonElem.addEventListener('click', function () {
-                _this.deleteHole();
-            });
-            td.appendChild(buttonElem);
-            return td;
-        default:
-            return false;
-    }
-};
 featureInteractor.prototype.createHoleButton = function (label) {
     var buttonElem = document.createElement('input');
     buttonElem.id = label + '-hole';
