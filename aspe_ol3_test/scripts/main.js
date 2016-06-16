@@ -1,5 +1,9 @@
-String.prototype.capitalizeFirstLetter = function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
+String.prototype.capitalizeFirstLetter = function(flip) {
+    if (flip) {
+        return this.charAt(0).toLowerCase() + this.slice(1);
+    } else {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
 };
 function exists(x) {
     return (x !== undefined && x !== null);
@@ -1508,11 +1512,6 @@ var featureInteractor = function (options) {
             }
         });
 
-        var featureChanger = document.getElementById('feature-type');
-        featureChanger.addEventListener('change', function () {
-            _this.loadFeature(this.value);
-        });
-
         this.autoselect = false;
 
     } else {
@@ -1541,6 +1540,7 @@ featureInteractor.prototype.stopPropagationOnEvent = function (node, event) {
 
 featureInteractor.prototype.createForm = function (options) {
 
+    var _this = this;
     var featureeditor = document.getElementById(options.target);
     featureeditor.className = 'featureeditor';
 
@@ -1561,7 +1561,7 @@ featureInteractor.prototype.createForm = function (options) {
 
     var rowElem = document.createElement('div');
     var attributeSpan = document.createElement('span');
-    attributeSpan.id = 'measure-label'
+    attributeSpan.id = 'measure-label';
     attributeSpan.textContent = 'Measure: ';
     rowElem.appendChild(attributeSpan);
     var measure = document.createElement('div');
@@ -1574,7 +1574,7 @@ featureInteractor.prototype.createForm = function (options) {
     attributeSpan.textContent = 'Name: ';
     rowElem.appendChild(attributeSpan);
     var featureName = document.createElement('input');
-    featureName.name = "name";
+    featureName.id = "feature-name";
     featureName.type = "text";
     rowElem.appendChild(featureName);
     form.appendChild(rowElem);
@@ -1583,8 +1583,8 @@ featureInteractor.prototype.createForm = function (options) {
     var attributeSpan = document.createElement('span');
     attributeSpan.textContent = 'Hole: ';
     rowElem.appendChild(attributeSpan);
-    rowElem.appendChild(this.createButton3("drawhole", "Draw", "drawhole"));
-    rowElem.appendChild(this.createButton3("deletehole", "Delete", "deletehole"));
+    rowElem.appendChild(this.createHoleButton("draw"));
+    rowElem.appendChild(this.createHoleButton("delete"));
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
@@ -1593,7 +1593,10 @@ featureInteractor.prototype.createForm = function (options) {
     rowElem.appendChild(attributeSpan);
     var featureType = document.createElement('select');
     featureType.id = "feature-type";
-    featureType.name = "feature_type";
+    featureType.addEventListener('change', function () {
+        _this.loadFeature(this.value);
+    });
+
     rowElem.appendChild(featureType);
     form.appendChild(rowElem);
 
@@ -1603,7 +1606,6 @@ featureInteractor.prototype.createForm = function (options) {
     rowElem.appendChild(attributeSpan);
     var subType = document.createElement('select');
     subType.id = "sub-type";
-    subType.name = "subtype";
     rowElem.appendChild(subType);
     form.appendChild(rowElem);
 
@@ -1613,21 +1615,16 @@ featureInteractor.prototype.createForm = function (options) {
     rowElem.appendChild(attributeSpan);
     var heightSlider = document.createElement('div');
     heightSlider.id = 'height-slider';
-    heightSlider.name = "heightslider";
     noUiSlider.create(heightSlider, {
-        start: 10, // Handle start position
-        margin: 20, // Handles must be more than '20' apart
-        connect: 'lower', // Display a colored bar between the handles
-        behaviour: 'tap', // Move handle on tap, bar is draggable
-        range: { // Slider can select '0' to '100'
-            'min': 0,
-            'max': 100
-        }
+        start: null,
+        margin: 20,
+        connect: 'lower',
+        behaviour: 'tap',
+        range: {'min': 0, 'max': 100}
     });
 
     var heightInput = document.createElement('input');
     heightInput.id = 'height-input';
-    heightInput.name = "heightinput";
     heightInput.type = 'number';
     rowElem.appendChild(heightInput);
     form.appendChild(rowElem);
@@ -1653,25 +1650,19 @@ featureInteractor.prototype.createForm = function (options) {
     rowElem.appendChild(attributeSpan);
     var thicknessSlider = document.createElement('div');
     thicknessSlider.id = 'thickness-slider';
-    thicknessSlider.name = "thicknessslider";
     noUiSlider.create(thicknessSlider, {
-        start: 5, // Handle start position
-        margin: 20, // Handles must be more than '20' apart
-        connect: 'lower', // Display a colored bar between the handles
-        behaviour: 'tap', // Move handle on tap, bar is draggable
-        range: { // Slider can select '0' to '100'
-            'min': 0,
-            'max': 50
-        }
+        start: null,
+        margin: 20,
+        connect: 'lower',
+        behaviour: 'tap',
+        range: {'min': 0, 'max': 50}
     });
 
     var thicknessInput = document.createElement('input');
-    thicknessInput.name = "thicknessinput";
-    thicknessInput.type = "number";
     thicknessInput.id = 'thickness-input';
+    thicknessInput.type = "number";
     rowElem.appendChild(thicknessInput);
     form.appendChild(rowElem);
-
 
     // When the slider value changes, update the input and span
     thicknessSlider.noUiSlider.on('update', function( values, handle ) {
@@ -1722,24 +1713,24 @@ featureInteractor.prototype.createInput = function (name, type) {
 featureInteractor.prototype.createButton = function (name1, name2) {
     var td = document.createElement('td');
     var element = document.createElement('input');
+    element.id = name1 + name2;
+    element.type = "button";
+    element.name = name1 + name2;
     element.value = name1 + " " + name2;
     element.title = name1 + " a " + name2;
-    element.name = name1 + name2;
     element.className = name1 + name2;
-    element.type = "button";
-    element.id = name1 + name2;
     td.appendChild(element);
     return td;
 };
 featureInteractor.prototype.createButton2 = function (elemName, elemTitle, elemType, layer) {
     var td = document.createElement('td');
     var buttonElem = document.createElement('input');
-    buttonElem.type = "button";
     buttonElem.id = elemName;
+    buttonElem.type = "button";
     buttonElem.name = elemName;
     buttonElem.value = elemName;
-    buttonElem.className = elemName;
     buttonElem.title = elemTitle;
+    buttonElem.className = elemName;
     buttonElem.textContent = elemTitle;
     var _this = this;
 
@@ -1760,24 +1751,22 @@ featureInteractor.prototype.createButton2 = function (elemName, elemTitle, elemT
             return false;
     }
 };
-featureInteractor.prototype.createButton3 = function (elemName, elemTitle, elemType, layer) {
+featureInteractor.prototype.createHoleButton = function (label) {
     var buttonElem = document.createElement('input');
+    buttonElem.id = label + '-hole';
     buttonElem.type = "button";
-    buttonElem.id = elemName;
-    buttonElem.name = elemName;
-    buttonElem.value = elemTitle;
-    buttonElem.className = elemName;
-    buttonElem.title = elemTitle;
-    buttonElem.textContent = elemTitle;
+    buttonElem.value = label.capitalizeFirstLetter();
     var _this = this;
 
-    switch (elemType) {
-        case 'drawhole':
+    switch (label) {
+        case 'draw':
+            buttonElem.title = 'Draw a hole in the selected feature';
             buttonElem.addEventListener('click', function () {
                 _this.drawHole();
             });
             return buttonElem;
-        case 'deletehole':
+        case 'delete':
+            buttonElem.title = 'Delete a hole from the selected feature';
             buttonElem.addEventListener('click', function () {
                 _this.deleteHole();
             });
@@ -1976,9 +1965,9 @@ featureInteractor.prototype.drawHole = function () {
         }
     });
 
-    var deleteHoleIsDisabled = document.getElementById('deletehole').disabled;
-    document.getElementById('drawhole').disabled = true;
-    document.getElementById('deletehole').disabled = true;
+    var deleteHoleIsDisabled = document.getElementById('delete-hole').disabled;
+    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('delete-hole').disabled = true;
     this.map.un('pointermove', this.hoverDisplay);
     this.select.setActive(false);
     this.modify.setActive(false);
@@ -1993,7 +1982,7 @@ featureInteractor.prototype.drawHole = function () {
         _this.select.setActive(true);
         // _this.translate.setActive(true);
         _this.map.on('pointermove', _this.hoverDisplay);
-        document.getElementById('drawhole').disabled = false;
+        document.getElementById('draw-hole').disabled = false;
         $(document).off('keyup')
     };
 
@@ -2003,7 +1992,7 @@ featureInteractor.prototype.drawHole = function () {
                 if (isMultiPolygon) {
                     currFeat.setGeometry(origGeomMP);
                 }
-                document.getElementById('deletehole').disabled = deleteHoleIsDisabled;
+                document.getElementById('delete-hole').disabled = deleteHoleIsDisabled;
                 finishHole()
             } else {
                 holeDraw.removeLastPoint();
@@ -2016,7 +2005,7 @@ featureInteractor.prototype.drawHole = function () {
             } else {
                 currFeat.setGeometry(origGeom);
             }
-            document.getElementById('deletehole').disabled = deleteHoleIsDisabled;
+            document.getElementById('delete-hole').disabled = deleteHoleIsDisabled;
             finishHole()
         }
     });
@@ -2097,7 +2086,7 @@ featureInteractor.prototype.drawHole = function () {
         }
 
         this.autoselect = true;
-        document.getElementById('deletehole').disabled = false;
+        document.getElementById('delete-hole').disabled = false;
         finishHole();
     }, this);
 };
@@ -2190,8 +2179,8 @@ featureInteractor.prototype.deleteHole = function () {
         _this.select.setActive(true);
         // _this.translate.setActive(true);
         _this.map.on('pointermove', _this.hoverDisplay);
-        document.getElementById('drawhole').disabled = false;
-        document.getElementById('deletehole').disabled = (holeFeats.getArray().length == 0);
+        document.getElementById('draw-hole').disabled = false;
+        document.getElementById('delete-hole').disabled = (holeFeats.getArray().length == 0);
         $(document).off('keyup')
     };
     $(document).on('keyup', function (evt) {
@@ -2200,8 +2189,8 @@ featureInteractor.prototype.deleteHole = function () {
         }
     });
 
-    document.getElementById('drawhole').disabled = true;
-    document.getElementById('deletehole').disabled = true;
+    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('delete-hole').disabled = true;
     this.map.un('pointermove', this.hoverDisplay);
     this.select.setActive(false);
     this.modify.setActive(false);
@@ -2236,7 +2225,6 @@ featureInteractor.prototype.deleteHole = function () {
         finishHole();
     });
 };
-
 featureInteractor.prototype.formatLength = function(line) {
     var length;
     // if (geodesicCheckbox.checked) {
@@ -2281,66 +2269,10 @@ featureInteractor.prototype.formatArea = function(polygon) {
     }
     return output;
 };
-featureInteractor.prototype.loadFeature = function (feature_type) {
-    console.log(feature_type);
-    var form = document.getElementById('featureproperties');
-    var feature_properties = defaultFeatureProperties[feature_type];
 
-    for (var key in defaultFeatureProperties) {
-        if (defaultFeatureProperties[key]["geometry_type"]) {
-            if (form.geometry_type.value.startsWith(defaultFeatureProperties[key]["geometry_type"])) {
-                if (form.name.value.startsWith(key)) {
-                    form.name.value = form.name.value.replace(key, feature_type);
-                }
-            }
-        } else if (key === 'generic') {
-            if (form.name.value.startsWith(key)) {
-                form.name.value = form.name.value.replace(key, feature_type);
-            }
-        }
-    }
-
-    this.removeContent(form.sub_type);
-    if (feature_properties['subtype']) {
-        feature_properties['subtype'].forEach( function (sub_type) {
-            form.sub_type.appendChild(this.createOption(sub_type));
-        }, this);
-        form.sub_type.disabled = false;
-    } else {
-        form.sub_type.disabled = true;
-    }
-
-    if (feature_properties['height']) {
-        if (!(form.heightinput.value)) {
-            form.heightinput.value = feature_properties['height'];
-        }
-        form.heightinput.disabled = false;
-    } else {
-        form.heightinput.value = 0;
-        form.heightinput.disabled = true;
-    }
-
-    if (feature_properties['thickness']) {
-        if (!(form.thickness.value)) {
-            form.thickness.value = feature_properties['thickness'];
-        }
-        form.thickness.disabled = false;
-    } else {
-        form.thickness.value = null;
-        form.thickness.disabled = true;
-    }
-    form.feature_type.value = feature_type;
-    return this;
-};
 featureInteractor.prototype.activateForm = function (feature) {
-    var form = document.getElementById('featureproperties');
 
-    form.style.display = 'block';
-
-    var feature_type = feature.get('type');
-    if (!(feature_type && feature_type in defaultFeatureProperties)) {
-        feature_type = 'generic';
-    }
+    document.getElementById('featureproperties').style.display = 'block';
 
     var geometry_type = document.getElementById('geometry-type');
     geometry_type.innerHTML = feature.getGeometry().getType();
@@ -2361,45 +2293,51 @@ featureInteractor.prototype.activateForm = function (feature) {
         measureValue.innerHTML = measure(evt.target);
     });
 
-    form.name.value = feature.get('name');
+    document.getElementById('feature-name').value = feature.get('name');
 
-    form.drawhole.disabled = true;
-    form.deletehole.disabled = true;
+    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('delete-hole').disabled = true;
     if (feature.getGeometry().getType().endsWith('Polygon')) {
-        form.drawhole.disabled = false;
+        document.getElementById('draw-hole').disabled = false;
         if (feature.getGeometry().getType() === 'MultiPolygon') {
             for (i = 0; i < feature.getGeometry().getPolygons().length; i++)
                 if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
-                    form.deletehole.disabled = false;
+                    document.getElementById('delete-hole').disabled = false;
                 }
         } else if (feature.getGeometry().getLinearRingCount() > 1) {
-            form.deletehole.disabled = false;
+            document.getElementById('delete-hole').disabled = false;
         }
     }
 
     for (var key in defaultFeatureProperties) {
         if (feature.getGeometry().getType().endsWith(defaultFeatureProperties[key]["geometry_type"])) {
-            form.feature_type.appendChild(this.createOption(key));
+            document.getElementById('feature-type').appendChild(this.createOption(key));
         }
     }
-    form.feature_type.appendChild(this.createOption('generic'));
+    document.getElementById('feature-type').appendChild(this.createOption('generic'));
 
-    form.feature_type.value = feature_type;
+    var feature_type = feature.get('type');
+    if (!(feature_type && feature_type in defaultFeatureProperties)) {
+        feature_type = 'generic';
+    }
+
+    document.getElementById('feature-type').value = feature_type;
+
     var feature_properties = defaultFeatureProperties[feature_type];
     if (feature_properties['subtype']) {
         feature_properties['subtype'].forEach( function (sub_type) {
-            form.subtype.appendChild(this.createOption(sub_type));
+            document.getElementById('sub-type').appendChild(this.createOption(sub_type));
         }, this);
         if (feature.get('subtype')) {
-            form.subtype.value = feature.get('subtype');
+            document.getElementById('sub-type').value = feature.get('subtype');
         }
-        form.subtype.disabled = false;
+        document.getElementById('sub-type').disabled = false;
     } else {
-        form.subtype.disabled = true;
+        document.getElementById('sub-type').disabled = true;
     }
 
-    var heightslider = document.getElementById('height-slider');
     var heightinput = document.getElementById('height-input');
+    var heightslider = document.getElementById('height-slider');
     if (feature.get('height')) {
         heightinput.disabled = false;
         heightinput.value = feature.get('height');
@@ -2433,33 +2371,108 @@ featureInteractor.prototype.activateForm = function (feature) {
         thicknessslider.setAttribute('disabled', true);
     }
 };
-featureInteractor.prototype.deactivateForm = function (feature) {
-    var form = document.getElementById('featureproperties');
+featureInteractor.prototype.loadFeature = function (feature_type) {
+    console.log(feature_type);
 
-    feature.set('name', form.name.value);
-    form.name.value = null;
-    form.name.disabled = false;
+    var feature_properties = defaultFeatureProperties[feature_type];
 
-    document.getElementById('drawhole').disabled = true;
-    document.getElementById('deletehole').disabled = true;
+    var geometry_type = document.getElementById('geometry-type');
+    var feature_name = document.getElementById('feature-name');
+    for (var key in defaultFeatureProperties) {
+        if (defaultFeatureProperties[key]["geometry_type"]) {
+            if (geometry_type.innerHTML.startsWith(defaultFeatureProperties[key]["geometry_type"])) {
+                if (feature_name.value.startsWith(key.capitalizeFirstLetter())) {
+                    feature_name.value = feature_name.value.replace(key.capitalizeFirstLetter(), feature_type.capitalizeFirstLetter());
+                }
+            }
+        } else if (key === 'generic') {
+            if (feature_name.value.startsWith(key.capitalizeFirstLetter())) {
+                feature_name.value = feature_name.value.replace(key.capitalizeFirstLetter(), feature_type.capitalizeFirstLetter());
+            }
+        }
+    }
 
-    feature.set('type', form.feature_type.value);
-    this.removeContent(form.feature_type);
+    document.getElementById('feature-type').value = feature_type;
 
-    feature.set('subtype', form.subtype.value);
-    this.removeContent(form.subtype);
+    var sub_type = document.getElementById('sub-type');
+    this.removeContent(sub_type);
+    if (feature_properties['subtype']) {
+        feature_properties['subtype'].forEach( function (st) {
+            sub_type.appendChild(this.createOption(st));
+        }, this);
+        sub_type.disabled = false;
+    } else {
+        sub_type.disabled = true;
+    }
 
     var heightinput = document.getElementById('height-input');
-    feature.set('height', heightinput.value);
+    var heightslider = document.getElementById('height-slider');
+
+    if (!(heightinput.disabled || feature_properties['height'])) {
+        heightslider.noUiSlider.set(0);
+        heightslider.setAttribute('disabled', true);
+        heightinput.disabled = true;
+        heightinput.value = null;
+    } else if (heightinput.disabled && feature_properties['height']) {
+        heightslider.noUiSlider.set(feature_properties['height']);
+        heightslider.removeAttribute('disabled');
+        heightinput.disabled = false;
+    }
+
+    var thicknessinput = document.getElementById('thickness-input');
+    var thicknessslider = document.getElementById('thickness-slider');
+
+    if (!(thicknessinput.disabled || feature_properties['thickness'])) {
+        thicknessslider.noUiSlider.set(0);
+        thicknessslider.setAttribute('disabled', true);
+        thicknessinput.disabled = true;
+        thicknessinput.value = null;
+    } else if (thicknessinput.disabled && feature_properties['thickness']) {
+        thicknessslider.noUiSlider.set(feature_properties['thickness']);
+        thicknessslider.removeAttribute('disabled');
+        thicknessinput.disabled = false;
+    }
+    return this;
+};
+featureInteractor.prototype.deactivateForm = function (feature) {
+
+    var feature_name = document.getElementById('feature-name');
+    if (feature.get('name')) {
+        feature.set('name', feature_name.value);
+    }
+    feature_name.value = null;
+    feature_name.disabled = true;
+
+    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('delete-hole').disabled = true;
+
+    var feature_type = document.getElementById('feature-type');
+    if (feature.get('type')) {
+        feature.set('type', feature_type.value);
+    }
+    this.removeContent(feature_type);
+
+    var subtype = document.getElementById('sub-type');
+    if (feature.get('subtype')) {
+        feature.set('subtype', subtype.value);
+    }
+    this.removeContent(subtype);
+
+    var heightinput = document.getElementById('height-input');
+    if (feature.get('height')) {
+        feature.set('height', heightinput.value);
+    }
     heightinput.value = null;
     heightinput.disabled = true;
 
     var thicknessinput = document.getElementById('thickness-input');
-    feature.set('thickness', thicknessinput.value);
+    if (feature.get('thickness')) {
+        feature.set('thickness', thicknessinput.value);
+    }
     thicknessinput.value = null;
-    thicknessinput.disabled = false;
+    thicknessinput.disabled = true;
 
-    form.style.display = 'none';
+    document.getElementById('featureproperties').style.display = 'none';
 
     ol.Observable.unByKey(this.listener);
 };

@@ -10,8 +10,8 @@
         {
             "type": "Feature",
             "properties": {
-                "type": "AOR",
-                "name": "aor-0"
+                "type": "aor",
+                "name": "AOR-0"
             },
             "id": "aor-0",
             "geometry": {
