@@ -1,3 +1,6 @@
 [submodule "app/gitmodules/noUiSlider"]
 	path = app/gitmodules/noUiSlider
 	url = https://github.com/leongersen/noUiSlider.git
+[submodule "app/gitmodules/shapefile-js"]
+	path = app/gitmodules/shapefile-js
+	url = https://github.com/calvinmetcalf/shapefile-js.git
