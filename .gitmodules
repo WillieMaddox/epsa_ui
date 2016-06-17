@@ -1,0 +1,3 @@
+[submodule "app/gitmodules/noUiSlider"]
+	path = app/gitmodules/noUiSlider
+	url = https://github.com/leongersen/noUiSlider.git
