@@ -2450,13 +2450,14 @@ featureInteractor.prototype.activateForm = function (feature) {
     document.getElementById('geodesic').addEventListener('change', this.geodesiclistener);
 
     document.getElementById('feature-name').value = feature.get('name');
+    document.getElementById('feature-name').disabled = false;
 
     document.getElementById('draw-hole').disabled = true;
     document.getElementById('delete-hole').disabled = true;
     if (feature.getGeometry().getType().endsWith('Polygon')) {
         document.getElementById('draw-hole').disabled = false;
         if (feature.getGeometry().getType() === 'MultiPolygon') {
-            for (i = 0; i < feature.getGeometry().getPolygons().length; i++)
+            for (var i = 0; i < feature.getGeometry().getPolygons().length; i++)
                 if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
                     document.getElementById('delete-hole').disabled = false;
                 }
