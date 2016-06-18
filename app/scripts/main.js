@@ -929,7 +929,6 @@ layerTree.prototype.tobjectsStyleFunction = (function () {
         return [style]
     };
     return function (feature, resolution) {
-
         var color;
         var opacity;
         if (exists(feature.get('type'))) {
@@ -943,7 +942,6 @@ layerTree.prototype.tobjectsStyleFunction = (function () {
             opacity = fillOpacity[feature.getGeometry().getType()];
             opacity = opacity ? opacity : 0;
         }
-
         return setStyle(color, opacity);
     };
 })();
@@ -1582,11 +1580,7 @@ var featureInteractor = function (options) {
         this.map = options.map;
         this.layertree = options.layertree;
         this.toolbar = options.toolbar;
-        // this.form = options.form;
         this.createForm({target: options.target});
-        // this.form = new featureEditor({'target': 'featureeditor'})
-        // this.form.createForm();
-        // this.form = new featureEditor({'target': 'featureeditor'}).createForm();
         this.wgs84Sphere = new ol.Sphere(6378137);
         this.highlight = undefined;
         var _this = this;
@@ -2598,29 +2592,28 @@ featureInteractor.prototype.createFeatureOverlay = function () {
     var overlayStyleFunction = (function () {
         var setStyle = function (color, opacity, text) {
             var style = new ol.style.Style({
+                text: new ol.style.Text({
+                    font: '14px Calibri,sans-serif',
+                    text: text,
+                    stroke: new ol.style.Stroke({
+                        color: '#fff',
+                        width: 5
+                    }),
+                    fill: new ol.style.Fill({
+                        color: '#000'
+                    })
+                }),
                 stroke: new ol.style.Stroke({
                     color: color.concat(1),
                     width: 4
                 }),
                 fill: new ol.style.Fill({
                     color: color.concat(opacity)
-                }),
-                text: new ol.style.Text({
-                    font: '14px Calibri,sans-serif',
-                    text: text,
-                    fill: new ol.style.Fill({
-                        color: '#000'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#fff',
-                        width: 5
-                    })
                 })
             });
             return [style]
         };
         return function (feature, resolution) {
-
             var color;
             var opacity;
             if (exists(feature.get('type'))) {
@@ -3040,10 +3033,6 @@ function init() {
 
     tools.addDrawToolBar();
 
-    // var featureedit = new featureEditor({target: 'featureeditor'});
-    // featureedit.createForm({feature_type: "Herbage"})
-
-    // var form = new featureEditor({'target': 'featureeditor'}).createForm();
     var interactor = new featureInteractor({map: map, toolbar: tools, layertree: tree, target: 'featureeditor'});
 
 
@@ -3070,8 +3059,6 @@ function init() {
     //     ]
     // });
     // map.addLayer(projectGroup);
-
-    // map.addLayer(featureOverlay);
 
     // var selectedFeature = null;
     // var getSelectedFeatureAtPixel = function (pixel) {
