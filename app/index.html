@@ -2,21 +2,19 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>ASPE practice template</title>
+        <title>Practice Template</title>
         <!--<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>-->
-        <script src="./js/jquery-3.0.0.js"></script>
-        <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
-        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
-        <script src="./js/ol3-3.16.0/ol-debug.js"></script>
-        <link rel="stylesheet" href="./js/ol3-3.16.0/ol.css" type="text/css">
-        <script src="./gitmodules/noUiSlider/distribute/nouislider.js"></script>
-        <script type="text/javascript" src="./gitmodules/shapefile-js/dist/shp.js"></script>
-        <script src="./js/jsts-0.17.0/javascript.util.min.js"></script>
-        <script src="./js/jsts-0.17.0/jsts.min.js"></script>
+        <script type="text/javascript" src="js/jquery-3.0.0.js"></script>
+        <script type="text/javascript" src="js/ol3-3.16.0/ol-debug.js"></script>
+        <script type="text/javascript" src="gitmodules/noUiSlider/distribute/nouislider.js"></script>
+        <script type="text/javascript" src="gitmodules/shapefile-js/dist/shp.js"></script>
+        <script type="text/javascript" src="js/jsts-0.17.0/javascript.util.min.js"></script>
+        <script type="text/javascript" src="js/jsts-0.17.0/jsts.min.js"></script>
+        <script type="text/javascript" src="scripts/rcolor.js"></script>
+        <link rel="stylesheet" href="js/ol3-3.16.0/ol.css" type="text/css">
+        <link rel="stylesheet" href="gitmodules/noUiSlider/distribute/nouislider.css" type="text/css">
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/ol3-layerswitcher.css">
-        <link rel="stylesheet" href="./gitmodules/noUiSlider/distribute/nouislider.css" type="text/css">
-        <script src="scripts/rcolor.js"></script>
     </head>
     <body>
         <div class="map-container">
@@ -124,38 +122,6 @@
                 </table>
             </form>
         </div>
-        <div id="addvector" class="toggleable" style="display: none;">
-            <form id="addvector_form" class="addlayer">
-                <p>Add Vector layer</p>
-                <table>
-                    <tr>
-                        <td>Vector file:</td>
-                        <td><input name="file" type="file" required="required"></td>
-                    </tr>
-                    <tr>
-                        <td>Display name:</td>
-                        <td><input name="displayname" type="text"></td>
-                    </tr>
-                    <tr>
-                        <td>Format:</td>
-                        <td><select name="format" required="required">
-                            <option value="geojson">GeoJSON</option>
-                            <option value="topojson">TopoJSON</option>
-                            <option value="kml">KML</option>
-                            <option value="osm">OSM</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td>Projection:</td>
-                        <td><input name="projection" type="text"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="submit" value="Add layer"></td>
-                        <td><input type="button" value="Cancel" onclick="this.form.parentNode.style.display = 'none'"></td>
-                    </tr>
-                </table>
-            </form>
-        </div>
         <div id="newvector" class="toggleable" style="display: none;">
             <form id="newvector_form" class="addlayer">
                 <p>New Vector layer</p>
@@ -182,6 +148,5 @@
         </div>
         <script src="scripts/ol3-layerswitcher.js"></script>
         <script src="scripts/main.js"></script>
-
     </body>
 </html>

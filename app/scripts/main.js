@@ -253,6 +253,7 @@ var layerTree = function (options) {
             }
         });
         observer.observe(this.messages, {childList: true});
+        this.createAddVectorForm();
         var controlDiv = document.createElement('div');
         controlDiv.className = 'layertree-buttons';
         controlDiv.appendChild(this.createButton('addwms', 'Add WMS Layer', 'addlayer'));
@@ -481,10 +482,10 @@ layerTree.prototype.removeContent = function (element) {
     }
     return this;
 };
-layerTree.prototype.createOption = function (optionValue) {
+layerTree.prototype.createOption = function (optionValue, optionText) {
     var option = document.createElement('option');
     option.value = optionValue;
-    option.textContent = optionValue;
+    option.textContent = optionText || optionValue;
     return option;
 };
 layerTree.prototype.checkWmsLayer = function (form) {
@@ -606,6 +607,12 @@ layerTree.prototype.addVectorLayer = function (form) {
         fr.onload = function (evt) {
             var vectorData = evt.target.result;
             switch (form.format.value) {
+                case 'zip':
+                    sourceFormat = new ol.format.GeoJSON();
+                    break;
+                // case 'shp':
+                //     sourceFormat = new ol.format.GeoJSON();
+                //     break;
                 case 'geojson':
                     sourceFormat = new ol.format.GeoJSON();
                     break;
@@ -622,12 +629,32 @@ layerTree.prototype.addVectorLayer = function (form) {
                     return false;
             }
             var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
-            source.addFeatures(sourceFormat.readFeatures(vectorData, {
-                dataProjection: dataProjection,
-                featureProjection: currentProj
-            }));
+            if (form.format.value === 'zip') {
+                shp(vectorData).then(function (geojson) {
+                    source.addFeatures(sourceFormat.readFeatures(geojson, {
+                        dataProjection: dataProjection,
+                        featureProjection: currentProj
+                    }));
+                });
+            // } else if (form.format.value === 'shp'){
+            //     shp(file).then(function (geojson) {
+            //         source.addFeatures(sourceFormat.readFeatures(geojson, {
+            //             dataProjection: dataProjection,
+            //             featureProjection: currentProj
+            //         }));
+            //     });
+            } else {
+                source.addFeatures(sourceFormat.readFeatures(vectorData, {
+                    dataProjection: dataProjection,
+                    featureProjection: currentProj
+                }));
+            }
         };
-        fr.readAsText(file);
+        if (form.format.value === 'zip') {
+            fr.readAsArrayBuffer(file); // SHP
+        } else {
+            fr.readAsText(file);
+        }
         var layer = new ol.layer.Vector({
             source: source,
             name: form.displayname.value,
@@ -642,6 +669,118 @@ layerTree.prototype.addVectorLayer = function (form) {
         this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
         return error;
     }
+};
+layerTree.prototype.createAddVectorForm = function () {
+    var div_addvector = document.createElement('div');
+    div_addvector.id = "addvector";
+    div_addvector.style.display = "none";
+    div_addvector.className = "toggleable";
+
+    var form_addvector_form = document.createElement('form');
+    form_addvector_form.className = "addlayer";
+    form_addvector_form.id = "addvector_form";
+
+    var p_0 = document.createElement('p');
+    p_0.appendChild(document.createTextNode("Add Vector layer"));
+    form_addvector_form.appendChild(p_0);
+
+    var table_0 = document.createElement('table');
+
+    var tr_2 = document.createElement('tr');
+    var td_4 = document.createElement('td');
+    td_4.appendChild(document.createTextNode("Format:"));
+    tr_2.appendChild(td_4);
+    var td_5 = document.createElement('td');
+    var select_0 = document.createElement('select');
+    select_0.name = "format";
+    select_0.required = "required";
+    select_0.appendChild(this.createOption('geojson', 'GeoJSON'));
+    select_0.appendChild(this.createOption('topojson', 'TopoJSON'));
+    select_0.appendChild(this.createOption('zip', 'Shapefile (zipped)'));
+    // select_0.appendChild(this.createOption('shp', 'ShapeFile'));
+    select_0.appendChild(this.createOption('kml', 'KML'));
+    select_0.appendChild(this.createOption('osm', 'OSM'));
+    select_0.addEventListener("change", function () {
+        document.getElementById("file-name").accept = '.'+this.value;
+    });
+    td_5.appendChild(select_0);
+    tr_2.appendChild(td_5);
+
+    table_0.appendChild(tr_2);
+
+    var tr_0 = document.createElement('tr');
+    var td_0 = document.createElement('td');
+    td_0.appendChild(document.createTextNode("Vector file:"));
+    tr_0.appendChild(td_0);
+    var td_1 = document.createElement('td');
+    var input_0 = document.createElement('input');
+    input_0.id = "file-name";
+    input_0.type = "file";
+    input_0.name = "file";
+    input_0.required = "required";
+    input_0.accept = ".geojson";
+    input_0.addEventListener("change", function (evt) {
+        var startPos = this.value.lastIndexOf("\\")+1;
+        var stopPos = this.value.lastIndexOf(".");
+        var name = this.value.slice(startPos, stopPos);
+        document.getElementById("display-name").value = name;
+    });
+    td_1.appendChild(input_0);
+    tr_0.appendChild(td_1);
+
+    table_0.appendChild(tr_0);
+
+    var tr_1 = document.createElement('tr');
+    var td_2 = document.createElement('td');
+    td_2.appendChild(document.createTextNode("Display name:"));
+    tr_1.appendChild(td_2);
+    var td_3 = document.createElement('td');
+    var input_1 = document.createElement('input');
+    input_1.id = "display-name";
+    input_1.type = "text";
+    input_1.name = "displayname";
+    td_3.appendChild(input_1);
+    tr_1.appendChild(td_3);
+
+    table_0.appendChild(tr_1);
+
+    var tr_3 = document.createElement('tr');
+    var td_6 = document.createElement('td');
+    td_6.appendChild(document.createTextNode("Projection:"));
+    tr_3.appendChild(td_6);
+    var td_7 = document.createElement('td');
+    var input_2 = document.createElement('input');
+    input_2.type = "text";
+    input_2.name = "projection";
+    td_7.appendChild(input_2);
+    tr_3.appendChild(td_7);
+
+    table_0.appendChild(tr_3);
+
+    var tr_4 = document.createElement('tr');
+    var td_8 = document.createElement('td');
+    var input_3 = document.createElement('input');
+    input_3.type = "submit";
+    input_3.value = "Add layer";
+    td_8.appendChild(input_3);
+    tr_4.appendChild(td_8);
+    var td_9 = document.createElement('td');
+    var input_4 = document.createElement('input');
+    input_4.type = "button";
+    input_4.value = "Cancel";
+    input_4.onclick = function () {
+        this.form.parentNode.style.display = 'none'
+    };
+    td_9.appendChild(input_4);
+    tr_4.appendChild(td_9);
+
+    table_0.appendChild(tr_4);
+
+    form_addvector_form.appendChild(table_0);
+
+    div_addvector.appendChild(form_addvector_form);
+
+    document.body.appendChild(div_addvector);
 };
 layerTree.prototype.newVectorLayer = function (form) {
     var type = form.type.value;
@@ -1575,7 +1714,6 @@ featureInteractor.prototype.createForm = function (options) {
 
     var rowElem = document.createElement('div');
     rowElem.className = 'form-row';
-
     var attributeSpan = document.createElement('div');
     attributeSpan.className = 'form-label';
     attributeSpan.style.display = 'flex';
@@ -1589,7 +1727,6 @@ featureInteractor.prototype.createForm = function (options) {
     geodesic.title = "Use geodesic measures";
     attributeSpan.appendChild(geodesic);
     rowElem.appendChild(attributeSpan);
-
     var measure = document.createElement('div');
     measure.id = 'measure-feature';
     rowElem.appendChild(measure);
