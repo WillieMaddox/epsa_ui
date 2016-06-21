@@ -63,6 +63,11 @@ var FID = (function () {
         }
     }
 })();
+function counterGenerator() {
+    var i = 0;
+    return function () {return i += 1;}
+};
+
 /**
  * check whether the point consists of pointcoords is inside the supplied polygon geometry
  * @{ol.geometry.Polygon} geom
@@ -176,7 +181,7 @@ var tobjectProperties = {
     }
 };
 
-var tobjectsStyleFunction = (function () {
+var tobjectStyleFunction = (function () {
     var setStyle = function (color, opacity) {
         var style = new ol.style.Style({
             image: new ol.style.Circle({
@@ -229,7 +234,8 @@ var fillOpacity = {
 var templateLayers = {
     'tobjects': {
         'geometry_type': 'geomcollection',
-        'styleFunction': tobjectsStyleFunction
+        'styleFunction': tobjectStyleFunction,
+        'properties': tobjectProperties
     },
     'slb': {
         'geometry_type': 'geomcollection',
@@ -292,9 +298,145 @@ var layerTree = function (options) {
         this.layerContainer = document.createElement('div');
         this.layerContainer.className = 'layercontainer';
         containerDiv.appendChild(this.layerContainer);
-        this.idCounter = 0;
+
+        var idCounter = 0;
+
         this.selectedLayer = null;
         this.selectEventEmitter = new ol.Observable();
+
+        this.createRegistry = function (layer, buffer) {
+            layer.set('id', 'layer_' + idCounter);
+            idCounter += 1;
+            var _this = this;
+
+            var layerDiv = document.createElement('div');
+            layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
+            layerDiv.title = layer.get('name') || 'Unnamed Layer';
+            layerDiv.id = layer.get('id');
+            layerDiv.draggable = true;
+            layerDiv.addEventListener('dragstart', function (evt) {
+                evt.dataTransfer.effectAllowed = 'move';
+                evt.dataTransfer.setData('Text', this.id);
+            });
+            layerDiv.addEventListener('dragenter', function (evt) {
+                this.classList.add('over');
+            });
+            layerDiv.addEventListener('dragleave', function (evt) {
+                this.classList.remove('over');
+            });
+            layerDiv.addEventListener('dragover', function (evt) {
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'move';
+            });
+            layerDiv.addEventListener('drop', function (evt) {
+                evt.preventDefault();
+                this.classList.remove('over');
+                var sourceLayerDiv = document.getElementById(evt.dataTransfer.getData('Text'));
+                if (sourceLayerDiv !== this) {
+                    _this.layerContainer.removeChild(sourceLayerDiv);
+                    _this.layerContainer.insertBefore(sourceLayerDiv, this);
+                    var htmlArray = [].slice.call(_this.layerContainer.children);
+                    var index = htmlArray.length - htmlArray.indexOf(sourceLayerDiv) - 1;
+                    var sourceLayer = _this.getLayerById(sourceLayerDiv.id);
+                    var layers = _this.map.getLayers().getArray();
+                    var group_shift = layers.length - htmlArray.length;
+                    layers.splice(layers.indexOf(sourceLayer), 1);
+                    // layers.splice(index, 0, sourceLayer);
+                    layers.splice(group_shift + index, 0, sourceLayer);
+                    _this.map.render();
+                    // _this.map.getLayers().changed();
+                }
+            });
+
+            this.addSelectEvent(layerDiv);
+
+            var layerSpan = document.createElement('span');
+            layerSpan.textContent = layerDiv.title;
+            layerSpan.addEventListener('dblclick', function () {
+                this.contentEditable = true;
+                layerDiv.draggable = false;
+                layerDiv.classList.remove('ol-unselectable');
+                this.focus();
+            });
+            layerSpan.addEventListener('blur', function () {
+                if (this.contentEditable) {
+                    this.contentEditable = false;
+                    layerDiv.draggable = true;
+                    layer.set('name', this.textContent);
+                    layerDiv.classList.add('ol-unselectable');
+                    layerDiv.title = this.textContent;
+                    this.scrollTo(0, 0);
+                }
+            });
+
+            layerDiv.appendChild(this.addSelectEvent(layerSpan, true));
+
+            var visibleBox = document.createElement('input');
+            visibleBox.type = 'checkbox';
+            visibleBox.className = 'visible';
+            visibleBox.checked = layer.getVisible();
+            visibleBox.addEventListener('change', function () {
+                if (this.checked) {
+                    layer.setVisible(true);
+                } else {
+                    layer.setVisible(false);
+                }
+            });
+
+            layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
+
+            var layerControls = document.createElement('div');
+            this.addSelectEvent(layerControls, true);
+
+            var opacityHandler = document.createElement('input');
+            opacityHandler.type = 'range';
+            opacityHandler.min = 0;
+            opacityHandler.max = 1;
+            opacityHandler.step = 0.1;
+            opacityHandler.value = layer.getOpacity();
+            opacityHandler.addEventListener('input', function () {
+                layer.setOpacity(this.value);
+            });
+            opacityHandler.addEventListener('change', function () {
+                layer.setOpacity(this.value);
+            });
+            opacityHandler.addEventListener('mousedown', function () {
+                layerDiv.draggable = false;
+            });
+            opacityHandler.addEventListener('mouseup', function () {
+                layerDiv.draggable = true;
+            });
+
+            layerControls.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
+
+            if (layer instanceof ol.layer.Vector) {
+                layerControls.appendChild(document.createElement('br'));
+                var attributeOptions = document.createElement('select');
+                layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
+
+                layerControls.appendChild(document.createElement('br'));
+                var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
+                var graduatedStyle = this.createButton('stylelayer', 'Graduated', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(graduatedStyle, 'click'));
+                var categorizedStyle = this.createButton('stylelayer', 'Categorized', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(categorizedStyle, 'click'));
+                layer.set('style', layer.getStyle());
+                layer.on('propertychange', function (evt) {
+                    if (evt.key === 'headers') {
+                        this.removeContent(attributeOptions);
+                        var headers = layer.get('headers');
+                        for (var i in headers) {
+                            attributeOptions.appendChild(this.createOption(i));
+                        }
+                    }
+                }, this);
+            }
+            layerDiv.appendChild(layerControls);
+            this.layerContainer.insertBefore(layerDiv, this.layerContainer.firstChild);
+            return this;
+        };
+
         this.map.getLayers().on('add', function (evt) {
             if (evt.element instanceof ol.layer.Vector) {
                 if (evt.element.get('type') !== 'overlay') {
@@ -313,138 +455,6 @@ var layerTree = function (options) {
     } else {
         throw new Error('Invalid parameter(s) provided.');
     }
-};
-layerTree.prototype.createRegistry = function (layer, buffer) {
-    layer.set('id', 'layer_' + this.idCounter);
-    this.idCounter += 1;
-    var _this = this;
-
-    var layerDiv = document.createElement('div');
-    layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
-    layerDiv.title = layer.get('name') || 'Unnamed Layer';
-    layerDiv.id = layer.get('id');
-    layerDiv.draggable = true;
-    layerDiv.addEventListener('dragstart', function (evt) {
-        evt.dataTransfer.effectAllowed = 'move';
-        evt.dataTransfer.setData('Text', this.id);
-    });
-    layerDiv.addEventListener('dragenter', function (evt) {
-        this.classList.add('over');
-    });
-    layerDiv.addEventListener('dragleave', function (evt) {
-        this.classList.remove('over');
-    });
-    layerDiv.addEventListener('dragover', function (evt) {
-        evt.preventDefault();
-        evt.dataTransfer.dropEffect = 'move';
-    });
-    layerDiv.addEventListener('drop', function (evt) {
-        evt.preventDefault();
-        this.classList.remove('over');
-        var sourceLayerDiv = document.getElementById(evt.dataTransfer.getData('Text'));
-        if (sourceLayerDiv !== this) {
-            _this.layerContainer.removeChild(sourceLayerDiv);
-            _this.layerContainer.insertBefore(sourceLayerDiv, this);
-            var htmlArray = [].slice.call(_this.layerContainer.children);
-            var index = htmlArray.length - htmlArray.indexOf(sourceLayerDiv) - 1;
-            var sourceLayer = _this.getLayerById(sourceLayerDiv.id);
-            var layers = _this.map.getLayers().getArray();
-            var group_shift = layers.length - htmlArray.length;
-            layers.splice(layers.indexOf(sourceLayer), 1);
-            // layers.splice(index, 0, sourceLayer);
-            layers.splice(group_shift + index, 0, sourceLayer);
-            _this.map.render();
-            // _this.map.getLayers().changed();
-        }
-    });
-
-    this.addSelectEvent(layerDiv);
-
-    var layerSpan = document.createElement('span');
-    layerSpan.textContent = layerDiv.title;
-    layerSpan.addEventListener('dblclick', function () {
-        this.contentEditable = true;
-        layerDiv.draggable = false;
-        layerDiv.classList.remove('ol-unselectable');
-        this.focus();
-    });
-    layerSpan.addEventListener('blur', function () {
-        if (this.contentEditable) {
-            this.contentEditable = false;
-            layerDiv.draggable = true;
-            layer.set('name', this.textContent);
-            layerDiv.classList.add('ol-unselectable');
-            layerDiv.title = this.textContent;
-            this.scrollTo(0, 0);
-        }
-    });
-
-    layerDiv.appendChild(this.addSelectEvent(layerSpan, true));
-
-    var visibleBox = document.createElement('input');
-    visibleBox.type = 'checkbox';
-    visibleBox.className = 'visible';
-    visibleBox.checked = layer.getVisible();
-    visibleBox.addEventListener('change', function () {
-        if (this.checked) {
-            layer.setVisible(true);
-        } else {
-            layer.setVisible(false);
-        }
-    });
-
-    layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
-
-    var layerControls = document.createElement('div');
-    this.addSelectEvent(layerControls, true);
-
-    var opacityHandler = document.createElement('input');
-    opacityHandler.type = 'range';
-    opacityHandler.min = 0;
-    opacityHandler.max = 1;
-    opacityHandler.step = 0.1;
-    opacityHandler.value = layer.getOpacity();
-    opacityHandler.addEventListener('input', function () {
-        layer.setOpacity(this.value);
-    });
-    opacityHandler.addEventListener('change', function () {
-        layer.setOpacity(this.value);
-    });
-    opacityHandler.addEventListener('mousedown', function () {
-        layerDiv.draggable = false;
-    });
-    opacityHandler.addEventListener('mouseup', function () {
-        layerDiv.draggable = true;
-    });
-
-    layerControls.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
-
-    if (layer instanceof ol.layer.Vector) {
-        layerControls.appendChild(document.createElement('br'));
-        var attributeOptions = document.createElement('select');
-        layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
-
-        layerControls.appendChild(document.createElement('br'));
-        var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
-        layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
-        var graduatedStyle = this.createButton('stylelayer', 'Graduated', 'stylelayer', layer);
-        layerControls.appendChild(this.stopPropagationOnEvent(graduatedStyle, 'click'));
-        var categorizedStyle = this.createButton('stylelayer', 'Categorized', 'stylelayer', layer);
-        layerControls.appendChild(this.stopPropagationOnEvent(categorizedStyle, 'click'));
-        layer.set('style', layer.getStyle());
-        layer.on('propertychange', function (evt) {
-            if (evt.key === 'headers') {
-                this.removeContent(attributeOptions);
-                var headers = layer.get('headers');
-                for (var i in headers) {
-                    attributeOptions.appendChild(this.createOption(i));
-                }
-            }
-        }, this);
-    }
-    layerDiv.appendChild(layerControls);
-    this.layerContainer.insertBefore(layerDiv, this.layerContainer.firstChild);
-    return this;
 };
 layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
     var buttonElem = document.createElement('button');
@@ -878,7 +888,7 @@ layerTree.prototype.createNewVectorForm = function () {
     select_0.appendChild(this.createOption('tobjects', 'Terrain Objects'));
     select_0.appendChild(this.createOption('geomcollection', 'Geometry Collection'));
     select_0.appendChild(this.createOption('polygon', 'Polygon'));
-    select_0.appendChild(this.createOption('line', 'Line'));
+    select_0.appendChild(this.createOption('linestring', 'LineString'));
     select_0.appendChild(this.createOption('point', 'Point'));
     // select_0.appendChild(this.createOption('slb', 'Sensor Location Boundary'));
     // select_0.appendChild(this.createOption('sdb', 'Sensor Detection Boundary'));
@@ -999,32 +1009,83 @@ layerTree.prototype.getLayerById = function (id) {
     }
     return false;
 };
-layerTree.prototype.getLayerGeomType = function (layer) {
-    if (layer.get('type')) {
-        return layer;
-    }
-    var types = [];
-    layer.getSource().forEachFeature(function (feat) {
-        var geom = feat.getGeometry();
-        var type;
-        if (geom instanceof ol.geom.Point || geom instanceof ol.geom.MultiPoint) {
-            type = 'point';
-        } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
-            type = 'linestring';
-        } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
-            type = 'polygon';
-        } else {
-            type = 'geomcollection';
-        }
-        if (types.indexOf(type) === -1) {
-            types.push(type);
-            if (type === 'geomcollection' || types.length >= 2) {
-                return true;
+layerTree.prototype.identifyLayer = function (layer) {
+
+    var getSourceCandidate = function (featureType) {
+        for (var stype in templateLayers) {
+            for (var ftype in templateLayers[stype]['properties']) {
+                if (featureType === ftype) {
+                    return stype;
+                }
             }
         }
-    });
+    };
+    if (layer.getSource().getFeatures().length === 0) {
+        return layer;
+    }
+    var layerIsValid = false;
+    var sourceTypeIsValid = Object.keys(templateLayers).indexOf(layer.getSource().get('type')) >= 0;
+    var geomTypeIsValid = ['point', 'linestring', 'polygon', 'geomcollection'].indexOf(layer.get('type')) >= 0;
+    if (sourceTypeIsValid && geomTypeIsValid) {
+        layerIsValid = templateLayers[layer.getSource().get('type')]['geometry_type'] === layer.get('type');
+    }
+    if (layerIsValid) {
+        return layer;
+    }
 
-    layer.set('type', types.length === 1 ? types[0] : 'geomcollection');
+    var geomTypes = [];
+    var featureTypes = [];
+    var sourceType;
+    var geomTypeIsVerified = geomTypeIsValid;
+    var sourceTypeIsVerified = sourceTypeIsValid;
+    layer.getSource().forEachFeature(function (feat) {
+        if (!(geomTypeIsVerified)) {
+            var geom = feat.getGeometry();
+            var geomType;
+            var featureType;
+            if (geom instanceof ol.geom.Point || geom instanceof ol.geom.MultiPoint) {
+                geomType = 'point';
+            } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
+                geomType = 'linestring';
+            } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+                geomType = 'polygon';
+            } else {
+                geomType = 'geomcollection';
+            }
+            if (geomTypes.indexOf(geomType) === -1) {
+                geomTypes.push(geomType);
+                if (geomType === 'geomcollection' || geomTypes.length >= 2) {
+                    geomTypeIsVerified = true;
+                    geomTypeIsValid = true;
+                }
+            }
+        }
+        if (!(sourceTypeIsVerified)) {
+            featureType = feat.get('type');
+            if (featureTypes.indexOf(featureType) === -1) {
+                if (!(featureType)) { // key is completely missing.
+                    sourceTypeIsVerified = true;
+                    sourceTypeIsValid = false;
+                } else if (!(sourceType)) { // first valid record.
+                    sourceType = getSourceCandidate(featureType);
+                    sourceTypeIsValid = true;
+                } else if (sourceType !== getSourceCandidate(featureType)) { // different sources.
+                    sourceTypeIsVerified = true;
+                    sourceTypeIsValid = false;
+                }
+                featureTypes.push(featureType)
+            }
+        }
+        if (sourceTypeIsVerified && geomTypeIsVerified) {
+            return true;
+        }
+    });
+    if (sourceTypeIsValid) {
+        layer.getSource().set('type', sourceType)
+    }
+    if (geomTypeIsValid) {
+        layer.set('type', geomTypes.length === 1 ? geomTypes[0] : 'geomcollection');
+    }
     return layer;
 };
 // layerTree.prototype.getStyle = function (layertag) {
@@ -1272,6 +1333,7 @@ toolBar.prototype.addDrawToolBar = function () {
     var layertree = this.layertree;
 
     this.drawControls = new ol.Collection();
+
     var drawPoint = new ol.control.Interaction({
         label: ' ',
         feature_type: 'generic',
@@ -1296,6 +1358,7 @@ toolBar.prototype.addDrawToolBar = function () {
         interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'generic')
     }).setDisabled(true);
     this.drawControls.push(drawPolygon);
+
     var drawAOR = new ol.control.Interaction({
         label: ' ',
         feature_type: 'aor',
@@ -1355,36 +1418,48 @@ toolBar.prototype.addDrawToolBar = function () {
             layer = null;
         }
 
-        if (layer instanceof ol.layer.Vector) {
+        if (layer instanceof ol.layer.Vector) { // feature layer.
             this.drawControls.forEach(function (control) {
                 control.setDisabled(false);
             });
-            var layerTag = layer.getSource().get('type');
-            if (!(exists(layerTag))) {
-                layertree.getLayerGeomType(layer);
-                var layerType = layer.get('type');
-            }
+
+            console.log('*****************');
+            console.log(layer.get('type'));
+            console.log(layer.getSource().get('type'));
+            layertree.identifyLayer(layer);
+            var layerType = layer.get('type');
+            var sourceType = layer.getSource().get('type');
+            console.log(layerType);
+            console.log(sourceType);
+
             if (layerType !== 'point' && layerType !== 'geomcollection') {
                 drawPoint.setDisabled(true).set('active', false);
             }
-            if (layerType !== 'line' && layerType !== 'geomcollection') {
-                drawWall.setDisabled(true).set('active', false);
-                drawRoad.setDisabled(true).set('active', false);
+            if (layerType !== 'linestring' && layerType !== 'geomcollection') {
                 drawLine.setDisabled(true).set('active', false);
             }
             if (layerType !== 'polygon' && layerType !== 'geomcollection') {
+                drawPolygon.setDisabled(true).set('active', false);
+            }
+            if (sourceType !== 'generic' && layerType !== 'geomcollection') {
+                drawPoint.setDisabled(true).set('active', false);
+                drawLine.setDisabled(true).set('active', false);
+                drawPolygon.setDisabled(true).set('active', false);
+            }
+            if (sourceType !== 'tobjects' && layerType !== 'geomcollection') {
                 drawAOR.setDisabled(true).set('active', false);
+                drawWall.setDisabled(true).set('active', false);
+                drawRoad.setDisabled(true).set('active', false);
                 drawWater.setDisabled(true).set('active', false);
                 drawHerbage.setDisabled(true).set('active', false);
                 drawBuilding.setDisabled(true).set('active', false);
-                drawPolygon.setDisabled(true).set('active', false);
             }
             var _this = this;
             setTimeout(function () {
                 _this.activeFeatures.clear();
                 _this.activeFeatures.extend(layer.getSource().getFeatures());
             }, 0);
-        } else {
+        } else { // tile layer.
             this.drawControls.forEach(function (control) {
                 control.set('active', false);
                 control.setDisabled(true);
@@ -2679,15 +2754,15 @@ featureInteractor.prototype.addInteractions = function () {
             }
         },
         // style: this.featureOverlay.getStyle()
-        style: new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(255, 255, 255, 1)',
-                width: 3
-            }),
-            fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.2)'
-            })
-        })
+        // style: new ol.style.Style({
+        //     stroke: new ol.style.Stroke({
+        //         color: 'rgba(255, 255, 255, 1)',
+        //         width: 3
+        //     }),
+        //     fill: new ol.style.Fill({
+        //         color: 'rgba(255, 255, 255, 0.2)'
+        //     })
+        // })
     });
     this.select.on('select', function (evt) {
         var feature;
