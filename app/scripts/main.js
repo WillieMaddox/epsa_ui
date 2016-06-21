@@ -926,43 +926,24 @@ layerTree.prototype.createNewVectorForm = function () {
 };
 layerTree.prototype.newVectorLayer = function (form) {
     var type = form.type.value;
-    // switch (type) {
-    //     case 'tobjects':
-    //         style = tobjectsStyleFunction;
-    //         break;
-    //     case 'geomcollection':
-    //         style = new ol.style.Style();
-    //         break;
-    //     case 'polygon':
-    //         style = new ol.style.Style();
-    //         break;
-    //     case 'line':
-    //         style = new ol.style.Style();
-    //         break;
-    //     case 'point':
-    //         style = new ol.style.Style();
-    //         break;
-    //     // case 'slb':
-    //     //     style = this.slbStyleFunction;
-    //     //     break;
-    //     // case 'sdb':
-    //     //     style = this.sdbStyleFunction;
-    //     //     break;
-    //     // case 'cameras':
-    //     //     style = this.cameraStyleFunction;
-    //     //     break;
-    //     // case 'radios':
-    //     //     style = this.radioStyleFunction;
-    //     //     break;
-    //     default:
-    //         this.messages.textContent = 'Unrecognized layer type.';
-    //         return false;
-    // }
 
+    var geomType;
+    var geomTypes = ['point', 'linestring', 'polygon', 'geomcollection'];
+    if (geomTypes.indexOf(type) === -1 && (Object.keys(templateLayers).indexOf(type) === -1)) {
+        this.messages.textContent = 'Unrecognized layer type.';
+        return false;
+    }
+    if (Object.keys(templateLayers).indexOf(type) >= 0) {
+        geomType = templateLayers[type];
+    } else {
+        geomType = type;
+    }
     var layer = new ol.layer.Vector({
-        source: new ol.source.Vector(),
+        source: new ol.source.Vector({
+            type: type
+        }),
         name: form.displayname.value || type + ' Layer',
-        type: type
+        type: geomType
     });
     if (templateLayers.hasOwnProperty(type)) {
         layer.setStyle(templateLayers[type].styleFunction)
@@ -1083,9 +1064,7 @@ layerTree.prototype.identifyLayer = function (layer) {
     if (sourceTypeIsValid) {
         layer.getSource().set('type', sourceType)
     }
-    if (geomTypeIsValid) {
-        layer.set('type', geomTypes.length === 1 ? geomTypes[0] : 'geomcollection');
-    }
+    layer.set('type', geomTypes.length === 1 ? geomTypes[0] : 'geomcollection');
     return layer;
 };
 // layerTree.prototype.getStyle = function (layertag) {
@@ -1342,14 +1321,14 @@ toolBar.prototype.addDrawToolBar = function () {
         interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'generic')
     }).setDisabled(true);
     this.drawControls.push(drawPoint);
-    var drawLine = new ol.control.Interaction({
+    var drawLineString = new ol.control.Interaction({
         label: ' ',
         feature_type: 'generic',
         geometry_type: 'LineString',
         className: 'ol-addline ol-unselectable ol-control',
         interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'generic')
     }).setDisabled(true);
-    this.drawControls.push(drawLine);
+    this.drawControls.push(drawLineString);
     var drawPolygon = new ol.control.Interaction({
         label: ' ',
         feature_type: 'generic',
@@ -1418,10 +1397,11 @@ toolBar.prototype.addDrawToolBar = function () {
             layer = null;
         }
 
+        this.drawControls.forEach(function (control) {
+            control.set('active', false);
+            control.setDisabled(true);
+        });
         if (layer instanceof ol.layer.Vector) { // feature layer.
-            this.drawControls.forEach(function (control) {
-                control.setDisabled(false);
-            });
 
             console.log('*****************');
             console.log(layer.get('type'));
@@ -1432,27 +1412,27 @@ toolBar.prototype.addDrawToolBar = function () {
             console.log(layerType);
             console.log(sourceType);
 
-            if (layerType !== 'point' && layerType !== 'geomcollection') {
-                drawPoint.setDisabled(true).set('active', false);
+            if (sourceType === 'tobjects' && layerType === 'geomcollection') {
+                drawAOR.setDisabled(false);
+                drawWall.setDisabled(false);
+                drawRoad.setDisabled(false);
+                drawWater.setDisabled(false);
+                drawHerbage.setDisabled(false);
+                drawBuilding.setDisabled(false);
             }
-            if (layerType !== 'linestring' && layerType !== 'geomcollection') {
-                drawLine.setDisabled(true).set('active', false);
+            if (sourceType === 'generic' || layerType === 'geomcollection') {
+                drawPoint.setDisabled(false);
+                drawLineString.setDisabled(false);
+                drawPolygon.setDisabled(false);
             }
-            if (layerType !== 'polygon' && layerType !== 'geomcollection') {
-                drawPolygon.setDisabled(true).set('active', false);
+            if (layerType === 'point') {
+                drawPoint.setDisabled(false);
             }
-            if (sourceType !== 'generic' && layerType !== 'geomcollection') {
-                drawPoint.setDisabled(true).set('active', false);
-                drawLine.setDisabled(true).set('active', false);
-                drawPolygon.setDisabled(true).set('active', false);
+            if (layerType === 'linestring') {
+                drawLineString.setDisabled(false);
             }
-            if (sourceType !== 'tobjects' && layerType !== 'geomcollection') {
-                drawAOR.setDisabled(true).set('active', false);
-                drawWall.setDisabled(true).set('active', false);
-                drawRoad.setDisabled(true).set('active', false);
-                drawWater.setDisabled(true).set('active', false);
-                drawHerbage.setDisabled(true).set('active', false);
-                drawBuilding.setDisabled(true).set('active', false);
+            if (layerType === 'polygon') {
+                drawPolygon.setDisabled(false);
             }
             var _this = this;
             setTimeout(function () {
@@ -1460,10 +1440,6 @@ toolBar.prototype.addDrawToolBar = function () {
                 _this.activeFeatures.extend(layer.getSource().getFeatures());
             }, 0);
         } else { // tile layer.
-            this.drawControls.forEach(function (control) {
-                control.set('active', false);
-                control.setDisabled(true);
-            });
         }
     }, this);
 
