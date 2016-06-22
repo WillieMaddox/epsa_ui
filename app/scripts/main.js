@@ -503,10 +503,6 @@ layerTree.prototype.addBufferIcon = function (layer) {
             case 'ready':
                 layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
                 layer.buildHeaders();
-                var layertag = this.get('type');
-                if (layertag) {
-                    layer.setStyle(templateLayers[layertag].styleFunction);
-                }
                 break;
             case 'error':
                 layerElem.classList.add('error');
@@ -762,6 +758,7 @@ layerTree.prototype.addVectorLayer = function (form) {
         });
         fr.onload = function (evt) {
             var vectorData = evt.target.result;
+            var sourceType;
             switch (form.format.value) {
                 case 'zip':
                     sourceFormat = new ol.format.GeoJSON();
@@ -773,9 +770,9 @@ layerTree.prototype.addVectorLayer = function (form) {
                     sourceFormat = new ol.format.GeoJSON();
                     // currently only supports saving out to geojson.
                     var re = /layertag[^a-z]*([a-zA-z]*)/;
-                    var layertag = re.exec(vectorData);
-                    if (exists(layertag) && templateLayers.hasOwnProperty(layertag[1])) {
-                        source.set('type', layertag);
+                    sourceType = re.exec(vectorData);
+                    if (exists(sourceType) && sourceType.length === 2) {
+                        sourceType = sourceType[1];
                     }
                     break;
                 case 'topojson':
@@ -812,6 +809,10 @@ layerTree.prototype.addVectorLayer = function (form) {
                     featureProjection: currentProj
                 }));
             }
+            if (sourceType && Object.keys(templateLayers).indexOf(sourceType) >= 0) {
+                layer.set('type', sourceType);
+                layer.setStyle(templateLayers[sourceType].styleFunction);
+            }
             // var newgeom;
             // source.getFeatures().forEach(function (feature) {
             //     if (feature.getGeometry().getType() === 'MultiPolygon') {
@@ -835,7 +836,6 @@ layerTree.prototype.addVectorLayer = function (form) {
         var layer = new ol.layer.Vector({
             source: source,
             name: form.displayname.value,
-            // style: tobjectsStyleFunction,
             updateWhileInteracting: true,
             updateWhileAnimating: true
         });
@@ -926,31 +926,23 @@ layerTree.prototype.createNewVectorForm = function () {
 };
 layerTree.prototype.newVectorLayer = function (form) {
     var type = form.type.value;
-
-    var geomType;
     var geomTypes = ['point', 'linestring', 'polygon', 'geomcollection'];
-    if (geomTypes.indexOf(type) === -1 && (Object.keys(templateLayers).indexOf(type) === -1)) {
+    var sourceTypes = Object.keys(templateLayers);
+    if (sourceTypes.indexOf(type) === -1 && geomTypes.indexOf(type) === -1) {
         this.messages.textContent = 'Unrecognized layer type.';
         return false;
     }
-    if (Object.keys(templateLayers).indexOf(type) >= 0) {
-        geomType = templateLayers[type];
-    } else {
-        geomType = type;
-    }
     var layer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            type: type
-        }),
+        source: new ol.source.Vector(),
         name: form.displayname.value || type + ' Layer',
-        type: geomType
+        type: type
     });
-    if (templateLayers.hasOwnProperty(type)) {
-        layer.setStyle(templateLayers[type].styleFunction)
-    }
     this.addBufferIcon(layer);
     this.map.addLayer(layer);
     layer.getSource().changed();
+    if (Object.keys(templateLayers).indexOf(type) !== -1) {
+        layer.setStyle(templateLayers[type].styleFunction);
+    }
     this.messages.textContent = 'New vector layer created successfully.';
     return this;
 };
@@ -994,7 +986,7 @@ layerTree.prototype.identifyLayer = function (layer) {
 
     var getSourceCandidate = function (featureType) {
         for (var stype in templateLayers) {
-            for (var ftype in templateLayers[stype]['properties']) {
+            for (var ftype in templateLayers[stype].properties) {
                 if (featureType === ftype) {
                     return stype;
                 }
@@ -1004,25 +996,24 @@ layerTree.prototype.identifyLayer = function (layer) {
     if (layer.getSource().getFeatures().length === 0) {
         return layer;
     }
-    var layerIsValid = false;
-    var sourceTypeIsValid = Object.keys(templateLayers).indexOf(layer.getSource().get('type')) >= 0;
-    var geomTypeIsValid = ['point', 'linestring', 'polygon', 'geomcollection'].indexOf(layer.get('type')) >= 0;
-    if (sourceTypeIsValid && geomTypeIsValid) {
-        layerIsValid = templateLayers[layer.getSource().get('type')]['geometry_type'] === layer.get('type');
+    if (Object.keys(templateLayers).indexOf(layer.get('type')) >= 0) {
+        return layer;
     }
-    if (layerIsValid) {
+    if (['point', 'linestring', 'polygon', 'geomcollection'].indexOf(layer.get('type')) >= 0) {
         return layer;
     }
 
+    var geomType = null;
     var geomTypes = [];
     var featureTypes = [];
-    var sourceType;
-    var geomTypeIsVerified = geomTypeIsValid;
-    var sourceTypeIsVerified = sourceTypeIsValid;
+    var sourceType = null;
+    var geomTypeIsValid = false;
+    var sourceTypeIsValid = false;
+    var geomTypeIsVerified = false;
+    var sourceTypeIsVerified = false;
     layer.getSource().forEachFeature(function (feat) {
         if (!(geomTypeIsVerified)) {
             var geom = feat.getGeometry();
-            var geomType;
             var featureType;
             if (geom instanceof ol.geom.Point || geom instanceof ol.geom.MultiPoint) {
                 geomType = 'point';
@@ -1062,9 +1053,14 @@ layerTree.prototype.identifyLayer = function (layer) {
         }
     });
     if (sourceTypeIsValid) {
-        layer.getSource().set('type', sourceType)
+        layer.set('type', sourceType)
+    } else if (geomTypeIsValid) {
+        layer.set('type', 'geomcollection')
+    } else if (geomTypes.length === 1) {
+        layer.set('type', geomTypes[0])
+    } else {
+        // TODO: return as an error message to the messagebar.
     }
-    layer.set('type', geomTypes.length === 1 ? geomTypes[0] : 'geomcollection');
     return layer;
 };
 // layerTree.prototype.getStyle = function (layertag) {
@@ -1405,32 +1401,29 @@ toolBar.prototype.addDrawToolBar = function () {
 
             console.log('*****************');
             console.log(layer.get('type'));
-            console.log(layer.getSource().get('type'));
             layertree.identifyLayer(layer);
             var layerType = layer.get('type');
-            var sourceType = layer.getSource().get('type');
             console.log(layerType);
-            console.log(sourceType);
 
-            if (sourceType === 'tobjects' && layerType === 'geomcollection') {
+            if (layerType === 'tobjects') {
                 drawAOR.setDisabled(false);
                 drawWall.setDisabled(false);
                 drawRoad.setDisabled(false);
                 drawWater.setDisabled(false);
                 drawHerbage.setDisabled(false);
                 drawBuilding.setDisabled(false);
-            }
-            if (sourceType === 'generic' || layerType === 'geomcollection') {
+            } else
+            if (layerType === 'generic' || layerType === 'geomcollection') {
                 drawPoint.setDisabled(false);
                 drawLineString.setDisabled(false);
                 drawPolygon.setDisabled(false);
-            }
+            } else
             if (layerType === 'point') {
                 drawPoint.setDisabled(false);
-            }
+            } else
             if (layerType === 'linestring') {
                 drawLineString.setDisabled(false);
-            }
+            } else
             if (layerType === 'polygon') {
                 drawPolygon.setDisabled(false);
             }
@@ -1439,7 +1432,6 @@ toolBar.prototype.addDrawToolBar = function () {
                 _this.activeFeatures.clear();
                 _this.activeFeatures.extend(layer.getSource().getFeatures());
             }, 0);
-        } else { // tile layer.
         }
     }, this);
 
