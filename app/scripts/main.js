@@ -181,6 +181,20 @@ var tobjectProperties = {
     }
 };
 
+var genericProperties = {
+    'genericPoly': {
+        'geometry_type': 'Polygon',
+        'color': [218, 188, 163]
+    },
+    'genericLine': {
+        'geometry_type': 'LineString',
+        'color': [218, 188, 163]
+    },
+    'genericPoint': {
+        'geometry_type': 'Point',
+        'color': [218, 188, 163]
+    }
+};
 var tobjectStyleFunction = (function () {
     var setStyle = function (color, opacity) {
         var style = new ol.style.Style({
@@ -222,6 +236,91 @@ var tobjectStyleFunction = (function () {
     };
 })();
 
+var sensorProperties = {
+    camera: {
+        defaultsensor: '',
+        source_height: {
+            units: 'meter',
+            value: 3
+        },
+        target_height: {
+            units: 'meter',
+            value: 1
+        },
+        tilt: {
+            units: 'degree',
+            value: 0
+        },
+        pan: {
+            wrt: 'north',
+            units: 'degree',
+            value: 0
+        },
+        min_range: {
+            units: 'meter',
+            value: 0
+        },
+        max_range: {
+            units: 'meter',
+            value: 1000
+        },
+        isotropic: true,
+        option: '',
+        fovtype: '',
+        'geometry_type': 'Point',
+        'color': [128, 128, 128]
+    },
+    'radio': {
+        'geometry_type': 'Point',
+        'subtype': ['dense', 'sparse'],
+        'height': 10,
+        // 'thickness': null,
+        'color': [0, 200, 0]
+    }
+};
+
+var sensorStyleFunction = (function () {
+    var setStyle = function (color, opacity) {
+        var style = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: color.concat(1),
+                    width: 2
+                }),
+                fill: new ol.style.Fill({
+                    color: color.concat(0.6)
+                })
+            }),
+            stroke: new ol.style.Stroke({
+                color: color.concat(1),
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: color.concat(opacity)
+            })
+        });
+        return [style]
+    };
+    return function (feature, resolution) {
+        var color;
+        var opacity;
+        if (exists(feature.get('type')) && sensorProperties.hasOwnProperty(feature.get('type'))) {
+            color = sensorProperties[feature.get('type')]['color'];
+        } else {
+            color = [255, 0, 0];
+        }
+        if (feature.get('type') === 'aor') {
+            opacity = 0
+        } else {
+            opacity = fillOpacity[feature.getGeometry().getType()];
+            opacity = opacity ? opacity : 0;
+        }
+        return setStyle(color, opacity);
+    };
+})();
+
+
 var fillOpacity = {
     'Polygon': 0.1,
     'LineString': 0,
@@ -232,10 +331,15 @@ var fillOpacity = {
 };
 
 var templateLayers = {
-    'tobjects': {
+    'tobject': {
         'geometry_type': 'geomcollection',
         'styleFunction': tobjectStyleFunction,
         'properties': tobjectProperties
+    },
+    'generic': {
+        'geometry_type': 'geomcollection',
+        'styleFunction': 'genericStyleFunction',
+        'properties': genericProperties
     },
     'slb': {
         'geometry_type': 'geomcollection',
@@ -247,11 +351,13 @@ var templateLayers = {
     },
     'camera': {
         'geometry_type': 'point',
-        'styleFunction': new ol.style.Style()
+        'styleFunction': sensorStyleFunction,
+        'properties': sensorProperties
     },
     'radio': {
         'geometry_type': 'point',
-        'styleFunction': new ol.style.Style()
+        'styleFunction': 'radioStyleFunction',
+        'properties': 'radioProperties'
     }
 };
 
@@ -885,7 +991,9 @@ layerTree.prototype.createNewVectorForm = function () {
     var select_0 = document.createElement('select');
     select_0.required = "required";
     select_0.name = "type";
-    select_0.appendChild(this.createOption('tobjects', 'Terrain Objects'));
+    select_0.appendChild(this.createOption('tobject', 'Terrain Objects'));
+    select_0.appendChild(this.createOption('generic', 'Generic Objects'));
+    select_0.appendChild(this.createOption('camera', 'Cameras'));
     select_0.appendChild(this.createOption('geomcollection', 'Geometry Collection'));
     select_0.appendChild(this.createOption('polygon', 'Polygon'));
     select_0.appendChild(this.createOption('linestring', 'LineString'));
@@ -1382,6 +1490,14 @@ toolBar.prototype.addDrawToolBar = function () {
         interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'road')
     }).setDisabled(true);
     this.drawControls.push(drawRoad);
+    var drawCamera = new ol.control.Interaction({
+        label: ' ',
+        feature_type: 'camera',
+        geometry_type: 'Circle',
+        className: 'ol-addcamera ol-unselectable ol-control',
+        interaction: this.handleEvents(new ol.interaction.Draw({type: 'Circle'}), 'camera')
+    }).setDisabled(true);
+    this.drawControls.push(drawRoad);
 
     this.activeFeatures = new ol.Collection();
 
@@ -1405,7 +1521,7 @@ toolBar.prototype.addDrawToolBar = function () {
             var layerType = layer.get('type');
             console.log(layerType);
 
-            if (layerType === 'tobjects') {
+            if (layerType === 'tobject') {
                 drawAOR.setDisabled(false);
                 drawWall.setDisabled(false);
                 drawRoad.setDisabled(false);
@@ -1426,6 +1542,9 @@ toolBar.prototype.addDrawToolBar = function () {
             } else
             if (layerType === 'polygon') {
                 drawPolygon.setDisabled(false);
+            }
+            if (layerType === 'camera') {
+                drawCamera.setDisabled(false);
             }
             var _this = this;
             setTimeout(function () {
