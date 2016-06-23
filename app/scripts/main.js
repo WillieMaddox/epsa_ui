@@ -577,16 +577,17 @@ var layerTree = function (options) {
 
             if (layer instanceof ol.layer.Vector) {
                 layerControls.appendChild(document.createElement('br'));
-                var attributeOptions = document.createElement('select');
-                layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
 
-                layerControls.appendChild(document.createElement('br'));
                 var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
                 layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
-                var graduatedStyle = this.createButton('stylelayer', 'Graduated', 'stylelayer', layer);
-                layerControls.appendChild(this.stopPropagationOnEvent(graduatedStyle, 'click'));
-                var categorizedStyle = this.createButton('stylelayer', 'Categorized', 'stylelayer', layer);
-                layerControls.appendChild(this.stopPropagationOnEvent(categorizedStyle, 'click'));
+
+                var attributeStyle = this.createButton('stylelayer', 'Attribute', 'stylelayer', layer);
+                layerControls.appendChild(this.stopPropagationOnEvent(attributeStyle, 'click'));
+
+                var attributeOptions = document.createElement('select');
+                attributeOptions.className = 'attributes';
+                layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
+
                 layer.set('style', layer.getStyle());
                 layer.on('propertychange', function (evt) {
                     if (evt.key === 'headers') {
@@ -648,14 +649,28 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType, laye
             buttonElem.textContent = elemTitle;
             if (elemTitle === 'Default') {
                 buttonElem.addEventListener('click', function () {
-                    // layer.setStyle(layer.get('style'));
-                    layer.setStyle(templateLayers[layer.get('type')].styleFunction);
+                    if (templateLayers.hasOwnProperty(layer.get('type'))) {
+                        layer.setStyle(templateLayers[layer.get('type')].styleFunction);
+                    } else {
+                        layer.setStyle(layer.get('style'));
+                    }
+
                 });
             } else {
-                var styleFunction = elemTitle === 'Graduated' ? this.styleGraduated : this.styleCategorized;
+                // var styleFunction = elemTitle === 'Graduated' ? this.styleGraduated : this.styleCategorized;
+                // buttonElem.addEventListener('click', function () {
+                //     var attribute = buttonElem.parentNode.querySelector('select').value;
+                //     styleFunction.call(_this, layer, attribute);
+                // });
                 buttonElem.addEventListener('click', function () {
                     var attribute = buttonElem.parentNode.querySelector('select').value;
-                    styleFunction.call(_this, layer, attribute);
+                    if (typeof layer.get('headers')[attribute] === 'string') {
+                        _this.styleCategorized(layer, attribute);
+                    } else if (typeof layer.get('headers')[attribute] === 'number') {
+                        _this.styleGraduated(layer, attribute);
+                    } else {
+                        _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                    }
                 });
             }
             return buttonElem;
@@ -690,6 +705,11 @@ layerTree.prototype.createOption = function (optionValue, optionText) {
     var option = document.createElement('option');
     option.value = optionValue;
     option.textContent = optionText || optionValue;
+    return option;
+};
+layerTree.prototype.createOption2 = function (optionValue) {
+    var option = document.createElement('option');
+    option.value = optionValue;
     return option;
 };
 
@@ -1052,20 +1072,20 @@ layerTree.prototype.createNewVectorForm = function () {
     var select_0 = document.createElement('select');
     select_0.required = "required";
     select_0.name = "type";
-    select_0.appendChild(this.createOption('tobject', 'Unnamed tObject Layer'));
-    select_0.appendChild(this.createOption('aor', 'Unnamed AOR Layer'));
-    select_0.appendChild(this.createOption('building', 'Unnamed Building Layer'));
-    select_0.appendChild(this.createOption('herbage', 'Unnamed Herbage Layer'));
-    select_0.appendChild(this.createOption('water', 'Unnamed Water Layer'));
-    select_0.appendChild(this.createOption('wall', 'Unnamed Wall Layer'));
-    select_0.appendChild(this.createOption('road', 'Unnamed Road Layer'));
-    select_0.appendChild(this.createOption('generic', 'Unnamed Generic Layer'));
-    select_0.appendChild(this.createOption('camera', 'Unnamed Camera Layer'));
-    // select_0.appendChild(this.createOption('radio', 'Unnamed Radio Layer'));
-    select_0.appendChild(this.createOption('geomcollection', 'Unnamed GeomCollection Layer'));
-    select_0.appendChild(this.createOption('polygon', 'Unnamed Polygon Layer'));
-    select_0.appendChild(this.createOption('linestring', 'Unnamed LineString Layer'));
-    select_0.appendChild(this.createOption('point', 'Unnamed Point Layer'));
+    select_0.appendChild(this.createOption('tobject', 'TObject Layer'));
+    select_0.appendChild(this.createOption('aor', 'AOR Layer'));
+    select_0.appendChild(this.createOption('building', 'Building Layer'));
+    select_0.appendChild(this.createOption('herbage', 'Herbage Layer'));
+    select_0.appendChild(this.createOption('water', 'Water Layer'));
+    select_0.appendChild(this.createOption('wall', 'Wall Layer'));
+    select_0.appendChild(this.createOption('road', 'Road Layer'));
+    select_0.appendChild(this.createOption('generic', 'Generic Layer'));
+    select_0.appendChild(this.createOption('camera', 'Camera Layer'));
+    // select_0.appendChild(this.createOption('radio', 'Radio Layer'));
+    select_0.appendChild(this.createOption('geomcollection', 'GeomCollection Layer'));
+    select_0.appendChild(this.createOption('polygon', 'Polygon Layer'));
+    select_0.appendChild(this.createOption('linestring', 'LineString Layer'));
+    select_0.appendChild(this.createOption('point', 'Point Layer'));
     td_3.appendChild(select_0);
     tr_1.appendChild(td_3);
 
@@ -1972,6 +1992,7 @@ featureInteractor.prototype.createInput = function (name, type) {
 featureInteractor.prototype.createHoleButton = function (label) {
     var buttonElem = document.createElement('input');
     buttonElem.id = label + '-hole';
+    buttonElem.className = "hole-button";
     buttonElem.type = "button";
     buttonElem.value = label.capitalizeFirstLetter();
     var _this = this;

@@ -23,6 +23,19 @@ body {
     padding-left: .2em;
 }
 
+.hole-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 4px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
 .toolbar .ol-control {
     height: 2em;
     position: static;
@@ -31,7 +44,7 @@ body {
 }
 .toolbar .ol-control button {
     border-radius: 2px;
-    background-color: rgba(0,0,0,.4);
+    background-color: rgba(0, 0, 0, .4);
     width: 2em;
     display: inline-block;
     vertical-align: middle;
@@ -276,6 +289,9 @@ body {
     white-space: pre;
     overflow-x: hidden;
     text-overflow: ellipsis;
+}
+.layer .attributes {
+    padding: 1px 1px;
 }
 /*.popup {
     border: 1px solid grey;
