@@ -63,10 +63,6 @@ var FID = (function () {
         }
     }
 })();
-function counterGenerator() {
-    var i = 0;
-    return function () {return i += 1;}
-};
 
 /**
  * check whether the point consists of pointcoords is inside the supplied polygon geometry
@@ -231,6 +227,44 @@ var tobjectStyleFunction = (function () {
     };
 })();
 
+var waterStyleFunction = (function () {
+    var setStyle = function (color, opacity) {
+        var style = new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: color.concat(1),
+                    width: 2
+                }),
+                fill: new ol.style.Fill({
+                    color: color.concat(0.6)
+                })
+            }),
+            stroke: new ol.style.Stroke({
+                color: color.concat(1),
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: color.concat(opacity)
+            })
+        });
+        return [style]
+    };
+    return function (feature, resolution) {
+        var color;
+        var opacity;
+        if (waterProperties.hasOwnProperty('color')) {
+            color = waterProperties.color;
+        } else {
+            color = [255, 0, 0];
+        }
+        opacity = fillOpacity[feature.getGeometry().getType()];
+        opacity = opacity ? opacity : 0;
+
+        return setStyle(color, opacity);
+    };
+})();
+
 var genericProperties = {
     'genericPoly': {
         'geometry_type': 'Polygon',
@@ -305,8 +339,66 @@ var cameraStyleFunction = (function () {
     };
 })();
 
+var aorProperties = {
+    color: [0, 0, 0]
+};
+var buildingProperties = {
+    subtype: ['metal', 'glass'],
+    height: 10,
+    color: [128, 128, 128]
+};
+var herbageProperties = {
+    subtype: ['dense', 'sparse'],
+    height: 10,
+    color: [0, 200, 0]
+};
+var waterProperties = {
+    subtype: ['warm', 'cool', 'frozen'],
+    color: [0, 0, 200]
+};
+var wallProperties = {
+    subtype: ['metal', 'stone'],
+    height: 10,
+    thickness: 10,
+    color: [64, 64, 64]
+};
+var roadProperties = {
+    subtype: ['cement', 'gravel', 'dirt'],
+    thickness: 10,
+    color: [192, 51, 52]
+};
 
 var templateLayers = {
+    'aor': {
+        'geometry_type': 'Polygon',
+        'styleFunction': tobjectStyleFunction,
+        'properties': aorProperties
+    },
+    'building': {
+        'geometry_type': 'Polygon',
+        'styleFunction': tobjectStyleFunction,
+        'properties': buildingProperties
+    },
+    'herbage': {
+        'geometry_type': 'Polygon',
+        'styleFunction': tobjectStyleFunction,
+        'properties': herbageProperties
+    },
+    water: {
+        geometry_type: 'Polygon',
+        styleFunction: waterStyleFunction,
+        properties: waterProperties
+    },
+    'wall': {
+        'geometry_type': 'LineString',
+        'styleFunction': tobjectStyleFunction,
+        'properties': wallProperties
+    },
+    'road': {
+        'geometry_type': 'LineString',
+        'styleFunction': tobjectStyleFunction,
+        'properties': roadProperties
+    },
     'tobject': {
         'geometry_type': 'geomcollection',
         'styleFunction': tobjectStyleFunction,
@@ -326,14 +418,6 @@ var templateLayers = {
         'geometry_type': 'point',
         'styleFunction': 'radioStyleFunction',
         'properties': 'radioProperties'
-    },
-    'slb': { // To be added later...
-        'geometry_type': 'geomcollection',
-        'styleFunction': new ol.style.Style()
-    },
-    'sdb': { // To be added later...
-        'geometry_type': 'geomcollection',
-        'styleFunction': new ol.style.Style()
     }
 };
 
@@ -564,7 +648,8 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType, laye
             buttonElem.textContent = elemTitle;
             if (elemTitle === 'Default') {
                 buttonElem.addEventListener('click', function () {
-                    layer.setStyle(layer.get('style'));
+                    // layer.setStyle(layer.get('style'));
+                    layer.setStyle(templateLayers[layer.get('type')].styleFunction);
                 });
             } else {
                 var styleFunction = elemTitle === 'Graduated' ? this.styleGraduated : this.styleCategorized;
@@ -970,14 +1055,11 @@ layerTree.prototype.createNewVectorForm = function () {
     select_0.appendChild(this.createOption('tobject', 'Terrain Objects'));
     select_0.appendChild(this.createOption('generic', 'Generic Objects'));
     select_0.appendChild(this.createOption('camera', 'Cameras'));
+    // select_0.appendChild(this.createOption('radio', 'Radios'));
     select_0.appendChild(this.createOption('geomcollection', 'Geometry Collection'));
     select_0.appendChild(this.createOption('polygon', 'Polygon'));
     select_0.appendChild(this.createOption('linestring', 'LineString'));
     select_0.appendChild(this.createOption('point', 'Point'));
-    // select_0.appendChild(this.createOption('slb', 'Sensor Location Boundary'));
-    // select_0.appendChild(this.createOption('sdb', 'Sensor Detection Boundary'));
-    // select_0.appendChild(this.createOption('cameras', 'Cameras'));
-    // select_0.appendChild(this.createOption('radios', 'Radios'));
     td_3.appendChild(select_0);
     tr_1.appendChild(td_3);
 
@@ -1466,6 +1548,7 @@ toolBar.prototype.addDrawToolBar = function () {
         interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'road')
     }).setDisabled(true);
     this.drawControls.push(drawRoad);
+
     var drawCamera = new ol.control.Interaction({
         label: ' ',
         feature_type: 'camera',
@@ -1497,26 +1580,31 @@ toolBar.prototype.addDrawToolBar = function () {
             var layerType = layer.get('type');
             console.log(layerType);
 
-            if (layerType === 'tobject') {
+            if (layerType === 'aor' || layerType === 'tobject') {
                 drawAOR.setDisabled(false);
+            }
+            if (layerType === 'wall' || layerType === 'tobject') {
                 drawWall.setDisabled(false);
+            }
+            if (layerType === 'road' || layerType === 'tobject') {
                 drawRoad.setDisabled(false);
+            }
+            if (layerType === 'water' || layerType === 'tobject') {
                 drawWater.setDisabled(false);
+            }
+            if (layerType === 'herbage' || layerType === 'tobject') {
                 drawHerbage.setDisabled(false);
+            }
+            if (layerType === 'building' || layerType === 'tobject') {
                 drawBuilding.setDisabled(false);
-            } else
-            if (layerType === 'generic' || layerType === 'geomcollection') {
+            }
+            if (layerType === 'point' || layerType === 'generic' || layerType === 'geomcollection') {
                 drawPoint.setDisabled(false);
+            }
+            if (layerType === 'linestring' || layerType === 'generic' || layerType === 'geomcollection') {
                 drawLineString.setDisabled(false);
-                drawPolygon.setDisabled(false);
-            } else
-            if (layerType === 'point') {
-                drawPoint.setDisabled(false);
-            } else
-            if (layerType === 'linestring') {
-                drawLineString.setDisabled(false);
-            } else
-            if (layerType === 'polygon') {
+            }
+            if (layerType === 'polygon' || layerType === 'generic' || layerType === 'geomcollection') {
                 drawPolygon.setDisabled(false);
             }
             if (layerType === 'camera') {
@@ -1999,21 +2087,6 @@ featureInteractor.prototype.addArea = function () {
     tr.appendChild(this.createInput("area", "text"));
     return tr;
 };
-
-function interceptFunction(object, fnName, options) {
-    var noop = function () {
-    };
-    var fnToWrap = object[fnName];
-    var before = options.before || noop;
-    var after = options.after || noop;
-
-    object[fnName] = function () {
-        before.apply(this, arguments);
-        var result = fnToWrap.apply(this, arguments);
-        after.apply(this, arguments);
-        return result
-    }
-}
 
 featureInteractor.prototype.drawHole = function () {
     var holeStyle = [
@@ -2966,10 +3039,10 @@ function init() {
     var view = new ol.View({
         // center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
         // center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
-        // center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
+        center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
         // center: [-8236600, 4975706],
-        center: [0, 0],
-        zoom: 2
+        // center: [0, 0],
+        zoom: 15
     });
     view.on('change:resolution', function (evt) {
         var coord0 = evt.target.getCenter();
