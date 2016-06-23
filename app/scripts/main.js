@@ -1052,14 +1052,20 @@ layerTree.prototype.createNewVectorForm = function () {
     var select_0 = document.createElement('select');
     select_0.required = "required";
     select_0.name = "type";
-    select_0.appendChild(this.createOption('tobject', 'Terrain Objects'));
-    select_0.appendChild(this.createOption('generic', 'Generic Objects'));
-    select_0.appendChild(this.createOption('camera', 'Cameras'));
-    // select_0.appendChild(this.createOption('radio', 'Radios'));
-    select_0.appendChild(this.createOption('geomcollection', 'Geometry Collection'));
-    select_0.appendChild(this.createOption('polygon', 'Polygon'));
-    select_0.appendChild(this.createOption('linestring', 'LineString'));
-    select_0.appendChild(this.createOption('point', 'Point'));
+    select_0.appendChild(this.createOption('tobject', 'Unnamed tObject Layer'));
+    select_0.appendChild(this.createOption('aor', 'Unnamed AOR Layer'));
+    select_0.appendChild(this.createOption('building', 'Unnamed Building Layer'));
+    select_0.appendChild(this.createOption('herbage', 'Unnamed Herbage Layer'));
+    select_0.appendChild(this.createOption('water', 'Unnamed Water Layer'));
+    select_0.appendChild(this.createOption('wall', 'Unnamed Wall Layer'));
+    select_0.appendChild(this.createOption('road', 'Unnamed Road Layer'));
+    select_0.appendChild(this.createOption('generic', 'Unnamed Generic Layer'));
+    select_0.appendChild(this.createOption('camera', 'Unnamed Camera Layer'));
+    // select_0.appendChild(this.createOption('radio', 'Unnamed Radio Layer'));
+    select_0.appendChild(this.createOption('geomcollection', 'Unnamed GeomCollection Layer'));
+    select_0.appendChild(this.createOption('polygon', 'Unnamed Polygon Layer'));
+    select_0.appendChild(this.createOption('linestring', 'Unnamed LineString Layer'));
+    select_0.appendChild(this.createOption('point', 'Unnamed Point Layer'));
     td_3.appendChild(select_0);
     tr_1.appendChild(td_3);
 
