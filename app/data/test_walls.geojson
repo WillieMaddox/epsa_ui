@@ -1,0 +1,76 @@
+{
+  "type": "FeatureCollection",
+  "layertag": "wall",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:4326"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "wall",
+        "name": "Wall-0",
+        "height": 20.0,
+        "thickness": 10.0,
+        "subtype": "metal"
+      },
+      "id": "wall-0",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -105.5357406482749,
+            39.76481846544078
+          ],
+          [
+            -105.53664187049678,
+            39.765907061280274
+          ],
+          [
+            -105.5356977329253,
+            39.76635239098136
+          ],
+          [
+            -105.53475359535084,
+            39.765263802183135
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "wall",
+        "name": "Wall-2",
+        "height": 50.0,
+        "thickness": 5.0,
+        "subtype": "metal"
+      },
+      "id": "wall-2",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -105.5434761390717,
+            39.770253026175176
+          ],
+          [
+            -105.54356196976435,
+            39.7683728321493
+          ],
+          [
+            -105.53995708084331,
+            39.768306859496164
+          ],
+          [
+            -105.5391846046543,
+            39.76969227192735
+          ]
+        ]
+      }
+    }
+  ]
+}
