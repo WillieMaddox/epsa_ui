@@ -657,11 +657,6 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType, laye
 
                 });
             } else {
-                // var styleFunction = elemTitle === 'Graduated' ? this.styleGraduated : this.styleCategorized;
-                // buttonElem.addEventListener('click', function () {
-                //     var attribute = buttonElem.parentNode.querySelector('select').value;
-                //     styleFunction.call(_this, layer, attribute);
-                // });
                 buttonElem.addEventListener('click', function () {
                     var attribute = buttonElem.parentNode.querySelector('select').value;
                     if (typeof layer.get('headers')[attribute] === 'string') {
@@ -1207,11 +1202,11 @@ layerTree.prototype.identifyLayer = function (layer) {
         if (!(geomTypeIsVerified)) {
             var geom = feat.getGeometry();
             var featureType;
-            if (geom instanceof ol.geom.Point || geom instanceof ol.geom.MultiPoint) {
+            if (geom.getType().endsWith('Point')) {
                 geomType = 'point';
-            } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
+            } else if (geom.getType().endsWith('LineString')) {
                 geomType = 'linestring';
-            } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+            } else if (geom.getType().endsWith('Polygon')) {
                 geomType = 'polygon';
             } else {
                 geomType = 'geomcollection';
@@ -1393,10 +1388,8 @@ ol.control.Interaction = function (opt_options) {
         }
     };
 
-    var interaction = options.interaction;
-
     this.setProperties({
-        interaction: interaction,
+        interaction: options.interaction,
         active: false,
         button_type: 'radio',
         feature_type: options.feature_type,
@@ -1797,14 +1790,18 @@ featureInteractor.prototype.createForm = function (options) {
 
     var rowElem = document.createElement('div');
     rowElem.className = 'form-row';
+    
     var attributeSpan = document.createElement('div');
     attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Geometry type: ';
     rowElem.appendChild(attributeSpan);
+    
     var geometryType = document.createElement('div');
     geometryType.className = 'form-value';
     geometryType.id = "geometry-type";
+    
     rowElem.appendChild(geometryType);
+    
     form.appendChild(rowElem);
 
     var rowElem = document.createElement('div');
@@ -1846,7 +1843,7 @@ featureInteractor.prototype.createForm = function (options) {
     attributeSpan.className = 'form-label';
     attributeSpan.textContent = 'Hole: ';
     rowElem.appendChild(attributeSpan);
-    rowElem.appendChild(this.createHoleButton("draw"));
+    rowElem.appendChild(this.createHoleButton("add"));
     rowElem.appendChild(this.createHoleButton("delete"));
     form.appendChild(rowElem);
 
@@ -1992,16 +1989,16 @@ featureInteractor.prototype.createInput = function (name, type) {
 featureInteractor.prototype.createHoleButton = function (label) {
     var buttonElem = document.createElement('input');
     buttonElem.id = label + '-hole';
-    buttonElem.className = "hole-button";
+    buttonElem.className = "hole-buttons ol-"+label+"hole ol-unselectable ol-control";
     buttonElem.type = "button";
     buttonElem.value = label.capitalizeFirstLetter();
     var _this = this;
 
     switch (label) {
-        case 'draw':
+        case 'add':
             buttonElem.title = 'Draw a hole in the selected feature';
             buttonElem.addEventListener('click', function () {
-                _this.drawHole();
+                _this.addHole();
             });
             return buttonElem;
         case 'delete':
@@ -2115,7 +2112,7 @@ featureInteractor.prototype.addArea = function () {
     return tr;
 };
 
-featureInteractor.prototype.drawHole = function () {
+featureInteractor.prototype.addHole = function () {
     var holeStyle = [
         new ol.style.Style({
             stroke: new ol.style.Stroke({
@@ -2187,7 +2184,7 @@ featureInteractor.prototype.drawHole = function () {
     });
 
     var deleteHoleIsDisabled = document.getElementById('delete-hole').disabled;
-    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('add-hole').disabled = true;
     document.getElementById('delete-hole').disabled = true;
     this.map.un('pointermove', this.hoverDisplay);
     this.select.setActive(false);
@@ -2203,7 +2200,7 @@ featureInteractor.prototype.drawHole = function () {
         _this.select.setActive(true);
         // _this.translate.setActive(true);
         _this.map.on('pointermove', _this.hoverDisplay);
-        document.getElementById('draw-hole').disabled = false;
+        document.getElementById('add-hole').disabled = false;
         $(document).off('keyup')
     };
 
@@ -2411,7 +2408,7 @@ featureInteractor.prototype.deleteHole = function () {
         _this.select.setActive(true);
         // _this.translate.setActive(true);
         _this.map.on('pointermove', _this.hoverDisplay);
-        document.getElementById('draw-hole').disabled = false;
+        document.getElementById('add-hole').disabled = false;
         document.getElementById('delete-hole').disabled = (holeFeats.getArray().length == 0);
         $(document).off('keyup')
     };
@@ -2421,7 +2418,7 @@ featureInteractor.prototype.deleteHole = function () {
         }
     });
 
-    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('add-hole').disabled = true;
     document.getElementById('delete-hole').disabled = true;
     this.map.un('pointermove', this.hoverDisplay);
     this.select.setActive(false);
@@ -2580,16 +2577,13 @@ featureInteractor.prototype.activateForm = function (feature) {
 
     var measureLabel = document.getElementById('measure-label');
     var measure;
-    if (feature.getGeometry() instanceof ol.geom.Polygon || feature.getGeometry() instanceof ol.geom.MultiPolygon) {
+    if (feature.getGeometry().getType().endsWith('Polygon')) {
         measureLabel.innerHTML = 'Area:';
         measure = this.formatArea;
-    } else if (feature.getGeometry() instanceof ol.geom.Circle) {
-        measureLabel.innerHTML = 'Area:';
-        measure = this.formatArea;
-    } else if (feature.getGeometry() instanceof ol.geom.LineString || feature.getGeometry() instanceof ol.geom.MultiLineString) {
+    } else if (feature.getGeometry().getType().endsWith('LineString')) {
         measureLabel.innerHTML = 'Length:';
         measure = this.formatLength;
-    } else if (feature.getGeometry() instanceof ol.geom.Point) {
+    } else if (feature.getGeometry().getType().endsWith('Point')) {
         measureLabel.innerHTML = 'Lon, Lat';
         measure = this.formatPosition;
     }
@@ -2607,10 +2601,10 @@ featureInteractor.prototype.activateForm = function (feature) {
     document.getElementById('feature-name').value = feature.get('name');
     document.getElementById('feature-name').disabled = false;
 
-    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('add-hole').disabled = true;
     document.getElementById('delete-hole').disabled = true;
     if (feature.getGeometry().getType().endsWith('Polygon')) {
-        document.getElementById('draw-hole').disabled = false;
+        document.getElementById('add-hole').disabled = false;
         if (feature.getGeometry().getType() === 'MultiPolygon') {
             for (var i = 0; i < feature.getGeometry().getPolygons().length; i++)
                 if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
@@ -2755,7 +2749,7 @@ featureInteractor.prototype.deactivateForm = function (feature) {
     feature_name.value = null;
     feature_name.disabled = true;
 
-    document.getElementById('draw-hole').disabled = true;
+    document.getElementById('add-hole').disabled = true;
     document.getElementById('delete-hole').disabled = true;
 
     var feature_type = document.getElementById('feature-type');
@@ -2855,12 +2849,12 @@ featureInteractor.prototype.getFeatureAtPixel = function (pixel) {
     // var _this = this;
     var feature = this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
         var geom = feature.getGeometry();
-        if (geom instanceof ol.geom.Point) {
+        if (geom.getType().endsWith('Point')) {
             //Need to add functionality for sensors here.
             return feature;
-        } else if (geom instanceof ol.geom.LineString || geom instanceof ol.geom.MultiLineString) {
+        } else if (geom.getType().endsWith('LineString')) {
             return feature;
-        } else if (geom instanceof ol.geom.Polygon || geom instanceof ol.geom.MultiPolygon) {
+        } else if (geom.getType().endsWith('Polygon')) {
             if (feature.get('type') === 'aor') {
                 var point = geom.getClosestPoint(coord);
                 var pixel0 = this.map.getPixelFromCoordinate(coord);
