@@ -35,9 +35,7 @@
                 <div id="map" class="map"></div>
                 <div class="notification-bar">
                     <div>
-                        <label>Units:</label>
-                        <label>&nbsp;</label>
-                        <select id="units">
+                        <select id="units" title="Units of the scale line.">
                             <option value="nautical">nautical mile</option>
                             <option value="imperial">imperial inch</option>
                             <option value="degrees">degrees</option>
@@ -46,9 +44,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Projection:</label>
-                        <label>&nbsp;</label>
-                        <select id="projection">
+                        <select id="projection" title="Units of the cursor coordinates.">
                             <option value="EPSG:4326">EPSG:4326</option>
                             <option value="EPSG:3857">EPSG:3857</option>
                             <option value="EPSG:31467">EPSG:31467</option>
@@ -61,6 +57,7 @@
                         <label id="tile"></label>
                     </div>
                 </div>
+                <div id="messageBar" class="message-bar"></div>
             </div>
         </div>
         <div id="addwms" class="toggleable" style="display: none;">
@@ -101,11 +98,11 @@
                 <table>
                     <tr>
                         <td>Server URL:</td>
-                        <td><input name="server" type="text" required="required" value="http://demo.mapserver.org/cgi-bin/wfs"></td>
+                        <td><input name="server" type="text" required="required" value="http://demo.opengeo.org/geoserver/wfs"></td>
                     </tr>
                     <tr>
                         <td>Layer name:</td>
-                        <td><input name="layer" type="text" required="required" value="cities"></td>
+                        <td><input name="layer" type="text" required="required" value="osm:water_areas"></td>
                     </tr>
                     <tr>
                         <td>Display name:</td>
@@ -113,7 +110,7 @@
                     </tr>
                     <tr>
                         <td>Projection:</td>
-                        <td><input name="projection" type="text" value="EPSG:4326"></td>
+                        <td><input name="projection" type="text" value="EPSG:3857"></td>
                     </tr>
                     <tr>
                         <td><input type="submit" value="Add layer"></td>

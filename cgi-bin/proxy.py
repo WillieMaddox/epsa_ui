@@ -21,27 +21,33 @@ ofs = open('proxy.log', 'w')
 ofs.write(os.environ["REQUEST_METHOD"]+'\n')
 ofs.write(os.environ["CONTENT_TYPE"]+'\n')
 ofs.write(os.environ["QUERY_STRING"]+'\n')
-
+ofs.write('\n')
 method = os.environ["REQUEST_METHOD"]
 
 # if not os.environ["QUERY_STRING"].startswith("http://") or not os.environ["QUERY_STRING"].startswith("https://"):
 #     os.environ["QUERY_STRING"] = 'http:/'+os.environ["PATH_INFO"]+'?'+os.environ["QUERY_STRING"]
 if method == "POST":
+    ofs.write('POST')
     qs = os.environ["QUERY_STRING"]
     d = cgi.parse_qs(qs)
     if d.has_key("url"):
         url = d["url"][0]
+        ofs.write('(1):')
     else:
         url = "http://www.openlayers.org"
+        ofs.write('(2):')
 else:
+    ofs.write('GET')
     if os.environ["QUERY_STRING"].lower().startswith('url='):
         fs = cgi.FieldStorage()
         url = fs.getvalue('url', "http://www.openlayers.org")
+        ofs.write('(1):')
     else:
         url = urllib2.unquote(os.environ["QUERY_STRING"])
+        ofs.write('(2):')
 
-ofs.write(url+'\n')
-ofs.write('\nos.environ')
+ofs.write('\n' + url + '\n')
+ofs.write('\nos.environ\n')
 ofs.write(''.join(sorted([k+': '+v+'\n' for k, v in os.environ.iteritems()])))
 
 try:

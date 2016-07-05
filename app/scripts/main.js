@@ -659,9 +659,9 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType, laye
             } else {
                 buttonElem.addEventListener('click', function () {
                     var attribute = buttonElem.parentNode.querySelector('select').value;
-                    if (typeof layer.get('headers')[attribute] === 'string') {
+                    if (layer.get('headers')[attribute] === 'string') {
                         _this.styleCategorized(layer, attribute);
-                    } else if (typeof layer.get('headers')[attribute] === 'number') {
+                    } else if (layer.get('headers')[attribute] === 'number') {
                         _this.styleGraduated(layer, attribute);
                     } else {
                         _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
@@ -784,34 +784,70 @@ layerTree.prototype.addWmsLayer = function (form) {
     return this;
 };
 layerTree.prototype.addWfsLayer = function (form) {
+
+    var buildQueryString = function (options) {
+        var queryArray = [];
+        queryArray.push('SERVICE=WFS');
+        queryArray.push('VERSION=1.1.0');
+        queryArray.push('REQUEST=GetFeature');
+        if (options.typeName) {
+            queryArray.push('TYPENAME=' + options.typeName);
+        }
+        if (options.proj) {
+            queryArray.push('SRSNAME=' + options.proj);
+        }
+        if (options.extent) {
+            queryArray.push('BBOX=' + options.extent.join(','));
+        }
+        return queryArray.join('&')
+    };
+    var dirty = {};
+    var typeName = form.layer.value;
+    var mapProj = this.map.getView().getProjection();
+    var proj = form.projection.value || mapProj.getCode();
+    var parserformat = new ol.format.WFS();
+
+    var proxyUrl = "http://www.firefly.com:8050/cgi-bin/proxy.py?";
+    // var serverUrl = "http://www.firefly.com:8080/geoserver/wfs";
     var url = form.server.value;
     url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
-    url = /\?/.test(url) ? url + '&' : url + '?';
-    var typeName = form.layer.value;
-    var mapProj = this.map.getView().getProjection().getCode();
-    var proj = form.projection.value || mapProj;
-    var parser = new ol.format.WFS();
+    var serverUrl = /\?/.test(url) ? url + '&' : url + '?';
+    // var serverUrl = url;
+
     var source = new ol.source.Vector({
+        // url: proxyUrl + 'url=' + encodeURIComponent(serverUrl + buildQueryString({typeName: typeName})),
+        // format: parserformat,
+        // url: function(extent, res, proj) {
+        //     var query = buildQueryString({typeName: typeName, proj: proj.getCode(), extent: extent});
+        //     return proxyUrl + serverUrl + query;
+        // },
+        loader: function (extent, res, mapProj) {
+            // proj = proj || mapProj.getCode();
+            // var _this = this;
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if (request.readyState === 4 && request.status === 200) {
+                    source.addFeatures(parserformat.readFeatures(request.responseText, {
+                        dataProjection: proj,
+                        featureProjection: mapProj.getCode()
+                    }));
+                }
+            };
+            var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
+            request.open('GET', proxyUrl + serverUrl + query);
+            request.send();
+        },
         strategy: ol.loadingstrategy.bbox
+        // strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
     });
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState === 4 && request.status === 200) {
-            source.addFeatures(parser.readFeatures(request.responseText, {
-                dataProjection: proj,
-                featureProjection: mapProj
-            }));
-        }
-    };
-    url = url + 'SERVICE=WFS&REQUEST=GetFeature&TYPENAME=' + typeName + '&VERSION=1.1.0&SRSNAME=' + proj;
-    // request.open('GET', '../../../cgi-bin/proxy.py?' + encodeURIComponent(url));
-    var url3 = 'http://www.firefly.com:8050/cgi-bin/proxy.py?' + url;
-    request.open('GET', url3);
-    request.send();
+
     var layer = new ol.layer.Vector({
-        source: source,
+    	// title: 'WFS-T',
+    	// type: 'vector',
+    	source: source,
         name: form.displayname.value
     });
+
     this.addBufferIcon(layer);
     this.map.addLayer(layer);
     this.messages.textContent = 'WFS layer added successfully.';
@@ -1250,9 +1286,6 @@ layerTree.prototype.identifyLayer = function (layer) {
     }
     return layer;
 };
-// layerTree.prototype.getStyle = function (layertag) {
-//     ;
-// };
 layerTree.prototype.stopPropagationOnEvent = function (node, event) {
     node.addEventListener(event, function (evt) {
         evt.stopPropagation();
@@ -1348,8 +1381,8 @@ ol.layer.Vector.prototype.buildHeaders = function () {
     for (var i = 0; i < features.length; i += 1) {
         var attributes = features[i].getProperties();
         for (var j in attributes) {
-            if (typeof attributes[j] !== 'object' && !(j in headers)) {
-                headers[j] = attributes[j];
+            if (typeof attributes[j] !== 'object' && !(j in oldHeaders)) {
+                headers[j] = typeof attributes[j];
             } else if (j in oldHeaders) {
                 headers[j] = oldHeaders[j];
             }
@@ -3059,11 +3092,14 @@ function init() {
     var mousePrecision = 4;
     var view = new ol.View({
         // center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
+        // center: ol.proj.transform([-86.677945, 34.723185], 'EPSG:4326', 'EPSG:3857'),
+        center: ol.proj.transform([-78.977966, 43.057600], 'EPSG:4326', 'EPSG:3857'),
         // center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
-        center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
-        // center: [-8236600, 4975706],
+        // center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
+        // center: ol.proj.transform([-79.049, 43.146], 'EPSG:4326', 'EPSG:3857'),
+        // center: [-8238000, 4970700],
         // center: [0, 0],
-        zoom: 15
+        zoom: 11
     });
     view.on('change:resolution', function (evt) {
         var coord0 = evt.target.getCenter();
@@ -3310,63 +3346,6 @@ function init() {
     // };
 
     /*********** WFS-T *************/
-    // var url="http://gis.local.osm:8080/geoserver/wfs?service=wfs&version=1.1.0&request=GetFeature&typeName=cite:nyc_buildings";
-    // sourceVector = new ol.source.Vector({
-    // 	url: '/cgi-bin/proxy.py?url='+ encodeURIComponent(url),
-    // 	format: new ol.format.WFS()
-    // });
-    //
-    //wfs-t
-    // url = 'http://gis.local.osm:8080/geoserver/wfs';
-    // url = /^((http)|(https))(:\/\/)/.test(url) ? url : 'http://' + url;
-    // url = /\?/.test(url) ? url + '&' : url + '?';
-    // var typeName = 'cite:nyc_buildings';
-    // var proj = 'EPSG:3857';
-    // var formatWFS = new ol.format.WFS();
-    // sourceVector = new ol.source.Vector({
-    //     loader: function (extent) {
-    //     	$.ajax('/cgi-bin/proxy.py?url='+'http://gis.local.osm:8080/geoserver/wfs', {
-    //     		type: 'GET',
-    //     		data: {
-    //     			service: 'WFS',
-    //     			version: '2.0.0',
-    //     			request: 'GetFeature',
-    //     			typename: 'cite:nyc_buildings',
-    //     			srsname: 'EPSG:3857',
-    //     			bbox: extent.join(',') + ',EPSG:3857'
-    //     		},
-    //     	}).done(function (response) {
-    //     		formatWFS = new ol.format.WFS(),
-    //     			sourceVector.addFeatures(formatWFS.readFeatures(response))
-    //     	});
-    //     },
-    // 	loader: function (extent, res, mapProj) {
-    // 		proj = proj || mapProj.getCode();
-    // 		var request = new XMLHttpRequest();
-    // 		request.onreadystatechange = function () {
-    // 			if (request.readyState === 4 && request.status === 200) {
-    // 				sourceVector.addFeatures(formatWFS.readFeatures(request.responseText, {
-    // 					dataProjection: proj,
-    // 					featureProjection: mapProj.getCode()
-    // 				}));
-    // 			}
-    // 		};
-    // 		url = url + 'SERVICE=WFS&REQUEST=GetFeature&TYPENAME=' + typeName + '&VERSION=1.1.0&SRSNAME=' + proj + '&BBOX=' + extent.join(',');
-    // 		request.open('GET', '/cgi-bin/proxy.py?' + encodeURIComponent(url));
-    // 		//request.open('GET', url);
-    // 		request.send();
-    // 	},
-    // 	strategy: ol.loadingstrategy.bbox
-    // });
-    //
-    // var layerVector = new ol.layer.Vector({
-    // 	title: 'WFS-T',
-    // 	type: 'vector',
-    // 	source: sourceVector
-    // });
-    //
-    // var dirty = {};
-    // var formatWFS = new ol.format.WFS();
     // var formatGML = new ol.format.GML({
     // 	featureNS: 'http://argeomatica.com',
     // 	featureType: 'cite:nyc_buildings',
@@ -3386,7 +3365,7 @@ function init() {
     // 	}
     // 	s = new XMLSerializer();
     // 	str = s.serializeToString(node);
-    // 	$.ajax('http://gis.local.osm/geoserver/wfs', {
+    // 	$.ajax('http://www.firefly.com/geoserver/wfs', {
     // 		type: 'POST',
     // 		dataType: 'xml',
     // 		processData: false,
@@ -3532,6 +3511,80 @@ function init() {
         target: 'tile'
     });
     map.addControl(mousePositionControl2);
+
+    map.on('click', function (evt) {
+        var pixel = evt.pixel;
+        var coord = evt.coordinate;
+        var attributeForm = document.createElement('form');
+        attributeForm.className = 'popup';
+        this.getOverlays().clear();
+        var firstFeature = true;
+        function createRow (attributeName, attributeValue, type) {
+            var rowElem = document.createElement('div');
+            var attributeSpan = document.createElement('span');
+            attributeSpan.textContent = attributeName + ': ';
+            rowElem.appendChild(attributeSpan);
+            var attributeInput = document.createElement('input');
+            attributeInput.name = attributeName;
+            attributeInput.type = 'text';
+            if (type !== 'string') {
+                attributeInput.type = 'number';
+                attributeInput.step = (type === 'float') ? 1e-6 : 1;
+            }
+            attributeInput.value = attributeValue;
+            rowElem.appendChild(attributeInput);
+            return rowElem;
+        }
+        this.forEachFeatureAtPixel(pixel, function (feature, layer) {
+            if (firstFeature) {
+                var attributes = feature.getProperties();
+                var headers = layer.get('headers');
+                for (var i in attributes) {
+                    if (typeof attributes[i] !== 'object' && i in headers) {
+                        attributeForm.appendChild(createRow(i, attributes[i], headers[i]));
+                    }
+                }
+                if (attributeForm.children.length > 0) {
+                    var saveAttributes = document.createElement('input');
+                    saveAttributes.type = 'submit';
+                    saveAttributes.className = 'save';
+                    saveAttributes.value = '';
+                    attributeForm.addEventListener('submit', function (evt) {
+                        evt.preventDefault();
+                        var attributeList = {};
+                        var inputList = [].slice.call(this.querySelectorAll('input[type=text], input[type=number]'));
+                        for (var i = 0; i < inputList.length; i += 1) {
+                            switch (headers[inputList[i].name]) {
+                                case 'string':
+                                    attributeList[inputList[i].name] = inputList[i].value.toString();
+                                    break;
+                                case 'integer':
+                                    attributeList[inputList[i].name] = parseInt(inputList[i].value);
+                                    break;
+                                case 'float':
+                                    attributeList[inputList[i].name] = parseFloat(inputList[i].value);
+                                    break;
+                            }
+                        }
+                        feature.setProperties(attributeList);
+                        map.getOverlays().clear();
+                    });
+                    attributeForm.appendChild(saveAttributes);
+                    this.addOverlay(new ol.Overlay({
+                        element: attributeForm,
+                        position: coord
+                    }));
+                    firstFeature = false;
+                }
+            }
+        }, map, function (layerCandidate) {
+            if (this.selectedLayer !== null && layerCandidate.get('id') === this.selectedLayer.id) {
+                return true;
+            }
+            return false;
+        }, tree);
+    });
+
 
     document.getElementById('checkwmslayer').addEventListener('click', function () {
         tree.checkWmsLayer(this.form);

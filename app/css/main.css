@@ -308,7 +308,7 @@ body {
 .layer .attributes {
     padding: 1px 1px;
 }
-/*.popup {
+.popup {
     border: 1px solid grey;
     background-color: rgba(255,255,255,1);
     border-radius: .5em;
@@ -337,7 +337,7 @@ body {
 }
 .popup .save {
     background-image: url(../res/button_save.png);
-}*/
+}
 .toggleable {
     position: fixed;
     background-color: rgba(0,0,0,.5);
@@ -369,7 +369,7 @@ body {
 }
 .mainwindow .map {
     width: 100%;
-	height: calc(100% - 1.5em);
+	height: calc(100% - 3em);
     overflow: hidden;
     position: relative;
     background: url("../res/map-background.jpg") repeat;
@@ -393,6 +393,10 @@ body {
 }
 .notification-bar .tile {
     width: 30%;
+}
+.mainwindow .message-bar {
+    width: 100%;
+    height: 1.5em;
 }
 .ol-attribution ul {
     font-size: 1em;
