@@ -476,8 +476,10 @@ var layerTree = function (options) {
             var _this = this;
 
             var layerDiv = document.createElement('div');
-            layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
+            // layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
+            layerDiv.className = 'layer ol-unselectable';
             layerDiv.title = layer.get('name') || 'Unnamed Layer';
+
             layerDiv.id = layer.get('id');
             layerDiv.draggable = true;
             layerDiv.addEventListener('dragstart', function (evt) {
@@ -516,27 +518,6 @@ var layerTree = function (options) {
 
             this.addSelectEvent(layerDiv);
 
-            var layerSpan = document.createElement('span');
-            layerSpan.textContent = layerDiv.title;
-            layerSpan.addEventListener('dblclick', function () {
-                this.contentEditable = true;
-                layerDiv.draggable = false;
-                layerDiv.classList.remove('ol-unselectable');
-                this.focus();
-            });
-            layerSpan.addEventListener('blur', function () {
-                if (this.contentEditable) {
-                    this.contentEditable = false;
-                    layerDiv.draggable = true;
-                    layer.set('name', this.textContent);
-                    layerDiv.classList.add('ol-unselectable');
-                    layerDiv.title = this.textContent;
-                    this.scrollTo(0, 0);
-                }
-            });
-
-            layerDiv.appendChild(this.addSelectEvent(layerSpan, true));
-
             var visibleBox = document.createElement('input');
             visibleBox.type = 'checkbox';
             visibleBox.className = 'visible';
@@ -548,8 +529,32 @@ var layerTree = function (options) {
                     layer.setVisible(false);
                 }
             });
-
             layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
+
+            var layerTitle = document.createElement('span');
+            layerTitle.textContent = layerDiv.title;
+            layerTitle.addEventListener('dblclick', function () {
+                this.contentEditable = true;
+                layerDiv.draggable = false;
+                layerDiv.classList.remove('ol-unselectable');
+                this.focus();
+            });
+            layerTitle.addEventListener('blur', function () {
+                if (this.contentEditable) {
+                    this.contentEditable = false;
+                    layerDiv.draggable = true;
+                    layer.set('name', this.textContent);
+                    layerDiv.classList.add('ol-unselectable');
+                    layerDiv.title = this.textContent;
+                    this.scrollTo(0, 0);
+                }
+            });
+            layerDiv.appendChild(this.addSelectEvent(layerTitle, true));
+
+            var layerBuffer = document.createElement('span');
+            layerBuffer.textContent = '';
+            layerBuffer.className = layer.get('id') + ' buffering';
+            layerDiv.appendChild(layerBuffer);
 
             var layerControls = document.createElement('div');
             this.addSelectEvent(layerControls, true);
@@ -676,17 +681,17 @@ layerTree.prototype.createButton = function (elemName, elemTitle, elemType, laye
 layerTree.prototype.addBufferIcon = function (layer) {
     layer.getSource().on('change', function (evt) {
         var layerElem = document.getElementById(layer.get('id'));
-        switch (evt.target.getState()) {
-            case 'ready':
+        var layerSpan = layerElem.getElementsByClassName('buffering')[0];
+        if (evt.target.getState() === 'ready') {
+            layer.getSource().set('pendingRequests', layer.getSource().get('pendingRequests') - 1);
+            layerSpan.textContent = '(' + layer.getSource().get('pendingRequests') + ')';
+            if (layer.getSource().get('pendingRequests') === 0) {
                 layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
+                layerSpan.textContent = '';
                 layer.buildHeaders();
-                break;
-            case 'error':
+            } else {
                 layerElem.classList.add('error');
-                break;
-            default:
-                layerElem.classList.add('buffering');
-                break;
+            }
         }
     });
 };
@@ -814,6 +819,18 @@ layerTree.prototype.addWfsLayer = function (form) {
     var serverUrl = /\?/.test(url) ? url + '&' : url + '?';
     // var serverUrl = url;
 
+    var pendingRequests = 0;
+    var layer = new ol.layer.Vector({
+    	// title: 'WFS-T',
+    	// type: 'vector',
+    	source: new ol.source.Vector(),
+        name: form.displayname.value
+    });
+
+    this.map.addLayer(layer);
+    var layerElem = document.getElementById(layer.get('id'));
+    // var layerSpan = document.getElementById('buffering');
+    var layerSpan = layerElem.getElementsByClassName('buffering')[0];
     var source = new ol.source.Vector({
         // url: proxyUrl + 'url=' + encodeURIComponent(serverUrl + buildQueryString({typeName: typeName})),
         // format: parserformat,
@@ -831,6 +848,12 @@ layerTree.prototype.addWfsLayer = function (form) {
                         dataProjection: proj,
                         featureProjection: mapProj.getCode()
                     }));
+                } else if (request.readyState === 1) {
+                    source.set('pendingRequests', source.get('pendingRequests') + 1);
+                    layerSpan.textContent = '(' + source.get('pendingRequests') + ')';
+                    layerElem.classList.add('buffering');
+                } else if (request.readyState === 0) {
+                    console.log('0: Request Not Initialized');
                 }
             };
             var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
@@ -840,16 +863,9 @@ layerTree.prototype.addWfsLayer = function (form) {
         strategy: ol.loadingstrategy.bbox
         // strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
     });
-
-    var layer = new ol.layer.Vector({
-    	// title: 'WFS-T',
-    	// type: 'vector',
-    	source: source,
-        name: form.displayname.value
-    });
-
+    source.set('pendingRequests', 0);
+    layer.setSource(source);
     this.addBufferIcon(layer);
-    this.map.addLayer(layer);
     this.messages.textContent = 'WFS layer added successfully.';
     return this;
 };

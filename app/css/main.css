@@ -297,10 +297,17 @@ body {
 .layer.over {
     border-top: 3px solid black;
 }
+.layer span {
+    position: absolute;
+    float: left;
+    left: calc(100% - 2em);
+    max-width: 2em;
+}
 .layer span:first-of-type {
     position: absolute;
+    float: left;
     left: 1.5em;
-    max-width: calc(100% - 1.5em);
+    max-width: calc(100% - 4em);
     white-space: pre;
     overflow-x: hidden;
     text-overflow: ellipsis;
@@ -357,7 +364,7 @@ body {
     min-width: 11.5em;
     max-width: 11.5em;
 }
-.buffering span::after {
+.buffering span:first-of-type::after {
 	content: '*';
 }
 .error {
