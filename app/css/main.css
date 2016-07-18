@@ -218,7 +218,7 @@ body {
     border: 1px solid grey;
     border-bottom: none;
 }
-.layertree,.toolbar .ol-unselectable {
+.layertree .ol-unselectable,.toolbar .ol-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
