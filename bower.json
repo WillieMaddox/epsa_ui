@@ -1,0 +1,29 @@
+{
+  "name": "epsa_ui",
+  "homepage": "https://github.com/WillieMaddox/epsa_ui",
+  "private": true,
+  "authors": [
+    "WillieMaddox <willie.maddox@gmail.com>"
+  ],
+  "description": "gis frontend",
+  "main": "app/main/main.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "app/bower_components",
+    "app/libs",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ogc-schemas": "^2.6.1",
+    "jsonix": "^2.4.1",
+    "requirejs": "^2.2.0",
+    "jquery": "^3.1.0",
+    "w3c-schemas": "^1.4.0"
+  },
+  "install": {
+    "path": "app/libs"
+  }
+}

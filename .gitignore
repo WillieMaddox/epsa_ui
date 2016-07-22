@@ -1,2 +1,12 @@
 *~
 *.log
+.idea/epsa_ui.iml
+.idea/jsLibraryMappings.xml
+.idea/modules.xml
+.idea/typescript-compiler.xml
+.idea/vagrant.xml
+.idea/vcs.xml
+.idea/workspace.xml
+Would skip repository app/gitmodules/
+app/bower_components
+node_modules/
