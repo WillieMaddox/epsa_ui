@@ -3,18 +3,18 @@
     <head>
         <meta charset="utf-8">
         <title>EPSA Practice Template</title>
-        <!--<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>-->
-        <script type="text/javascript" src="js/jquery-3.0.0.js"></script>
-        <script type="text/javascript" src="js/ol3-3.16.0/ol-debug.js"></script>
-        <script type="text/javascript" src="gitmodules/noUiSlider/distribute/nouislider.js"></script>
-        <script type="text/javascript" src="gitmodules/shapefile-js/dist/shp.js"></script>
+        <!--<script type="text/javascript" src="js/jquery-3.1.0.js"></script>-->
+        <!--<script type="text/javascript" src="js/ol3-3.16.0/ol-debug.js"></script>-->
+        <!--<script type="text/javascript" src="gitmodules/noUiSlider/distribute/nouislider.js"></script>-->
+        <!--<script type="text/javascript" src="gitmodules/shapefile-js/dist/shp.js"></script>-->
         <script type="text/javascript" src="js/jsts-0.17.0/javascript.util.min.js"></script>
         <script type="text/javascript" src="js/jsts-0.17.0/jsts.min.js"></script>
-        <script type="text/javascript" src="scripts/rcolor.js"></script>
-        <link rel="stylesheet" href="js/ol3-3.16.0/ol.css" type="text/css">
+        <!--<link rel="stylesheet" href="js/ol3-3.16.0/ol.css" type="text/css">-->
         <link rel="stylesheet" href="gitmodules/noUiSlider/distribute/nouislider.css" type="text/css">
-        <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet" href="css/ol3-layerswitcher.css">
+        <link rel="stylesheet" href="js/ol3-layerswitcher/ol3-layerswitcher.css">
+        <link rel="stylesheet" href="main/main.css">
+        <!--<script src="js/ol3-layerswitcher/ol3-layerswitcher.js"></script>-->
+
     </head>
     <body>
         <div class="map-container">
@@ -98,20 +98,23 @@
                 <table>
                     <tr>
                         <td>Server URL:</td>
-                        <td><input name="server" type="text" required="required" value="http://demo.opengeo.org/geoserver/wfs"></td>
+                        <!--<td><input             name="server" type="text" required="required" value="http://demo.opengeo.org/geoserver/wfs"></td>-->
+                        <td><input id="wfsurl" name="server" type="text" required="required" value="http://demo.opengeo.org/geoserver/wfs"></td>
+                        <td><input id="checkwfslayer" name="check" type="button" value="Check for layers"></td>
                     </tr>
                     <tr>
                         <td>Layer name:</td>
-                        <td><input name="layer" type="text" required="required" value="osm:water_areas"></td>
+                        <td><select name="layer" required="required"></select></td>
+                        <!--<td><input name="layer" type="text" required="required" value="osm:water_areas"></td>-->
                     </tr>
                     <tr>
                         <td>Display name:</td>
                         <td><input name="displayname" type="text"></td>
                     </tr>
-                    <tr>
-                        <td>Projection:</td>
-                        <td><input name="projection" type="text" value="EPSG:3857"></td>
-                    </tr>
+                    <!--<tr>-->
+                        <!--<td>Projection:</td>-->
+                        <!--<td><input name="projection" type="text" value="EPSG:3857"></td>-->
+                    <!--</tr>-->
                     <tr>
                         <td><input type="submit" value="Add layer"></td>
                         <td><input type="button" value="Cancel" onclick="this.form.parentNode.style.display = 'none'"></td>
@@ -119,31 +122,8 @@
                 </table>
             </form>
         </div>
-        <!--<div id="newvector" class="toggleable" style="display: none;">-->
-            <!--<form id="newvector_form" class="addlayer">-->
-                <!--<p>New Vector layer</p>-->
-                <!--<table>-->
-                    <!--<tr>-->
-                        <!--<td>Display name:</td>-->
-                        <!--<td><input name="displayname" type="text"></td>-->
-                    <!--</tr>-->
-                    <!--<tr>-->
-                        <!--<td>Type:</td>-->
-                        <!--<td><select name="type" required="required">-->
-                            <!--<option value="point">Point</option>-->
-                            <!--<option value="line">Line</option>-->
-                            <!--<option value="polygon">Polygon</option>-->
-                            <!--<option value="geomcollection">Geometry Collection</option>-->
-                        <!--</select></td>-->
-                    <!--</tr>-->
-                    <!--<tr>-->
-                        <!--<td><input type="submit" value="Add layer"></td>-->
-                        <!--<td><input type="button" value="Cancel" onclick="this.form.parentNode.style.display = 'none'"></td>-->
-                    <!--</tr>-->
-                <!--</table>-->
-            <!--</form>-->
-        <!--</div>-->
-        <script src="scripts/ol3-layerswitcher.js"></script>
-        <script src="scripts/main.js"></script>
+        <!--<script>alert();</script>-->
+        <!--<script src="scripts/main.js"></script>-->
     </body>
+    <script data-main="main/config" src="bower_components/requirejs/require.js"></script>
 </html>
