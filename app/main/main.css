@@ -1,3 +1,7 @@
+@import url("../js/ol3-3.16.0/ol.css");
+@import url("../gitmodules/noUiSlider/distribute/nouislider.css");
+@import url("../js/ol3-layerswitcher/ol3-layerswitcher.css");
+
 body {
     margin: 0px;
 }
@@ -55,16 +59,16 @@ body {
     background-color: rgba(0,0,0,.2);
 }
 .ol-addpoint button {
-    background-image: url(../res/button_addpoint.png);
+    background-image: url(../img/button_addpoint.png);
 }
 .ol-addline button {
-    background-image: url(../res/button_addline.png);
+    background-image: url(../img/button_addline.png);
 }
 .ol-addpolygon button {
-    background-image: url(../res/button_addpolygon.png);
+    background-image: url(../img/button_addpolygon.png);
 }
 .toolbar .ol-addaor button {
-    background-image: url(../res/aor_temp.png);
+    background-image: url(../img/aor_temp.png);
 }
 .toolbar .ol-addaor button:hover {
     background-color: rgba(0, 0, 0, 0.5);
@@ -76,7 +80,7 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
 }
 .toolbar .ol-addbuilding button {
-    background-image: url(../res/building_temp.png);
+    background-image: url(../img/building_temp.png);
 }
 .toolbar .ol-addbuilding button:hover {
     background-color: rgba(128, 128, 128, 0.5);
@@ -88,7 +92,7 @@ body {
     background-color: rgba(128, 128, 128, 0.5);
 }
 .toolbar .ol-addherbage button {
-    background-image: url(../res/herbage2_temp.png);
+    background-image: url(../img/herbage2_temp.png);
 }
 .toolbar .ol-addherbage button:hover {
     background-color: rgba(0, 200, 0, 0.5);
@@ -100,7 +104,7 @@ body {
     background-color: rgba(0, 200, 0, 0.5);
 }
 .toolbar .ol-addwater button {
-    background-image: url(../res/water_temp.png);
+    background-image: url(../img/water_temp.png);
 }
 .toolbar .ol-addwater button:hover {
     background-color: rgba(0, 0, 200, 0.5);
@@ -112,7 +116,7 @@ body {
     background-color: rgba(0, 0, 200, 0.5);
 }
 .toolbar .ol-addwall button {
-    background-image: url(../res/wall_temp.png);
+    background-image: url(../img/wall_temp.png);
 }
 .toolbar .ol-addwall button:hover {
     background-color: rgba(64, 64, 64, 0.5);
@@ -124,7 +128,7 @@ body {
     background-color: rgba(64, 64, 64, 0.5);
 }
 .toolbar .ol-addroad button {
-    background-image: url(../res/road2_temp.png);
+    background-image: url(../img/road2_temp.png);
 }
 .toolbar .ol-addroad button:hover {
     background-color: rgba(192, 51, 52, 0.5);
@@ -136,7 +140,7 @@ body {
     background-color: rgba(192, 51, 52, 0.5);
 }
 .toolbar .ol-addcamera button {
-    background-image: url(../res/camera-normal.png);
+    background-image: url(../img/camera-normal.png);
 }
 .toolbar .ol-addcamera button:hover {
     background-color: rgba(116, 64, 109, 0.5);
@@ -148,10 +152,10 @@ body {
     background-color: rgba(116, 64, 109, 0.5);
 }
 .toolbar .draw-radio button {
-    background-image: url(../res/radio-normal.png);
+    background-image: url(../img/radio-normal.png);
 }
 .toolbar .ol-measure button {
-    background-image: url(../res/button_measure.png);
+    background-image: url(../img/button_measure.png);
 }
 .sidebar .featureeditor {
     position: relative;
@@ -253,19 +257,19 @@ body {
     background-color: rgba(0,0,0,1);
 }
 .layertree-buttons .addwms {
-    background-image: url(../res/button_wms.png);
+    background-image: url(../img/button_wms.png);
 }
 .layertree-buttons .addwfs {
-    background-image: url(../res/button_wfs.png);
+    background-image: url(../img/button_wfs.png);
 }
 .layertree-buttons .addvector {
-    background-image: url(../res/button_vector.png);
+    background-image: url(../img/button_vector.png);
 }
 .layertree-buttons .deletelayer {
-    background-image: url(../res/button_delete.png);
+    background-image: url(../img/button_delete.png);
 }
 .layertree-buttons .newvector {
-    background-image: url(../res/button_newvector.png);
+    background-image: url(../img/button_newvector.png);
 }
 .layertree .layercontainer {
     position: relative;
@@ -340,10 +344,10 @@ body {
     font-weight: 700;
 }
 .popup .delete {
-    background-image: url(../res/button_delete.png);
+    background-image: url(../img/button_delete.png);
 }
 .popup .save {
-    background-image: url(../res/button_save.png);
+    background-image: url(../img/button_save.png);
 }
 .toggleable {
     position: fixed;
@@ -379,7 +383,7 @@ body {
 	height: calc(100% - 3em);
     overflow: hidden;
     position: relative;
-    background: url("../res/map-background.jpg") repeat;
+    background: url("../img/map-background.jpg") repeat;
 }
 .mainwindow .notification-bar {
     width: 100%;
