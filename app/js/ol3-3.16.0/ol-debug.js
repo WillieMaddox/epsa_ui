@@ -45370,7 +45370,7 @@ ol.interaction.DragZoom.prototype.onBoxEnd = function() {
       view.getResolutionForExtent(extent, size));
 
   var currentResolution = view.getResolution();
-  goog.asserts.assert(currentResolution !== undefined, 'res should be defined');
+  goog.asserts.assert(currentResolution !== undefined, 'img should be defined');
 
   var currentCenter = view.getCenter();
   goog.asserts.assert(currentCenter !== undefined, 'center should be defined');
@@ -70315,7 +70315,7 @@ ol.control.ZoomSlider.prototype.handleDraggerEnd_ = function(event) {
 /**
  * Positions the thumb inside its container according to the given resolution.
  *
- * @param {number} res The res.
+ * @param {number} res The img.
  * @private
  */
 ol.control.ZoomSlider.prototype.setThumbPosition_ = function(res) {
