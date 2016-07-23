@@ -29,6 +29,7 @@ require.config({
         domReady: "js/domReady",
         wfs110context: "main/WFS110Context",
         wfs200context: "main/WFS200Context",
+        deg2tile: "main/tools/deg2tile",
         main: "main/main"
     },
     shim: {
