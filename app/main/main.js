@@ -3193,13 +3193,13 @@ define(['jquery', 'ol', 'nouislider', 'jsonix', 'XLink_1_0', 'Filter_1_1_0', 'OW
         var view = new ol.View({
             // center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-86.677945, 34.723185], 'EPSG:4326', 'EPSG:3857'),
-            center: ol.proj.transform([-78.977966, 43.057600], 'EPSG:4326', 'EPSG:3857'),
+            center: ol.proj.transform([-78.87532, 42.884600], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-79.049, 43.146], 'EPSG:4326', 'EPSG:3857'),
             // center: [-8238000, 4970700],
             // center: [0, 0],
-            zoom: 11
+            zoom: 17
         });
         view.on('change:resolution', function (evt) {
             var coord0 = evt.target.getCenter();
