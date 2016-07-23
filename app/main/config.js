@@ -27,6 +27,8 @@ require.config({
         // jstsutil: "js/jsts-0.17.0/javascript.util.min",
         layerswitcher: "js/ol3-layerswitcher/ol3-layerswitcher",
         domReady: "js/domReady",
+        wfs110context: "main/WFS110Context",
+        wfs200context: "main/WFS200Context",
         main: "main/main"
     },
     shim: {

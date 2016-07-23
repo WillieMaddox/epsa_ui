@@ -1,7 +1,6 @@
-// define(['jquery', 'ol', 'nouislider', 'jsts', 'jsonix', 'XLink_1_0', 'Filter_2_0', 'OWS_1_1_0', 'WFS_2_0', 'GML_3_1_1', 'SMIL_2_0_Language', 'SMIL_2_0', 'layerswitcher'], function(
-//     $, ol, noUiSlider, jsts, JsonixModule, xlink10Module, filter20Module, ows110Module, wfs20Module, gml311Module, smil20lang, smil20) {
-define(['jquery', 'ol', 'nouislider', 'jsonix', 'XLink_1_0', 'Filter_1_1_0', 'OWS_1_0_0', 'WFS_1_1_0', 'GML_3_1_1', 'SMIL_2_0_Language', 'SMIL_2_0', 'layerswitcher'], function(
-    $, ol, noUiSlider, JsonixModule, xlink10Module, filter110Module, ows100Module, wfs110Module, gml311Module, smil20lang, smil20) {
+
+define(['jquery', 'ol', 'nouislider', 'wfs110context', 'layerswitcher'], function(
+    $, ol, noUiSlider, WFSContext) {
     "use strict";
     String.prototype.capitalizeFirstLetter = function (flip) {
         if (flip) {
@@ -816,32 +815,12 @@ define(['jquery', 'ol', 'nouislider', 'jsonix', 'XLink_1_0', 'Filter_1_1_0', 'OW
         request.onreadystatechange = function () {
             if (request.readyState === 4 && request.status === 200) {
                 try {
-                    var Jsonix = JsonixModule.Jsonix;
-
-                    // var XLink_1_0 = xlink10Module.XLink_1_0;
-                    // var WFS_2_0 = wfs20Module.WFS_2_0;
-                    // var Filter_2_0 = filter20Module.Filter_2_0;
-                    // var OWS_1_1_0 = ows110Module.OWS_1_1_0;
-                    // var mappings = [OWS_1_1_0, XLink_1_0, Filter_2_0, WFS_2_0];
-
-                    var XLink_1_0 = xlink10Module.XLink_1_0;
-                    var WFS_1_1_0 = wfs110Module.WFS_1_1_0;
-                    var Filter_1_1_0 = filter110Module.Filter_1_1_0;
-                    var OWS_1_0_0 = ows100Module.OWS_1_0_0;
-                    var SMIL_2_0_Language = smil20lang.SMIL_2_0_Language;
-                    var SMIL_2_0 = smil20.SMIL_2_0;
-                    var GML_3_1_1 = gml311Module.GML_3_1_1;
-                    var mappings = [SMIL_2_0_Language, SMIL_2_0, GML_3_1_1, XLink_1_0, Filter_1_1_0, OWS_1_0_0, WFS_1_1_0];
-
-                    var context = new Jsonix.Context(mappings);
-
-                    var unmarshaller = context.createUnmarshaller();
+                    var unmarshaller = WFSContext.createUnmarshaller();
                     var capabilities = unmarshaller.unmarshalDocument(request.responseXML).value;
                     var messageText = 'Layers read successfully.';
                     if (capabilities.version !== '1.1.0') {
                         messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
                     }
-
                     var layers = capabilities.featureTypeList.featureType;
                     var nLayers = layers.length;
                     if (nLayers > 0) {
