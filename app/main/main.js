@@ -80,61 +80,28 @@ define(['jquery', 'ol', 'nouislider', 'wfs110context', 'layerswitcher'], functio
      * @returns {Boolean} true||false
      */
     function isPointInPoly(geom, pointcoords) {
-        var geomA = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: geom
-                })
-            )
-        ).geometry;
-        var geomB = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: new ol.geom.Point(pointcoords)
-                })
-            )
-        ).geometry;
+        var geomA = getJSTSgeom(geom);
+        var geomB = getJSTSgeom(new ol.geom.Point(pointcoords));
         return geomB.within(geomA);
     }
 
     function doesPolyCoverHole(geom, holecoords) {
-        var geomA = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: geom
-                })
-            )
-        ).geometry;
-        var geomB = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: new ol.geom.Polygon([holecoords])
-                })
-            )
-        ).geometry;
+        var geomA = getJSTSgeom(geom);
+        var geomB = getJSTSgeom(new ol.geom.Polygon([holecoords]));
         return geomA.covers(geomB);
     }
 
     function isPolyValid(poly) {
-        var geom = new jsts.io.GeoJSONReader().read(
-            new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: poly
-                })
-            )
-        ).geometry;
+        var geom = getJSTSgeom(poly);
         return geom.isValid();
     }
 
     function getJSTSgeom(origGeom) {
-        var geom = new jsts.io.GeoJSONReader().read(
+        return new jsts.io.GeoJSONReader().read(
             new ol.format.GeoJSON().writeFeatureObject(
-                new ol.Feature({
-                    geometry: origGeom
-                })
+                new ol.Feature({ geometry: origGeom })
             )
         ).geometry;
-        return geom;
     }
 
     var fillOpacity = {
