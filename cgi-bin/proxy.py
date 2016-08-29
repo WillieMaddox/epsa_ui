@@ -16,10 +16,12 @@ import urllib2
 import cgi
 import sys, os
 
-ofs = open('proxy.log', 'w')
+ofs = open('log/proxy.log', 'w') # development
+# ofs = open('../log/proxy.log', 'w') # production
 
 ofs.write(os.environ["REQUEST_METHOD"]+'\n')
-ofs.write(os.environ["CONTENT_TYPE"]+'\n')
+if os.environ.has_key("Content-Type"):
+    ofs.write(os.environ["CONTENT_TYPE"])
 ofs.write(os.environ["QUERY_STRING"]+'\n')
 ofs.write('\n')
 method = os.environ["REQUEST_METHOD"]

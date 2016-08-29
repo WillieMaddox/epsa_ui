@@ -22,7 +22,7 @@ define(['jquery', 'ol',
         var oldHeaders = this.get('headers') || {};
         var headers = {};
         var features = this.getSource().getFeatures();
-        var len = features.length
+        var len = features.length;
         for (var i = 0; i < len; i += 1) {
             var attributes = features[i].getProperties();
             for (var j in attributes) {

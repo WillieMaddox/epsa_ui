@@ -7,14 +7,16 @@ define(["jquery", "ol",
     "exists",
     "shp",
     'wfs110context',
-    "ttemplate"
+    "ttemplate",
+    "serversettings"
 ], function (
     $, ol,
     noUiSlider,
     exists,
     shp,
     WFSContext,
-    tobjectTemplates) {
+    tobjectTemplates,
+    settings) {
 
     var layerTree = function (options) {
         'use strict';
@@ -355,9 +357,9 @@ define(["jquery", "ol",
             }
         };
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-        var proxyUrl = "http://www.firefly.com:8050/cgi-bin/proxy.py?";
+        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
-        var url = proxyUrl + serverUrl + query;
+        var url = settings.proxyUrl + serverUrl + query;
         console.log(url);
         request.open('GET', url, true);
         request.send();
@@ -425,9 +427,9 @@ define(["jquery", "ol",
             }
         };
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-        var proxyUrl = "http://www.firefly.com:8050/cgi-bin/proxy.py?";
+        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
-        var url = proxyUrl + serverUrl + query;
+        var url = settings.proxyUrl + serverUrl + query;
         console.log(url);
         request.open('GET', url, true);
         request.send();
@@ -457,7 +459,7 @@ define(["jquery", "ol",
         console.log(proj);
         var parserformat = new ol.format.WFS();
 
-        var proxyUrl = "http://www.firefly.com:8050/cgi-bin/proxy.py?";
+        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var serverUrl = form.server.value;
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
@@ -473,11 +475,11 @@ define(["jquery", "ol",
         this.map.addLayer(layer);
         var layerElem = document.getElementById(layer.get('id'));
         var source = new ol.source.Vector({
-            // url: proxyUrl + 'url=' + encodeURIComponent(serverUrl + buildQueryString({typeName: typeName})),
+            // url: settings.proxyUrl + 'url=' + encodeURIComponent(serverUrl + buildQueryString({typeName: typeName})),
             // format: parserformat,
             // url: function(extent, img, proj) {
             //     var query = buildQueryString({typeName: typeName, proj: proj.getCode(), extent: extent});
-            //     return proxyUrl + serverUrl + query;
+            //     return settings.proxyUrl + serverUrl + query;
             // },
             loader: function (extent, res, mapProj) {
                 // proj = proj || mapProj.getCode();
@@ -498,7 +500,7 @@ define(["jquery", "ol",
                     }
                 };
                 var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
-                request.open('GET', proxyUrl + serverUrl + query);
+                request.open('GET', settings.proxyUrl + serverUrl + query);
                 request.send();
             },
             strategy: ol.loadingstrategy.bbox

@@ -3,11 +3,14 @@
  */
 
 require.config({
-    baseUrl: "../app",
+    baseUrl: "../app",  // development
+    // baseUrl: "/",  // production
     // urlArgs: "bust=" + (new Date()).getTime(),
     // deps: ['main/main'],
     // waitSeconds: 10,
     paths: {
+        serversettings: "main/settings.dev",  // development
+        // serversettings: "main/settings.prod",  // production
         jquery: 'bower_components/jquery/dist/jquery.min',
         jsonix: 'bower_components/jsonix/dist/Jsonix-all',
         WFS_2_0: "bower_components/ogc-schemas/scripts/lib/WFS_2_0",
@@ -23,8 +26,6 @@ require.config({
         nouislider: "gitmodules/noUiSlider/distribute/nouislider",
         shp: "gitmodules/shapefile-js/dist/shp",
         ol: "js/ol3-3.16.0/ol-debug",
-        // jsts: "js/jsts-0.17.0/jsts.min",
-        // jstsutil: "js/jsts-0.17.0/javascript.util.min",
         exists: "main/utils/exists",
         layerswitcher: "js/ol3-layerswitcher/ol3-layerswitcher",
         domReady: "js/domReady",
