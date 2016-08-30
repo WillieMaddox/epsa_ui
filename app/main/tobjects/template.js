@@ -15,32 +15,27 @@ define([
     var tobjectTemplates = {
         aor: {
             geometry_type: 'Polygon',
-            properties: { }
+            properties: {}
         },
         building: {
             geometry_type: 'Polygon',
             properties: {
-                subtype: ['metal', 'glass'],
                 height: 10
             }
         },
         herbage: {
             geometry_type: 'Polygon',
             properties: {
-                subtype: ['dense', 'sparse'],
                 height: 10
             }
         },
         water: {
             geometry_type: 'Polygon',
-            properties: {
-                subtype: ['warm', 'cool', 'frozen']
-            }
+            properties: {}
         },
         wall: {
             geometry_type: 'LineString',
             properties: {
-                subtype: ['metal', 'stone'],
                 height: 10,
                 thickness: 10
             }
@@ -48,7 +43,6 @@ define([
         road: {
             geometry_type: 'LineString',
             properties: {
-                subtype: ['cement', 'gravel', 'dirt'],
                 thickness: 10
             }
         },

@@ -171,17 +171,17 @@ define(['jquery', 'ol',
         rowElem.appendChild(featureType);
         form.appendChild(rowElem);
 
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Sub Type: ';
-        rowElem.appendChild(attributeSpan);
-        var subType = document.createElement('select');
-        subType.className = 'form-value';
-        subType.id = "sub-type";
-        rowElem.appendChild(subType);
-        form.appendChild(rowElem);
+        // var rowElem = document.createElement('div');
+        // rowElem.className = 'form-row';
+        // var attributeSpan = document.createElement('div');
+        // attributeSpan.className = 'form-label';
+        // attributeSpan.textContent = 'Sub Type: ';
+        // rowElem.appendChild(attributeSpan);
+        // var subType = document.createElement('select');
+        // subType.className = 'form-value';
+        // subType.id = "sub-type";
+        // rowElem.appendChild(subType);
+        // form.appendChild(rowElem);
 
         var rowElem = document.createElement('div');
         rowElem.className = 'form-row';
@@ -941,17 +941,6 @@ define(['jquery', 'ol',
         document.getElementById('feature-type').value = feature_type;
 
         var feature_properties = tobjectTemplates[feature_type];
-        if (feature_properties['subtype']) {
-            feature_properties['subtype'].forEach(function (sub_type) {
-                document.getElementById('sub-type').appendChild(this.createOption(sub_type));
-            }, this);
-            if (feature.get('subtype')) {
-                document.getElementById('sub-type').value = feature.get('subtype');
-            }
-            document.getElementById('sub-type').disabled = false;
-        } else {
-            document.getElementById('sub-type').disabled = true;
-        }
 
         var heightinput = document.getElementById('height-input');
         var heightslider = document.getElementById('height-slider');
@@ -1011,17 +1000,6 @@ define(['jquery', 'ol',
 
         document.getElementById('feature-type').value = feature_type;
 
-        var sub_type = document.getElementById('sub-type');
-        this.removeContent(sub_type);
-        if (feature_properties['subtype']) {
-            feature_properties['subtype'].forEach(function (st) {
-                sub_type.appendChild(this.createOption(st));
-            }, this);
-            sub_type.disabled = false;
-        } else {
-            sub_type.disabled = true;
-        }
-
         var heightinput = document.getElementById('height-input');
         var heightslider = document.getElementById('height-slider');
 
@@ -1068,12 +1046,6 @@ define(['jquery', 'ol',
             feature.set('type', feature_type.value);
         }
         this.removeContent(feature_type);
-
-        var subtype = document.getElementById('sub-type');
-        if (feature.get('subtype')) {
-            feature.set('subtype', subtype.value);
-        }
-        this.removeContent(subtype);
 
         var heightinput = document.getElementById('height-input');
         if (feature.get('height')) {
