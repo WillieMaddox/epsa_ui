@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "layertag": "tobject",
+  "layertag": "geomcollection",
   "crs": {
     "type": "name",
     "properties": {
@@ -161,12 +161,10 @@
     {
       "type": "Feature",
       "properties": {
-        "type": "building",
-        "name": "Building-4",
-        "height": 20.0,
-        "subtype": "metal"
+        "type": "generic",
+        "name": "generic-1"
       },
-      "id": "building-4",
+      "id": "generic-1",
       "geometry": {
         "type": "Polygon",
         "coordinates": [
@@ -378,13 +376,10 @@
     {
       "type": "Feature",
       "properties": {
-        "type": "wall",
-        "name": "Wall-2",
-        "height": 20.0,
-        "thickness": 5.0,
-        "subtype": "metal"
+        "type": "generic",
+        "name": "generic-2"
       },
-      "id": "wall-2",
+      "id": "generic-2",
       "geometry": {
         "type": "LineString",
         "coordinates": [
