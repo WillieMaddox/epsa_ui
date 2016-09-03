@@ -1,6 +1,6 @@
 {
     "type": "FeatureCollection",
-    "layertag": "aor",
+    "layertag": "polygon",
     "crs": {
         "type": "name",
         "properties": {

@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "layertag": "building",
+  "layertag": "polygon",
   "crs": {
     "type": "name",
     "properties": {

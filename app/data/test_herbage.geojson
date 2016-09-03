@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "layertag": "herbage",
+  "layertag": "polygon",
   "crs": {
     "type": "name",
     "properties": {

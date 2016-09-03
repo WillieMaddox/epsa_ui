@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "layertag": "wall",
+  "layertag": "line",
   "crs": {
     "type": "name",
     "properties": {

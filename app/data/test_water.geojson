@@ -1,6 +1,6 @@
 {
   "type": "FeatureCollection",
-  "layertag": "water",
+  "layertag": "polygon",
   "crs": {
     "type": "name",
     "properties": {
