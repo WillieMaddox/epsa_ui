@@ -911,6 +911,7 @@ define(['jquery', 'ol',
         document.getElementById('feature-name').value = feature.get('name');
         document.getElementById('feature-name').disabled = false;
 
+
         document.getElementById('add-hole').disabled = true;
         document.getElementById('delete-hole').disabled = true;
         if (feature.getGeometry().getType().endsWith('Polygon')) {
@@ -925,6 +926,7 @@ define(['jquery', 'ol',
                 document.getElementById('delete-hole').disabled = false;
             }
         }
+
 
         for (var key in tobjectTemplates) {
             if (feature.getGeometry().getType().endsWith(tobjectTemplates[key]["geometry_type"])) {
@@ -1098,13 +1100,18 @@ define(['jquery', 'ol',
             };
             return function (feature, resolution) {
                 var color;
+                var opacity;
 
                 if (exists(feature.get('type')) && tobjectTemplates.hasOwnProperty(feature.get('type'))) {
                     color = tobjectTemplates[feature.get('type')].color;
                 } else {
                     color = [255, 0, 0];
                 }
-                var opacity = (tobjectTemplates[feature.get('type')].fillopacity || 0.1);
+                if (exists(feature.get('type')) && tobjectTemplates.hasOwnProperty(feature.get('type'))) {
+                    opacity = tobjectTemplates[feature.get('type')].fillopacity;
+                } else {
+                    opacity = 0.1;
+                }
                 var text = resolution < 50000 ? feature.get('name') : '';
                 if (!highlightStyleCache[text]) {
                     highlightStyleCache[text] = setStyle(color, opacity, text);

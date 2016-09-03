@@ -3,8 +3,7 @@
  */
 
 define([], function () {
-
-    var tobjectColor = {
+    return {
         aor: [0, 0, 0],
         building: [128, 128, 128],
         herbage: [0, 200, 0],
@@ -13,10 +12,9 @@ define([], function () {
         road: [192, 51, 52],
         polygon: [218, 188, 163],
         point: [218, 188, 163],
-        line: [218, 188, 163]
+        line: [218, 188, 163],
+        generic: [218, 188, 163]
     };
-
-    return tobjectColor;
 });
 
 

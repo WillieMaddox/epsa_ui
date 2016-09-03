@@ -238,42 +238,24 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             });
             if (layer instanceof ol.layer.Vector) { // feature layer.
 
-                console.log('*****************');
-                console.log(layer.get('type'));
                 layertree.identifyLayer(layer);
                 var layerType = layer.get('type');
-                console.log(layerType);
 
-                // TODO: Fix these next 20 lines.
-                if (layerType === 'aor') {
-                    drawAOR.setDisabled(false);
+                if (layerType === 'point' || layerType === 'geomcollection') {
+                    drawPoint.setDisabled(false);
+                    drawCamera.setDisabled(false);
                 }
-                if (layerType === 'wall') {
+                if (layerType === 'line' || layerType === 'geomcollection') {
+                    drawLineString.setDisabled(false);
                     drawWall.setDisabled(false);
-                }
-                if (layerType === 'road') {
                     drawRoad.setDisabled(false);
                 }
-                if (layerType === 'water') {
-                    drawWater.setDisabled(false);
-                }
-                if (layerType === 'herbage') {
-                    drawHerbage.setDisabled(false);
-                }
-                if (layerType === 'building') {
-                    drawBuilding.setDisabled(false);
-                }
-                if (layerType === 'point' || layerType === 'generic' || layerType === 'geomcollection') {
-                    drawPoint.setDisabled(false);
-                }
-                if (layerType === 'line' || layerType === 'generic' || layerType === 'geomcollection') {
-                    drawLineString.setDisabled(false);
-                }
-                if (layerType === 'polygon' || layerType === 'generic' || layerType === 'geomcollection') {
+                if (layerType === 'polygon' || layerType === 'geomcollection') {
                     drawPolygon.setDisabled(false);
-                }
-                if (layerType === 'camera') {
-                    drawCamera.setDisabled(false);
+                    drawAOR.setDisabled(false);
+                    drawWater.setDisabled(false);
+                    drawHerbage.setDisabled(false);
+                    drawBuilding.setDisabled(false);
                 }
                 var _this = this;
                 setTimeout(function () {
@@ -287,9 +269,6 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             this.addControl(control)
         }, this);
 
-        // this.addControl(drawAOR).addControl(drawBuilding).addControl(drawHerbage)
-        //     .addControl(drawWater).addControl(drawWall).addControl(drawRoad)
-        //     .addControl(drawPolygon).addControl(drawLine).addControl(drawPoint);
         return this;
     };
     toolBar.prototype.handleEvents = function (interaction, feature_type) {

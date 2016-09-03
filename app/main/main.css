@@ -316,6 +316,11 @@ body {
     overflow-x: hidden;
     text-overflow: ellipsis;
 }
+.layer .slider {
+    position: relative;
+    vertical-align: middle;
+    float: right;
+}
 .layer .attributes {
     padding: 1px 1px;
 }

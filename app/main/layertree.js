@@ -8,6 +8,7 @@ define(["jquery", "ol",
     "shp",
     'wfs110context',
     "ttemplate",
+    "tstylefunction",
     "serversettings"
 ], function (
     $, ol,
@@ -16,6 +17,7 @@ define(["jquery", "ol",
     shp,
     WFSContext,
     tobjectTemplates,
+    tobjectStyleFunction,
     settings) {
 
     var layerTree = function (options) {
@@ -159,11 +161,13 @@ define(["jquery", "ol",
                 this.addSelectEvent(layerControls, true);
 
                 var opacityHandler = document.createElement('input');
+                opacityHandler.className = 'slider';
                 opacityHandler.type = 'range';
                 opacityHandler.min = 0;
                 opacityHandler.max = 1;
                 opacityHandler.step = 0.1;
                 opacityHandler.value = layer.getOpacity();
+
                 opacityHandler.addEventListener('input', function () {
                     layer.setOpacity(this.value);
                 });
@@ -177,11 +181,10 @@ define(["jquery", "ol",
                     layerDiv.draggable = true;
                 });
 
-                layerControls.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
+                // layerControls.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
+                layerDiv.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
 
                 if (layer instanceof ol.layer.Vector) {
-                    layerControls.appendChild(document.createElement('br'));
-
                     var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
                     layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
 
@@ -192,7 +195,6 @@ define(["jquery", "ol",
                     attributeOptions.className = 'attributes';
                     layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
 
-                    layer.set('style', layer.getStyle());
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
                             this.removeContent(attributeOptions);
@@ -210,6 +212,7 @@ define(["jquery", "ol",
 
             this.map.getLayers().on('add', function (evt) {
                 if (evt.element instanceof ol.layer.Vector) {
+
                     if (evt.element.get('type') !== 'overlay') {
                         this.createRegistry(evt.element, true);
                     }
@@ -253,12 +256,7 @@ define(["jquery", "ol",
                 buttonElem.textContent = elemTitle;
                 if (elemTitle === 'Default') {
                     buttonElem.addEventListener('click', function () {
-                        if (tobjectTemplates.hasOwnProperty(layer.get('type'))) {
-                            layer.setStyle(tobjectTemplates[layer.get('type')].styleFunction);
-                        } else {
-                            layer.setStyle(layer.get('style'));
-                        }
-
+                        layer.setStyle(tobjectStyleFunction);
                     });
                 } else {
                     buttonElem.addEventListener('click', function () {
@@ -686,10 +684,8 @@ define(["jquery", "ol",
                         featureProjection: currentProj
                     }));
                 }
-                if (sourceType && Object.keys(tobjectTemplates).indexOf(sourceType) >= 0) {
-                    layer.set('type', sourceType);
-                    layer.setStyle(tobjectTemplates[sourceType].styleFunction);
-                }
+
+
                 // var newgeom;
                 // source.getFeatures().forEach(function (feature) {
                 //     if (feature.getGeometry().getType() === 'MultiPolygon') {
@@ -713,6 +709,7 @@ define(["jquery", "ol",
             var layer = new ol.layer.Vector({
                 source: source,
                 name: form.displayname.value,
+                style: tobjectStyleFunction,
                 updateWhileInteracting: true,
                 updateWhileAnimating: true
             });
@@ -762,20 +759,19 @@ define(["jquery", "ol",
         var select_0 = document.createElement('select');
         select_0.required = "required";
         select_0.name = "type";
-        // TODO: Put this in a loop.
-        select_0.appendChild(this.createOption('building', 'Building Layer'));
-        select_0.appendChild(this.createOption('herbage', 'Herbage Layer'));
-        select_0.appendChild(this.createOption('water', 'Water Layer'));
-        select_0.appendChild(this.createOption('wall', 'Wall Layer'));
-        select_0.appendChild(this.createOption('road', 'Road Layer'));
-        select_0.appendChild(this.createOption('aor', 'AOR Layer'));
+        // select_0.appendChild(this.createOption('building', 'Building Layer'));
+        // select_0.appendChild(this.createOption('herbage', 'Herbage Layer'));
+        // select_0.appendChild(this.createOption('water', 'Water Layer'));
+        // select_0.appendChild(this.createOption('wall', 'Wall Layer'));
+        // select_0.appendChild(this.createOption('road', 'Road Layer'));
+        // select_0.appendChild(this.createOption('aor', 'AOR Layer'));
+        // select_0.appendChild(this.createOption('generic', 'Generic Layer'));
+        // select_0.appendChild(this.createOption('tobject', 'TObject Layer'));
         select_0.appendChild(this.createOption('polygon', 'Polygon Layer'));
         select_0.appendChild(this.createOption('line', 'Line Layer'));
         select_0.appendChild(this.createOption('point', 'Point Layer'));
-        // select_0.appendChild(this.createOption('tobject', 'TObject Layer'));
-        // select_0.appendChild(this.createOption('generic', 'Generic Layer'));
-        // select_0.appendChild(this.createOption('geomcollection', 'GeomCollection Layer'));
-        select_0.appendChild(this.createOption('camera', 'Camera Layer'));
+        select_0.appendChild(this.createOption('geomcollection', 'GeomCollection Layer'));
+        // select_0.appendChild(this.createOption('camera', 'Camera Layer'));
         // select_0.appendChild(this.createOption('radio', 'Radio Layer'));
         td_3.appendChild(select_0);
         tr_1.appendChild(td_3);
@@ -823,9 +819,7 @@ define(["jquery", "ol",
         this.addBufferIcon(layer);
         this.map.addLayer(layer);
         layer.getSource().changed();
-        if (Object.keys(tobjectTemplates).indexOf(type) !== -1) {
-            layer.setStyle(tobjectTemplates[type].styleFunction);
-        }
+        layer.setStyle(tobjectStyleFunction);
         this.messages.textContent = 'New vector layer created successfully.';
         return this;
     };
@@ -868,35 +862,19 @@ define(["jquery", "ol",
     };
     layerTree.prototype.identifyLayer = function (layer) {
 
-        var getSourceCandidate = function (featureType) {
-            for (var ftype in tobjectTemplates) {
-                if (featureType === ftype) {
-                    return ftype;
-                }
-            }
-        };
         if (layer.getSource().getFeatures().length === 0) {
-            return layer;
-        }
-        if (Object.keys(tobjectTemplates).indexOf(layer.get('type')) >= 0) {
             return layer;
         }
         if (['point', 'line', 'polygon', 'geomcollection'].indexOf(layer.get('type')) >= 0) {
             return layer;
         }
 
-        var geomType = null;
+        var geomType;
         var geomTypes = [];
-        var featureTypes = [];
-        var sourceType = null;
-        var geomTypeIsValid = false;
-        var sourceTypeIsValid = false;
         var geomTypeIsVerified = false;
-        var sourceTypeIsVerified = false;
         layer.getSource().forEachFeature(function (feat) {
             if (!(geomTypeIsVerified)) {
                 var geom = feat.getGeometry();
-                var featureType;
                 if (geom.getType().endsWith('Point')) {
                     geomType = 'point';
                 } else if (geom.getType().endsWith('LineString')) {
@@ -910,38 +888,19 @@ define(["jquery", "ol",
                     geomTypes.push(geomType);
                     if (geomType === 'geomcollection' || geomTypes.length >= 2) {
                         geomTypeIsVerified = true;
-                        geomTypeIsValid = true;
                     }
                 }
             }
-            if (!(sourceTypeIsVerified)) {
-                featureType = feat.get('type');
-                if (featureTypes.indexOf(featureType) === -1) {
-                    if (!(featureType)) { // key is completely missing.
-                        sourceTypeIsVerified = true;
-                        sourceTypeIsValid = false;
-                    } else if (!(sourceType)) { // first valid record.
-                        sourceType = getSourceCandidate(featureType);
-                        sourceTypeIsValid = true;
-                    } else if (sourceType !== getSourceCandidate(featureType)) { // different sources.
-                        sourceTypeIsVerified = true;
-                        sourceTypeIsValid = false;
-                    }
-                    featureTypes.push(featureType)
-                }
-            }
-            if (sourceTypeIsVerified && geomTypeIsVerified) {
+            if (geomTypeIsVerified) {
                 return true;
             }
         });
-        if (sourceTypeIsValid) {
-            layer.set('type', sourceType)
-        } else if (geomTypeIsValid) {
+        if (geomTypeIsVerified) {
             layer.set('type', 'geomcollection')
         } else if (geomTypes.length === 1) {
             layer.set('type', geomTypes[0])
         } else {
-            // TODO: return as an error message to the messagebar.
+            this.messages.textContent = 'Error: Unable to Determine Layer Type';
         }
         return layer;
     };
@@ -1003,18 +962,17 @@ define(["jquery", "ol",
         var randomColor;
 
         layer.getSource().forEachFeature(function (feat) {
-            var property = feat.get(attribute).toString();
+            var property = feat.get(attribute) === undefined ? '' : feat.get(attribute).toString();
             if (attributeArray.indexOf(property) === -1) {
                 attributeArray.push(property);
                 do {
                     randomColor = this.randomHexColor();
-                    // randomColor = color.get(true, 0.8);
                 } while (colorArray.indexOf(randomColor) !== -1);
                 colorArray.push(randomColor);
             }
         }, this);
         layer.setStyle(function (feature, res) {
-            var index = attributeArray.indexOf(feature.get(attribute).toString());
+            var index = feature.get(attribute) === undefined ? 0 : attributeArray.indexOf(feature.get(attribute).toString());
             var style = new ol.style.Style({
                 stroke: new ol.style.Stroke({
                     color: [0, 0, 0, 1],

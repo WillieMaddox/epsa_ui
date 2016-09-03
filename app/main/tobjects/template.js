@@ -5,12 +5,10 @@
 
 define([
     'tfillopacity',
-    'tcolor',
-    'tstyle'
+    'tcolor'
 ], function (
     tobjectFillOpacity,
-    tobjectColor,
-    tobjectStyle) {
+    tobjectColor) {
 
     var tobjectTemplates = {
         aor: {
@@ -46,29 +44,18 @@ define([
                 thickness: 10
             }
         },
-        polygon: {
-            geometry_type: 'Polygon',
-            properties: {}
-        },
-        point: {
-            geometry_type: 'Point',
-            properties: {}
-        },
-        line: {
-            geometry_type: 'LineString',
+        generic: {
             properties: {}
         }
     };
 
     for (var template in tobjectTemplates) {
         if (tobjectTemplates.hasOwnProperty(template)) {
-            color = tobjectColor[template];
-            tobjectTemplates[template].color = color;
-            opacity = template === 'aor' ? 0 : tobjectFillOpacity[tobjectTemplates[template].geometry_type];
-            tobjectTemplates[template].fillopacity = opacity;
-            tobjectTemplates[template].styleFunction = tobjectStyle(color, opacity)
+            tobjectTemplates[template].color = tobjectColor[template];
+            tobjectTemplates[template].fillopacity = template === 'aor' ? 0 : 0.1;
         }
     }
 
     return tobjectTemplates;
 });
+
