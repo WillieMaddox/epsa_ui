@@ -4,7 +4,7 @@
 
 define(['ol'], function (ol) {
 
-    var tobjectStyle = function (color, opacity) {
+    return function (color, opacity) {
         var style = new ol.style.Style({
             image: new ol.style.Circle({
                 radius: 5,
@@ -26,7 +26,5 @@ define(['ol'], function (ol) {
         });
         return [style]
     };
-
-    return tobjectStyle;
 
 });

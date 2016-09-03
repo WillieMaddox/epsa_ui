@@ -3,7 +3,7 @@
  */
 
 define([], function () {
-    var fillOpacity = {
+    return {
         'Polygon': 0.1,
         'LineString': 0,
         'Point': 0,
@@ -11,5 +11,4 @@ define([], function () {
         'MultiLineString': 0,
         'MultiPoint': 0
     };
-    return fillOpacity;
 });
