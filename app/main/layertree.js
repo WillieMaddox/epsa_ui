@@ -198,10 +198,14 @@ define(["jquery", "ol",
 
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
+                            var activeAttribute = attributeOptions.value;
                             this.removeContent(attributeOptions);
                             var headers = layer.get('headers');
                             for (var i in headers) {
                                 attributeOptions.appendChild(this.createOption(i));
+                            }
+                            if (activeAttribute) {
+                                attributeOptions.value = activeAttribute;
                             }
                         }
                     }, this);
