@@ -360,8 +360,6 @@ define(['jquery', 'ol',
         return interaction;
     };
 
-
-
     layerInteractor.prototype.createOption = function (optionValue) {
         var option = document.createElement('option');
         option.value = optionValue;

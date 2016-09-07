@@ -162,36 +162,6 @@ define(['jquery', 'ol',
                     ]
                 }),
                 new ol.layer.Group({
-                    title: 'MapQuest',
-                    layers: [
-                        new ol.layer.Tile({
-                            title: 'Labels',
-                            type: 'base',
-                            visible: false,
-                            source: new ol.source.MapQuest({layer: 'osm'})
-                        }),
-                        new ol.layer.Tile({
-                            title: 'Sat',
-                            type: 'base',
-                            visible: false,
-                            source: new ol.source.MapQuest({layer: 'sat'})
-                        }),
-                        new ol.layer.Group({
-                            title: 'Sat + Labels',
-                            type: 'base',
-                            visible: false,
-                            layers: [
-                                new ol.layer.Tile({
-                                    source: new ol.source.MapQuest({layer: 'sat'})
-                                }),
-                                new ol.layer.Tile({
-                                    source: new ol.source.MapQuest({layer: 'hyb'})
-                                })
-                            ]
-                        })
-                    ]
-                }),
-                new ol.layer.Group({
                     title: 'Thunderforest',
                     layers: [
                         new ol.layer.Tile({
