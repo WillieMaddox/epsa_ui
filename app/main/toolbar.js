@@ -241,16 +241,16 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 layertree.identifyLayer(layer);
                 var layerType = layer.get('type');
 
-                if (layerType === 'point' || layerType === 'geomcollection') {
+                if (layerType === 'geomcollection' || layerType === 'point') {
                     drawPoint.setDisabled(false);
                     drawCamera.setDisabled(false);
                 }
-                if (layerType === 'line' || layerType === 'geomcollection') {
+                if (layerType === 'geomcollection' || layerType === 'line') {
                     drawLineString.setDisabled(false);
                     drawWall.setDisabled(false);
                     drawRoad.setDisabled(false);
                 }
-                if (layerType === 'polygon' || layerType === 'geomcollection') {
+                if (layerType === 'geomcollection' || layerType === 'polygon') {
                     drawPolygon.setDisabled(false);
                     drawAOR.setDisabled(false);
                     drawWater.setDisabled(false);

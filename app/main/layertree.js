@@ -212,7 +212,6 @@ define(["jquery", "ol",
 
             this.map.getLayers().on('add', function (evt) {
                 if (evt.element instanceof ol.layer.Vector) {
-
                     if (evt.element.get('type') !== 'overlay') {
                         this.createRegistry(evt.element, true);
                     }

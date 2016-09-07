@@ -25,13 +25,13 @@ define(['jquery', 'ol',
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
+            var _this = this;
             this.map = options.map;
             this.layertree = options.layertree;
             this.toolbar = options.toolbar;
             this.createForm({target: options.target});
             this.wgs84Sphere = new ol.Sphere(6378137);
             this.highlight = undefined;
-            var _this = this;
             this.featureOverlay = this.createFeatureOverlay();
             this.map.addLayer(this.featureOverlay);
             this.hoverDisplay = function (evt) {
@@ -1251,7 +1251,7 @@ define(['jquery', 'ol',
                 selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
                 selectedLayer.getSource().removeFeature(feature);
                 // _this.toolbar.activeFeatures.push(feature);
-
+                console.log('here')
             }
         });
 
@@ -1301,8 +1301,8 @@ define(['jquery', 'ol',
 
                 if (selectedFeatures.getArray().length === 1) {
                     selectedFeature = selectedFeatures.getArray()[0];
-                    console.log('manual deselect:', selectedFeature.get('name'), selectedFeature.getRevision());
                     _this.deactivateForm(selectedFeature);
+                    console.log('manual deselect:', selectedFeature.get('name'), selectedFeature.getRevision());
 
                     // var selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
                     // selectedLayer.getSource().addFeature(feature);
@@ -1310,7 +1310,7 @@ define(['jquery', 'ol',
 
                     selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
                 } else {
-                    console.log('This is unexpected. debug!')
+                    console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
                 }
 
                 // translate.setActive(false);
@@ -1322,12 +1322,12 @@ define(['jquery', 'ol',
                 // translate.setActive(true);
 
                 if (_this.toolbar.addedFeature) {
-                    // _this.featureOverlay.
                     selectedFeatures.push(_this.toolbar.addedFeature);
+                    // selectedFeature = selectedFeatures.getArray()[0];
+                    selectedFeature = _this.toolbar.addedFeature;
 
-                    selectedFeature = selectedFeatures.getArray()[0];
-                    console.log('manual select:    ', selectedFeature.get('name'), selectedFeature.getRevision());
                     _this.activateForm(selectedFeature);
+                    console.log('manual select:  ', selectedFeature.get('name'), selectedFeature.getRevision());
                 } else {
                     console.log('HHHHHHHERREE!!!')
                 }

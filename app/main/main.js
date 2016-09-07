@@ -314,25 +314,6 @@ define(['jquery', 'ol',
         // });
         // map.addLayer(projectGroup);
 
-        // var selectedFeature = null;
-        // var getSelectedFeatureAtPixel = function (pixel) {
-        //     var feature = map.forEachFeatureAtPixel(pixel, function (feature, layer) {
-        //         if (feature.getId() == selectedFeature.getId()) {
-        //             return feature;
-        //         } else {
-        //             return undefined;
-        //         }
-        //     })
-        //     return feature;
-        // };
-        //
-        // var setSelectMousePointer = function (evt) {
-        //     if (evt.dragging) return;
-        //     var pixel = map.getEventPixel(evt.originalEvent);
-        //     var intersectingFeature = getSelectedFeatureAtPixel(pixel);
-        //     setMouseCursor(intersectingFeature)
-        // };
-
         /*********** WFS-T *************/
         // var dirty = {};
         // var formatGML = new ol.format.GML({

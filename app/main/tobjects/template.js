@@ -13,39 +13,44 @@ define([
     var tobjectTemplates = {
         aor: {
             geometry_type: 'Polygon',
-            properties: {}
+            // properties: {}
         },
         building: {
             geometry_type: 'Polygon',
-            properties: {
-                height: 10
-            }
+            height: 10
+            // properties: {
+            //     height: 10
+            // }
         },
         herbage: {
             geometry_type: 'Polygon',
-            properties: {
-                height: 10
-            }
+            height: 10
+            // properties: {
+            //     height: 10
+            // }
         },
         water: {
             geometry_type: 'Polygon',
-            properties: {}
+            // properties: {}
         },
         wall: {
             geometry_type: 'LineString',
-            properties: {
-                height: 10,
-                thickness: 10
-            }
+            height: 10,
+            thickness: 10
+            // properties: {
+            //     height: 10,
+            //     thickness: 10
+            // }
         },
         road: {
             geometry_type: 'LineString',
-            properties: {
-                thickness: 10
-            }
+            thickness: 10
+            // properties: {
+            //     thickness: 10
+            // }
         },
         generic: {
-            properties: {}
+            // properties: {}
         }
     };
 
