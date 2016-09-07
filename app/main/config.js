@@ -36,6 +36,7 @@ require.config({
         toolbar: "main/toolbar",
         featureid: "main/utils/featureid",
         featureinteractor: "main/featureinteractor",
+        layerinteractor: "main/layerinteractor",
         ttemplate: "main/tobjects/template",
         tfillopacity: "main/tobjects/fillopacity",
         tcolor: "main/tobjects/color",

@@ -7,7 +7,8 @@ define(['jquery', 'ol',
     'ttemplate',
     'layertree',
     'toolbar',
-    'layerswitcher'], function ($, ol, noUiSlider, exists, deg2tile, FeatureInteractor, tobjectTemplates, layerTree, toolBar) {
+    'layerinteractor',
+    'layerswitcher'], function ($, ol, noUiSlider, exists, deg2tile, FeatureInteractor, tobjectTemplates, layerTree, toolBar, layerInteractor) {
 
     "use strict";
     String.prototype.capitalizeFirstLetter = function (flip) {
@@ -283,12 +284,12 @@ define(['jquery', 'ol',
 
         var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
 
-        var tools = new toolBar({map: map, target: 'toolbar', layertree: tree});
+        // var tools = new toolBar({map: map, layertree: tree, target: 'toolbar'});
+        // tools.addDrawToolBar();
+        // var interactor = new FeatureInteractor({map: map, layertree: tree, toolbar: tools, target: 'featureeditor'});
 
-        tools.addDrawToolBar();
-
-        var interactor = new FeatureInteractor({map: map, toolbar: tools, layertree: tree, target: 'featureeditor'});
-
+        var interactor = new layerInteractor({map: map, layertree: tree, toolbartarget: 'toolbar', featuretarget: 'featureeditor'});
+        interactor.addDrawToolBar();
 
         // var vector_aor = new ol.layer.Vector({
         //     title: 'AOR',

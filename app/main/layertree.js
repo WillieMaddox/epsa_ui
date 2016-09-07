@@ -70,6 +70,7 @@ define(["jquery", "ol",
 
             this.selectedLayer = null;
             this.selectEventEmitter = new ol.Observable();
+            this.deselectEventEmitter = new ol.Observable();
 
             this.createRegistry = function (layer, buffer) {
                 layer.set('id', 'layer_' + idCounter);
@@ -832,6 +833,7 @@ define(["jquery", "ol",
                 targetNode = targetNode.parentNode;
             }
             if (_this.selectedLayer) {
+                _this.deselectEventEmitter.changed();
                 _this.selectedLayer.classList.remove('active');
             }
             if (_this.selectedLayer !== targetNode) {
