@@ -2,9 +2,43 @@
   <dictionary name="maddoxw">
     <words>
       <w>addcamera</w>
+      <w>addlayer</w>
+      <w>addvector</w>
+      <w>addwfs</w>
+      <w>addwms</w>
+      <w>colorcontrol</w>
+      <w>colorselect</w>
+      <w>controlgroup</w>
+      <w>dblclick</w>
+      <w>deletelayer</w>
+      <w>dragenter</w>
+      <w>dragleave</w>
+      <w>dragover</w>
+      <w>dragstart</w>
+      <w>featureeditor</w>
+      <w>featureproperties</w>
+      <w>geomcollection</w>
+      <w>hovercontrol</w>
+      <w>hoverselect</w>
+      <w>keydown</w>
+      <w>layercontainer</w>
+      <w>layerrow</w>
       <w>layertag</w>
+      <w>layertitle</w>
+      <w>modifyend</w>
+      <w>modifystart</w>
+      <w>mousedown</w>
+      <w>mouseup</w>
+      <w>newvector</w>
+      <w>pointermove</w>
+      <w>selectcontrol</w>
+      <w>selectmenu</w>
+      <w>serversettings</w>
+      <w>splitbutton</w>
+      <w>stylelayer</w>
       <w>tobject</w>
       <w>tobjects</w>
+      <w>unselectable</w>
     </words>
   </dictionary>
 </component>
