@@ -148,7 +148,7 @@ define(["jquery", "ol",
                         layer.set('name', this.textContent);
                         layerDiv.classList.add('ol-unselectable');
                         layerDiv.title = this.textContent;
-                        this.scrollTo(0, 0);
+                        this.scrollLeft = 0;
                     }
                 });
                 layerDiv.appendChild(this.addSelectEvent(layerTitle, true));
