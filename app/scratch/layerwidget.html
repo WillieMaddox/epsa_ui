@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery UI Layer Control</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <style>
+        .layer {
+            width: 400px;
+            border: 0.125em solid;
+            padding: 0.25em;
+        }
+        .layerrow {
+            display: flex;
+            align-items: center;
+        }
+        .visible {
+            box-sizing: border-box;
+            min-height: 2em;
+            min-width: 2em;
+            padding: 0.5em;
+            margin: .25em;
+        }
+        .visible .ui-checkboxradio-icon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+        }
+        .layertitle {
+            box-sizing: border-box;
+            height: 2em;
+            width: calc(60% - 2.1em);
+        }
+        #layertitle {
+            display: inline-block;
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: 1em;
+            box-sizing: border-box;
+            position: relative;
+            float: left;
+            margin: .25em;
+            border: 1px solid #c5c5c5;
+            padding: .5em;
+            height: 2em;
+            width: calc(60% - 2.1em);
+            max-width: 100%;
+            white-space: pre;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            text-overflow: ellipsis;
+        }
+        .ui-corner-all,
+        .ui-corner-left,
+        .ui-corner-right,
+        .ui-corner-top,
+        .ui-corner-bottom
+        {
+            border-radius: 0;
+        }
+        .ui-progressbar {
+            display: inline-block;
+            box-sizing: border-box;
+            position: relative;
+            float: left;
+            margin: .25em;
+            width: calc(60% - 2.1em);
+        }
+        .buffering .ui-progressbar-value {
+            box-sizing: border-box;
+            background-color: #eee;
+            opacity: 0.1;
+            border: 0;
+            height: 2em;
+        }
+        .buffering #layertitle {
+            width: 100%;
+            margin: 0;
+            border: 0;
+        }
+        .opacity {
+            box-sizing: border-box;
+            position: relative;
+            width: calc(40% - 1.4em);
+            margin: 0.5em;
+            height: 0.9em;
+        }
+        .hovercontrol.ui-selectmenu-button.ui-button {
+            box-sizing: border-box;
+            float: left;
+            position: relative;
+            width: 50%;
+            height: 2em;
+            margin: .25em;
+            padding: .5em;
+            text-align: center;
+        }
+        .colorcontrol.ui-selectmenu-button.ui-button {
+            box-sizing: border-box;
+            float: left;
+            position: relative;
+            width: 50%;
+            height: 2em;
+            margin: .25em;
+            padding: .5em;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            var toggleState = false;
+            $("#toggleButton").on("click", function (event) {
+                if (toggleState) {
+                    $("#layertitle").unwrap();
+                    toggleState = false;
+                } else {
+                    var $progressbar = $("<div class='buffering'></div>");
+                    $progressbar.append($("#layertitle"));
+                    $progressbar.progressbar({value: false});
+                    $progressbar.insertBefore($(".opacity"));
+                    toggleState = true;
+                }
+            });
+        });
+        $(function () {
+            $("input").checkboxradio();
+            var $layertitle = $("#layertitle");
+            $layertitle.dblclick(function () {
+                this.contentEditable = true;
+                this.style.textOverflow = 'initial';
+                this.focus();
+            });
+            $layertitle.blur(function () {
+                if (this.contentEditable) {
+                    this.contentEditable = false;
+                    this.style.textOverflow = 'ellipsis';
+                    this.scrollLeft = 0;
+                }
+            });
+            $(".opacity").slider({
+                range: "min",
+                min: 0,
+                max: 100,
+                step: 1,
+                value: 50,
+                animate: true
+            });
+        });
+        $(function () {
+            $(".hoverselect").selectmenu({
+                classes: {
+                    "ui-selectmenu-button": "hovercontrol"
+                },
+                change: function () {
+                    $(".output").append("<li>hover: " + this.value + "</li>");
+                }
+            });
+        });
+        $(function () {
+            $(".colorselect").selectmenu({
+                classes: {
+                    "ui-selectmenu-button": "colorcontrol"
+                },
+                change: function () {
+                    $(".output").append("<li>color: " + this.value + "</li>");
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<button id="toggleButton">Buffering</button>
+<div class="layer">
+    <div class="layerrow">
+        <label for="visible" class="visible"></label>
+        <input type="checkbox" name="visible" id="visible">
+        <div id="layertitle" class="layertitle">Unnamed Layer</div>
+        <div class="opacity"></div>
+    </div>
+    <div class="layerrow">
+        <select class="hoverselect hovercontrol">
+            <option>default</option>
+            <option>osm_id</option>
+            <option>name</option>
+            <option>featuretype</option>
+            <option>height</option>
+        </select>
+        <select class="colorselect colorcontrol">
+            <option>default</option>
+            <option>osm_id</option>
+            <option>name</option>
+            <option>featuretype</option>
+            <option>height</option>
+        </select>
+    </div>
+</div>
+<br>
+<h3>Output:</h3>
+<ul class="output"></ul>
+</body>
+</html>

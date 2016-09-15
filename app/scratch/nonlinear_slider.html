@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery UI Slider - Range slider</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $("#slider").slider({
+                min: 0,
+                max: 100,
+                step: 0.01,
+                value: 50,
+                slide: function (event, ui) {
+                    $("#amount").val(log10Slider(ui.value));
+                }
+            });
+            $("#amount").change(function () {
+                $("#slider").slider("value", invlog10Slider(this.value));
+            });
+
+        });
+        function invlog10Slider(toPresent) {
+            var val = 0;
+            if (toPresent > 0.1) {
+                val = 25.0 * (Math.log10(toPresent) + 1.0);
+            }
+            return val;
+        }
+        function log10Slider(val) {
+            var toPresent = 0;
+            if (val > 0) {
+                toPresent = Math.pow(10, (val / 25 - 1));
+            }
+            return String(toPresent);
+        }
+    </script>
+</head>
+<body>
+<p>
+    <label for="amount">Height:</label>
+    <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;">
+</p>
+
+<div id="slider"></div>
+
+</body>
+</html>
