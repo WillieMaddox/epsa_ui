@@ -11,7 +11,8 @@ require.config({
     paths: {
         serversettings: "main/settings.dev",  // development
         // serversettings: "main/settings.prod",  // production
-        jquery: 'bower_components/jquery/dist/jquery.min',
+        jquery: 'bower_components/jquery/dist/jquery',
+        "jquery-ui": 'bower_components/jquery-ui/jquery-ui',
         jsonix: 'bower_components/jsonix/dist/Jsonix-all',
         WFS_2_0: "bower_components/ogc-schemas/scripts/lib/WFS_2_0",
         WFS_1_1_0: "bower_components/ogc-schemas/scripts/lib/WFS_1_1_0",

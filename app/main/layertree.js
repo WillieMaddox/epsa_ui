@@ -9,16 +9,16 @@ define(["jquery", "ol",
     'wfs110context',
     "ttemplate",
     "tstylefunction",
-    "serversettings"
-], function (
-    $, ol,
-    noUiSlider,
-    exists,
-    shp,
-    WFSContext,
-    tobjectTemplates,
-    tobjectStyleFunction,
-    settings) {
+    "serversettings",
+    "jquery-ui"
+], function ($, ol,
+             noUiSlider,
+             exists,
+             shp,
+             WFSContext,
+             tobjectTemplates,
+             tobjectStyleFunction,
+             settings) {
 
     var layerTree = function (options) {
         'use strict';
@@ -62,156 +62,492 @@ define(["jquery", "ol",
             controlDiv.appendChild(this.createButton('addvector', 'Add Vector Layer', 'addlayer'));
             controlDiv.appendChild(this.createButton('deletelayer', 'Remove Layer', 'deletelayer'));
             containerDiv.appendChild(controlDiv);
-            this.layerContainer = document.createElement('div');
-            this.layerContainer.className = 'layercontainer';
-            containerDiv.appendChild(this.layerContainer);
 
-            var idCounter = 0;
+            // this.layerContainer = document.createElement('div');
+            // this.layerContainer.className = 'layercontainer';
+            this.layerContainer = $("<div class='layercontainer'>");
+            containerDiv.appendChild(this.layerContainer[0]);
 
             this.selectedLayer = null;
             this.selectEventEmitter = new ol.Observable();
             this.deselectEventEmitter = new ol.Observable();
 
+            var _this = this;
+            $(".layercontainer").sortable({
+                axis: "y",
+                // handle: ".layer",
+                items: "> .layer",
+                containment: "parent",
+                opacity: 0.5,
+                // start: function (event, ui) {
+                //     layerid = event.toElement.parentNode.id;
+                // },
+                stop: function (event, ui) {
+                    // IE doesn't register the blur when sorting
+                    // so trigger focusout handlers to remove .ui-state-focus
+                    ui.item.children(".layer").triggerHandler("focusout");
+
+                    // var sourceLayerDiv = event.toElement.parentNode;
+                    // var sourceLayerDiv = ui.item[0];
+                    // console.log(ui.item[0]);
+                    var htmlArray = [].slice.call(_this.layerContainer[0].children);
+                    var index = htmlArray.length - htmlArray.indexOf(ui.item[0]) - 1;
+                    var sourceLayer = _this.getLayerById(ui.item[0].id);
+                    var layers = _this.map.getLayers().getArray();
+                    var group_shift = layers.length - htmlArray.length;
+                    layers.splice(layers.indexOf(sourceLayer), 1);
+                    layers.splice(group_shift + index, 0, sourceLayer);
+                    _this.map.render();
+                    // _this.map.getLayers().changed();
+                }
+            });
+
+            var idCounter = 0;
+
+            var handler = function (event, data) {
+                if (data) {
+                    event.data = data;
+                }
+                if (event.data.selectevent) {
+                    var targetNode = event.target;
+                    if (targetNode.classList.contains("layertitle")) {
+                        targetNode = targetNode.parentNode;
+                    }
+                    if (targetNode.classList.contains("layerrow")) {
+                        targetNode = targetNode.parentNode;
+                    }
+                    if (!(targetNode.classList.contains("layer"))) {
+                        return;
+                    }
+                    if (_this.selectedLayer) {
+                        _this.deselectEventEmitter.changed();
+                        _this.selectedLayer.classList.remove('active');
+                    }
+                    _this.selectedLayer = targetNode;
+                    _this.selectedLayer.classList.add('active');
+                    _this.selectEventEmitter.changed();
+                }
+                if (event.data.stopProp) {
+                    event.stopPropagation();
+                }
+            };
+
             this.createRegistry = function (layer, buffer) {
                 layer.set('id', 'layer_' + idCounter);
                 idCounter += 1;
+                var mouseDownFired = false;
                 var _this = this;
 
-                var layerDiv = document.createElement('div');
-                // layerDiv.className = buffer ? 'layer ol-unselectable buffering' : 'layer ol-unselectable';
-                layerDiv.className = 'layer ol-unselectable';
-                layerDiv.title = layer.get('name') || 'Unnamed Layer';
+                // var layerDiv = document.createElement('div');
+                // layerDiv.className = 'layer ol-unselectable';
+                // layerDiv.title = layer.get('name') || 'Unnamed Layer';
+                // layerDiv.id = layer.get('id');
 
-                layerDiv.id = layer.get('id');
-                layerDiv.draggable = true;
-                layerDiv.addEventListener('dragstart', function (evt) {
-                    evt.dataTransfer.effectAllowed = 'move';
-                    evt.dataTransfer.setData('Text', this.id);
-                });
-                layerDiv.addEventListener('dragenter', function (evt) {
-                    this.classList.add('over');
-                });
-                layerDiv.addEventListener('dragleave', function (evt) {
-                    this.classList.remove('over');
-                });
-                layerDiv.addEventListener('dragover', function (evt) {
-                    evt.preventDefault();
-                    evt.dataTransfer.dropEffect = 'move';
-                });
-                layerDiv.addEventListener('drop', function (evt) {
-                    evt.preventDefault();
-                    this.classList.remove('over');
-                    var sourceLayerDiv = document.getElementById(evt.dataTransfer.getData('Text'));
-                    if (sourceLayerDiv !== this) {
-                        _this.layerContainer.removeChild(sourceLayerDiv);
-                        _this.layerContainer.insertBefore(sourceLayerDiv, this);
-                        var htmlArray = [].slice.call(_this.layerContainer.children);
-                        var index = htmlArray.length - htmlArray.indexOf(sourceLayerDiv) - 1;
-                        var sourceLayer = _this.getLayerById(sourceLayerDiv.id);
-                        var layers = _this.map.getLayers().getArray();
-                        var group_shift = layers.length - htmlArray.length;
-                        layers.splice(layers.indexOf(sourceLayer), 1);
-                        // layers.splice(index, 0, sourceLayer);
-                        layers.splice(group_shift + index, 0, sourceLayer);
-                        _this.map.render();
-                        // _this.map.getLayers().changed();
+                var $layerDiv = $("<div class='layer ol-unselectable'>");
+                $layerDiv[0].title = layer.get('name') || 'Unnamed Layer';
+                $layerDiv[0].id = layer.get('id');
+                // this.layerContainer[0].insertBefore(layerDiv[0], this.layerContainer[0].firstChild);
+                this.layerContainer.prepend($layerDiv);
+
+                $layerDiv.on("click", null, function (event) {
+                    console.log($layerDiv[0].id + ' .layer click');
+                    if (mouseDownFired) {
+                        mouseDownFired = false;
+                        event.stopPropagation();
+                        return;
                     }
+                    var data = {
+                        selectevent: true,
+                        stopProp: true
+                    };
+                    handler(event, data)
                 });
 
-                this.addSelectEvent(layerDiv);
+                // $layerDiv.on("mousedown", ".layerrow", {
+                //     selector: ".layerrow",
+                //     layerid: $layerDiv[0].id,
+                //     stopProp: false
+                // }, handler);
+                // $layerDiv.on("mouseup", ".layerrow", {
+                //     selector: ".layerrow",
+                //     layerid: $layerDiv[0].id,
+                //     stopProp: false
+                // }, handler);
 
-                var visibleBox = document.createElement('input');
-                visibleBox.type = 'checkbox';
-                visibleBox.className = 'visible';
-                visibleBox.checked = layer.getVisible();
-                visibleBox.addEventListener('change', function () {
+                $layerDiv.on("click", ".layerrow", function (event) {
+                    console.log($layerDiv[0].id + ' .layerrow click');
+                    if (mouseDownFired) {
+                        mouseDownFired = false;
+                        event.stopPropagation();
+                        return;
+                    }
+                    var data = {
+                        selectevent: true,
+                        stopProp: true
+                    };
+                    handler(event, data)
+                });
+
+                // $layerDiv.on("mousedown", ".ui-slider-range", function (event) {
+                //     mouseDownFired = true;
+                //     var data = {
+                //         selector: ".ui-slider-range",
+                //         layerid: $layerDiv[0].id,
+                //         stopProp: true
+                //     };
+                //     handler(event, data)
+                // });
+                // $layerDiv.on("mousedown", ".ui-slider-handle", function (event) {
+                //     mouseDownFired = true;
+                //     var data = {
+                //         selector: ".ui-slider-handle",
+                //         layerid: $layerDiv[0].id,
+                //         stopProp: true
+                //     };
+                //     handler(event, data)
+                // });
+                // $layerDiv.on("mousedown", ".opacity", function (event) {
+                //     mouseDownFired = true;
+                //     var data = {
+                //         selector: ".opacity",
+                //         layerid: $layerDiv[0].id,
+                //         stopProp: true
+                //     };
+                //     handler(event, data)
+                // });
+                // $layerDiv.on("mouseup", ".opacity", {
+                //     selector: ".opacity",
+                //     layerid: $layerDiv[0].id,
+                //     stopProp: false
+                // }, handler);
+                // $layerDiv.on("click", ".opacity", {
+                //     selector: ".opacity",
+                //     layerid: $layerDiv[0].id,
+                //     stopProp: false
+                // }, handler);
+                // this.addSelectEvent($layerDiv, 'click');
+
+                var $layerRow_1 = $("<div class='layerrow layerrow1'>");
+                // this.addSelectEvent($layerRow_1, 'click');
+                // var layerRow_0 = document.createElement('div');
+                // layerRow_0.className = "layerrow layerrow1";
+                // this.addSelectEvent(layerRow_0, true);
+
+
+
+                // var visibleLabel = document.createElement('label');
+                // visibleLabel.htmlFor = layer.get('id') + "-visible";
+                // visibleLabel.className = "visible";
+                // // layerRow_0.appendChild(visibleLabel);
+                // layerRow_0.appendChild(this.stopPropagationOnEvent(visibleLabel, 'click'));
+                // var visibleInput = document.createElement('input');
+                // visibleInput.type = "checkbox";
+                // visibleInput.id = layer.get('id') + "-visible";
+                // visibleInput.checked = layer.getVisible();
+                // layerRow_0.appendChild(this.stopPropagationOnEvent(visibleInput, 'click'));
+
+                var $visibleBox = $("<input type='checkbox' class='visible ui-corner-all'>");
+                $visibleBox[0].checked = layer.getVisible();
+                $layerRow_1.append($visibleBox);
+                $visibleBox.change(function () {
                     if (this.checked) {
                         layer.setVisible(true);
                     } else {
                         layer.setVisible(false);
                     }
                 });
-                layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
+                $visibleBox.click({
+                    stopProp: true
+                }, handler);
 
-                var layerTitle = document.createElement('span');
-                layerTitle.textContent = layerDiv.title;
-                layerTitle.addEventListener('dblclick', function () {
+                // $visibleBox.click(function (event) {
+                //     event.stopPropagation()
+                // });
+                // $visibleBox.on('click', function (event) {
+                //     event.stopPropagation()
+                // });
+
+                // var visibleBox = document.createElement('input');
+                // visibleBox.type = 'checkbox';
+                // visibleBox.className = 'visible';
+                // visibleBox.checked = layer.getVisible();
+                // visibleBox.addEventListener('change', function () {
+                //     if (this.checked) {
+                //         layer.setVisible(true);
+                //     } else {
+                //         layer.setVisible(false);
+                //     }
+                // });
+                // layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
+
+                var $layerTitle = $("<div class='layertitle'>");
+                // var layerTitle = document.createElement('div');
+                // layerTitle.className = "layertitle";
+                // layerTitle.appendChild(document.createTextNode(layerDiv.title));
+                $layerTitle[0].textContent = $layerDiv[0].title;
+                // layerRow_0.appendChild(layerTitle);
+                // layerRow_0.appendChild(this.addSelectEvent(layerTitle, true));
+                // $layerRow_1.appendChild(this.stopPropagationOnEvent($layerTitle, 'click'));
+                $layerRow_1.append($layerTitle);
+                // $layerTitle.click(function (event) {
+                //     event.stopPropagation()
+                // });
+                $layerTitle.dblclick(function () {
                     this.contentEditable = true;
-                    layerDiv.draggable = false;
-                    layerDiv.classList.remove('ol-unselectable');
+                    this.style.textOverflow = 'initial';
+                    // $layerDiv[0].draggable = false;
+                    $layerDiv[0].classList.remove('ol-unselectable');
                     this.focus();
                 });
-                layerTitle.addEventListener('blur', function () {
+                $layerTitle.blur(function () {
                     if (this.contentEditable) {
                         this.contentEditable = false;
-                        layerDiv.draggable = true;
+                        // $layerDiv[0].draggable = true;
+                        $layerDiv[0].classList.add('ol-unselectable');
+                        $layerDiv[0].title = this.textContent;
                         layer.set('name', this.textContent);
-                        layerDiv.classList.add('ol-unselectable');
-                        layerDiv.title = this.textContent;
+                        this.style.textOverflow = 'ellipsis';
                         this.scrollLeft = 0;
                     }
                 });
-                layerDiv.appendChild(this.addSelectEvent(layerTitle, true));
+                $layerTitle.click({
+                    selectevent: true,
+                    stopProp: true
+                }, handler);
 
-                var layerBuffer = document.createElement('span');
-                layerBuffer.textContent = '';
-                layerBuffer.className = layer.get('id') + ' buffering';
-                layerDiv.appendChild(layerBuffer);
+                // var layerBuffer = document.createElement('span');
+                // layerBuffer.textContent = '';
+                // layerBuffer.className = layer.get('id') + ' buffering';
+                // layerDiv.appendChild(layerBuffer);
 
-                var layerControls = document.createElement('div');
-                this.addSelectEvent(layerControls, true);
+                var $opacitySlider = $("<div class='opacity'>");
+                // var opacitySlider = document.createElement('div');
+                // opacitySlider.className = "opacity";
+                // $opacitySlider.id = layer.get('id') + "-opacity";
+                // layerRow_0.appendChild(this.stopPropagationOnEvent(opacitySlider, 'click'));
+                $layerRow_1.append($opacitySlider);
 
-                var opacityHandler = document.createElement('input');
-                opacityHandler.className = 'slider';
-                opacityHandler.type = 'range';
-                opacityHandler.min = 0;
-                opacityHandler.max = 1;
-                opacityHandler.step = 0.1;
-                opacityHandler.value = layer.getOpacity();
-
-                opacityHandler.addEventListener('input', function () {
-                    layer.setOpacity(this.value);
+                $opacitySlider.slider({
+                    animate: true,
+                    range: "min",
+                    min: 0,
+                    max: 1,
+                    step: 0.01,
+                    value: layer.getOpacity(),
+                    slide: function (event, ui) {
+                        layer.setOpacity(ui.value);
+                    // },
+                    // start: function (event, ui) {
+                    //     $layerDiv[0].draggable = false;
+                    //     event.stopPropagation();
+                    // },
+                    // stop: function (event, ui) {
+                    //     $layerDiv[0].draggable = true;
+                        // if (!(event.originalEvent.target.offsetParent.classList.contains("ui-slider"))) {
+                        //     console.log("unselectable added");
+                        //     event.originalEvent.target.offsetParent.classList.add("unselectable")
+                        // }
+                    }
                 });
-                opacityHandler.addEventListener('change', function () {
-                    layer.setOpacity(this.value);
-                });
-                opacityHandler.addEventListener('mousedown', function () {
-                    layerDiv.draggable = false;
-                });
-                opacityHandler.addEventListener('mouseup', function () {
-                    layerDiv.draggable = true;
+                $opacitySlider.on("mousedown", function (event) {
+                    console.log($layerDiv[0].id + ' .opacity mousedown');
+                    mouseDownFired = true;
+                    var data = {
+                        stopProp: true
+                    };
+                    handler(event, data)
                 });
 
-                // layerControls.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
-                layerDiv.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
+                // var opacityHandler = document.createElement('input');
+                // opacityHandler.className = 'slider';
+                // opacityHandler.type = 'range';
+                // opacityHandler.min = 0;
+                // opacityHandler.max = 1;
+                // opacityHandler.step = 0.1;
+                // opacityHandler.value = layer.getOpacity();
+                // opacityHandler.addEventListener('input', function () {
+                //     layer.setOpacity(this.value);
+                // });
+                // opacityHandler.addEventListener('change', function () {
+                //     layer.setOpacity(this.value);
+                // });
+                // opacityHandler.addEventListener('mousedown', function () {
+                //     layerDiv.draggable = false;
+                // });
+                // opacityHandler.addEventListener('mouseup', function () {
+                //     layerDiv.draggable = true;
+                // });
+                // layerDiv.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
+
+                // layerDiv.appendChild(layerRow_0);
+                // layerDiv[0].appendChild(this.addSelectEvent(layerRow_0, true));
+                $layerDiv.append($layerRow_1);
+                // var layerControls = document.createElement('div');
+                // this.addSelectEvent(layerControls, true);
 
                 if (layer instanceof ol.layer.Vector) {
-                    var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
-                    layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
 
-                    var attributeStyle = this.createButton('stylelayer', 'Attribute', 'stylelayer', layer);
-                    layerControls.appendChild(this.stopPropagationOnEvent(attributeStyle, 'click'));
+                    var $layerRow_2 = $("<div class='layerrow layerrow2'>");
+                    // var layerRow_1 = document.createElement('div');
+                    // layerRow_1.className = "layerrow layerrow2";
+                    // this.addSelectEvent(layerRow_1, true);
+                    // this.addSelectEvent($layerRow_2, 'click');
 
-                    var attributeOptions = document.createElement('select');
-                    attributeOptions.className = 'attributes';
-                    layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
-
+                    var $hoverMenu = $("<div class='hovercontrol'>");
+                    $layerRow_2.append($hoverMenu);
+                    $hoverMenu.selectmenu({
+                        classes: {
+                            "ui-selectmenu-button": "hovercontrol"
+                        },
+                        change: function () {
+                            console.log(this.value);
+                            if (layer.get('headers')[this.value] === 'string') {
+                                _this.styleCategorized(layer, this.value);
+                            } else if (layer.get('headers')[this.value] === 'number') {
+                                _this.styleGraduated(layer, this.value);
+                            } else {
+                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                            }
+                        }
+                    });
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
-                            var activeAttribute = attributeOptions.value;
-                            this.removeContent(attributeOptions);
+                            var activeAttribute = $hoverMenu[0].value;
+                            this.removeContent($hoverMenu[0]);
                             var headers = layer.get('headers');
                             for (var i in headers) {
-                                attributeOptions.appendChild(this.createOption(i));
+                                $hoverMenu[0].appendChild(this.createOption(i));
                             }
                             if (activeAttribute) {
-                                attributeOptions.value = activeAttribute;
+                                $hoverMenu[0].value = activeAttribute;
                             }
                         }
                     }, this);
+
+                    // var hoverMenu = document.createElement('select');
+                    // hoverMenu.className = "hovercontrol";
+                    // hoverMenu.id = layer.get('id') + "-hover";
+                    // layerRow_1.appendChild(this.stopPropagationOnEvent(hoverMenu, 'click'));
+                    // layer.on('propertychange', function (evt) {
+                    //     if (evt.key === 'headers') {
+                    //         var activeAttribute = hoverMenu.value;
+                    //         this.removeContent(hoverMenu);
+                    //         var headers = layer.get('headers');
+                    //         for (var i in headers) {
+                    //             hoverMenu.appendChild(this.createOption(i));
+                    //         }
+                    //         if (activeAttribute) {
+                    //             hoverMenu.value = activeAttribute;
+                    //         }
+                    //     }
+                    // }, this);
+
+                    var $colorMenu = $("<select class='colorcontrol'>");
+                    $layerRow_2.append($colorMenu);
+                    $colorMenu.selectmenu({
+                        classes: {
+                            "ui-selectmenu-button": "colorcontrol"
+                        },
+                        change: function () {
+                            console.log(this.value);
+                            if (layer.get('headers')[this.value] === 'string') {
+                                _this.styleCategorized(layer, this.value);
+                            } else if (layer.get('headers')[this.value] === 'number') {
+                                _this.styleGraduated(layer, this.value);
+                            } else {
+                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                            }
+                        }
+                    });
+                    $colorMenu.click({
+                        stopProp: true
+                    }, handler);
+                    $colorMenu.on("mousedown", function (event) {
+                        console.log($layerDiv[0].id + ' .colormenu mousedown');
+                        mouseDownFired = true;
+                        var data = {
+                            stopProp: true
+                        };
+                        handler(event, data)
+                    });
+                    layer.on('propertychange', function (evt) {
+                        if (evt.key === 'headers') {
+                            var activeAttribute = $colorMenu[0].value;
+                            this.removeContent($colorMenu[0]);
+                            var headers = layer.get('headers');
+                            for (var i in headers) {
+                                $colorMenu[0].appendChild(this.createOption(i));
+                            }
+                            if (activeAttribute) {
+                                $('.colorcontrol .ui-selectmenu-text').text(activeAttribute);
+                                $colorMenu[0].value = activeAttribute;
+                            } else if ($colorMenu.children().length > 0) {
+                                $('.colorcontrol .ui-selectmenu-text').text($colorMenu.children()[0].value);
+                                $colorMenu[0].value = $colorMenu.children()[0].value;
+                            }
+                            $colorMenu.selectmenu("refresh");
+                        }
+                    }, this);
+
+                    // var colorMenu = document.createElement('select');
+                    // colorMenu.className = "colorcontrol";
+                    // colorMenu.id = layer.get('id') + "-color";
+                    // layerRow_1.appendChild(this.stopPropagationOnEvent(colorMenu, 'click'));
+                    // layer.on('propertychange', function (evt) {
+                    //     if (evt.key === 'headers') {
+                    //         var activeAttribute = colorMenu.value;
+                    //         this.removeContent(colorMenu);
+                    //         var headers = layer.get('headers');
+                    //         for (var i in headers) {
+                    //             colorMenu.appendChild(this.createOption(i));
+                    //         }
+                    //         if (activeAttribute) {
+                    //             colorMenu.value = activeAttribute;
+                    //         }
+                    //     }
+                    // }, this);
+
+                    // var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
+                    // layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
+                    //
+                    // var attributeStyle = this.createButton('stylelayer', 'Attribute', 'stylelayer', layer);
+                    // layerControls.appendChild(this.stopPropagationOnEvent(attributeStyle, 'click'));
+                    //
+                    // var attributeOptions = document.createElement('select');
+                    // attributeOptions.className = 'attributes';
+                    // layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
+                    //
+                    // layer.on('propertychange', function (evt) {
+                    //     if (evt.key === 'headers') {
+                    //         var activeAttribute = attributeOptions.value;
+                    //         this.removeContent(attributeOptions);
+                    //         var headers = layer.get('headers');
+                    //         for (var i in headers) {
+                    //             attributeOptions.appendChild(this.createOption(i));
+                    //         }
+                    //         if (activeAttribute) {
+                    //             attributeOptions.value = activeAttribute;
+                    //         }
+                    //     }
+                    // }, this);
                 }
-                layerDiv.appendChild(layerControls);
-                this.layerContainer.insertBefore(layerDiv, this.layerContainer.firstChild);
+                // layerDiv.appendChild(layerControls);
+
+                // layerDiv.appendChild(layerRow_1);
+                // layerDiv[0].appendChild(this.addSelectEvent(layerRow_1, true));
+                $layerDiv.append($layerRow_2);
+                // this.layerContainer.insertBefore(layerDiv[0], this.layerContainer.firstChild);
+
+                // $("#" + layer.get('id') + "-visible").checkboxradio();
+                // $("#" + layer.get('id') + "-visible").on("change", function (evt) {
+                //     if (this.checked) {
+                //         layer.setVisible(true);
+                //     } else {
+                //         layer.setVisible(false);
+                //     }
+                //     evt.stopPropagation();
+                // });
+
                 return this;
             };
 
@@ -233,6 +569,101 @@ define(["jquery", "ol",
         } else {
             throw new Error('Invalid parameter(s) provided.');
         }
+    };
+    layerTree.prototype.addSelectEvent = function (node, event) {
+        var _this = this;
+        node.on(event, function (evt) {
+
+            var targetNode = evt.target;
+            // on slider.stop() If cursor isn't over slider on mouseup.
+            // if (targetNode.classList.contains("unselectable")) {
+            //     targetNode.classList.remove("unselectable");
+            //     console.log('unselectable removed');
+            //     return node;
+            // }
+            evt.stopPropagation();
+            if (targetNode.classList.contains("layerrow")) {
+                console.log(event);
+                // evt.stopPropagation();
+                targetNode = targetNode.parentNode;
+            } else {
+                return node[0];
+            }
+            if (_this.selectedLayer) {
+                _this.deselectEventEmitter.changed();
+                _this.selectedLayer.classList.remove('active');
+            }
+            _this.selectedLayer = targetNode;
+            _this.selectedLayer.classList.add('active');
+            _this.selectEventEmitter.changed();
+        });
+        return node[0];
+    };
+    layerTree.prototype.stopPropagationOnEvent = function (node, event) {
+        node.addEventListener(event, function (evt) {
+            evt.stopPropagation();
+        });
+        return node;
+    };
+    layerTree.prototype.createMenu = function (elemClasses, elemTitle, elemType, layer) {
+        var menuElem = document.createElement('select');
+        menuElem.classname = elemClasses;
+        var _this = this;
+        switch (elemType) {
+            case 'hovermenu':
+                buttonElem.textContent = elemTitle;
+                if (elemTitle === 'Default') {
+                    buttonElem.addEventListener('click', function () {
+                        layer.setStyle(tobjectStyleFunction);
+                    });
+                } else {
+                    buttonElem.addEventListener('click', function () {
+                        var attribute = buttonElem.parentNode.querySelector('select').value;
+                        if (layer.get('headers')[attribute] === 'string') {
+                            _this.styleCategorized(layer, attribute);
+                        } else if (layer.get('headers')[attribute] === 'number') {
+                            _this.styleGraduated(layer, attribute);
+                        } else {
+                            _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                        }
+                    });
+                }
+                return buttonElem;
+            case 'colormenu':
+                menuElem.textContent = elemTitle;
+                if (elemTitle === 'Default') {
+                    menuElem.addEventListener('click', function () {
+                        layer.setStyle(tobjectStyleFunction);
+                    });
+                } else {
+                    menuElem.addEventListener('click', function () {
+                        var attribute = buttonElem.parentNode.querySelector('select').value;
+                        if (layer.get('headers')[attribute] === 'string') {
+                            _this.styleCategorized(layer, attribute);
+                        } else if (layer.get('headers')[attribute] === 'number') {
+                            _this.styleGraduated(layer, attribute);
+                        } else {
+                            _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                        }
+                    });
+                }
+                return buttonElem;
+            default:
+                return false;
+        }
+
+    };
+    layerTree.prototype.createOption = function (optionValue) {
+        var option = document.createElement('option');
+        option.appendChild(document.createTextNode(optionValue));
+        // option.value = optionValue;
+        return option;
+    };
+    layerTree.prototype.createOption2 = function (optionValue, optionText) {
+        var option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionText || optionValue;
+        return option;
     };
     layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
         var buttonElem = document.createElement('button');
@@ -279,6 +710,12 @@ define(["jquery", "ol",
                 return false;
         }
     };
+    layerTree.prototype.removeContent = function (element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+        return this;
+    };
     layerTree.prototype.addBufferIcon = function (layer) {
         layer.getSource().on('change', function (evt) {
             var layerElem = document.getElementById(layer.get('id'));
@@ -295,23 +732,6 @@ define(["jquery", "ol",
                 layerElem.className += ' error';
             }
         });
-    };
-    layerTree.prototype.removeContent = function (element) {
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-        return this;
-    };
-    layerTree.prototype.createOption = function (optionValue, optionText) {
-        var option = document.createElement('option');
-        option.value = optionValue;
-        option.textContent = optionText || optionValue;
-        return option;
-    };
-    layerTree.prototype.createOption2 = function (optionValue) {
-        var option = document.createElement('option');
-        option.value = optionValue;
-        return option;
     };
 
     layerTree.prototype.checkWmsLayer = function (form) {
@@ -828,10 +1248,42 @@ define(["jquery", "ol",
         return this;
     };
 
-    layerTree.prototype.addSelectEvent = function (node, isChild) {
+    layerTree.prototype.addSelectEvent_old2 = function (node, isChild) {
         var _this = this;
         node.addEventListener('click', function (evt) {
             var targetNode = evt.target;
+            // on slider.stop() If cursor isn't over slider on mouseup.
+            // if (targetNode.classList.contains("unselectable")) {
+            //     targetNode.classList.remove("unselectable");
+            //     console.log('unselectable removed');
+            //     return node;
+            // }
+            if (targetNode.classList.contains("layerrow") && isChild) {
+                evt.stopPropagation();
+                targetNode = targetNode.parentNode;
+            } else {
+                return node;
+            }
+            if (_this.selectedLayer) {
+                _this.deselectEventEmitter.changed();
+                _this.selectedLayer.classList.remove('active');
+            }
+            _this.selectedLayer = targetNode;
+            _this.selectedLayer.classList.add('active');
+            _this.selectEventEmitter.changed();
+        });
+        return node;
+    };
+    layerTree.prototype.addSelectEvent_old = function (node, isChild) {
+        var _this = this;
+        node.addEventListener('click', function (evt) {
+            var targetNode = evt.target;
+            if (evt.target.parentNode.classList.contains("layer")) {
+                console.log('Valid')
+            } else {
+                console.log('Invalid');
+                return node;
+            }
             if (isChild) {
                 evt.stopPropagation();
                 targetNode = targetNode.parentNode;
@@ -908,12 +1360,6 @@ define(["jquery", "ol",
             this.messages.textContent = 'Error: Unable to Determine Layer Type';
         }
         return layer;
-    };
-    layerTree.prototype.stopPropagationOnEvent = function (node, event) {
-        node.addEventListener(event, function (evt) {
-            evt.stopPropagation();
-        });
-        return node;
     };
     layerTree.prototype.styleGraduated = function (layer, attribute) {
         if (layer.get('headers')[attribute] === 'string') {
