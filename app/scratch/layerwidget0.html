@@ -16,12 +16,21 @@
         }
         .layer {
             width: 400px;
-            border: 0.125em solid;
+            border: 1px solid;
             padding: 0.25em;
         }
         .layerrow {
             display: flex;
             align-items: center;
+        }
+        .layerrow .ol-unselectable {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .visible {
             box-sizing: border-box;
@@ -37,12 +46,12 @@
             transform: translate(-50%, -50%);
             margin: 0;
         }
+        /*.layertitle {*/
+            /*box-sizing: border-box;*/
+            /*height: 2em;*/
+            /*width: calc(60% - 2.1em);*/
+        /*}*/
         .layertitle {
-            box-sizing: border-box;
-            height: 2em;
-            width: calc(60% - 2.1em);
-        }
-        #layertitle {
             display: inline-block;
             font-family: Arial,Helvetica,sans-serif;
             font-size: 1em;
@@ -50,7 +59,7 @@
             position: relative;
             float: left;
             margin: .25em;
-            border: 1px solid #c5c5c5;
+            /*border: 1px solid #c5c5c5;*/
             padding: .5em;
             height: 2em;
             width: calc(60% - 2.1em);
@@ -76,17 +85,18 @@
             margin: .25em;
             width: calc(60% - 2.1em);
         }
+        .buffering.ui-progressbar {
+            border: 0;
+        }
         .buffering .ui-progressbar-value {
             box-sizing: border-box;
             background-color: #eee;
             opacity: 0.1;
-            border: 0;
             height: 2em;
         }
-        .buffering #layertitle {
+        .buffering .layertitle {
             width: 100%;
             margin: 0;
-            border: 0;
         }
         .opacity {
             box-sizing: border-box;
@@ -133,11 +143,11 @@
             var toggleState = false;
             $("#toggleButton").on("click", function (event) {
                 if (toggleState) {
-                    $("#layertitle").unwrap();
+                    $(".layertitle").unwrap();
                     toggleState = false;
                 } else {
                     var $progressbar = $("<div class='buffering'></div>");
-                    $progressbar.append($("#layertitle"));
+                    $progressbar.append($(".layertitle"));
                     $progressbar.progressbar({value: false});
                     $progressbar.insertBefore($(".opacity"));
                     toggleState = true;
@@ -159,26 +169,28 @@
 //            });
         });
         $(function () {
-            $("input").checkboxradio();
-            var $layertitle = $("#layertitle");
+            $("#visible").checkboxradio();
+            var $layertitle = $(".layertitle");
             $layertitle.dblclick(function () {
                 this.contentEditable = true;
                 this.style.textOverflow = 'initial';
+                $(".layer").removeClass('ol-unselectable');
                 this.focus();
             });
             $layertitle.blur(function () {
                 if (this.contentEditable) {
                     this.contentEditable = false;
                     this.style.textOverflow = 'ellipsis';
+                    $(".layer").addClass('ol-unselectable');
                     this.scrollLeft = 0;
                 }
             });
             $(".opacity").slider({
                 range: "min",
                 min: 0,
-                max: 100,
-                step: 1,
-                value: 50,
+                max: 1,
+                step: 0.01,
+                value: 0.5,
                 animate: true
             });
         });
@@ -190,6 +202,10 @@
                 change: function () {
                     $(".output").append("<li>hover: " + this.value + "</li>");
                 }
+            });
+            $(".hovercontrol").tooltip({
+                items: "span",
+                content: "Hover"
             });
         });
         $(function () {
@@ -206,6 +222,10 @@
                     $(".colorbutton")[0].innerHTML = this.value;
                 }
             });
+            $(".colorcontrol").tooltip({
+                items: "span",
+                content: "Color"
+            });
         });
     </script>
 </head>
@@ -214,8 +234,8 @@
 <div class="layer">
         <div class="layerrow">
             <label for="visible" class="visible"></label>
-            <input type="checkbox" name="visible" id="visible">
-            <div id="layertitle" class="layertitle">Unnamed Layer</div>
+            <input type="checkbox" id="visible">
+            <span id="layertitle" class="layertitle">Unnamed Layer</span>
             <div class="opacity"></div>
         </div>
         <div class="layerrow">
@@ -238,6 +258,7 @@
             </div>
         </div>
 </div>
+<p></p>
 <br>
 <h3>Output:</h3>
 <ul class="output"></ul>

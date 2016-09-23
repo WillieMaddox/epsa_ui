@@ -7,12 +7,23 @@
     <style>
         .layer {
             width: 400px;
-            border: 0.125em solid;
+            margin: 2px 0 2px 0;
+            border: 1px solid;
             padding: 0.25em;
+        }
+        .layer .ol-unselectable {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .layerrow {
             display: flex;
             align-items: center;
+            position: relative;
         }
         .visible {
             box-sizing: border-box;
@@ -29,11 +40,6 @@
             margin: 0;
         }
         .layertitle {
-            box-sizing: border-box;
-            height: 2em;
-            width: calc(60% - 2.1em);
-        }
-        #layertitle {
             display: inline-block;
             font-family: Arial,Helvetica,sans-serif;
             font-size: 1em;
@@ -41,7 +47,7 @@
             position: relative;
             float: left;
             margin: .25em;
-            border: 1px solid #c5c5c5;
+            /*border: 1px solid #c5c5c5;*/
             padding: .5em;
             height: 2em;
             width: calc(60% - 2.1em);
@@ -67,58 +73,65 @@
             margin: .25em;
             width: calc(60% - 2.1em);
         }
+        .buffering.ui-progressbar {
+            border: 0;
+        }
         .buffering .ui-progressbar-value {
             box-sizing: border-box;
             background-color: #eee;
             opacity: 0.1;
-            border: 0;
             height: 2em;
         }
-        .buffering #layertitle {
+        .buffering .layertitle {
             width: 100%;
             margin: 0;
-            border: 0;
         }
         .opacity {
             box-sizing: border-box;
             position: relative;
-            width: calc(40% - 1.4em);
             margin: 0.5em;
+            width: calc(40% - 1.4em);
             height: 0.9em;
         }
+        .colorcontrol.ui-selectmenu-button.ui-button,
         .hovercontrol.ui-selectmenu-button.ui-button {
             box-sizing: border-box;
-            float: left;
             position: relative;
-            width: 50%;
-            height: 2em;
+            float: left;
             margin: .25em;
             padding: .5em;
-            text-align: center;
-        }
-        .colorcontrol.ui-selectmenu-button.ui-button {
-            box-sizing: border-box;
-            float: left;
-            position: relative;
             width: 50%;
             height: 2em;
-            margin: .25em;
-            padding: .5em;
             text-align: center;
         }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script>
+
+        $(function () {
+            $(".layercontainer").sortable({
+                axis: "y",
+                handle: ".layertitle",
+                stop: function (event, ui) {
+                    // IE doesn't register the blur when sorting
+                    // so trigger focusout handlers to remove .ui-state-focus
+                    ui.item.children(".layertitle").triggerHandler("focusout");
+
+                    // Refresh accordion to handle new order
+//                    $(this).accordion("refresh");
+                }
+            });
+        });
         $(function () {
             var toggleState = false;
             $("#toggleButton").on("click", function (event) {
                 if (toggleState) {
-                    $("#layertitle").unwrap();
+                    $(".layertitle").unwrap();
                     toggleState = false;
                 } else {
                     var $progressbar = $("<div class='buffering'></div>");
-                    $progressbar.append($("#layertitle"));
+                    $progressbar.append($(".layertitle"));
                     $progressbar.progressbar({value: false});
                     $progressbar.insertBefore($(".opacity"));
                     toggleState = true;
@@ -127,16 +140,18 @@
         });
         $(function () {
             $("input").checkboxradio();
-            var $layertitle = $("#layertitle");
+            var $layertitle = $(".layertitle");
             $layertitle.dblclick(function () {
                 this.contentEditable = true;
                 this.style.textOverflow = 'initial';
+                $(".layer").removeClass('ol-unselectable');
                 this.focus();
             });
             $layertitle.blur(function () {
                 if (this.contentEditable) {
                     this.contentEditable = false;
                     this.style.textOverflow = 'ellipsis';
+                    $(".layer").addClass('ol-unselectable');
                     this.scrollLeft = 0;
                 }
             });
@@ -158,8 +173,10 @@
                     $(".output").append("<li>hover: " + this.value + "</li>");
                 }
             });
-        });
-        $(function () {
+            $(".hovercontrol").tooltip({
+                items: "span",
+                content: "Hover"
+            });
             $(".colorselect").selectmenu({
                 classes: {
                     "ui-selectmenu-button": "colorcontrol"
@@ -168,35 +185,77 @@
                     $(".output").append("<li>color: " + this.value + "</li>");
                 }
             });
+            $(".colorcontrol").tooltip({
+                items: "span",
+                content: "Color"
+            });
         });
+
+
     </script>
 </head>
 <body>
 <button id="toggleButton">Buffering</button>
-<div class="layer">
-    <div class="layerrow">
-        <label for="visible" class="visible"></label>
-        <input type="checkbox" name="visible" id="visible">
-        <div id="layertitle" class="layertitle">Unnamed Layer</div>
-        <div class="opacity"></div>
+
+<div class="layercontainer">
+    <div id="layer_1" class="layer">
+        <div>
+            <h3 class="layertitle">Section 1</h3>
+            <p>Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer ut neque. Vivamus nisi metus,
+                molestie vel, gravida in, condimentum sit amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin
+                viverra leo ut odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.</p>
+        </div>
     </div>
-    <div class="layerrow">
-        <select class="hoverselect hovercontrol">
-            <option>default</option>
-            <option>osm_id</option>
-            <option>name</option>
-            <option>featuretype</option>
-            <option>height</option>
-        </select>
-        <select class="colorselect colorcontrol">
-            <option>default</option>
-            <option>osm_id</option>
-            <option>name</option>
-            <option>featuretype</option>
-            <option>height</option>
-        </select>
+
+    <div id="layer_2" class="layer">
+        <div class="layerrow">
+            <label for="visible" class="visible"></label>
+            <input type="checkbox" name="visible" id="visible">
+            <div class="layertitle">Unnamed Layer</div>
+            <div class="opacity"></div>
+        </div>
+        <div class="layerrow">
+            <select class="hoverselect hovercontrol">
+                <option>default</option>
+                <option>osm_id</option>
+                <option>name</option>
+                <option>featuretype</option>
+                <option>height</option>
+            </select>
+            <select class="colorselect colorcontrol">
+                <option>default</option>
+                <option>osm_id</option>
+                <option>name</option>
+                <option>featuretype</option>
+                <option>height</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="layer_3" class="layer">
+        <div>
+            <h3 class="layertitle">Section 2</h3>
+            <p>Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet purus. Vivamus hendrerit, dolor at
+                aliquet laoreet, mauris turpis porttitor velit, faucibus interdum tellus libero ac justo. Vivamus non
+                quam. In suscipit faucibus urna. </p>
+        </div>
+    </div>
+    <div id="layer_4" class="layer">
+        <div>
+            <h3 class="layertitle">Section 3</h3>
+            <p>Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis. Phasellus pellentesque purus
+                in massa. Aenean in pede. Phasellus ac libero ac tellus pellentesque semper. Sed ac felis. Sed commodo,
+                magna quis lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui. </p>
+            <ul>
+                <li>List item one</li>
+                <li>List item two</li>
+                <li>List item three</li>
+            </ul>
+        </div>
     </div>
 </div>
+
+
 <br>
 <h3>Output:</h3>
 <ul class="output"></ul>
