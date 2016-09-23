@@ -6,7 +6,12 @@
       <w>addvector</w>
       <w>addwfs</w>
       <w>addwms</w>
+      <w>bingkey</w>
+      <w>checkboxradio</w>
+      <w>checkwfslayer</w>
+      <w>checkwmslayer</w>
       <w>colorcontrol</w>
+      <w>colormenu</w>
       <w>colorselect</w>
       <w>controlgroup</w>
       <w>dblclick</w>
@@ -15,14 +20,20 @@
       <w>dragleave</w>
       <w>dragover</w>
       <w>dragstart</w>
+      <w>epsg</w>
       <w>featureeditor</w>
       <w>featureproperties</w>
       <w>geomcollection</w>
       <w>hovercontrol</w>
+      <w>hoverontrol</w>
       <w>hoverselect</w>
+      <w>interactor</w>
       <w>keydown</w>
       <w>layercontainer</w>
+      <w>layerid</w>
+      <w>layerinteractor</w>
       <w>layerrow</w>
+      <w>layerswitcher</w>
       <w>layertag</w>
       <w>layertitle</w>
       <w>modifyend</w>
@@ -32,13 +43,18 @@
       <w>newvector</w>
       <w>pointermove</w>
       <w>selectcontrol</w>
+      <w>selectevent</w>
       <w>selectmenu</w>
       <w>serversettings</w>
       <w>splitbutton</w>
       <w>stylelayer</w>
+      <w>thunderforest</w>
       <w>tobject</w>
       <w>tobjects</w>
+      <w>toolbartarget</w>
       <w>unselectable</w>
+      <w>wfsurl</w>
+      <w>wmsurl</w>
     </words>
   </dictionary>
 </component>
