@@ -1604,6 +1604,7 @@ define(['jquery', 'ol',
                     // _this.activeFeatures.push(feature);
 
                     selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
+                    // selectedFeatures.clear();
                 } else {
                     console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
                 }

@@ -357,6 +357,18 @@ define(["jquery", "ol",
                     };
                     handler(event, data)
                 });
+                $opacitySlider.on("mouseup", function (event) {
+                    console.log($layerDiv[0].id + ' .opacity mouseup');
+                    if (mouseDownFired) {
+                        mouseDownFired = false;
+                        event.stopPropagation();
+                        return;
+                    }
+                    var data = {
+                        stopProp: true
+                    };
+                    handler(event, data)
+                });
 
                 // var opacityHandler = document.createElement('input');
                 // opacityHandler.className = 'slider';
@@ -718,18 +730,18 @@ define(["jquery", "ol",
     };
     layerTree.prototype.addBufferIcon = function (layer) {
         layer.getSource().on('change', function (evt) {
-            var layerElem = document.getElementById(layer.get('id'));
-            // var layerSpan = layerElem.getElementsByClassName('buffering')[0];
             if (evt.target.getState() === 'ready') {
                 if (layer.getSource().get('pendingRequests') !== undefined) {
                     layer.getSource().set('pendingRequests', layer.getSource().get('pendingRequests') - 1);
                     if (layer.getSource().get('pendingRequests') === 0) {
-                        layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
+                        // layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
+                        // $('#' + layer.get('id')).removeClass('buffering');
+                        $('#' + layer.get('id') + ' .layertitle').unwrap();
                     }
                 }
                 layer.buildHeaders();
             } else {
-                layerElem.className += ' error';
+                $('#' + layer.get('id')).addClass('error');
             }
         });
     };
@@ -742,6 +754,13 @@ define(["jquery", "ol",
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         form.server.value = serverUrl;
         var request = new XMLHttpRequest();
+        serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
+        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
+        var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
+        var url = settings.proxyUrl + serverUrl + query;
+        console.log(url);
+
+        request.open('GET', url, true);
         request.onreadystatechange = function () {
             if (request.readyState === 4 && request.status === 200) {
                 var parser = new ol.format.WMSCapabilities();
@@ -778,12 +797,6 @@ define(["jquery", "ol",
                 form.check.disabled = false;
             }
         };
-        serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
-        var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
-        var url = settings.proxyUrl + serverUrl + query;
-        console.log(url);
-        request.open('GET', url, true);
         request.send();
     };
     layerTree.prototype.addWmsLayer = function (form) {
@@ -818,43 +831,71 @@ define(["jquery", "ol",
         var serverUrl = form.server.value;
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         form.server.value = serverUrl;
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function () {
-            if (request.readyState === 4 && request.status === 200) {
-                try {
-                    var unmarshaller = WFSContext.createUnmarshaller();
-                    var capabilities = unmarshaller.unmarshalDocument(request.responseXML).value;
-                    var messageText = 'Layers read successfully.';
-                    if (capabilities.version !== '1.1.0') {
-                        messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
-                    }
-                    var layers = capabilities.featureTypeList.featureType;
-                    var nLayers = layers.length;
-                    if (nLayers > 0) {
-                        var re = /}(.*)/;
-                        for (var i = 0; i < nLayers; i += 1) {
-                            var name = re.exec(layers[i].name)[1];
-                            form.layer.appendChild(_this.createOption(name));
-                            _this.wfsProjections[name] = layers[i].defaultSRS;
-                        }
-                        _this.messages.textContent = messageText;
-                    }
-                } catch (error) {
-                    _this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
-                } finally {
-                    form.check.disabled = false;
-                }
-            } else if (request.status > 200) {
-                form.check.disabled = false;
-            }
-        };
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
         // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
         var url = settings.proxyUrl + serverUrl + query;
         console.log(url);
-        request.open('GET', url, true);
-        request.send();
+
+        $.ajax({
+            type: 'GET',
+            url: url
+        }).done(function (response) {
+            var unmarshaller = WFSContext.createUnmarshaller();
+            var capabilities = unmarshaller.unmarshalDocument(response).value;
+            var messageText = 'Layers read successfully.';
+            if (capabilities.version !== '1.1.0') {
+                messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
+            }
+            var layers = capabilities.featureTypeList.featureType;
+            var nLayers = layers.length;
+            if (nLayers > 0) {
+                var re = /}(.*)/;
+                for (var i = 0; i < nLayers; i += 1) {
+                    var name = re.exec(layers[i].name)[1];
+                    form.layer.appendChild(_this.createOption(name));
+                    _this.wfsProjections[name] = layers[i].defaultSRS;
+                }
+                _this.messages.textContent = messageText;
+            }
+        }).fail(function (response) {
+            _this.messages.textContent = 'Some unexpected error occurred: (' + response.message + ').';
+        }).always(function () {
+            form.check.disabled = false;
+        });
+
+        // var request = new XMLHttpRequest();
+        // request.open('GET', url, true);
+        // request.onreadystatechange = function () {
+        //     if (request.readyState === 4 && request.status === 200) {
+        //         try {
+        //             var unmarshaller = WFSContext.createUnmarshaller();
+        //             var capabilities = unmarshaller.unmarshalDocument(request.responseXML).value;
+        //             var messageText = 'Layers read successfully.';
+        //             if (capabilities.version !== '1.1.0') {
+        //                 messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
+        //             }
+        //             var layers = capabilities.featureTypeList.featureType;
+        //             var nLayers = layers.length;
+        //             if (nLayers > 0) {
+        //                 var re = /}(.*)/;
+        //                 for (var i = 0; i < nLayers; i += 1) {
+        //                     var name = re.exec(layers[i].name)[1];
+        //                     form.layer.appendChild(_this.createOption(name));
+        //                     _this.wfsProjections[name] = layers[i].defaultSRS;
+        //                 }
+        //                 _this.messages.textContent = messageText;
+        //             }
+        //         } catch (error) {
+        //             _this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
+        //         } finally {
+        //             form.check.disabled = false;
+        //         }
+        //     } else if (request.status > 200) {
+        //         form.check.disabled = false;
+        //     }
+        // };
+        // request.send();
     };
     layerTree.prototype.addWfsLayer = function (form) {
 
@@ -876,61 +917,53 @@ define(["jquery", "ol",
         };
         var typeName = form.layer.value;
         var mapProj = this.map.getView().getProjection();
-        // var proj = form.projection.value || mapProj.getCode();
         var proj = this.wfsProjections[typeName];
         console.log(proj);
-        var parserformat = new ol.format.WFS();
+        var formatWFS = new ol.format.WFS();
 
         // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var serverUrl = form.server.value;
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
 
-        var pendingRequests = 0;
-        var layer = new ol.layer.Vector({
-            // title: 'WFS-T',
-            // type: 'vector',
-            source: new ol.source.Vector(),
-            name: form.displayname.value
-        });
-
-        this.map.addLayer(layer);
-        var layerElem = document.getElementById(layer.get('id'));
-        var source = new ol.source.Vector({
-            // url: settings.proxyUrl + 'url=' + encodeURIComponent(serverUrl + buildQueryString({typeName: typeName})),
-            // format: parserformat,
-            // url: function(extent, img, proj) {
-            //     var query = buildQueryString({typeName: typeName, proj: proj.getCode(), extent: extent});
-            //     return settings.proxyUrl + serverUrl + query;
-            // },
+        var sourceWFS = new ol.source.Vector({
             loader: function (extent, res, mapProj) {
                 // proj = proj || mapProj.getCode();
-                // var _this = this;
-                var request = new XMLHttpRequest();
-                request.onreadystatechange = function () {
-                    if (request.readyState === 4 && request.status === 200) {
-                        source.addFeatures(parserformat.readFeatures(request.responseText, {
-                            dataProjection: proj,
-                            featureProjection: mapProj.getCode()
-                        }));
-
-                    } else if (request.readyState === 1) {
-                        source.set('pendingRequests', source.get('pendingRequests') + 1);
-                        layerElem.classList.add('buffering');
-                    } else if (request.readyState === 0) {
-                        console.log('0: Request Not Initialized');
-                    }
-                };
+                var _this = this;
                 var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
-                request.open('GET', settings.proxyUrl + serverUrl + query);
-                request.send();
+                $.ajax({
+                    type: 'GET',
+                    url: settings.proxyUrl + serverUrl + query,
+                    beforeSend: function (request) {
+                        sourceWFS.set('pendingRequests', sourceWFS.get('pendingRequests') + 1);
+                        var $progressbar = $("<div class='buffering'></div>");
+                        $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
+                        $progressbar.progressbar({value: false});
+                        $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
+                    }
+                }).done(function (response) {
+                    sourceWFS.addFeatures(formatWFS.readFeatures(response, {
+                        dataProjection: proj,
+                        featureProjection: mapProj.getCode()
+                    }));
+                }).fail(function (response) {
+                    _this.messages.textContent = 'Some unexpected error occurred: (' + response.message + ').';
+                });
             },
             strategy: ol.loadingstrategy.bbox
             // strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
         });
-        source.set('pendingRequests', 0);
-        layer.setSource(source);
+        sourceWFS.set('pendingRequests', 0);
+
+        var layer = new ol.layer.Vector({
+            source: sourceWFS,
+            name: form.displayname.value
+        });
+
+        this.map.addLayer(layer);
+
         this.addBufferIcon(layer);
+
         this.messages.textContent = 'WFS layer added successfully.';
         return this;
     };

@@ -233,20 +233,6 @@ define(['jquery', 'ol',
                         })
                     ]
                 })
-                // new ol.layer.Group({
-                //     title: 'Extra',
-                //     layers: [
-                //         new ol.layer.Tile({
-                //             title: 'Countries',
-                //             type: 'vector',
-                //             source: new ol.source.TileWMS({
-                //                 url: 'http://demo.opengeo.org/geoserver/wms',
-                //                 params: {'LAYERS': 'ne:ne_10m_admin_1_states_provinces_lines_shp'},
-                //                 serverType: 'geoserver'
-                //             })
-                //         })
-                //     ]
-                // })
             ],
             loadTilesWhileInteracting: true,
             loadTilesWhileAnimating: true

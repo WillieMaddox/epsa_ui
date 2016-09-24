@@ -24,6 +24,7 @@
       <w>featureeditor</w>
       <w>featureproperties</w>
       <w>geomcollection</w>
+      <w>gitmodules</w>
       <w>hovercontrol</w>
       <w>hoverontrol</w>
       <w>hoverselect</w>
@@ -36,12 +37,17 @@
       <w>layerswitcher</w>
       <w>layertag</w>
       <w>layertitle</w>
+      <w>loadingstrategy</w>
+      <w>mainwindow</w>
       <w>modifyend</w>
       <w>modifystart</w>
       <w>mousedown</w>
       <w>mouseup</w>
       <w>newvector</w>
+      <w>onreadystatechange</w>
+      <w>parserformat</w>
       <w>pointermove</w>
+      <w>requirejs</w>
       <w>selectcontrol</w>
       <w>selectevent</w>
       <w>selectmenu</w>
@@ -49,9 +55,11 @@
       <w>splitbutton</w>
       <w>stylelayer</w>
       <w>thunderforest</w>
+      <w>tilegrid</w>
       <w>tobject</w>
       <w>tobjects</w>
       <w>toolbartarget</w>
+      <w>unmarshaller</w>
       <w>unselectable</w>
       <w>wfsurl</w>
       <w>wmsurl</w>
