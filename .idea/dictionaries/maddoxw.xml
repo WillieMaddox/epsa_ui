@@ -17,21 +17,28 @@
       <w>controlgroup</w>
       <w>dblclick</w>
       <w>deletelayer</w>
+      <w>doespolycoverhole</w>
       <w>dragenter</w>
       <w>dragleave</w>
       <w>dragover</w>
       <w>dragstart</w>
       <w>epsg</w>
       <w>featureeditor</w>
+      <w>featureid</w>
+      <w>featureinteractor</w>
       <w>featureproperties</w>
       <w>featuretarget</w>
       <w>geomcollection</w>
+      <w>getjstsgeom</w>
       <w>gitmodules</w>
       <w>hovercontrol</w>
       <w>hoverontrol</w>
       <w>hoverselect</w>
       <w>hovervisible</w>
       <w>interactor</w>
+      <w>ispointinpoly</w>
+      <w>ispolyvalid</w>
+      <w>jsonix</w>
       <w>keydown</w>
       <w>layercontainer</w>
       <w>layerid</w>
@@ -55,6 +62,7 @@
       <w>selectevent</w>
       <w>selectmenu</w>
       <w>serversettings</w>
+      <w>smil</w>
       <w>splitbutton</w>
       <w>stylelayer</w>
       <w>thunderforest</w>
@@ -62,6 +70,7 @@
       <w>tobject</w>
       <w>tobjects</w>
       <w>toolbartarget</w>
+      <w>tstylefunction</w>
       <w>unmarshaller</w>
       <w>unselectable</w>
       <w>wfsurl</w>
