@@ -731,7 +731,7 @@ define(["jquery", "ol",
     layerTree.prototype.addBufferIcon = function (layer) {
         layer.getSource().on('change', function (evt) {
             if (evt.target.getState() === 'ready') {
-                if (layer.getSource().get('pendingRequests') !== undefined) {
+                if (layer.getSource().get('pendingRequests') > 0) {
                     layer.getSource().set('pendingRequests', layer.getSource().get('pendingRequests') - 1);
                     if (layer.getSource().get('pendingRequests') === 0) {
                         // layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
@@ -935,11 +935,13 @@ define(["jquery", "ol",
                     type: 'GET',
                     url: settings.proxyUrl + serverUrl + query,
                     beforeSend: function (request) {
+                        if (sourceWFS.get('pendingRequests') == 0) {
+                            var $progressbar = $("<div class='buffering'></div>");
+                            $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
+                            $progressbar.progressbar({value: false});
+                            $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
+                        }
                         sourceWFS.set('pendingRequests', sourceWFS.get('pendingRequests') + 1);
-                        var $progressbar = $("<div class='buffering'></div>");
-                        $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
-                        $progressbar.progressbar({value: false});
-                        $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
                     }
                 }).done(function (response) {
                     sourceWFS.addFeatures(formatWFS.readFeatures(response, {
@@ -950,8 +952,8 @@ define(["jquery", "ol",
                     _this.messages.textContent = 'Some unexpected error occurred: (' + response.message + ').';
                 });
             },
-            strategy: ol.loadingstrategy.bbox
-            // strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
+            // strategy: ol.loadingstrategy.bbox
+            strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
         });
         sourceWFS.set('pendingRequests', 0);
 
