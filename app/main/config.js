@@ -47,6 +47,7 @@ require.config({
         ispointinpoly: "main/geometry/ispointinpoly",
         ispolyvalid: "main/geometry/ispolyvalid",
         doespolycoverhole: "main/geometry/doespolycoverhole",
+        bingkey: ["main/bingkey", "main/bingkey-sample"],
         main: "main/main"
     },
     shim: {

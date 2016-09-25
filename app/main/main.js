@@ -7,8 +7,9 @@ define(['jquery', 'ol',
     'ttemplate',
     'layertree',
     'toolbar',
+    'bingkey',
     'layerinteractor',
-    'layerswitcher'], function ($, ol, noUiSlider, exists, deg2tile, FeatureInteractor, tobjectTemplates, layerTree, toolBar, layerInteractor) {
+    'layerswitcher'], function ($, ol, noUiSlider, exists, deg2tile, FeatureInteractor, tobjectTemplates, layerTree, toolBar, bingKey, layerInteractor) {
 
     "use strict";
     String.prototype.capitalizeFirstLetter = function (flip) {
@@ -84,11 +85,12 @@ define(['jquery', 'ol',
             // center: ol.proj.transform([-86.677945, 34.723185], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-78.87532, 42.884600], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
-            center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
+            // center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
+            center: ol.proj.transform([-105.0, 39.75], 'EPSG:4326', 'EPSG:3857'),
             // center: ol.proj.transform([-79.049, 43.146], 'EPSG:4326', 'EPSG:3857'),
             // center: [-8238000, 4970700],
             // center: [0, 0],
-            zoom: 14
+            zoom: 13
         });
         view.on('change:resolution', function (evt) {
             var coord0 = evt.target.getCenter();
@@ -110,8 +112,6 @@ define(['jquery', 'ol',
             var format = ol.coordinate.createStringXY(mousePrecision);
             mousePositionControl.setCoordinateFormat(format);
         });
-
-        var bingkey = 'AsPHemiyjrAaLwkdh3DLil_xdTJN7QFGPaOi9-a4sf8hbAwA3Z334atxK8GxYcxy';
         var thunderforestAttributions = [
             new ol.Attribution({
                 html: 'Tiles &copy; <a href="http://www.thunderforest.com/">Thunderforest</a>'
@@ -137,7 +137,7 @@ define(['jquery', 'ol',
                             type: 'base',
                             visible: false,
                             source: new ol.source.BingMaps({
-                                key: bingkey,
+                                key: bingKey,
                                 imagerySet: 'Road'
                             })
                         }),
@@ -146,7 +146,7 @@ define(['jquery', 'ol',
                             type: 'base',
                             visible: false,
                             source: new ol.source.BingMaps({
-                                key: bingkey,
+                                key: bingKey,
                                 imagerySet: 'Aerial'
                             })
                         }),
@@ -155,7 +155,7 @@ define(['jquery', 'ol',
                             type: 'base',
                             visible: false,
                             source: new ol.source.BingMaps({
-                                key: bingkey,
+                                key: bingKey,
                                 imagerySet: 'AerialWithLabels'
                             })
                         })
@@ -247,30 +247,6 @@ define(['jquery', 'ol',
         var interactor = new layerInteractor({map: map, layertree: tree, toolbartarget: 'toolbar', featuretarget: 'featureeditor'});
         interactor.addDrawToolBar();
 
-        // var vector_aor = new ol.layer.Vector({
-        //     title: 'AOR',
-        //     name: 'AOR',
-        //     type: 'vector',
-        //     source: new ol.source.Vector(),
-        //     style: tobjectsStyleFunction
-        // });
-        // var vector = new ol.layer.Vector({
-        //     title: 'tobjects',
-        //     name: 'tobjects',
-        //     type: 'vector',
-        //     source: new ol.source.Vector(),
-        //     style: tobjectsStyleFunction
-        // });
-        // var projectGroup = new ol.layer.Group({
-        //     title: 'Project',
-        //     layers: [
-        //         // layerVector,
-        //         vector_aor,
-        //         vector
-        //     ]
-        // });
-        // map.addLayer(projectGroup);
-
         /*********** WFS-T *************/
         // var dirty = {};
         // var formatGML = new ol.format.GML({
@@ -337,65 +313,82 @@ define(['jquery', 'ol',
         // });
 
         /********* ADD PROJECT *********/
+        // var loadProject = document.getElementById('loadProject');
+        // loadProject.onclick = function (e) {
+        //     map.removeLayer(featureOverlay);
+        //     map.removeLayer(projectGroup);
+        //     var bounds = [-105.54833333333333, 39.76361111111111, -105.52694444444444, 39.778055555555554];
+        //     var image = new ol.layer.Image({
+        //         title: 'camera',
+        //         type: 'overlay',
+        //         source: new ol.source.ImageStatic({
+        //             url: 'test_project/package_patched2.png',
+        //             imageExtent: ol.proj.transformExtent(bounds, 'EPSG:4326', 'EPSG:3857')
+        //         }),
+        //         // Replace with an opacity slider-bar.
+        //         opacity: 0.2
+        //     });
+        //     var vector_aor = new ol.layer.Vector({
+        //         title: 'AOR',
+        //         type: 'overlay',
+        //         source: new ol.source.Vector({
+        //             url: 'test_project/aor.geojson',
+        //             format: new ol.format.GeoJSON()
+        //         }),
+        //         style: tobjectsStyleFunction
+        //     });
+        //     var vector = new ol.layer.Vector({
+        //         title: 'tobjects',
+        //         type: 'overlay',
+        //         source: new ol.source.Vector({
+        //             url: 'test_project/tobjects_test.geojson',
+        //             format: new ol.format.GeoJSON()
+        //         }),
+        //         style: tobjectsStyleFunction
+        //     });
+        //     var projectGroup = new ol.layer.Group({
+        //         title: 'Project',
+        //         layers: [
+        //             image,
+        //             vector_aor,
+        //             vector
+        //         ]
+        //     });
+        //     map.addLayer(projectGroup);
+        //     map.addLayer(featureOverlay);
+        //     // Need to add in auto-zoom-in functionality here.
+        //     vector_aor.getSource().on('change', function (evt) {
+        //         var source = evt.target;
+        //         if (source.getState() === 'ready') {
+        //             view.setCenter(ol.extent.getCenter(source.getExtent()));
+        //         }
+        //     });
+        // };
 
-        /*var loadProject = document.getElementById('loadProject');
-         loadProject.onclick = function (e) {
+        // var vector_aor = new ol.layer.Vector({
+        //     title: 'AOR',
+        //     name: 'AOR',
+        //     type: 'vector',
+        //     source: new ol.source.Vector(),
+        //     style: tobjectsStyleFunction
+        // });
+        // var vector = new ol.layer.Vector({
+        //     title: 'tobjects',
+        //     name: 'tobjects',
+        //     type: 'vector',
+        //     source: new ol.source.Vector(),
+        //     style: tobjectsStyleFunction
+        // });
+        // var projectGroup = new ol.layer.Group({
+        //     title: 'Project',
+        //     layers: [
+        //         // layerVector,
+        //         vector_aor,
+        //         vector
+        //     ]
+        // });
+        // map.addLayer(projectGroup);
 
-         map.removeLayer(featureOverlay);
-         map.removeLayer(projectGroup);
-
-         var bounds = [-105.54833333333333, 39.76361111111111, -105.52694444444444, 39.778055555555554];
-
-         var image = new ol.layer.Image({
-         title: 'camera',
-         type: 'overlay',
-         source: new ol.source.ImageStatic({
-         url: 'test_project/package_patched2.png',
-         imageExtent: ol.proj.transformExtent(bounds, 'EPSG:4326', 'EPSG:3857')
-         }),
-         // Replace with an opacity slider-bar.
-         opacity: 0.2
-         });
-         vector_aor = new ol.layer.Vector({
-         title: 'AOR',
-         type: 'overlay',
-         source: new ol.source.Vector({
-         url: 'test_project/aor.geojson',
-         format: new ol.format.GeoJSON()
-         }),
-         style: tobjectsStyleFunction
-         });
-         vector = new ol.layer.Vector({
-         title: 'tobjects',
-         type: 'overlay',
-         source: new ol.source.Vector({
-         url: 'test_project/tobjects_test.geojson',
-         format: new ol.format.GeoJSON()
-         }),
-         style: tobjectsStyleFunction
-         });
-         projectGroup = new ol.layer.Group({
-         title: 'Project',
-         layers: [
-         image,
-         vector_aor,
-         vector
-         ]
-         });
-
-         map.addLayer(projectGroup);
-         map.addLayer(featureOverlay);
-
-         // Need to add in auto-zoom-in functionality here.
-
-         vector_aor.getSource().on('change', function (evt) {
-         var source = evt.target;
-         if (source.getState() === 'ready') {
-         view.setCenter(ol.extent.getCenter(source.getExtent()));
-         };
-         });
-         }
-         */
         /******* LAYER SWITCHER ********/
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
