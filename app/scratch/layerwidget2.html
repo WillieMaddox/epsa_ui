@@ -101,39 +101,74 @@
         .opacity {
             box-sizing: border-box;
             position: relative;
-            width: calc(40% - 1.4em);
             margin: 0.5em;
             height: 0.9em;
+            width: calc(40% - 1.4em);
         }
-        .hovercontrol.ui-selectmenu-button.ui-button {
+        .hovercontrol {
+            display: flex;
+            float: right;
             box-sizing: border-box;
-            float: left;
-            position: relative;
-            width: 50%;
+            margin: 0.25em;
+            width: calc(50% - 4.875em/2);
+        }
+        .hovervisible {
+            box-sizing: border-box;
+            min-height: 2em;
+            min-width: 2em;
+            padding: 0.5em;
+        }
+        .hovervisible .ui-checkboxradio-icon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+        }
+        .hoverselect {
+            box-sizing: border-box;
+            padding: 0.375em;
             height: 2em;
-            margin: .25em;
-            padding: .5em;
+        }
+        .hoverselect.ui-selectmenu-button.ui-button {
+            overflow-x: hidden;
+            box-sizing: border-box;
             text-align: center;
-        }
-        .ui-controlgroup > button.ui-button {
-            box-sizing: border-box;
-            padding: .5em;
-            height: 2em;
-            width: 100%;
         }
         .colorcontrol {
             display: flex;
             float: right;
             box-sizing: border-box;
-            width: 50%;
-            margin: .25em;
+            margin: 0.25em;
+            width: calc(50% + 2.875em/2);
         }
-        .colorcontrol > .ui-button-icon-only {
-            width: 2em;
-            height: 2em;
+        .defaultbutton {
+            width: 3.875em;
+            padding: 0.375em;
         }
-        .colorcontrol .ui-selectmenu-icon.ui-icon {
-            margin-top: -8px;
+        .colorbutton {
+            padding: 0.375em;
+            min-height: 2em;
+            min-width: 2em;
+        }
+        .colorselect {
+            overflow-x: hidden;
+            box-sizing: border-box;
+            padding: 0.375em;
+        }
+        .colorselect.ui-selectmenu-button.ui-button {
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .colorwheel-icon,
+        .colorwheel-icon:hover,
+        .colorwheel-icon:focus
+        {
+            background-size: 1.4em;
+            background-image: url("../img/colorwheel.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            z-index: 9999;
         }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -195,36 +230,42 @@
             });
         });
         $(function () {
+            $(".hovercontrol").controlgroup();
+            $("#hovervisible").change(function () {
+                if (this.checked) {
+                    $(".output").append("<li>" + $(".hoverselect").val() + "</li>");
+                } else {
+                    $(".output").append("<li>Uncheck</li>");
+                }
+            });
             $(".hoverselect").selectmenu({
                 classes: {
-                    "ui-selectmenu-button": "hovercontrol"
+                    "ui-selectmenu-button": "hoverselect"
                 },
                 change: function () {
                     $(".output").append("<li>hover: " + this.value + "</li>");
                 }
             });
-            $(".hovercontrol").tooltip({
-                items: "span",
-                content: "Hover"
-            });
-        });
-        $(function () {
             $(".colorcontrol").controlgroup();
+            $(".defaultbutton").click(function () {
+                $(".output").append("<li>color: default</li>");
+            });
+            $(".colorbutton").button({
+                classes: {
+                    "ui-button": "colorwheel-icon"
+                }
+            });
             $(".colorbutton").click(function () {
-                $(".output").append("<li>color: " + $(".colorbutton")[0].innerHTML + "</li>");
+                $(".output").append("<li>color: " + $(".colorselect").val() + "</li>");
             });
             $(".colorselect").selectmenu({
                 classes: {
-                    "ui-selectmenu-button": "ui-button-icon-only"
+                    "ui-selectmenu-button": "colorselect"
                 },
                 change: function () {
                     $(".output").append("<li>color: " + this.value + "</li>");
-                    $(".colorbutton")[0].innerHTML = this.value;
+//                    $(".colorbutton")[0].innerHTML = this.value;
                 }
-            });
-            $(".colorcontrol").tooltip({
-                items: "span",
-                content: "Color"
             });
         });
     </script>
@@ -239,21 +280,24 @@
         <div class="opacity"></div>
     </div>
     <div class="layerrow">
-        <select class="hoverselect hovercontrol">
-            <option>default</option>
-            <option>osm_id</option>
-            <option>name</option>
-            <option>featuretype</option>
-            <option>height</option>
-        </select>
-        <div class="colorcontrol">
-            <button class="colorbutton">default</button>
-            <select class="colorselect">
-                <option>default</option>
+        <div class="hovercontrol">
+            <label for="hovervisible" class="hovervisible"></label>
+            <input type="checkbox" id="hovervisible">
+            <select class="hoverselect">
                 <option>osm_id</option>
                 <option>name</option>
                 <option>featuretype</option>
-                <option>height</option>
+                <option>Very Long height string</option>
+            </select>
+        </div>
+        <div class="colorcontrol">
+            <button class="defaultbutton">default</button>
+            <button class="colorbutton colorwheel-icon"></button>
+            <select class="colorselect">
+                <option>osm_id</option>
+                <option>name</option>
+                <option>featuretype</option>
+                <option>Very Long height string</option>
             </select>
         </div>
     </div>

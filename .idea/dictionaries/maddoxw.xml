@@ -10,6 +10,7 @@
       <w>checkboxradio</w>
       <w>checkwfslayer</w>
       <w>checkwmslayer</w>
+      <w>colorbutton</w>
       <w>colorcontrol</w>
       <w>colormenu</w>
       <w>colorselect</w>
@@ -23,11 +24,13 @@
       <w>epsg</w>
       <w>featureeditor</w>
       <w>featureproperties</w>
+      <w>featuretarget</w>
       <w>geomcollection</w>
       <w>gitmodules</w>
       <w>hovercontrol</w>
       <w>hoverontrol</w>
       <w>hoverselect</w>
+      <w>hovervisible</w>
       <w>interactor</w>
       <w>keydown</w>
       <w>layercontainer</w>
