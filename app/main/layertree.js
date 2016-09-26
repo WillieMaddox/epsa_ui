@@ -491,10 +491,10 @@ define(["jquery", "ol",
                                 $colorMenu[0].appendChild(this.createOption(i));
                             }
                             if (activeAttribute) {
-                                $('.colorcontrol .ui-selectmenu-text').text(activeAttribute);
+                                $('#' + $layerDiv[0].id + '.colorcontrol .ui-selectmenu-text').text(activeAttribute);
                                 $colorMenu[0].value = activeAttribute;
                             } else if ($colorMenu.children().length > 0) {
-                                $('.colorcontrol .ui-selectmenu-text').text($colorMenu.children()[0].value);
+                                $('#' + $layerDiv[0].id + '.colorcontrol .ui-selectmenu-text').text($colorMenu.children()[0].value);
                                 $colorMenu[0].value = $colorMenu.children()[0].value;
                             }
                             $colorMenu.selectmenu("refresh");
@@ -544,7 +544,6 @@ define(["jquery", "ol",
                     // }, this);
                 }
                 // layerDiv.appendChild(layerControls);
-
                 // layerDiv.appendChild(layerRow_1);
                 // layerDiv[0].appendChild(this.addSelectEvent(layerRow_1, true));
                 $layerDiv.append($layerRow_2);
@@ -733,13 +732,12 @@ define(["jquery", "ol",
             if (evt.target.getState() === 'ready') {
                 if (layer.getSource().get('pendingRequests') > 0) {
                     layer.getSource().set('pendingRequests', layer.getSource().get('pendingRequests') - 1);
+                    console.log('Remaining', layer.getSource().get('pendingRequests'));
                     if (layer.getSource().get('pendingRequests') === 0) {
-                        // layerElem.className = layerElem.className.replace(/(?:^|\s)(error|buffering)(?!\S)/g, '');
-                        // $('#' + layer.get('id')).removeClass('buffering');
                         $('#' + layer.get('id') + ' .layertitle').unwrap();
+                        layer.buildHeaders();
                     }
                 }
-                layer.buildHeaders();
             } else {
                 $('#' + layer.get('id')).addClass('error');
             }
@@ -942,6 +940,7 @@ define(["jquery", "ol",
                             $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
                         }
                         sourceWFS.set('pendingRequests', sourceWFS.get('pendingRequests') + 1);
+                        console.log('Pending', sourceWFS.get('pendingRequests'));
                     }
                 }).done(function (response) {
                     sourceWFS.addFeatures(formatWFS.readFeatures(response, {
@@ -963,9 +962,7 @@ define(["jquery", "ol",
         });
 
         this.map.addLayer(layer);
-
         this.addBufferIcon(layer);
-
         this.messages.textContent = 'WFS layer added successfully.';
         return this;
     };
@@ -1082,89 +1079,126 @@ define(["jquery", "ol",
         document.body.appendChild(div_addvector);
     };
     layerTree.prototype.addVectorLayer = function (form) {
+        var _this = this;
         var file = form.file.files[0];
         var currentProj = this.map.getView().getProjection();
-        try {
-            var fr = new FileReader();
-            var sourceFormat;
-            var source = new ol.source.Vector({
-                strategy: ol.loadingstrategy.bbox
-            });
-            fr.onload = function (evt) {
-                var vectorData = evt.target.result;
-                var sourceType;
-                switch (form.format.value) {
-                    case 'zip':
-                        sourceFormat = new ol.format.GeoJSON();
-                        break;
-                    // case 'shp':
-                    //     sourceFormat = new ol.format.GeoJSON();
-                    //     break;
-                    case 'geojson':
-                        sourceFormat = new ol.format.GeoJSON();
-                        // currently only supports saving out to geojson.
-                        var re = /layertag[^a-z]*([a-zA-z]*)/;
-                        sourceType = re.exec(vectorData);
-                        if (exists(sourceType) && sourceType.length === 2) {
-                            sourceType = sourceType[1];
-                        }
-                        break;
-                    case 'topojson':
-                        sourceFormat = new ol.format.TopoJSON();
-                        break;
-                    case 'kml':
-                        sourceFormat = new ol.format.KML();
-                        break;
-                    case 'osm':
-                        sourceFormat = new ol.format.OSMXML();
-                        break;
-                    default:
-                        return false;
-                }
+        var $progressbar;
+        switch (form.format.value) {
+            // case 'shp':
+            //     sourceFormat = new ol.format.GeoJSON();
+            //     break;
+            case 'zip':
+                sourceFormat = new ol.format.GeoJSON();
+                break;
+            case 'geojson':
+                sourceFormat = new ol.format.GeoJSON();
+                break;
+            case 'topojson':
+                sourceFormat = new ol.format.TopoJSON();
+                break;
+            case 'kml':
+                sourceFormat = new ol.format.KML();
+                break;
+            case 'osm':
+                sourceFormat = new ol.format.OSMXML();
+                break;
+            default:
+                return false;
+        }
 
-                var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
-                if (form.format.value === 'zip') {
-                    shp(vectorData).then(function (geojson) {
-                        source.addFeatures(sourceFormat.readFeatures(geojson, {
-                            dataProjection: dataProjection,
-                            featureProjection: currentProj
-                        }));
-                    });
-                    // } else if (form.format.value === 'shp'){
-                    //     shp(file).then(function (geojson) {
-                    //         source.addFeatures(sourceFormat.readFeatures(geojson, {
-                    //             dataProjection: dataProjection,
-                    //             featureProjection: currentProj
-                    //         }));
-                    //     });
-                } else {
-                    source.addFeatures(sourceFormat.readFeatures(vectorData, {
+        function loadStart(evt) {
+            $progressbar = $("<div class='buffering'></div>");
+            $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
+            if (evt.lengthComputable) {
+                $progressbar.progressbar({
+                    max: evt.total,
+                    value: 0
+                });
+            } else {
+                $progressbar.progressbar({
+                    value: false
+                });
+            }
+            $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
+        }
+        function updateProgress(evt) {
+            if (evt.lengthComputable) {
+                $progressbar.progressbar("value", evt.loaded);
+            }
+        }
+        function loaded(evt) {
+            $progressbar.progressbar("value", false);
+            var vectorData = evt.target.result;
+            var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
+            if (form.format.value === 'zip') {
+                shp(vectorData).then(function (geojson) {
+                    source.addFeatures(sourceFormat.readFeatures(geojson, {
                         dataProjection: dataProjection,
                         featureProjection: currentProj
                     }));
-                }
+                });
+                // // Read in a .shp file directly.
+                // } else if (form.format.value === 'shp'){
+                //     shp(file).then(function (geojson) {
+                //         source.addFeatures(sourceFormat.readFeatures(geojson, {
+                //             dataProjection: dataProjection,
+                //             featureProjection: currentProj
+                //         }));
+                //     });
+            } else {
+                source.addFeatures(sourceFormat.readFeatures(vectorData, {
+                    dataProjection: dataProjection,
+                    featureProjection: currentProj
+                }));
+            }
+            // // Convert MultiPolygon to Polygons if there is only one exterior ring.
+            // // Convert MultiLineString to LineString if there is only one linestring.
+            // var newgeom;
+            // source.getFeatures().forEach(function (feature) {
+            //     if (feature.getGeometry().getType() === 'MultiPolygon') {
+            //         if (feature.getGeometry().getCoordinates().length === 1) {
+            //             newgeom = new ol.geom.Polygon(feature.getGeometry().getCoordinates()[0]);
+            //             feature.setGeometry(newgeom);
+            //         }
+            //     } else if (feature.getGeometry().getType() === 'MultiLineString') {
+            //         if (feature.getGeometry().getCoordinates().length === 1) {
+            //             newgeom = new ol.geom.LineString(feature.getGeometry().getCoordinates()[0]);
+            //             feature.setGeometry(newgeom);
+            //         }
+            //     }
+            // });
+        }
+        function loadEnd(evt) {
+            $('#' + layer.get('id') + ' .layertitle').unwrap();
+            layer.buildHeaders();
+            console.log('headers built');
+        }
+        function errorHandler(evt) {
+            if (evt.target.error.name == "NotReadableError") {
+                _this.messages.textContent = 'The file could not be read.';
+            } else {
+                _this.messages.textContent = 'Some unexpected error occurred: (' + evt.message + ').';
+            }
+        }
 
+        try {
+            var fr = new FileReader();
+            var sourceFormat;
+            fr.onloadstart = loadStart;
+            fr.onprogress = updateProgress;
+            fr.onload = loaded;
+            fr.onloadend = loadEnd;
+            fr.onerror = errorHandler;
 
-                // var newgeom;
-                // source.getFeatures().forEach(function (feature) {
-                //     if (feature.getGeometry().getType() === 'MultiPolygon') {
-                //         if (feature.getGeometry().getCoordinates().length === 1) {
-                //             newgeom = new ol.geom.Polygon(feature.getGeometry().getCoordinates()[0]);
-                //             feature.setGeometry(newgeom);
-                //         }
-                //     } else if (feature.getGeometry().getType() === 'MultiLineString') {
-                //         if (feature.getGeometry().getCoordinates().length === 1) {
-                //             newgeom = new ol.geom.LineString(feature.getGeometry().getCoordinates()[0]);
-                //             feature.setGeometry(newgeom);
-                //         }
-                //     }
-                // });
-            };
             if (form.format.value === 'zip') {
                 fr.readAsArrayBuffer(file); // SHP
             } else {
                 fr.readAsText(file);
             }
+
+            var source = new ol.source.Vector({
+                strategy: ol.loadingstrategy.bbox
+            });
             var layer = new ol.layer.Vector({
                 source: source,
                 name: form.displayname.value,
@@ -1172,8 +1206,8 @@ define(["jquery", "ol",
                 updateWhileInteracting: true,
                 updateWhileAnimating: true
             });
-            this.addBufferIcon(layer);
             this.map.addLayer(layer);
+            // this.addBufferIcon(layer);
             this.messages.textContent = 'Vector layer added successfully.';
             return this;
         } catch (error) {
@@ -1447,8 +1481,8 @@ define(["jquery", "ol",
         var colorArray = [];
         var randomColor;
 
-        layer.getSource().forEachFeature(function (feat) {
-            var property = feat.get(attribute) === undefined ? '' : feat.get(attribute).toString();
+        layer.getSource().forEachFeature(function (feature) {
+            var property = feature.get(attribute) ? feature.get(attribute).toString() : '';
             if (attributeArray.indexOf(property) === -1) {
                 attributeArray.push(property);
                 do {
@@ -1458,7 +1492,7 @@ define(["jquery", "ol",
             }
         }, this);
         layer.setStyle(function (feature, res) {
-            var index = feature.get(attribute) === undefined ? 0 : attributeArray.indexOf(feature.get(attribute).toString());
+            var index = feature.get(attribute) ? attributeArray.indexOf(feature.get(attribute).toString()) : 0;
             var style = new ol.style.Style({
                 stroke: new ol.style.Stroke({
                     color: [0, 0, 0, 1],
