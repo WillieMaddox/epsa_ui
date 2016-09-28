@@ -63,8 +63,6 @@ define(["jquery", "ol",
             controlDiv.appendChild(this.createButton('deletelayer', 'Remove Layer', 'deletelayer'));
             containerDiv.appendChild(controlDiv);
 
-            // this.layerContainer = document.createElement('div');
-            // this.layerContainer.className = 'layercontainer';
             this.layerContainer = $("<div class='layercontainer'>");
             containerDiv.appendChild(this.layerContainer[0]);
 
@@ -79,9 +77,15 @@ define(["jquery", "ol",
                 items: "> .layer",
                 containment: "parent",
                 opacity: 0.5,
-                // start: function (event, ui) {
-                //     layerid = event.toElement.parentNode.id;
-                // },
+                start: function (event, ui) {
+                    console.log('start')
+                },
+                change: function (event, ui) {
+                    console.log('change')
+                },
+                beforeStop: function (event, ui) {
+                    console.log('beforeStop')
+                },
                 stop: function (event, ui) {
                     // IE doesn't register the blur when sorting
                     // so trigger focusout handlers to remove .ui-state-focus
@@ -138,15 +142,9 @@ define(["jquery", "ol",
                 var mouseDownFired = false;
                 var _this = this;
 
-                // var layerDiv = document.createElement('div');
-                // layerDiv.className = 'layer ol-unselectable';
-                // layerDiv.title = layer.get('name') || 'Unnamed Layer';
-                // layerDiv.id = layer.get('id');
-
                 var $layerDiv = $("<div class='layer ol-unselectable'>");
                 $layerDiv[0].title = layer.get('name') || 'Unnamed Layer';
                 $layerDiv[0].id = layer.get('id');
-                // this.layerContainer[0].insertBefore(layerDiv[0], this.layerContainer[0].firstChild);
                 this.layerContainer.prepend($layerDiv);
 
                 $layerDiv.on("click", null, function (event) {
@@ -228,70 +226,28 @@ define(["jquery", "ol",
                 // this.addSelectEvent($layerDiv, 'click');
 
                 var $layerRow_1 = $("<div class='layerrow layerrow1'>");
-                // this.addSelectEvent($layerRow_1, 'click');
-                // var layerRow_0 = document.createElement('div');
-                // layerRow_0.className = "layerrow layerrow1";
-                // this.addSelectEvent(layerRow_0, true);
 
-
-
-                // var visibleLabel = document.createElement('label');
-                // visibleLabel.htmlFor = layer.get('id') + "-visible";
-                // visibleLabel.className = "visible";
-                // // layerRow_0.appendChild(visibleLabel);
-                // layerRow_0.appendChild(this.stopPropagationOnEvent(visibleLabel, 'click'));
-                // var visibleInput = document.createElement('input');
-                // visibleInput.type = "checkbox";
-                // visibleInput.id = layer.get('id') + "-visible";
-                // visibleInput.checked = layer.getVisible();
-                // layerRow_0.appendChild(this.stopPropagationOnEvent(visibleInput, 'click'));
-
-                var $visibleBox = $("<input type='checkbox' class='visible ui-corner-all'>");
-                $visibleBox[0].checked = layer.getVisible();
-                $layerRow_1.append($visibleBox);
-                $visibleBox.change(function () {
+                var $visibleLabel = $("<label class='visible layervisible'>");
+                $visibleLabel.attr('for', layer.get('id') + "-layervisible");
+                $layerRow_1.append($visibleLabel);
+                var $visibleInput = $("<input type='checkbox' class='checkboxradio'/>");
+                $visibleInput.attr('id', layer.get('id') + "-layervisible" );
+                $visibleInput[0].checked = layer.getVisible();
+                $layerRow_1.append($visibleInput);
+                $visibleInput.change(function () {
                     if (this.checked) {
                         layer.setVisible(true);
                     } else {
                         layer.setVisible(false);
                     }
                 });
-                $visibleBox.click({
+                $visibleInput.click({
                     stopProp: true
                 }, handler);
 
-                // $visibleBox.click(function (event) {
-                //     event.stopPropagation()
-                // });
-                // $visibleBox.on('click', function (event) {
-                //     event.stopPropagation()
-                // });
-
-                // var visibleBox = document.createElement('input');
-                // visibleBox.type = 'checkbox';
-                // visibleBox.className = 'visible';
-                // visibleBox.checked = layer.getVisible();
-                // visibleBox.addEventListener('change', function () {
-                //     if (this.checked) {
-                //         layer.setVisible(true);
-                //     } else {
-                //         layer.setVisible(false);
-                //     }
-                // });
-                // layerDiv.appendChild(this.stopPropagationOnEvent(visibleBox, 'click'));
-
                 var $layerTitle = $("<div class='layertitle'>");
-                // var layerTitle = document.createElement('div');
-                // layerTitle.className = "layertitle";
-                // layerTitle.appendChild(document.createTextNode(layerDiv.title));
                 $layerTitle[0].textContent = $layerDiv[0].title;
-                // layerRow_0.appendChild(layerTitle);
-                // layerRow_0.appendChild(this.addSelectEvent(layerTitle, true));
-                // $layerRow_1.appendChild(this.stopPropagationOnEvent($layerTitle, 'click'));
                 $layerRow_1.append($layerTitle);
-                // $layerTitle.click(function (event) {
-                //     event.stopPropagation()
-                // });
                 $layerTitle.dblclick(function () {
                     this.contentEditable = true;
                     this.style.textOverflow = 'initial';
@@ -315,16 +271,7 @@ define(["jquery", "ol",
                     stopProp: true
                 }, handler);
 
-                // var layerBuffer = document.createElement('span');
-                // layerBuffer.textContent = '';
-                // layerBuffer.className = layer.get('id') + ' buffering';
-                // layerDiv.appendChild(layerBuffer);
-
                 var $opacitySlider = $("<div class='opacity'>");
-                // var opacitySlider = document.createElement('div');
-                // opacitySlider.className = "opacity";
-                // $opacitySlider.id = layer.get('id') + "-opacity";
-                // layerRow_0.appendChild(this.stopPropagationOnEvent(opacitySlider, 'click'));
                 $layerRow_1.append($opacitySlider);
 
                 $opacitySlider.slider({
@@ -370,154 +317,132 @@ define(["jquery", "ol",
                     handler(event, data)
                 });
 
-                // var opacityHandler = document.createElement('input');
-                // opacityHandler.className = 'slider';
-                // opacityHandler.type = 'range';
-                // opacityHandler.min = 0;
-                // opacityHandler.max = 1;
-                // opacityHandler.step = 0.1;
-                // opacityHandler.value = layer.getOpacity();
-                // opacityHandler.addEventListener('input', function () {
-                //     layer.setOpacity(this.value);
-                // });
-                // opacityHandler.addEventListener('change', function () {
-                //     layer.setOpacity(this.value);
-                // });
-                // opacityHandler.addEventListener('mousedown', function () {
-                //     layerDiv.draggable = false;
-                // });
-                // opacityHandler.addEventListener('mouseup', function () {
-                //     layerDiv.draggable = true;
-                // });
-                // layerDiv.appendChild(this.stopPropagationOnEvent(opacityHandler, 'click'));
-
-                // layerDiv.appendChild(layerRow_0);
-                // layerDiv[0].appendChild(this.addSelectEvent(layerRow_0, true));
                 $layerDiv.append($layerRow_1);
-                // var layerControls = document.createElement('div');
-                // this.addSelectEvent(layerControls, true);
 
                 if (layer instanceof ol.layer.Vector) {
 
                     var $layerRow_2 = $("<div class='layerrow layerrow2'>");
-                    // var layerRow_1 = document.createElement('div');
-                    // layerRow_1.className = "layerrow layerrow2";
-                    // this.addSelectEvent(layerRow_1, true);
-                    // this.addSelectEvent($layerRow_2, 'click');
 
-                    var $hoverMenu = $("<div class='hovercontrol'>");
-                    $layerRow_2.append($hoverMenu);
-                    $hoverMenu.selectmenu({
-                        classes: {
-                            "ui-selectmenu-button": "hovercontrol"
-                        },
-                        change: function () {
-                            console.log(this.value);
-                            if (layer.get('headers')[this.value] === 'string') {
-                                _this.styleCategorized(layer, this.value);
-                            } else if (layer.get('headers')[this.value] === 'number') {
-                                _this.styleGraduated(layer, this.value);
-                            } else {
-                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
-                            }
-                        }
-                    });
-                    layer.on('propertychange', function (evt) {
-                        if (evt.key === 'headers') {
-                            var activeAttribute = $hoverMenu[0].value;
-                            this.removeContent($hoverMenu[0]);
-                            var headers = layer.get('headers');
-                            for (var i in headers) {
-                                $hoverMenu[0].appendChild(this.createOption(i));
-                            }
-                            if (activeAttribute) {
-                                $hoverMenu[0].value = activeAttribute;
-                            }
-                        }
-                    }, this);
+                    var $hoverControl = $("<div class='controlgroup hovercontrol'>");
+                    var $hoverLabel = $("<label class='visible hovervisible'>");
+                    $hoverLabel.attr('for', layer.get('id') + "-hovervisible");
+                    $hoverControl.append($hoverLabel);
+                    var $hoverInput = $("<input type='checkbox' class='checkboxradio'/>");
+                    $hoverInput.attr('id', layer.get('id') + "-hovervisible" );
+                    $hoverControl.append($hoverInput);
+                    var $hoverSelect = $("<select class='menuselect hoverselect'>");
+                    $hoverControl.append($hoverSelect);
+                    $layerRow_2.append($hoverControl);
 
-                    // var hoverMenu = document.createElement('select');
-                    // hoverMenu.className = "hovercontrol";
-                    // hoverMenu.id = layer.get('id') + "-hover";
-                    // layerRow_1.appendChild(this.stopPropagationOnEvent(hoverMenu, 'click'));
-                    // layer.on('propertychange', function (evt) {
-                    //     if (evt.key === 'headers') {
-                    //         var activeAttribute = hoverMenu.value;
-                    //         this.removeContent(hoverMenu);
-                    //         var headers = layer.get('headers');
-                    //         for (var i in headers) {
-                    //             hoverMenu.appendChild(this.createOption(i));
-                    //         }
-                    //         if (activeAttribute) {
-                    //             hoverMenu.value = activeAttribute;
-                    //         }
-                    //     }
-                    // }, this);
+                    var $colorControl = $("<div class='controlgroup colorcontrol'>");
+                    var $defaultButton = $("<button class='mybutton defaultbutton'>Reset</button>");
+                    $colorControl.append($defaultButton);
+                    var $colorButton = $("<button class='mybutton colorbutton colorwheel-icon'></button>");
+                    $colorControl.append($colorButton);
+                    var $colorSelect = $("<select class='menuselect colorselect'>");
+                    $colorControl.append($colorSelect);
+                    $layerRow_2.append($colorControl);
 
-                    var $colorMenu = $("<select class='colorcontrol'>");
-                    $layerRow_2.append($colorMenu);
-                    $colorMenu.selectmenu({
-                        classes: {
-                            "ui-selectmenu-button": "colorcontrol"
-                        },
-                        change: function () {
-                            console.log(this.value);
-                            if (layer.get('headers')[this.value] === 'string') {
-                                _this.styleCategorized(layer, this.value);
-                            } else if (layer.get('headers')[this.value] === 'number') {
-                                _this.styleGraduated(layer, this.value);
-                            } else {
-                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
-                            }
-                        }
-                    });
-                    $colorMenu.click({
-                        stopProp: true
-                    }, handler);
-                    $colorMenu.on("mousedown", function (event) {
-                        console.log($layerDiv[0].id + ' .colormenu mousedown');
-                        mouseDownFired = true;
+                    $layerDiv.append($layerRow_2);
+
+                    $hoverInput.click(function (event) {
+                        console.log($layerDiv[0].id + ' .hoverInput click');
                         var data = {
                             stopProp: true
                         };
                         handler(event, data)
                     });
+                    $hoverInput.change(function () {
+                        if (this.checked) {
+                            console.log("hoverselect ON");
+                        } else {
+                            console.log("hoverselect OFF");
+                        }
+                    });
+                    $hoverSelect.selectmenu({
+                        classes: {
+                            "ui-selectmenu-button": "menuselect"
+                        },
+                        change: function () {
+                            console.log('hoverselect:', this.value);
+                        }
+                    });
+                    $defaultButton.click(function (event) {
+                        console.log('defaultbutton .layerrow click');
+                        layer.setStyle(tobjectStyleFunction);
+                        var data = {
+                            stopProp: true
+                        };
+                        handler(event, data)
+                    });
+                    $colorButton.click(function (event) {
+                        console.log('colorbutton .layerrow click');
+                        // var attribute = buttonElem.parentNode.querySelector('select').value;
+                        var attribute = $colorSelect.val();
+                        if (layer.get('headers')[attribute] === 'string') {
+                            _this.styleCategorized(layer, attribute);
+                        } else if (layer.get('headers')[attribute] === 'number') {
+                            _this.styleGraduated(layer, attribute);
+                        } else {
+                            _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                        }
+                        var data = {
+                            stopProp: true
+                        };
+                        handler(event, data)
+                    });
+                    $colorSelect.selectmenu({
+                        classes: {
+                            "ui-selectmenu-button": "menuselect"
+                        },
+                        change: function () {
+                            console.log(this.value);
+                            if (layer.get('headers')[this.value] === 'string') {
+                                _this.styleCategorized(layer, this.value);
+                            } else if (layer.get('headers')[this.value] === 'number') {
+                                _this.styleGraduated(layer, this.value);
+                            } else {
+                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                            }
+                        }
+                    });
+                    $colorSelect.click(function (event) {
+                        console.log($layerDiv[0].id + ' .colorselect click');
+                        var data = {
+                            stopProp: true
+                        };
+                        handler(event, data)
+                    });
+
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
-                            var activeAttribute = $colorMenu[0].value;
-                            this.removeContent($colorMenu[0]);
+                            if (activeAttribute) {
+                            }
+
+                            var activeAttribute = $hoverSelect[0].value;
+                            var activeAttribute = $colorSelect[0].value;
+                            this.removeContent($hoverSelect[0]);
+                            this.removeContent($colorSelect[0]);
                             var headers = layer.get('headers');
                             for (var i in headers) {
-                                $colorMenu[0].appendChild(this.createOption(i));
+                                $hoverSelect[0].appendChild(this.createOption(i));
+                                $colorSelect[0].appendChild(this.createOption(i));
                             }
                             if (activeAttribute) {
-                                $('#' + $layerDiv[0].id + '.colorcontrol .ui-selectmenu-text').text(activeAttribute);
-                                $colorMenu[0].value = activeAttribute;
-                            } else if ($colorMenu.children().length > 0) {
-                                $('#' + $layerDiv[0].id + '.colorcontrol .ui-selectmenu-text').text($colorMenu.children()[0].value);
-                                $colorMenu[0].value = $colorMenu.children()[0].value;
+                                $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text(activeAttribute);
+                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text(activeAttribute);
+                                $hoverSelect[0].value = activeAttribute;
+                                $colorSelect[0].value = activeAttribute;
+                            } else if ($colorSelect.children().length > 0) {
+                                $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text($hoverSelect.children()[0].value);
+                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text($colorSelect.children()[0].value);
+                                $hoverSelect[0].value = $hoverSelect.children()[0].value;
+                                $colorSelect[0].value = $colorSelect.children()[0].value;
                             }
-                            $colorMenu.selectmenu("refresh");
+                            $hoverSelect.selectmenu("refresh");
+                            $colorSelect.selectmenu("refresh");
                         }
                     }, this);
-
-                    // var colorMenu = document.createElement('select');
-                    // colorMenu.className = "colorcontrol";
-                    // colorMenu.id = layer.get('id') + "-color";
-                    // layerRow_1.appendChild(this.stopPropagationOnEvent(colorMenu, 'click'));
-                    // layer.on('propertychange', function (evt) {
-                    //     if (evt.key === 'headers') {
-                    //         var activeAttribute = colorMenu.value;
-                    //         this.removeContent(colorMenu);
-                    //         var headers = layer.get('headers');
-                    //         for (var i in headers) {
-                    //             colorMenu.appendChild(this.createOption(i));
-                    //         }
-                    //         if (activeAttribute) {
-                    //             colorMenu.value = activeAttribute;
-                    //         }
-                    //     }
-                    // }, this);
 
                     // var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
                     // layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
@@ -542,22 +467,16 @@ define(["jquery", "ol",
                     //         }
                     //     }
                     // }, this);
+
                 }
                 // layerDiv.appendChild(layerControls);
                 // layerDiv.appendChild(layerRow_1);
                 // layerDiv[0].appendChild(this.addSelectEvent(layerRow_1, true));
-                $layerDiv.append($layerRow_2);
                 // this.layerContainer.insertBefore(layerDiv[0], this.layerContainer.firstChild);
 
-                // $("#" + layer.get('id') + "-visible").checkboxradio();
-                // $("#" + layer.get('id') + "-visible").on("change", function (evt) {
-                //     if (this.checked) {
-                //         layer.setVisible(true);
-                //     } else {
-                //         layer.setVisible(false);
-                //     }
-                //     evt.stopPropagation();
-                // });
+                $(".mybutton").button();
+                $(".checkboxradio").checkboxradio();
+                $('.controlgroup').controlgroup();
 
                 return this;
             };
@@ -787,7 +706,7 @@ define(["jquery", "ol",
                         _this.messages.textContent = messageText;
                     }
                 } catch (error) {
-                    _this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
+                    _this.messages.textContent = 'Some unexpected error occurred in checkWmsLayer: (' + error.message + ').';
                 } finally {
                     form.check.disabled = false;
                 }
@@ -857,7 +776,7 @@ define(["jquery", "ol",
                 _this.messages.textContent = messageText;
             }
         }).fail(function (response) {
-            _this.messages.textContent = 'Some unexpected error occurred: (' + response.message + ').';
+            _this.messages.textContent = 'Some unexpected error occurred in checkWfsLayer: (' + response.message + ').';
         }).always(function () {
             form.check.disabled = false;
         });
@@ -927,6 +846,9 @@ define(["jquery", "ol",
         var sourceWFS = new ol.source.Vector({
             loader: function (extent, res, mapProj) {
                 // proj = proj || mapProj.getCode();
+                // if (res >= 30) {
+                //     return
+                // }
                 var _this = this;
                 var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
                 $.ajax({
@@ -940,7 +862,7 @@ define(["jquery", "ol",
                             $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
                         }
                         sourceWFS.set('pendingRequests', sourceWFS.get('pendingRequests') + 1);
-                        console.log('Pending', sourceWFS.get('pendingRequests'));
+                        console.log('Pending', sourceWFS.get('pendingRequests'), 'res', res);
                     }
                 }).done(function (response) {
                     sourceWFS.addFeatures(formatWFS.readFeatures(response, {
@@ -948,11 +870,13 @@ define(["jquery", "ol",
                         featureProjection: mapProj.getCode()
                     }));
                 }).fail(function (response) {
-                    _this.messages.textContent = 'Some unexpected error occurred: (' + response.message + ').';
+                    _this.messages.textContent = 'Some unexpected error occurred in addWfsLayer: (' + response.message + ').';
                 });
             },
             // strategy: ol.loadingstrategy.bbox
-            strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
+            strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({
+                minZoom: 14
+            }))
         });
         sourceWFS.set('pendingRequests', 0);
 
@@ -1177,7 +1101,7 @@ define(["jquery", "ol",
             if (evt.target.error.name == "NotReadableError") {
                 _this.messages.textContent = 'The file could not be read.';
             } else {
-                _this.messages.textContent = 'Some unexpected error occurred: (' + evt.message + ').';
+                _this.messages.textContent = 'Some unexpected error occurred in addVectorLayer1: (' + evt.message + ').';
             }
         }
 
@@ -1211,7 +1135,7 @@ define(["jquery", "ol",
             this.messages.textContent = 'Vector layer added successfully.';
             return this;
         } catch (error) {
-            this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
+            this.messages.textContent = 'Some unexpected error occurred in addVectorLayer2: (' + error.message + ').';
             return error;
         }
     };
@@ -1317,32 +1241,6 @@ define(["jquery", "ol",
         return this;
     };
 
-    layerTree.prototype.addSelectEvent_old2 = function (node, isChild) {
-        var _this = this;
-        node.addEventListener('click', function (evt) {
-            var targetNode = evt.target;
-            // on slider.stop() If cursor isn't over slider on mouseup.
-            // if (targetNode.classList.contains("unselectable")) {
-            //     targetNode.classList.remove("unselectable");
-            //     console.log('unselectable removed');
-            //     return node;
-            // }
-            if (targetNode.classList.contains("layerrow") && isChild) {
-                evt.stopPropagation();
-                targetNode = targetNode.parentNode;
-            } else {
-                return node;
-            }
-            if (_this.selectedLayer) {
-                _this.deselectEventEmitter.changed();
-                _this.selectedLayer.classList.remove('active');
-            }
-            _this.selectedLayer = targetNode;
-            _this.selectedLayer.classList.add('active');
-            _this.selectEventEmitter.changed();
-        });
-        return node;
-    };
     layerTree.prototype.addSelectEvent_old = function (node, isChild) {
         var _this = this;
         node.addEventListener('click', function (evt) {
@@ -1372,8 +1270,9 @@ define(["jquery", "ol",
         return node;
     };
     layerTree.prototype.removeRegistry = function (layer) {
-        var layerDiv = document.getElementById(layer.get('id'));
-        this.layerContainer.removeChild(layerDiv);
+        $('#' + layer.get('id')).remove();
+        // var layerDiv = document.getElementById(layer.get('id'));
+        // this.layerContainer.removeChild(layerDiv);
         return this;
     };
     layerTree.prototype.getLayerById = function (id) {

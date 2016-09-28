@@ -17,6 +17,7 @@
       <w>controlgroup</w>
       <w>dblclick</w>
       <w>deletelayer</w>
+      <w>displayname</w>
       <w>doespolycoverhole</w>
       <w>dragenter</w>
       <w>dragleave</w>
@@ -28,11 +29,11 @@
       <w>featureinteractor</w>
       <w>featureproperties</w>
       <w>featuretarget</w>
+      <w>geojson</w>
       <w>geomcollection</w>
       <w>getjstsgeom</w>
       <w>gitmodules</w>
       <w>hovercontrol</w>
-      <w>hoverontrol</w>
       <w>hoverselect</w>
       <w>hovervisible</w>
       <w>interactor</w>
@@ -62,6 +63,7 @@
       <w>selectevent</w>
       <w>selectmenu</w>
       <w>serversettings</w>
+      <w>shapefile</w>
       <w>smil</w>
       <w>splitbutton</w>
       <w>stylelayer</w>
@@ -70,6 +72,7 @@
       <w>tobject</w>
       <w>tobjects</w>
       <w>toolbartarget</w>
+      <w>topojson</w>
       <w>tstylefunction</w>
       <w>unmarshaller</w>
       <w>unselectable</w>
