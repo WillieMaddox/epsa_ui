@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery UI Dialog - Modal form</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        .ui-corner-all,
+        .ui-corner-left,
+        .ui-corner-right,
+        .ui-corner-top,
+        .ui-corner-bottom
+        {
+            border-radius: 0;
+        }
+        fieldset {
+            padding: 0;
+            border: 0;
+        }
+        fieldset input {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            padding: .4em;
+        }
+        fieldset label {
+            display: block;
+            margin-top: 1em;
+        }
+        .addlayer span.ui-selectmenu-button {
+            box-sizing: border-box;
+            width: 100%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+    <script>
+
+//        var $displayNameLabel = $('<label for="displayname_wms">Display Name</label>');
+//        var $displayNameInput = $('<input type="text" id="displayname_wms" name="displayname" class="displayname">');
+//        var $urlLabel = $('<label for="url_wms">Server URL</label>');
+//        var $urlInput = $('<input type="text" id="url_wms" name="url" class="url" value="http://demo.opengeo.org/geoserver/wms">');
+//        var $urlButton = $('<input type="button" id="checkwmslayer" name="check" value="Check for layers">');
+//        var $layerNameLabel = $('<label for="layername_wms">Layer Name</label>');
+//        var $layerNameSelect = $('<select id="layername_wms" name="layername" class="layername"></select>');
+//        var $formatLabel = $('<label for="format_wms">Format</label>');
+//        var $formatSelect = $('<select id="format_wms" name="format" class="format"></select>');
+//        var $projectionLabel = $('<label for="projection_wms">Projection</label>');
+//        var $projectionInput = $('<input type="text" id="projection_wms" name="projection" class="projection" value="EPSG:3857">');
+//        var $tiledLabel = $('<label for="tiled_wms">Tiled</label>');
+//        var $tiledInput = $('<input type="checkbox" id="tiled_wms" name="tiled" class="tiled">');
+
+//        var $addWmsDialog = $('<div id="addwms" class="toggleable">');
+//        var $addWmsForm = $('<form class="addlayer">');
+//        var $fieldset = $('<fieldset>');
+
+//        $fieldset.append($displayNameLabel);
+//        $fieldset.append($displayNameInput);
+//        $fieldset.append($urlLabel);
+//        $fieldset.append($urlInput);
+//        $fieldset.append($urlButton);
+//        $fieldset.append($layerNameLabel);
+//        $fieldset.append($layerNameSelect);
+//        $fieldset.append($formatLabel);
+//        $fieldset.append($formatSelect);
+//        $fieldset.append($projectionLabel);
+//        $fieldset.append($projectionInput);
+//        $fieldset.append($tiledLabel);
+//        $fieldset.append($tiledInput);
+
+//        $fieldset.append($('<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">'););
+//        $addWmsForm.append($fieldset);
+//        $addWmsDialog.append($addWmsForm);
+//        $('body').append($addWmsDialog);
+
+        var createDisplayNameNodes = function (parent, op, id) {
+            parent.append($('<label for="displayname_'+op+id+'">Display Name</label>'));
+            parent.append($('<input type="text" id="displayname_'+op+id+'" name="displayname" class="displayname">'));
+            return parent
+        };
+        var createUrlNodes = function (parent, op, id) {
+            parent.append($('<label for="url_'+op+id+'">Server URL</label>'));
+            parent.append($('<input type="text" id="url_'+op+id+'" name="url" class="url" value="http://demo.opengeo.org/geoserver/'+id+'">'));
+            parent.append($('<input type="button" id="check'+id+'layer" name="check" value="Check for layers">'));
+            return parent
+        };
+        var createLayerNameNodes = function (parent, op, id) {
+            parent.append($('<label for="layername_'+op+id+'">Layer Name</label>'));
+            parent.append($('<select id="layername_'+op+id+'" name="layername" class="layername"></select>'));
+            return parent
+        };
+        var createFormatNodes = function (parent, op, id) {
+            parent.append($('<label for="format_'+op+id+'">Format</label>'));
+            parent.append($('<select id="format_'+op+id+'" name="format" class="format"></select>'));
+            return parent
+        };
+        var createProjectionNodes = function (parent, op, id, value) {
+            parent.append($('<label for="projection_'+op+id+'">Projection</label>'));
+            var $input = $('<input type="text" id="projection_'+op+id+'" name="projection" class="projection">');
+            if (value) {$input.val(value)}
+            parent.append($input);
+            return parent
+        };
+        var createTiledNodes = function (parent, op, id) {
+            parent.append($('<label for="tiled_'+op+id+'">Tiled</label>'));
+            parent.append($('<input type="checkbox" id="tiled_'+op+id+'" name="tiled" class="tiled">'));
+            return parent
+        };
+        var createFileNodes = function (parent, op, id) {
+            parent.append($('<label for="file_'+op+id+'">Vector file</label>'));
+            parent.append($('<input type="file" name="file" id="file_'+op+id+'" class="file ui-widget-content" required>'));
+            return parent
+        };
+        var createFileTypeNodes = function (parent, op, id) {
+            parent.append($('<label for="filetype_'+op+id+'">Format</label>'));
+            var $selectNode = $('<select name="filetype" id="filetype_'+op+id+'" class="filetype">');
+            $selectNode.append($('<option value="geojson">GeoJSON</option>'));
+            $selectNode.append($('<option value="topojson">TopoJSON</option>'));
+            $selectNode.append($('<option value="zip">Shapefile (zipped)</option>'));
+            $selectNode.append($('<option value="kml">KML</option>'));
+            $selectNode.append($('<option value="osm">OSM</option>'));
+            parent.append($selectNode);
+            return parent
+        };
+        var createGeomTypeNodes = function (parent, op, id) {
+            parent.append($('<label for="geomtype_'+op+id+'">Geometry Type</label>'));
+            var $selectNode = $('<select name="geomtype" id="geomtype_'+op+id+'" class="geomtype">');
+            $selectNode.append($('<option value="geomcollection">Geometry Collection</option>'));
+            $selectNode.append($('<option value="polygon">Polygon</option>'));
+            $selectNode.append($('<option value="line">Line</option>'));
+            $selectNode.append($('<option value="point">Point</option>'));
+            parent.append($selectNode);
+            return parent
+        };
+        var createDialog = function ($fieldset, op, id) {
+            var $dialog = $('<div id="'+op+id+'" class="toggleable">');
+            var $form = $('<form class="addlayer">');
+            var $submitInput = $('<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">');
+            $fieldset.append($submitInput);
+            $form.append($fieldset);
+            $dialog.append($form);
+            $('body').append($dialog);
+        };
+        var createAddWmsDialog = function () {
+            var op = "add";
+            var id = "wms";
+            var $fieldset = $('<fieldset>');
+            createDisplayNameNodes($fieldset, op, id);
+            createUrlNodes($fieldset, op, id);
+            createLayerNameNodes($fieldset, op, id);
+            createFormatNodes($fieldset, op, id);
+            createTiledNodes($fieldset, op, id);
+            createDialog($fieldset, op, id);
+        };
+        var createAddWfsDialog = function () {
+            var op = "add";
+            var id = "wfs";
+            var $fieldset = $('<fieldset>');
+            createDisplayNameNodes($fieldset, op, id);
+            createUrlNodes($fieldset, op, id);
+            createLayerNameNodes($fieldset, op, id);
+            createTiledNodes($fieldset, op, id);
+            createDialog($fieldset, op, id);
+        };
+        var createAddVectorDialog = function () {
+            var op = "add";
+            var id = "vector";
+            var $fieldset = $('<fieldset>');
+            createDisplayNameNodes($fieldset, op, id);
+            createFileTypeNodes($fieldset, op, id);
+            createFileNodes($fieldset, op, id);
+            createProjectionNodes($fieldset, op, id);
+            createDialog($fieldset, op, id);
+        };
+        var createNewVectorDialog = function () {
+            var op = "new";
+            var id = "vector";
+            var $fieldset = $('<fieldset>');
+            createDisplayNameNodes($fieldset, op, id);
+            createGeomTypeNodes($fieldset, op, id);
+            createDialog($fieldset, op, id);
+        };
+
+        createAddWmsDialog();
+        createAddWfsDialog();
+        createAddVectorDialog();
+        createNewVectorDialog();
+
+//        $('body').append($('<input type="button" class="addwms" value="Add WMS">'));
+        $('body').append($('<button class="addwms">Add WMS</button>'));
+        $('body').append($('<button class="addwfs">Add WFS</button>'));
+        $('body').append($('<button class="addvector">Add Vector</button>'));
+        $('body').append($('<button class="newvector">New Vector</button>'));
+
+        $(function () {
+
+            function addWms($form) {
+                console.log(
+                        $form.find(".displayname").val(),
+                        $form.find(".url").val(),
+                        $form.find(".layername").val(),
+                        $form.find(".format").val(),
+                        $form.find(".tiled").is(":checked")
+                );
+            }
+            function addWfs($form) {
+                console.log(
+                        $form.find(".displayname").val(),
+                        $form.find(".url").val(),
+                        $form.find(".layername").val(),
+                        $form.find(".projection").val(),
+                        $form.find(".tiled").is(":checked")
+                );
+            }
+            function addVector($form) {
+                console.log(
+                        $form.find(".displayname").val(),
+                        $form.find(".file").val(),
+                        $form.find(".filetype").val(),
+                        $form.find(".projection").val()
+                );
+            }
+            function newVector($form) {
+                console.log(
+                        $form.find(".geomtype").val(),
+                        $form.find(".displayname").val()
+                );
+            }
+
+            $("#checkwmslayer").button().on("click", function () {
+                console.log("Check WMS");
+            });
+            $("#checkwfslayer").button().on("click", function () {
+                console.log("Check WFS");
+            });
+            var $addWmsDialog = $("#addwms").dialog({
+                title: "Add WMS layer",
+                autoOpen: false,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Add Layer": function () {
+                        addWms($(this).children());
+                        $(this).dialog("close")
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                close: function () {
+                    $(this).find("form")[0].reset();
+                }
+            });
+            $addWmsDialog.find("form").on("submit", function (event) {
+                event.preventDefault();
+                addWms($(this));
+                $(this).parent().dialog("close");
+            });
+
+            var $addWfsDialog = $("#addwfs").dialog({
+                title: "Add WFS layer",
+                autoOpen: false,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Add Layer": function () {
+                        addWfs($(this).children());
+                        $(this).dialog("close")
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                close: function () {
+                    $(this).find("form")[0].reset();
+                }
+            });
+            $addWfsDialog.find("form").on("submit", function (event) {
+                event.preventDefault();
+                addWfs($(this));
+                $(this).parent().dialog("close");
+            });
+
+            var $addVectorDialog = $("#addvector").dialog({
+                title: "Add Vector layer",
+                autoOpen: false,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Add Layer": function () {
+                        addVector($(this).children());
+                        $(this).dialog("close")
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                close: function () {
+                    $(this).find("form")[0].reset();
+                }
+            });
+            $addVectorDialog.find("form").on("submit", function (event) {
+                event.preventDefault();
+                addVector($(this));
+                $(this).parent().dialog("close");
+            });
+
+            var $newVectorDialog = $("#newvector").dialog({
+                title: "Create New Vector Layer",
+                autoOpen: false,
+                width: 350,
+                modal: true,
+                buttons: {
+                    "Add Layer": function () {
+                        newVector($(this).children());
+                        $(this).dialog("close")
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }
+                },
+                close: function () {
+                    $(this).find("form")[0].reset();
+                }
+            });
+            $newVectorDialog.find("form").on("submit", function (event) {
+                event.preventDefault();
+                newVector($(this));
+                $(this).parent().dialog("close");
+            });
+
+            $(".addwms").button().on("click", function () {
+                $("#addwms").dialog("open");
+            });
+            $(".addwfs").button().on("click", function () {
+                $("#addwfs").dialog("open");
+            });
+            $(".addvector").button().on("click", function () {
+                $("#addvector").dialog("open");
+            });
+            $(".newvector").button().on("click", function () {
+                $("#newvector").dialog("open");
+            });
+
+            $(".layername").selectmenu();
+            $(".geomtype").selectmenu();
+            $(".filetype").selectmenu();
+            $(".format").selectmenu();
+            $(".tiled").checkboxradio();
+        });
+    </script>
+
+<!--<div id="addwms" class="toggleable">-->
+    <!--<form class="addlayer">-->
+        <!--<fieldset>-->
+            <!--<label for="displayname_wms">Display Name</label>-->
+            <!--<input type="text" name="displayname" id="displayname_wms" class="displayname">-->
+
+            <!--<label for="wmsurl">Server URL</label>-->
+            <!--<input type="text" name="url" id="wmsurl" class="url" value="http://demo.opengeo.org/geoserver/wms">-->
+            <!--<input type="button" name="check" id="checkwmslayer" value="Check for layers">-->
+
+            <!--<label for="layername_wms">Layer Name</label>-->
+            <!--<select name="layername" id="layername_wms" class="layername"></select>-->
+
+            <!--<label for="format_wms">Format</label>-->
+            <!--<select name="format" id="format_wms" class="format"></select>-->
+
+            <!--<label for="projection_wms">Projection</label>-->
+            <!--<input type="text" name="projection" id="projection_wms" class="projection" value="EPSG:3857">-->
+
+            <!--<label for="tiled_wms">Tiled</label>-->
+            <!--<input type="checkbox" name="tiled" id="tiled_wms" class="tiled">-->
+            <!--<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">-->
+        <!--</fieldset>-->
+    <!--</form>-->
+<!--</div>-->
+
+<!--<div id="addwfs" class="toggleable">-->
+    <!--<form class="addlayer">-->
+        <!--<fieldset>-->
+            <!--<label for="displayname_wfs">Display Name</label>-->
+            <!--<input type="text" name="displayname" id="displayname_wfs" class="displayname">-->
+
+            <!--<label for="wfsurl">Server URL</label>-->
+            <!--<input type="text" name="server" id="wfsurl" class="url" required="required" value="http://demo.opengeo.org/geoserver/wfs">-->
+            <!--<input type="button" name="check" id="checkwfslayer" value="Check for layers">-->
+
+            <!--<label for="layername_wfs">Layer Name</label>-->
+            <!--<select name="layername" id="layername_wfs" class="layername"></select>-->
+
+            <!--<label for="projection_wfs">Projection</label>-->
+            <!--<input type="text" name="projection" id="projection_wfs" class="projection" value="EPSG:3857">-->
+
+            <!--<label for="tiled_wfs">Tiled</label>-->
+            <!--<input type="checkbox" name="tiled" id="tiled_wfs" class="tiled">-->
+
+            <!--<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">-->
+        <!--</fieldset>-->
+    <!--</form>-->
+<!--</div>-->
+
+<!--<div id="addvector" class="toggleable">-->
+    <!--<form class="addlayer">-->
+        <!--<fieldset>-->
+            <!--<label for="displayname_add">Display Name</label>-->
+            <!--<input type="text" name="displayname" id="displayname_add" class="displayname ui-widget-content">-->
+
+            <!--<label for="filetype">Format</label>-->
+            <!--<select name="filetype" id="filetype" class="filetype">-->
+                <!--<option value="geojson">GeoJSON</option>-->
+                <!--<option value="topojson">TopoJSON</option>-->
+                <!--<option value="zip">Shapefile (zipped)</option>-->
+                <!--<option value="kml">KML</option>-->
+                <!--<option value="osm">OSM</option>-->
+            <!--</select>-->
+
+            <!--<label for="file">Vector file</label>-->
+            <!--<input type="file" name="file" id="file" class="file ui-widget-content" required>-->
+
+            <!--<label for="projection_add">Projection</label>-->
+            <!--<input type="text" name="projection" id="projection_add" class="projection ui-widget-content" required>-->
+
+            <!--<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">-->
+        <!--</fieldset>-->
+    <!--</form>-->
+<!--</div>-->
+
+<!--<div id="newvector" class="toggleable">-->
+    <!--<form class="addlayer">-->
+        <!--<fieldset>-->
+            <!--<label for="displayname_new">Display Name</label>-->
+            <!--<input type="text" name="displayname" id="displayname_new" class="displayname ui-widget-content">-->
+
+            <!--<label for="geomtype">Geometry Type</label>-->
+            <!--<select name="geomtype" id="geomtype" class="geomtype">-->
+                <!--<option value="point">Point</option>-->
+                <!--<option value="line">Line</option>-->
+                <!--<option value="polygon">Polygon</option>-->
+                <!--<option value="geomcollection">Geometry Collection</option>-->
+            <!--</select>-->
+
+            <!--<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">-->
+        <!--</fieldset>-->
+    <!--</form>-->
+<!--</div>-->
+
+</body>
+</html>
