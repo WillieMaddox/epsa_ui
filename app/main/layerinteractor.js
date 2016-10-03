@@ -1417,6 +1417,9 @@ define(['jquery', 'ol',
         })();
         return new ol.layer.Vector({
             source: new ol.source.Vector(),
+            // Should probably attach the map to the overlay here so that the map doesn't manage the overlay.
+            // Need to test this.
+            // map: _this.map,
             type: 'overlay',
             style: overlayStyleFunction,
             zIndex: 9900

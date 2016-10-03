@@ -509,39 +509,173 @@ define(['jquery', 'ol',
         // });
 
 
-        document.getElementById('checkwmslayer').addEventListener('click', function () {
-            tree.checkWmsLayer(this.form);
+        // document.getElementById('checkwmslayer').addEventListener('click', function () {
+        //     tree.checkWmsLayer(this.form);
+        // });
+        // document.getElementById('checkwfslayer').addEventListener('click', function () {
+        //     tree.checkWfsLayer(this.form);
+        // });
+        // document.getElementById('wmsurl').addEventListener('change', function () {
+        //     tree.removeContent(this.form.layer)
+        //         .removeContent(this.form.format);
+        // });
+        // document.getElementById('wfsurl').addEventListener('change', function () {
+        //     tree.removeContent(this.form.layer);
+        // });
+        // document.getElementById('addwms_form').addEventListener('submit', function (evt) {
+        //     evt.preventDefault();
+        //     tree.addWmsLayer(this);
+        //     this.parentNode.style.display = 'none';
+        // });
+        // document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
+        //     evt.preventDefault();
+        //     tree.addWfsLayer(this);
+        //     this.parentNode.style.display = 'none';
+        // });
+        // document.getElementById('addvector_form').addEventListener('submit', function (evt) {
+        //     evt.preventDefault();
+        //     tree.addVectorLayer(this);
+        //     this.parentNode.style.display = 'none';
+        // });
+        // document.getElementById('newvector_form').addEventListener('submit', function (evt) {
+        //     evt.preventDefault();
+        //     tree.newVectorLayer(this);
+        //     this.parentNode.style.display = 'none';
+        // });
+
+        $("#checkwmslayer").button().on("click", function () {
+            tree.checkWmsLayer($(this));
         });
-        document.getElementById('addwms_form').addEventListener('submit', function (evt) {
-            evt.preventDefault();
-            tree.addWmsLayer(this);
-            this.parentNode.style.display = 'none';
+        $("#checkwfslayer").button().on("click", function () {
+            tree.checkWfsLayer($(this));
         });
-        document.getElementById('wmsurl').addEventListener('change', function () {
-            tree.removeContent(this.form.layer)
-                .removeContent(this.form.format);
+
+        $("#url_addwms").on("change", function () {
+            var $layername = $(this).parent().find(".layername");
+            var $format = $(this).parent().find(".format");
+            $layername.empty();
+            $layername.selectmenu("refresh");
+            $format.empty();
+            $format.selectmenu("refresh");
         });
-        document.getElementById('checkwfslayer').addEventListener('click', function () {
-            tree.checkWfsLayer(this.form);
+        $("#url_addwfs").on("change", function () {
+            var $layername = $(this).parent().find(".layername");
+            $layername.empty();
+            $layername.selectmenu("refresh");
         });
-        document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
-            evt.preventDefault();
-            tree.addWfsLayer(this);
-            this.parentNode.style.display = 'none';
+        var $addWmsDialog = $("#addwms").dialog({
+            title: "Add WMS layer",
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "Add Layer": function () {
+                    tree.addWmsLayer($(this).children());
+                    $(this).dialog("close")
+                },
+                Cancel: function () {
+                    $(this).dialog("close");
+                }
+            },
+            close: function () {
+                $(this).find("form")[0].reset();
+            }
         });
-        document.getElementById('wfsurl').addEventListener('change', function () {
-            tree.removeContent(this.form.layer);
+        $addWmsDialog.find("form").on("submit", function (event) {
+            event.preventDefault();
+            tree.addWmsLayer($(this));
+            $(this).parent().dialog("close");
         });
-        document.getElementById('addvector_form').addEventListener('submit', function (evt) {
-            evt.preventDefault();
-            tree.addVectorLayer(this);
-            this.parentNode.style.display = 'none';
+
+        var $addWfsDialog = $("#addwfs").dialog({
+            title: "Add WFS layer",
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "Add Layer": function () {
+                    tree.addWfsLayer($(this).children());
+                    $(this).dialog("close")
+                },
+                Cancel: function () {
+                    $(this).dialog("close");
+                }
+            },
+            close: function () {
+                $(this).find("form")[0].reset();
+            }
         });
-        document.getElementById('newvector_form').addEventListener('submit', function (evt) {
-            evt.preventDefault();
-            tree.newVectorLayer(this);
-            this.parentNode.style.display = 'none';
+        $addWfsDialog.find("form").on("submit", function (event) {
+            event.preventDefault();
+            tree.addWfsLayer($(this));
+            $(this).parent().dialog("close");
         });
+
+        var $addVectorDialog = $("#addvector").dialog({
+            title: "Add Vector layer",
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "Add Layer": function () {
+                    tree.addVectorLayer($(this).children());
+                    $(this).dialog("close")
+                },
+                Cancel: function () {
+                    $(this).dialog("close");
+                }
+            },
+            close: function () {
+                $(this).find("form")[0].reset();
+            }
+        });
+        $addVectorDialog.find("form").on("submit", function (event) {
+            event.preventDefault();
+            tree.addVectorLayer($(this));
+            $(this).parent().dialog("close");
+        });
+        $addVectorDialog.find(".file").on("change", function (event) {
+            var startPos = this.value.lastIndexOf("\\") + 1;
+            var stopPos = this.value.lastIndexOf(".");
+            var name = this.value.slice(startPos, stopPos);
+            $addVectorDialog.find(".displayname").val(name);
+        });
+
+        var $newVectorDialog = $("#newvector").dialog({
+            title: "Create New Vector Layer",
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                "Add Layer": function () {
+                    tree.newVectorLayer($(this).children());
+                    $(this).dialog("close")
+                },
+                Cancel: function () {
+                    $(this).dialog("close");
+                }
+            },
+            close: function () {
+                $(this).find("form")[0].reset();
+            }
+        });
+        $newVectorDialog.find("form").on("submit", function (event) {
+            event.preventDefault();
+            tree.newVectorLayer($(this));
+            $(this).parent().dialog("close");
+        });
+
+        $(".layername").selectmenu({
+            change: function (event, ui) {
+                $(this).parent().find(".displayname").val($(this).val());
+            }
+        }).selectmenu('menuWidget').addClass("overflow");
+        $(".geomtype").selectmenu().selectmenu('menuWidget').addClass("overflow");;
+        $(".filetype").selectmenu({
+            change: function (event, ui) {
+                $(this).parent().find(".displayname").val("");
+                $(this).parent().find(".file").val("");
+                $(this).parent().find(".file")[0].accept = '.' + $(this).val();
+            }
+        }).selectmenu('menuWidget').addClass("overflow");;
+        $(".format").selectmenu().selectmenu('menuWidget').addClass("overflow");;
+        $(".tiled").checkboxradio();
 
         /**
          * TODO: Need to integrate the opacity sliders from this code into the layerswitcher code.

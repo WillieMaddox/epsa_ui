@@ -50,17 +50,19 @@ define(["jquery", "ol",
                 }
             });
             observer.observe(this.messages, {childList: true});
-            this.createAddVectorForm();
-            this.createNewVectorForm();
+            this.createAddWmsDialog();
+            this.createAddWfsDialog();
+            this.createAddVectorDialog();
+            this.createNewVectorDialog();
             this.wfsProjections = null;
             // this.unmarshaller = this.schemaContext.createUnmarshaller();
             var controlDiv = document.createElement('div');
             controlDiv.className = 'layertree-buttons';
-            controlDiv.appendChild(this.createButton('addwms', 'Add WMS Layer', 'addlayer'));
-            controlDiv.appendChild(this.createButton('addwfs', 'Add WFS Layer', 'addlayer'));
-            controlDiv.appendChild(this.createButton('newvector', 'New Vector Layer', 'addlayer'));
-            controlDiv.appendChild(this.createButton('addvector', 'Add Vector Layer', 'addlayer'));
-            controlDiv.appendChild(this.createButton('deletelayer', 'Remove Layer', 'deletelayer'));
+            controlDiv.appendChild(this.createButton('addwms', 'Add WMS Layer', 'addlayer')[0]);
+            controlDiv.appendChild(this.createButton('addwfs', 'Add WFS Layer', 'addlayer')[0]);
+            controlDiv.appendChild(this.createButton('addvector', 'Add Vector Layer', 'addlayer')[0]);
+            controlDiv.appendChild(this.createButton('newvector', 'New Vector Layer', 'addlayer')[0]);
+            controlDiv.appendChild(this.createButton('deletelayer', 'Remove Layer', 'deletelayer')[0]);
             containerDiv.appendChild(controlDiv);
 
             this.layerContainer = $("<div class='layercontainer'>");
@@ -73,7 +75,6 @@ define(["jquery", "ol",
             var _this = this;
             $(".layercontainer").sortable({
                 axis: "y",
-                // handle: ".layer",
                 items: "> .layer",
                 containment: "parent",
                 opacity: 0.5,
@@ -91,9 +92,6 @@ define(["jquery", "ol",
                     // so trigger focusout handlers to remove .ui-state-focus
                     ui.item.children(".layer").triggerHandler("focusout");
 
-                    // var sourceLayerDiv = event.toElement.parentNode;
-                    // var sourceLayerDiv = ui.item[0];
-                    // console.log(ui.item[0]);
                     var htmlArray = [].slice.call(_this.layerContainer[0].children);
                     var index = htmlArray.length - htmlArray.indexOf(ui.item[0]) - 1;
                     var sourceLayer = _this.getLayerById(ui.item[0].id);
@@ -136,7 +134,7 @@ define(["jquery", "ol",
                 }
             };
 
-            this.createRegistry = function (layer, buffer) {
+            this.createRegistry = function (layer) {
                 layer.set('id', 'layer_' + idCounter);
                 idCounter += 1;
                 var mouseDownFired = false;
@@ -161,17 +159,6 @@ define(["jquery", "ol",
                     handler(event, data)
                 });
 
-                // $layerDiv.on("mousedown", ".layerrow", {
-                //     selector: ".layerrow",
-                //     layerid: $layerDiv[0].id,
-                //     stopProp: false
-                // }, handler);
-                // $layerDiv.on("mouseup", ".layerrow", {
-                //     selector: ".layerrow",
-                //     layerid: $layerDiv[0].id,
-                //     stopProp: false
-                // }, handler);
-
                 $layerDiv.on("click", ".layerrow", function (event) {
                     console.log($layerDiv[0].id + ' .layerrow click');
                     if (mouseDownFired) {
@@ -185,45 +172,6 @@ define(["jquery", "ol",
                     };
                     handler(event, data)
                 });
-
-                // $layerDiv.on("mousedown", ".ui-slider-range", function (event) {
-                //     mouseDownFired = true;
-                //     var data = {
-                //         selector: ".ui-slider-range",
-                //         layerid: $layerDiv[0].id,
-                //         stopProp: true
-                //     };
-                //     handler(event, data)
-                // });
-                // $layerDiv.on("mousedown", ".ui-slider-handle", function (event) {
-                //     mouseDownFired = true;
-                //     var data = {
-                //         selector: ".ui-slider-handle",
-                //         layerid: $layerDiv[0].id,
-                //         stopProp: true
-                //     };
-                //     handler(event, data)
-                // });
-                // $layerDiv.on("mousedown", ".opacity", function (event) {
-                //     mouseDownFired = true;
-                //     var data = {
-                //         selector: ".opacity",
-                //         layerid: $layerDiv[0].id,
-                //         stopProp: true
-                //     };
-                //     handler(event, data)
-                // });
-                // $layerDiv.on("mouseup", ".opacity", {
-                //     selector: ".opacity",
-                //     layerid: $layerDiv[0].id,
-                //     stopProp: false
-                // }, handler);
-                // $layerDiv.on("click", ".opacity", {
-                //     selector: ".opacity",
-                //     layerid: $layerDiv[0].id,
-                //     stopProp: false
-                // }, handler);
-                // this.addSelectEvent($layerDiv, 'click');
 
                 var $layerRow_1 = $("<div class='layerrow layerrow1'>");
 
@@ -283,17 +231,6 @@ define(["jquery", "ol",
                     value: layer.getOpacity(),
                     slide: function (event, ui) {
                         layer.setOpacity(ui.value);
-                    // },
-                    // start: function (event, ui) {
-                    //     $layerDiv[0].draggable = false;
-                    //     event.stopPropagation();
-                    // },
-                    // stop: function (event, ui) {
-                    //     $layerDiv[0].draggable = true;
-                        // if (!(event.originalEvent.target.offsetParent.classList.contains("ui-slider"))) {
-                        //     console.log("unselectable added");
-                        //     event.originalEvent.target.offsetParent.classList.add("unselectable")
-                        // }
                     }
                 });
                 $opacitySlider.on("mousedown", function (event) {
@@ -377,7 +314,6 @@ define(["jquery", "ol",
                     });
                     $colorButton.click(function (event) {
                         console.log('colorbutton .layerrow click');
-                        // var attribute = buttonElem.parentNode.querySelector('select').value;
                         var attribute = $colorSelect.val();
                         if (layer.get('headers')[attribute] === 'string') {
                             _this.styleCategorized(layer, attribute);
@@ -416,172 +352,53 @@ define(["jquery", "ol",
 
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
-                            if (activeAttribute) {
-                            }
-
-                            var activeAttribute = $hoverSelect[0].value;
-                            var activeAttribute = $colorSelect[0].value;
-                            this.removeContent($hoverSelect[0]);
-                            this.removeContent($colorSelect[0]);
+                            var activeHoverAttribute = $hoverSelect[0].value;
+                            var activeColorAttribute = $colorSelect[0].value;
+                            $hoverSelect.empty();
+                            $colorSelect.empty();
                             var headers = layer.get('headers');
                             for (var i in headers) {
-                                $hoverSelect[0].appendChild(this.createOption(i));
-                                $colorSelect[0].appendChild(this.createOption(i));
+                                $hoverSelect.append(this.createOption(i));
+                                $colorSelect.append(this.createOption(i));
                             }
-                            if (activeAttribute) {
-                                $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text(activeAttribute);
-                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text(activeAttribute);
-                                $hoverSelect[0].value = activeAttribute;
-                                $colorSelect[0].value = activeAttribute;
-                            } else if ($colorSelect.children().length > 0) {
+                            if (activeHoverAttribute) {
+                                $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text(activeHoverAttribute);
+                                $hoverSelect[0].value = activeHoverAttribute;
+                            } else if ($hoverSelect.children().length > 0) {
                                 $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text($hoverSelect.children()[0].value);
-                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text($colorSelect.children()[0].value);
                                 $hoverSelect[0].value = $hoverSelect.children()[0].value;
+                            }
+                            if (activeColorAttribute) {
+                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text(activeColorAttribute);
+                                $colorSelect[0].value = activeColorAttribute;
+                            } else if ($colorSelect.children().length > 0) {
+                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text($colorSelect.children()[0].value);
                                 $colorSelect[0].value = $colorSelect.children()[0].value;
                             }
                             $hoverSelect.selectmenu("refresh");
                             $colorSelect.selectmenu("refresh");
                         }
                     }, this);
-
-                    // var defaultStyle = this.createButton('stylelayer', 'Default', 'stylelayer', layer);
-                    // layerControls.appendChild(this.stopPropagationOnEvent(defaultStyle, 'click'));
-                    //
-                    // var attributeStyle = this.createButton('stylelayer', 'Attribute', 'stylelayer', layer);
-                    // layerControls.appendChild(this.stopPropagationOnEvent(attributeStyle, 'click'));
-                    //
-                    // var attributeOptions = document.createElement('select');
-                    // attributeOptions.className = 'attributes';
-                    // layerControls.appendChild(this.stopPropagationOnEvent(attributeOptions, 'click'));
-                    //
-                    // layer.on('propertychange', function (evt) {
-                    //     if (evt.key === 'headers') {
-                    //         var activeAttribute = attributeOptions.value;
-                    //         this.removeContent(attributeOptions);
-                    //         var headers = layer.get('headers');
-                    //         for (var i in headers) {
-                    //             attributeOptions.appendChild(this.createOption(i));
-                    //         }
-                    //         if (activeAttribute) {
-                    //             attributeOptions.value = activeAttribute;
-                    //         }
-                    //     }
-                    // }, this);
-
                 }
-                // layerDiv.appendChild(layerControls);
-                // layerDiv.appendChild(layerRow_1);
-                // layerDiv[0].appendChild(this.addSelectEvent(layerRow_1, true));
-                // this.layerContainer.insertBefore(layerDiv[0], this.layerContainer.firstChild);
-
                 $(".mybutton").button();
                 $(".checkboxradio").checkboxradio();
                 $('.controlgroup').controlgroup();
-
                 return this;
             };
-
             this.map.getLayers().on('add', function (evt) {
-                if (evt.element instanceof ol.layer.Vector) {
-                    if (evt.element.get('type') !== 'overlay') {
-                        this.createRegistry(evt.element, true);
-                    }
-                } else {
+                if (evt.element.get('type') !== 'overlay') {
                     this.createRegistry(evt.element);
                 }
             }, this);
             this.map.getLayers().on('remove', function (evt) {
                 if (evt.element.get('type') !== 'overlay') {
-                    this.removeRegistry(evt.element);
+                    $('#' + evt.element.get('id')).remove();
                     this.selectEventEmitter.changed();
                 }
             }, this);
         } else {
             throw new Error('Invalid parameter(s) provided.');
         }
-    };
-    layerTree.prototype.addSelectEvent = function (node, event) {
-        var _this = this;
-        node.on(event, function (evt) {
-
-            var targetNode = evt.target;
-            // on slider.stop() If cursor isn't over slider on mouseup.
-            // if (targetNode.classList.contains("unselectable")) {
-            //     targetNode.classList.remove("unselectable");
-            //     console.log('unselectable removed');
-            //     return node;
-            // }
-            evt.stopPropagation();
-            if (targetNode.classList.contains("layerrow")) {
-                console.log(event);
-                // evt.stopPropagation();
-                targetNode = targetNode.parentNode;
-            } else {
-                return node[0];
-            }
-            if (_this.selectedLayer) {
-                _this.deselectEventEmitter.changed();
-                _this.selectedLayer.classList.remove('active');
-            }
-            _this.selectedLayer = targetNode;
-            _this.selectedLayer.classList.add('active');
-            _this.selectEventEmitter.changed();
-        });
-        return node[0];
-    };
-    layerTree.prototype.stopPropagationOnEvent = function (node, event) {
-        node.addEventListener(event, function (evt) {
-            evt.stopPropagation();
-        });
-        return node;
-    };
-    layerTree.prototype.createMenu = function (elemClasses, elemTitle, elemType, layer) {
-        var menuElem = document.createElement('select');
-        menuElem.classname = elemClasses;
-        var _this = this;
-        switch (elemType) {
-            case 'hovermenu':
-                buttonElem.textContent = elemTitle;
-                if (elemTitle === 'Default') {
-                    buttonElem.addEventListener('click', function () {
-                        layer.setStyle(tobjectStyleFunction);
-                    });
-                } else {
-                    buttonElem.addEventListener('click', function () {
-                        var attribute = buttonElem.parentNode.querySelector('select').value;
-                        if (layer.get('headers')[attribute] === 'string') {
-                            _this.styleCategorized(layer, attribute);
-                        } else if (layer.get('headers')[attribute] === 'number') {
-                            _this.styleGraduated(layer, attribute);
-                        } else {
-                            _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
-                        }
-                    });
-                }
-                return buttonElem;
-            case 'colormenu':
-                menuElem.textContent = elemTitle;
-                if (elemTitle === 'Default') {
-                    menuElem.addEventListener('click', function () {
-                        layer.setStyle(tobjectStyleFunction);
-                    });
-                } else {
-                    menuElem.addEventListener('click', function () {
-                        var attribute = buttonElem.parentNode.querySelector('select').value;
-                        if (layer.get('headers')[attribute] === 'string') {
-                            _this.styleCategorized(layer, attribute);
-                        } else if (layer.get('headers')[attribute] === 'number') {
-                            _this.styleGraduated(layer, attribute);
-                        } else {
-                            _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
-                        }
-                    });
-                }
-                return buttonElem;
-            default:
-                return false;
-        }
-
     };
     layerTree.prototype.createOption = function (optionValue) {
         var option = document.createElement('option');
@@ -596,18 +413,16 @@ define(["jquery", "ol",
         return option;
     };
     layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
-        var buttonElem = document.createElement('button');
-        buttonElem.className = elemName;
-        buttonElem.title = elemTitle;
         var _this = this;
+        var $button = $('<button class="'+elemName+'" title="'+elemTitle+'"></button>');
         switch (elemType) {
             case 'addlayer':
-                buttonElem.addEventListener('click', function () {
-                    document.getElementById(elemName).style.display = 'block';
+                $button.button().on("click", function () {
+                    $("#"+elemName).dialog("open");
                 });
-                return buttonElem;
+                return $button;
             case 'deletelayer':
-                buttonElem.addEventListener('click', function () {
+                $button.button().on("click", function () {
                     if (_this.selectedLayer) {
                         var layer = _this.getLayerById(_this.selectedLayer.id);
                         _this.map.removeLayer(layer);
@@ -616,7 +431,7 @@ define(["jquery", "ol",
                         _this.messages.textContent = 'No selected layer to remove.';
                     }
                 });
-                return buttonElem;
+                return $button;
             case 'stylelayer':
                 buttonElem.textContent = elemTitle;
                 if (elemTitle === 'Default') {
@@ -640,12 +455,12 @@ define(["jquery", "ol",
                 return false;
         }
     };
-    layerTree.prototype.removeContent = function (element) {
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-        return this;
-    };
+    // layerTree.prototype.removeContent = function (element) {
+    //     while (element.firstChild) {
+    //         element.removeChild(element.firstChild);
+    //     }
+    //     return this;
+    // };
     layerTree.prototype.addBufferIcon = function (layer) {
         layer.getSource().on('change', function (evt) {
             if (evt.target.getState() === 'ready') {
@@ -663,96 +478,94 @@ define(["jquery", "ol",
         });
     };
 
-    layerTree.prototype.checkWmsLayer = function (form) {
-        form.check.disabled = true;
+    layerTree.prototype.checkWmsLayer = function ($button) {
         var _this = this;
-        this.removeContent(form.layer).removeContent(form.format);
-        var serverUrl = form.server.value;
+        var $form = $button.form();
+        $button.button("option", "disabled", true);
+        $form.find(".layername").empty();
+        $form.find(".format").empty();
+        var serverUrl = $form.find(".url").val();
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
-        form.server.value = serverUrl;
-        var request = new XMLHttpRequest();
+        $form.find(".url").val(serverUrl);
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
         // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
         var url = settings.proxyUrl + serverUrl + query;
         console.log(url);
 
-        request.open('GET', url, true);
-        request.onreadystatechange = function () {
-            if (request.readyState === 4 && request.status === 200) {
-                var parser = new ol.format.WMSCapabilities();
-                try {
-                    var capabilities = parser.read(request.responseText);
-                    var currentProj = _this.map.getView().getProjection().getCode();
-                    var crs;
-                    var messageText = 'Layers read successfully.';
-                    if (capabilities.version === '1.3.0') {
-                        crs = capabilities.Capability.Layer.CRS;
-                    } else {
-                        crs = [currentProj];
-                        messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
-                    }
-                    var layers = capabilities.Capability.Layer.Layer;
-                    if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
-                        var nLayers = layers.length;
-                        for (var i = 0; i < nLayers; i += 1) {
-                            form.layer.appendChild(_this.createOption(layers[i].Name));
-                        }
-                        var formats = capabilities.Capability.Request.GetMap.Format;
-                        var nFormats = formats.length;
-                        for (i = 0; i < nFormats; i += 1) {
-                            form.format.appendChild(_this.createOption(formats[i]));
-                        }
-                        _this.messages.textContent = messageText;
-                    }
-                } catch (error) {
-                    _this.messages.textContent = 'Some unexpected error occurred in checkWmsLayer: (' + error.message + ').';
-                } finally {
-                    form.check.disabled = false;
-                }
-            } else if (request.status > 200) {
-                form.check.disabled = false;
+        $.ajax({
+            type: 'GET',
+            url: url
+        }).done(function (response) {
+            var parser = new ol.format.WMSCapabilities();
+            var capabilities = parser.read(response);
+            var currentProj = _this.map.getView().getProjection().getCode();
+            var crs;
+            var messageText = 'Layers read successfully.';
+            if (capabilities.version === '1.3.0') {
+                crs = capabilities.Capability.Layer.CRS;
+            } else {
+                crs = [currentProj];
+                messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
             }
-        };
-        request.send();
+            var layers = capabilities.Capability.Layer.Layer;
+            if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
+                var nLayers = layers.length;
+                for (var i = 0; i < nLayers; i += 1) {
+                    $form.find(".layername").append(_this.createOption(layers[i].Name));
+                }
+                var formats = capabilities.Capability.Request.GetMap.Format;
+                var nFormats = formats.length;
+                for (i = 0; i < nFormats; i += 1) {
+                    $form.find(".format").append(_this.createOption(formats[i]));
+                }
+                _this.messages.textContent = messageText;
+            }
+        }).fail(function (error) {
+            _this.messages.textContent = 'Some unexpected error occurred in checkWmsLayer: (' + error.message + ').';
+        }).always(function () {
+            $form.find(".layername").selectmenu("refresh");
+            $form.find(".format").selectmenu("refresh");
+            $button.button("option", "disabled", false);
+        });
     };
-    layerTree.prototype.addWmsLayer = function (form) {
+    layerTree.prototype.addWmsLayer = function ($form) {
         var params = {
-            url: form.server.value,
+            url: $form.find(".url").val(),
             params: {
-                layers: form.layer.value,
-                format: form.format.value
+                layers: $form.find(".layername").val(),
+                format: $form.find(".format").val()
             }
         };
         var layer;
-        if (form.tiled.checked) {
+        if ($form.find(".tiled").is(":checked")) {
             layer = new ol.layer.Tile({
                 source: new ol.source.TileWMS(params),
-                name: form.displayname.value
+                name: $form.find(".displayname").val()
             });
         } else {
             layer = new ol.layer.Image({
                 source: new ol.source.ImageWMS(params),
-                name: form.displayname.value
+                name: $form.find(".displayname").val()
             });
         }
         this.map.addLayer(layer);
         this.messages.textContent = 'WMS layer added successfully.';
         return this;
     };
-    layerTree.prototype.checkWfsLayer = function (form) {
-        form.check.disabled = true;
+    layerTree.prototype.checkWfsLayer = function ($button) {
         var _this = this;
-        this.removeContent(form.layer);
+        var $form = $button.form();
+        $button.button("option", "disabled", true);
+        $form.find(".layername").empty();
         this.wfsProjections = {};
-        var serverUrl = form.server.value;
+        var serverUrl = $form.find(".url").val();
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
-        form.server.value = serverUrl;
+        $form.find(".url").val(serverUrl);
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
         // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
         var url = settings.proxyUrl + serverUrl + query;
-        console.log(url);
 
         $.ajax({
             type: 'GET',
@@ -770,51 +583,19 @@ define(["jquery", "ol",
                 var re = /}(.*)/;
                 for (var i = 0; i < nLayers; i += 1) {
                     var name = re.exec(layers[i].name)[1];
-                    form.layer.appendChild(_this.createOption(name));
+                    $form.find(".layername").append(_this.createOption(name));
                     _this.wfsProjections[name] = layers[i].defaultSRS;
                 }
                 _this.messages.textContent = messageText;
             }
-        }).fail(function (response) {
-            _this.messages.textContent = 'Some unexpected error occurred in checkWfsLayer: (' + response.message + ').';
+        }).fail(function (error) {
+            _this.messages.textContent = 'Some unexpected error occurred in checkWfsLayer: (' + error.message + ').';
         }).always(function () {
-            form.check.disabled = false;
+            $form.find(".layername").selectmenu("refresh");
+            $button.button("option", "disabled", false);
         });
-
-        // var request = new XMLHttpRequest();
-        // request.open('GET', url, true);
-        // request.onreadystatechange = function () {
-        //     if (request.readyState === 4 && request.status === 200) {
-        //         try {
-        //             var unmarshaller = WFSContext.createUnmarshaller();
-        //             var capabilities = unmarshaller.unmarshalDocument(request.responseXML).value;
-        //             var messageText = 'Layers read successfully.';
-        //             if (capabilities.version !== '1.1.0') {
-        //                 messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
-        //             }
-        //             var layers = capabilities.featureTypeList.featureType;
-        //             var nLayers = layers.length;
-        //             if (nLayers > 0) {
-        //                 var re = /}(.*)/;
-        //                 for (var i = 0; i < nLayers; i += 1) {
-        //                     var name = re.exec(layers[i].name)[1];
-        //                     form.layer.appendChild(_this.createOption(name));
-        //                     _this.wfsProjections[name] = layers[i].defaultSRS;
-        //                 }
-        //                 _this.messages.textContent = messageText;
-        //             }
-        //         } catch (error) {
-        //             _this.messages.textContent = 'Some unexpected error occurred: (' + error.message + ').';
-        //         } finally {
-        //             form.check.disabled = false;
-        //         }
-        //     } else if (request.status > 200) {
-        //         form.check.disabled = false;
-        //     }
-        // };
-        // request.send();
     };
-    layerTree.prototype.addWfsLayer = function (form) {
+    layerTree.prototype.addWfsLayer = function ($form) {
 
         var buildQueryString = function (options) {
             var queryArray = [];
@@ -832,29 +613,29 @@ define(["jquery", "ol",
             }
             return queryArray.join('&')
         };
-        var typeName = form.layer.value;
+        var typeName = $form.find(".layername").val();
         var mapProj = this.map.getView().getProjection();
         var proj = this.wfsProjections[typeName];
-        console.log(proj);
         var formatWFS = new ol.format.WFS();
-
         // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
-        var serverUrl = form.server.value;
+        var serverUrl = $form.find(".url").val();
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
 
+        var strategy;
+        if ($form.find(".tiled").is(":checked")) {
+            strategy = ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
+        } else {
+            strategy = ol.loadingstrategy.bbox
+        }
         var sourceWFS = new ol.source.Vector({
             loader: function (extent, res, mapProj) {
-                // proj = proj || mapProj.getCode();
-                // if (res >= 30) {
-                //     return
-                // }
                 var _this = this;
                 var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
                 $.ajax({
                     type: 'GET',
                     url: settings.proxyUrl + serverUrl + query,
-                    beforeSend: function (request) {
+                    beforeSend: function () {
                         if (sourceWFS.get('pendingRequests') == 0) {
                             var $progressbar = $("<div class='buffering'></div>");
                             $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
@@ -865,149 +646,49 @@ define(["jquery", "ol",
                         console.log('Pending', sourceWFS.get('pendingRequests'), 'res', res);
                     }
                 }).done(function (response) {
-                    sourceWFS.addFeatures(formatWFS.readFeatures(response, {
+                    // console.log('*******************************************');
+                    // var t0 = new Date().getTime();
+                    var features = formatWFS.readFeatures(response, {
                         dataProjection: proj,
                         featureProjection: mapProj.getCode()
-                    }));
+                    });
+                    // var t1 = new Date().getTime();
+                    // var nAdd = features.length;
+                    // console.log('Remaining', layer.getSource().get('pendingRequests'), t1-t0, nAdd, nAdd / (t1-t0));
+                    // var nBefore = sourceWFS.getFeatures().length;
+                    // var t0 = new Date().getTime();
+                    sourceWFS.addFeatures(features);
+                    // var t1 = new Date().getTime();
+                    // var nAfter = sourceWFS.getFeatures().length;
+                    // console.log('Remaining', layer.getSource().get('pendingRequests'), t1-t0, nAfter - nBefore, (nAfter - nBefore) / (t1-t0));
                 }).fail(function (response) {
                     _this.messages.textContent = 'Some unexpected error occurred in addWfsLayer: (' + response.message + ').';
                 });
             },
-            // strategy: ol.loadingstrategy.bbox
-            strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({
-                minZoom: 14
-            }))
+            strategy: strategy
         });
         sourceWFS.set('pendingRequests', 0);
 
         var layer = new ol.layer.Vector({
             source: sourceWFS,
-            name: form.displayname.value
+            name: $form.find(".displayname").val(),
+            // Temp fix to lessen page load blocking. Don't draw features further than zoom level 14.
+            maxResolution: 10
         });
 
-        this.map.addLayer(layer);
         this.addBufferIcon(layer);
+        this.map.addLayer(layer);
         this.messages.textContent = 'WFS layer added successfully.';
         return this;
     };
-    layerTree.prototype.createAddVectorForm = function () {
-        var div_addvector = document.createElement('div');
-        div_addvector.id = "addvector";
-        div_addvector.style.display = "none";
-        div_addvector.className = "toggleable";
-
-        var form_addvector_form = document.createElement('form');
-        form_addvector_form.className = "addlayer";
-        form_addvector_form.id = "addvector_form";
-
-        var p_0 = document.createElement('p');
-        p_0.appendChild(document.createTextNode("Add Vector layer"));
-        form_addvector_form.appendChild(p_0);
-
-        var table_0 = document.createElement('table');
-
-        var tr_2 = document.createElement('tr');
-        var td_4 = document.createElement('td');
-        td_4.appendChild(document.createTextNode("Format:"));
-        tr_2.appendChild(td_4);
-        var td_5 = document.createElement('td');
-        var select_0 = document.createElement('select');
-        select_0.name = "format";
-        select_0.required = "required";
-        select_0.appendChild(this.createOption('geojson', 'GeoJSON'));
-        select_0.appendChild(this.createOption('topojson', 'TopoJSON'));
-        select_0.appendChild(this.createOption('zip', 'Shapefile (zipped)'));
-        // select_0.appendChild(this.createOption('shp', 'ShapeFile'));
-        select_0.appendChild(this.createOption('kml', 'KML'));
-        select_0.appendChild(this.createOption('osm', 'OSM'));
-        select_0.addEventListener("change", function () {
-            document.getElementById("file-name").accept = '.' + this.value;
-        });
-        td_5.appendChild(select_0);
-        tr_2.appendChild(td_5);
-
-        table_0.appendChild(tr_2);
-
-        var tr_0 = document.createElement('tr');
-        var td_0 = document.createElement('td');
-        td_0.appendChild(document.createTextNode("Vector file:"));
-        tr_0.appendChild(td_0);
-        var td_1 = document.createElement('td');
-        var input_0 = document.createElement('input');
-        input_0.id = "file-name";
-        input_0.type = "file";
-        input_0.name = "file";
-        input_0.required = "required";
-        input_0.accept = ".geojson";
-        input_0.addEventListener("change", function (evt) {
-            var startPos = this.value.lastIndexOf("\\") + 1;
-            var stopPos = this.value.lastIndexOf(".");
-            var name = this.value.slice(startPos, stopPos);
-            document.getElementById("display-name").value = name;
-        });
-        td_1.appendChild(input_0);
-        tr_0.appendChild(td_1);
-
-        table_0.appendChild(tr_0);
-
-        var tr_1 = document.createElement('tr');
-        var td_2 = document.createElement('td');
-        td_2.appendChild(document.createTextNode("Display name:"));
-        tr_1.appendChild(td_2);
-        var td_3 = document.createElement('td');
-        var input_1 = document.createElement('input');
-        input_1.id = "display-name";
-        input_1.type = "text";
-        input_1.name = "displayname";
-        td_3.appendChild(input_1);
-        tr_1.appendChild(td_3);
-
-        table_0.appendChild(tr_1);
-
-        var tr_3 = document.createElement('tr');
-        var td_6 = document.createElement('td');
-        td_6.appendChild(document.createTextNode("Projection:"));
-        tr_3.appendChild(td_6);
-        var td_7 = document.createElement('td');
-        var input_2 = document.createElement('input');
-        input_2.type = "text";
-        input_2.name = "projection";
-        td_7.appendChild(input_2);
-        tr_3.appendChild(td_7);
-
-        table_0.appendChild(tr_3);
-
-        var tr_4 = document.createElement('tr');
-        var td_8 = document.createElement('td');
-        var input_3 = document.createElement('input');
-        input_3.type = "submit";
-        input_3.value = "Add layer";
-        td_8.appendChild(input_3);
-        tr_4.appendChild(td_8);
-        var td_9 = document.createElement('td');
-        var input_4 = document.createElement('input');
-        input_4.type = "button";
-        input_4.value = "Cancel";
-        input_4.onclick = function () {
-            this.form.parentNode.style.display = 'none'
-        };
-        td_9.appendChild(input_4);
-        tr_4.appendChild(td_9);
-
-        table_0.appendChild(tr_4);
-
-        form_addvector_form.appendChild(table_0);
-
-        div_addvector.appendChild(form_addvector_form);
-
-        document.body.appendChild(div_addvector);
-    };
-    layerTree.prototype.addVectorLayer = function (form) {
+    layerTree.prototype.addVectorLayer = function ($form) {
         var _this = this;
-        var file = form.file.files[0];
+        // var file = form.file.files[0];
+        var file = $form.find(".file")[0].files[0];
         var currentProj = this.map.getView().getProjection();
         var $progressbar;
-        switch (form.format.value) {
+        switch ($form.find(".filetype").val()) {
+            // switch (form.format.value) {
             // case 'shp':
             //     sourceFormat = new ol.format.GeoJSON();
             //     break;
@@ -1053,8 +734,10 @@ define(["jquery", "ol",
         function loaded(evt) {
             $progressbar.progressbar("value", false);
             var vectorData = evt.target.result;
-            var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
-            if (form.format.value === 'zip') {
+            var dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
+            // var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
+            if ($form.find(".filetype").val() === 'zip') {
+                // if (form.format.value === 'zip') {
                 shp(vectorData).then(function (geojson) {
                     source.addFeatures(sourceFormat.readFeatures(geojson, {
                         dataProjection: dataProjection,
@@ -1114,7 +797,8 @@ define(["jquery", "ol",
             fr.onloadend = loadEnd;
             fr.onerror = errorHandler;
 
-            if (form.format.value === 'zip') {
+            if ($form.find(".filetype").val() === 'zip') {
+                // if (form.format.value === 'zip') {
                 fr.readAsArrayBuffer(file); // SHP
             } else {
                 fr.readAsText(file);
@@ -1125,7 +809,8 @@ define(["jquery", "ol",
             });
             var layer = new ol.layer.Vector({
                 source: source,
-                name: form.displayname.value,
+                name: $form.find(".displayname").val(),
+                // name: form.displayname.value,
                 style: tobjectStyleFunction,
                 updateWhileInteracting: true,
                 updateWhileAnimating: true
@@ -1135,93 +820,13 @@ define(["jquery", "ol",
             this.messages.textContent = 'Vector layer added successfully.';
             return this;
         } catch (error) {
-            this.messages.textContent = 'Some unexpected error occurred in addVectorLayer2: (' + error.message + ').';
+            this.messages.textContent = 'Some unexpected error occurred in addVectorLayer: (' + error.message + ').';
             return error;
         }
     };
-    layerTree.prototype.createNewVectorForm = function () {
-        var div_newvector = document.createElement('div');
-        div_newvector.className = "toggleable";
-        div_newvector.id = "newvector";
-        div_newvector.style.display = "none";
-
-        var form_newvector_form = document.createElement('form');
-        form_newvector_form.id = "newvector_form";
-        form_newvector_form.className = "addlayer";
-
-        var p_0 = document.createElement('p');
-        p_0.appendChild(document.createTextNode("New Vector layer"));
-        form_newvector_form.appendChild(p_0);
-
-        var table_0 = document.createElement('table');
-
-        var tr_0 = document.createElement('tr');
-        var td_0 = document.createElement('td');
-        td_0.appendChild(document.createTextNode("Display name:"));
-        tr_0.appendChild(td_0);
-        var td_1 = document.createElement('td');
-        var input_0 = document.createElement('input');
-        input_0.name = "displayname";
-        input_0.type = "text";
-        td_1.appendChild(input_0);
-        tr_0.appendChild(td_1);
-
-        table_0.appendChild(tr_0);
-
-        var tr_1 = document.createElement('tr');
-        var td_2 = document.createElement('td');
-        td_2.appendChild(document.createTextNode("Type:"));
-        tr_1.appendChild(td_2);
-        var td_3 = document.createElement('td');
-        var select_0 = document.createElement('select');
-        select_0.required = "required";
-        select_0.name = "type";
-        // select_0.appendChild(this.createOption('building', 'Building Layer'));
-        // select_0.appendChild(this.createOption('herbage', 'Herbage Layer'));
-        // select_0.appendChild(this.createOption('water', 'Water Layer'));
-        // select_0.appendChild(this.createOption('wall', 'Wall Layer'));
-        // select_0.appendChild(this.createOption('road', 'Road Layer'));
-        // select_0.appendChild(this.createOption('aor', 'AOR Layer'));
-        // select_0.appendChild(this.createOption('generic', 'Generic Layer'));
-        // select_0.appendChild(this.createOption('tobject', 'TObject Layer'));
-        select_0.appendChild(this.createOption('polygon', 'Polygon Layer'));
-        select_0.appendChild(this.createOption('line', 'Line Layer'));
-        select_0.appendChild(this.createOption('point', 'Point Layer'));
-        select_0.appendChild(this.createOption('geomcollection', 'GeomCollection Layer'));
-        // select_0.appendChild(this.createOption('camera', 'Camera Layer'));
-        // select_0.appendChild(this.createOption('radio', 'Radio Layer'));
-        td_3.appendChild(select_0);
-        tr_1.appendChild(td_3);
-
-        table_0.appendChild(tr_1);
-
-        var tr_2 = document.createElement('tr');
-        var td_4 = document.createElement('td');
-        var input_1 = document.createElement('input');
-        input_1.type = "submit";
-        input_1.value = "Add layer";
-        td_4.appendChild(input_1);
-        tr_2.appendChild(td_4);
-        var td_5 = document.createElement('td');
-        var input_2 = document.createElement('input');
-        input_2.type = "button";
-        input_2.value = "Cancel";
-        input_2.onclick = function () {
-            this.form.parentNode.style.display = 'none'
-        };
-        td_5.appendChild(input_2);
-        tr_2.appendChild(td_5);
-
-        table_0.appendChild(tr_2);
-
-        form_newvector_form.appendChild(table_0);
-
-        div_newvector.appendChild(form_newvector_form);
-
-        document.body.appendChild(div_newvector);
-    };
-    layerTree.prototype.newVectorLayer = function (form) {
-        var type = form.type.value;
+    layerTree.prototype.newVectorLayer = function ($form) {
+        var type = $form.find(".geomtype").val();
+        // var type = form.type.value;
         var geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
         var sourceTypes = Object.keys(tobjectTemplates);
         if (sourceTypes.indexOf(type) === -1 && geomTypes.indexOf(type) === -1) {
@@ -1230,7 +835,8 @@ define(["jquery", "ol",
         }
         var layer = new ol.layer.Vector({
             source: new ol.source.Vector(),
-            name: form.displayname.value || type + ' Layer',
+            // name: form.displayname.value || type + ' Layer',
+            name: $form.find(".displayname").val() || type + ' Layer',
             type: type
         });
         this.addBufferIcon(layer);
@@ -1241,40 +847,132 @@ define(["jquery", "ol",
         return this;
     };
 
-    layerTree.prototype.addSelectEvent_old = function (node, isChild) {
-        var _this = this;
-        node.addEventListener('click', function (evt) {
-            var targetNode = evt.target;
-            if (evt.target.parentNode.classList.contains("layer")) {
-                console.log('Valid')
-            } else {
-                console.log('Invalid');
-                return node;
-            }
-            if (isChild) {
-                evt.stopPropagation();
-                targetNode = targetNode.parentNode;
-            }
-            if (_this.selectedLayer) {
-                _this.deselectEventEmitter.changed();
-                _this.selectedLayer.classList.remove('active');
-            }
-            if (_this.selectedLayer !== targetNode) {
-                _this.selectedLayer = targetNode;
-                _this.selectedLayer.classList.add('active');
-            } else {
-                _this.selectedLayer = null;
-            }
-            _this.selectEventEmitter.changed();
-        });
-        return node;
+    layerTree.prototype.createDisplayNameNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="displayname_'+op+id+'">Display Name</label>'));
+        $fieldset.append($('<input type="text" id="displayname_'+op+id+'" name="displayname" class="displayname">'));
     };
-    layerTree.prototype.removeRegistry = function (layer) {
-        $('#' + layer.get('id')).remove();
-        // var layerDiv = document.getElementById(layer.get('id'));
-        // this.layerContainer.removeChild(layerDiv);
-        return this;
+    layerTree.prototype.createGeomTypeNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="geomtype_'+op+id+'">Geometry Type</label>'));
+        var $selectNode = $('<select name="geomtype" id="geomtype_'+op+id+'" class="geomtype">');
+        $selectNode.append($('<option value="geomcollection">Geometry Collection</option>'));
+        $selectNode.append($('<option value="polygon">Polygon</option>'));
+        $selectNode.append($('<option value="line">Line</option>'));
+        $selectNode.append($('<option value="point">Point</option>'));
+        $fieldset.append($selectNode);
     };
+    layerTree.prototype.createServerUrlNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="url_'+op+id+'">Server URL</label>'));
+        $fieldset.append($('<input type="text" id="url_'+op+id+'" name="url" class="url" value="http://demo.opengeo.org/geoserver/'+id+'">'));
+        $fieldset.append($('<input type="button" id="check'+id+'layer" name="check" value="Check for layers">'));
+    };
+    layerTree.prototype.createLayerNameNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="layername_'+op+id+'">Layer Name</label>'));
+        $fieldset.append($('<select id="layername_'+op+id+'" name="layername" class="layername"></select>'));
+    };
+    layerTree.prototype.createFormatNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="format_'+op+id+'">Format</label>'));
+        $fieldset.append($('<select id="format_'+op+id+'" name="format" class="format"></select>'));
+    };
+    layerTree.prototype.createFileTypeNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="filetype_'+op+id+'">File Type</label>'));
+        var $selectNode = $('<select name="filetype" id="filetype_'+op+id+'" class="filetype">');
+        $selectNode.append($('<option value="geojson">GeoJSON</option>'));
+        $selectNode.append($('<option value="topojson">TopoJSON</option>'));
+        $selectNode.append($('<option value="zip">Shapefile (zipped)</option>'));
+        $selectNode.append($('<option value="kml">KML</option>'));
+        $selectNode.append($('<option value="osm">OSM</option>'));
+        $fieldset.append($selectNode);
+    };
+    layerTree.prototype.createFileOpenNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="file_'+op+id+'">Vector file</label>'));
+        $fieldset.append($('<input type="file" name="file" id="file_'+op+id+'" class="file ui-widget-content" accept=".geojson" required>'));
+    };
+    layerTree.prototype.createProjectionNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="projection_'+op+id+'">Projection</label>'));
+        $fieldset.append($('<input type="text" id="projection_'+op+id+'" name="projection" class="projection">'));
+    };
+    layerTree.prototype.createTiledNodes = function ($fieldset, op, id) {
+        $fieldset.append($('<label for="tiled_'+op+id+'">Tiled</label>'));
+        $fieldset.append($('<input type="checkbox" id="tiled_'+op+id+'" name="tiled" class="tiled" checked>'));
+    };
+
+    layerTree.prototype.createDialog = function ($fieldset, op, id) {
+        // var $dialog = $('<div id="'+op+id+'" class="toggleable">');
+        var $dialog = $('<div id="'+op+id+'">');
+        var $form = $('<form class="addlayer">');
+        var $submitInput = $('<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">');
+        $fieldset.append($submitInput);
+        $form.append($fieldset);
+        $dialog.append($form);
+        $('body').append($dialog);
+    };
+    layerTree.prototype.createAddWmsDialog = function () {
+        var op = "add";
+        var id = "wms";
+        var $fieldset = $('<fieldset>');
+        this.createDisplayNameNodes($fieldset, op, id);
+        this.createServerUrlNodes($fieldset, op, id);
+        this.createLayerNameNodes($fieldset, op, id);
+        this.createFormatNodes($fieldset, op, id);
+        this.createTiledNodes($fieldset, op, id);
+        this.createDialog($fieldset, op, id);
+    };
+    layerTree.prototype.createAddWfsDialog = function () {
+        var op = "add";
+        var id = "wfs";
+        var $fieldset = $('<fieldset>');
+        this.createDisplayNameNodes($fieldset, op, id);
+        this.createServerUrlNodes($fieldset, op, id);
+        this.createLayerNameNodes($fieldset, op, id);
+        this.createTiledNodes($fieldset, op, id);
+        this.createDialog($fieldset, op, id);
+    };
+    layerTree.prototype.createAddVectorDialog = function () {
+        var op = "add";
+        var id = "vector";
+        var $fieldset = $('<fieldset>');
+        this.createDisplayNameNodes($fieldset, op, id);
+        this.createFileTypeNodes($fieldset, op, id);
+        this.createFileOpenNodes($fieldset, op, id);
+        this.createProjectionNodes($fieldset, op, id);
+        this.createDialog($fieldset, op, id);
+    };
+    layerTree.prototype.createNewVectorDialog = function () {
+        var op = "new";
+        var id = "vector";
+        var $fieldset = $('<fieldset>');
+        this.createDisplayNameNodes($fieldset, op, id);
+        this.createGeomTypeNodes($fieldset, op, id);
+        this.createDialog($fieldset, op, id);
+    };
+    // layerTree.prototype.addSelectEvent_old = function (node, isChild) {
+    //     var _this = this;
+    //     node.addEventListener('click', function (evt) {
+    //         var targetNode = evt.target;
+    //         if (evt.target.parentNode.classList.contains("layer")) {
+    //             console.log('Valid')
+    //         } else {
+    //             console.log('Invalid');
+    //             return node;
+    //         }
+    //         if (isChild) {
+    //             evt.stopPropagation();
+    //             targetNode = targetNode.parentNode;
+    //         }
+    //         if (_this.selectedLayer) {
+    //             _this.deselectEventEmitter.changed();
+    //             _this.selectedLayer.classList.remove('active');
+    //         }
+    //         if (_this.selectedLayer !== targetNode) {
+    //             _this.selectedLayer = targetNode;
+    //             _this.selectedLayer.classList.add('active');
+    //         } else {
+    //             _this.selectedLayer = null;
+    //         }
+    //         _this.selectEventEmitter.changed();
+    //     });
+    //     return node;
+    // };
     layerTree.prototype.getLayerById = function (id) {
         var layers = this.map.getLayers().getArray();
         var len = layers.length;
