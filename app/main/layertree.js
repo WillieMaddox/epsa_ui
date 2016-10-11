@@ -3,7 +3,6 @@
  */
 
 define(["jquery", "ol",
-    "nouislider",
     "exists",
     "shp",
     'wfs110context',
@@ -12,7 +11,6 @@ define(["jquery", "ol",
     "serversettings",
     "jquery-ui"
 ], function ($, ol,
-             noUiSlider,
              exists,
              shp,
              WFSContext,
@@ -353,6 +351,7 @@ define(["jquery", "ol",
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
                             var activeHoverAttribute = $hoverSelect[0].value;
+                            // var activeHoverAttribute = $hoverSelect.val(); // Better ???
                             var activeColorAttribute = $colorSelect[0].value;
                             $hoverSelect.empty();
                             $colorSelect.empty();
@@ -466,7 +465,7 @@ define(["jquery", "ol",
             if (evt.target.getState() === 'ready') {
                 if (layer.getSource().get('pendingRequests') > 0) {
                     layer.getSource().set('pendingRequests', layer.getSource().get('pendingRequests') - 1);
-                    console.log('Remaining', layer.getSource().get('pendingRequests'));
+                    // console.log('Remaining', layer.getSource().get('pendingRequests'));
                     if (layer.getSource().get('pendingRequests') === 0) {
                         $('#' + layer.get('id') + ' .layertitle').unwrap();
                         layer.buildHeaders();
@@ -632,6 +631,7 @@ define(["jquery", "ol",
             loader: function (extent, res, mapProj) {
                 var _this = this;
                 var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
+                console.log(extent, mapProj);
                 $.ajax({
                     type: 'GET',
                     url: settings.proxyUrl + serverUrl + query,
@@ -654,18 +654,19 @@ define(["jquery", "ol",
                     });
                     // var t1 = new Date().getTime();
                     // var nAdd = features.length;
-                    // console.log('Remaining', layer.getSource().get('pendingRequests'), t1-t0, nAdd, nAdd / (t1-t0));
+                    // console.log('Remaining', layer.getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAdd, 'n/t=', nAdd / (t1-t0));
                     // var nBefore = sourceWFS.getFeatures().length;
                     // var t0 = new Date().getTime();
                     sourceWFS.addFeatures(features);
                     // var t1 = new Date().getTime();
                     // var nAfter = sourceWFS.getFeatures().length;
-                    // console.log('Remaining', layer.getSource().get('pendingRequests'), t1-t0, nAfter - nBefore, (nAfter - nBefore) / (t1-t0));
+                    // console.log('Remaining', layer.getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1-t0));
                 }).fail(function (response) {
                     _this.messages.textContent = 'Some unexpected error occurred in addWfsLayer: (' + response.message + ').';
                 });
             },
-            strategy: strategy
+            strategy: strategy,
+            wrapX: false
         });
         sourceWFS.set('pendingRequests', 0);
 
@@ -826,7 +827,6 @@ define(["jquery", "ol",
     };
     layerTree.prototype.newVectorLayer = function ($form) {
         var type = $form.find(".geomtype").val();
-        // var type = form.type.value;
         var geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
         var sourceTypes = Object.keys(tobjectTemplates);
         if (sourceTypes.indexOf(type) === -1 && geomTypes.indexOf(type) === -1) {
@@ -834,8 +834,9 @@ define(["jquery", "ol",
             return false;
         }
         var layer = new ol.layer.Vector({
-            source: new ol.source.Vector(),
-            // name: form.displayname.value || type + ' Layer',
+            source: new ol.source.Vector({
+                wrapX: false
+            }),
             name: $form.find(".displayname").val() || type + ' Layer',
             type: type
         });

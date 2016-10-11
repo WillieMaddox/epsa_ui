@@ -1,15 +1,13 @@
 
 define(['jquery', 'ol',
-    'nouislider',
     'exists',
     'deg2tile',
-    'featureinteractor',
     'ttemplate',
     'layertree',
     'toolbar',
     'bingkey',
     'layerinteractor',
-    'layerswitcher'], function ($, ol, noUiSlider, exists, deg2tile, FeatureInteractor, tobjectTemplates, layerTree, toolBar, bingKey, layerInteractor) {
+    'layerswitcher'], function ($, ol, exists, deg2tile, tobjectTemplates, layerTree, toolBar, bingKey, layerInteractor) {
 
     "use strict";
     String.prototype.capitalizeFirstLetter = function (flip) {
@@ -244,7 +242,7 @@ define(['jquery', 'ol',
         // tools.addDrawToolBar();
         // var interactor = new FeatureInteractor({map: map, layertree: tree, toolbar: tools, target: 'featureeditor'});
 
-        var interactor = new layerInteractor({map: map, layertree: tree, toolbartarget: 'toolbar', featuretarget: 'featureeditor'});
+        var interactor = new layerInteractor({map: map, layertree: tree, toolbartarget: 'toolbar'});
         interactor.addDrawToolBar();
 
         /*********** WFS-T *************/
@@ -666,15 +664,15 @@ define(['jquery', 'ol',
                 $(this).parent().find(".displayname").val($(this).val());
             }
         }).selectmenu('menuWidget').addClass("overflow");
-        $(".geomtype").selectmenu().selectmenu('menuWidget').addClass("overflow");;
+        $(".geomtype").selectmenu().selectmenu('menuWidget').addClass("overflow");
         $(".filetype").selectmenu({
             change: function (event, ui) {
                 $(this).parent().find(".displayname").val("");
                 $(this).parent().find(".file").val("");
                 $(this).parent().find(".file")[0].accept = '.' + $(this).val();
             }
-        }).selectmenu('menuWidget').addClass("overflow");;
-        $(".format").selectmenu().selectmenu('menuWidget').addClass("overflow");;
+        }).selectmenu('menuWidget').addClass("overflow");
+        $(".format").selectmenu().selectmenu('menuWidget').addClass("overflow");
         $(".tiled").checkboxradio();
 
         /**

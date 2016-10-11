@@ -3,15 +3,14 @@
  */
 
 define(['jquery', 'ol',
-    'nouislider',
     'exists',
     "featureid",
     'ttemplate',
     'ispolyvalid',
     'ispointinpoly',
-    'doespolycoverhole'
+    'doespolycoverhole',
+    'jquery-ui'
 ], function ($, ol,
-             noUiSlider,
              exists,
              FID,
              tobjectTemplates,
@@ -94,7 +93,7 @@ define(['jquery', 'ol',
         'use strict';
         if (!(this instanceof layerInteractor)) {
             throw new Error('layerInteractor must be constructed with the new keyword.');
-        } else if (typeof options === 'object' && options.map && options.layertree && options.toolbartarget && options.featuretarget) {
+        } else if (typeof options === 'object' && options.map && options.layertree && options.toolbartarget) {
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
@@ -103,42 +102,44 @@ define(['jquery', 'ol',
             this.layertree = options.layertree;
 
             this.toolbar = document.getElementById(options.toolbartarget);
-            this.createForm({target: options.featuretarget});
+            this.createFormElements();
 
+            this.lastValue = {'height':10, 'thickness':10};
             this.controls = new ol.Collection();
             this.bitA = 0;
             this.bitB = 0;
             this.activeControl = undefined;
             this.active = false;
             this.drawEventEmitter = new ol.Observable();
-            this.addedFeature = null;
-            this.autoselect = false;
-            this.wgs84Sphere = new ol.Sphere(6378137);
-            this.highlight = undefined;
-            this.featureOverlay = this.createFeatureOverlay();
-            this.map.addLayer(this.featureOverlay);
+            this.addedFeature = null; //layer
+            this.autoselect = false; //layer
+            this.wgs84Sphere = new ol.Sphere(6378137); //layer
+            this.highlight = undefined; //layer
+            this.featureOverlay = this.createFeatureOverlay(); //layer
+            this.map.addLayer(this.featureOverlay); //layer
             this.hoverDisplay = function (evt) {
                 if (evt.dragging) return;
                 var pixel = _this.map.getEventPixel(evt.originalEvent);
                 var feature = _this.getFeatureAtPixel(pixel);
                 _this.setMouseCursor(feature);
                 _this.displayFeatureInfo(feature);
-            };
+            }; //layer
             this.addInteractions();
 
             this.map.addInteraction(this.select);
             this.select.setActive(true);
 
-            this.map.on('pointermove', this.hoverDisplay);
+            this.map.on('pointermove', this.hoverDisplay); //layer
             this.map.addInteraction(this.modify);
             this.modify.setActive(false);
 
-            document.getElementById('map').addEventListener('mouseleave', function () {
+            // document.getElementById('map').addEventListener('mouseleave', function () {
+            $('#map').on('mouseleave', function () {
                 if (_this.highlight) {
                     _this.featureOverlay.getSource().removeFeature(_this.highlight);
                     _this.highlight = undefined;
                 }
-            });
+            }); //layer
 
         } else {
             throw new Error('Invalid parameter(s) provided.');
@@ -284,6 +285,7 @@ define(['jquery', 'ol',
                 layer.getSource().addFeature(selectedFeatures.getArray()[0]);
                 selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
             }
+            this.detachForm()
         }, this);
 
         layertree.selectEventEmitter.on('change', function () {
@@ -323,6 +325,7 @@ define(['jquery', 'ol',
                 setTimeout(function () {
                     _this.activeFeatures.clear();
                     _this.activeFeatures.extend(layer.getSource().getFeatures());
+                    _this.attachForm(layerType)
                 }, 0);
             }
         }, this);
@@ -360,219 +363,283 @@ define(['jquery', 'ol',
         return interaction;
     };
 
-    layerInteractor.prototype.createOption = function (optionValue) {
-        var option = document.createElement('option');
-        option.value = optionValue;
-        option.textContent = optionValue;
-        return option;
-    };
-    layerInteractor.prototype.removeContent = function (element) {
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-        return this;
-    };
-    layerInteractor.prototype.stopPropagationOnEvent = function (node, event) {
-        node.addEventListener(event, function (evt) {
-            evt.stopPropagation();
-        });
-        return node;
-    };
-
-    layerInteractor.prototype.createForm = function (options) {
+    layerInteractor.prototype.createFormElements = function () {
 
         var _this = this;
-        var featureeditor = document.getElementById(options.target);
-        featureeditor.className = 'featureeditor';
 
-        var form = document.createElement('form');
-        form.className = 'form';
-        form.id = 'featureproperties';
-        form.style.display = 'none';
+        this.formElements = {};
+        this.formElements['geometrytype'] = this.createGeometryTypeNodes();
+        this.formElements['measure'] = this.createMeasureNodes();
+        this.formElements['featurename'] = this.createNameNodes();
+        this.formElements['featuretype'] = this.createFeatureTypeNodes();
+        this.formElements['height'] = this.createHeightNodes();
+        this.formElements['thickness'] = this.createThicknessNodes();
+        this.formElements['hole'] = this.createHoleNodes();
 
-        form.appendChild(this.addLayerGeometry());
+        // $('#feature-type').on('change', function () {
+        //     _this.loadFeature(this.value);
+        // });
 
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
+        // function log10Slider(toPresent) {
+        //     var val = 0;
+        //     if (toPresent > 0.1) {
+        //         val = 25.0 * (Math.log10(toPresent) + 1.0);
+        //     }
+        //     return val;
+        // }
+        // function pow10Slider(val) {
+        //     var toPresent = 0;
+        //     if (val > 0) {
+        //         toPresent = Math.pow(10, (val / 25 - 1));
+        //     }
+        //     return String(toPresent);
+        // }
 
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Geometry type: ';
-        rowElem.appendChild(attributeSpan);
+        // var amount = 10;
+        // $("#height-slider").slider({
+        //     min: 0,
+        //     max: 100,
+        //     step: 0.01,
+        //     slide: function (event, ui) {
+        //         $("#height-spinner").spinner("value", pow10Slider(ui.value));
+        //     }
+        // });
+        // $("#height-spinner").spinner({
+        //     min: 0,
+        //     max: 1000,
+        //     step: 0.1,
+        //     spin: function (event, ui) {
+        //         $("#height-slider").slider("value", log10Slider(ui.value));
+        //     },
+        //     change: function () {
+        //         $("#height-slider").slider("value", log10Slider(this.value));
+        //     }
+        // }).spinner("value", amount);
 
-        var geometryType = document.createElement('div');
-        geometryType.className = 'form-value';
-        geometryType.id = "geometry-type";
+        // $("#thickness-slider").slider({
+        //     min: 0,
+        //     max: 50,
+        //     step: 0.01,
+        //     slide: function (event, ui) {
+        //         $("#thickness-spinner").spinner("value", ui.value)
+        //     }
+        // });
+        // $("#thickness-spinner").spinner({
+        //     min: 0,
+        //     max: 50,
+        //     step: 0.01,
+        //     spin: function (event, ui) {
+        //         $("#thickness-slider").slider("value", ui.value)
+        //     },
+        //     change: function () {
+        //         $("#thickness-slider").slider("value", this.value)
+        //     }
+        // }).spinner("value", 5);
 
-        rowElem.appendChild(geometryType);
+        return this;
+    };
+    layerInteractor.prototype.attachForm = function (layergeometry) {
+        var $featureeditor = $('#featureeditor');
+        $featureeditor.addClass('featureeditor');
 
-        form.appendChild(rowElem);
+        var $form = $("<form id='featureproperties' class='form'>");
+        $form.hide();
+        var $p = $('<p>layer Geometry: '+layergeometry+'</p>');
+        $form.append($p);
+        // $form.append(this.createDrawPolygonNodes());
+        // $form.append(this.createDrawLinestringNodes());
+        // $form.append(this.createDrawPointNodes());
+        // $form.hide();
+        $form.append(this.formElements['geometrytype']);
+        $form.append(this.formElements['measure']);
+        $form.append(this.formElements['featurename']);
+        $form.append(this.formElements['featuretype']);
+        $form.append(this.formElements['height']);
+        $form.append(this.formElements['thickness']);
+        $form.append(this.formElements['hole']);
+        $featureeditor.append($form);
 
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.style.display = 'flex';
-        var measureLabel = document.createElement('div');
-        measureLabel.id = 'measure-label';
-        measureLabel.textContent = 'Measure: ';
-        attributeSpan.appendChild(measureLabel);
-        var geodesic = document.createElement('input');
-        geodesic.id = "geodesic";
-        geodesic.type = "checkbox";
-        geodesic.title = "Use geodesic measures";
-        attributeSpan.appendChild(geodesic);
-        rowElem.appendChild(attributeSpan);
-        var measure = document.createElement('div');
-        measure.id = 'measure-feature';
-        rowElem.appendChild(measure);
-        form.appendChild(rowElem);
+    };
+    layerInteractor.prototype.detachForm = function () {
+        $('#featureeditor').empty()
+    };
 
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Name: ';
-        rowElem.appendChild(attributeSpan);
-        var featureName = document.createElement('input');
-        featureName.className = 'form-value';
-        featureName.id = "feature-name";
-        featureName.type = "text";
-        rowElem.appendChild(featureName);
-        form.appendChild(rowElem);
+    layerInteractor.prototype.createDrawPolygonNodes = function () {
 
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Hole: ';
-        rowElem.appendChild(attributeSpan);
-        rowElem.appendChild(this.createHoleButton("add"));
-        rowElem.appendChild(this.createHoleButton("delete"));
-        form.appendChild(rowElem);
+    };
+    layerInteractor.prototype.createDrawLinestringNodes = function () {
 
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Feature type:';
-        rowElem.appendChild(attributeSpan);
-        var featureType = document.createElement('select');
-        featureType.className = 'form-value';
-        featureType.id = "feature-type";
-        featureType.addEventListener('change', function () {
-            _this.loadFeature(this.value);
-        });
+    };
+    layerInteractor.prototype.createDrawPointNodes = function () {
 
-        rowElem.appendChild(featureType);
-        form.appendChild(rowElem);
-
-        // var rowElem = document.createElement('div');
-        // rowElem.className = 'form-row';
-        // var attributeSpan = document.createElement('div');
-        // attributeSpan.className = 'form-label';
-        // attributeSpan.textContent = 'Sub Type: ';
-        // rowElem.appendChild(attributeSpan);
-        // var subType = document.createElement('select');
-        // subType.className = 'form-value';
-        // subType.id = "sub-type";
-        // rowElem.appendChild(subType);
-        // form.appendChild(rowElem);
-
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Height: ';
-        rowElem.appendChild(attributeSpan);
-        var heightSlider = document.createElement('div');
-        heightSlider.id = 'height-slider';
-        noUiSlider.create(heightSlider, {
-            start: null,
-            connect: 'lower',
-            behaviour: 'tap',
-            range: {
-                'min': 0,
-                '25%': 1,
-                '50%': 10,
-                '75%': 100,
-                'max': 1000
+    };
+    layerInteractor.prototype.createGeometryTypeNodes = function () {
+        var $rowElem = $("<div class='form-row'>");
+        var $formLabel = $("<div class='form-label'>");
+        var $formValue = $("<div class='form-value'>");
+        var $geomLabel = $("<label for='geometry-type'>Geometry type:</label>");
+        var $geomValue = $("<input type='text' id='geometry-type' readonly>");
+        $formLabel.append($geomLabel);
+        $rowElem.append($formLabel);
+        $formValue.append($geomValue);
+        $rowElem.append($formValue);
+        return $rowElem
+    };
+    layerInteractor.prototype.createMeasureNodes = function () {
+        var $rowElem = $("<div class='form-row'>");
+        var $formLabel = $("<div class='form-label'>");
+        var $formValue = $("<div class='form-value'>");
+        var $measureLabel = $("<div id='measure-label'>Measure:</div>");
+        var $measure = $("<div id='measure' readonly/>");
+        var $geodesicLabel = $("<label for='geodesic' class='visible' title='Use geodesic measures'</label>");
+        var $geodesic = $("<input type='checkbox' id='geodesic' class='checkboxradio'/>");
+        $formLabel.append($measureLabel);
+        $rowElem.append($formLabel);
+        $formValue.append($geodesicLabel);
+        $formValue.append($geodesic);
+        $formValue.append($measure);
+        $rowElem.append($formValue);
+        $geodesic.checkboxradio();
+        return $rowElem
+    };
+    layerInteractor.prototype.createNameNodes = function () {
+        var $rowElem = $("<div class='form-row'>");
+        var $formLabel = $("<div class='form-label'>");
+        var $formValue = $("<div class='form-value'>");
+        var $nameLabel = $("<label for='feature-name'>Name:</label>");
+        var $nameValue = $("<input type='text' id='feature-name'>");
+        $formLabel.append($nameLabel);
+        $rowElem.append($formLabel);
+        $formValue.append($nameValue);
+        $rowElem.append($formValue);
+        return $rowElem
+    };
+    layerInteractor.prototype.createFeatureTypeNodes = function () {
+        var _this = this;
+        var $rowElem = $("<div class='form-row'>");
+        var $formLabel = $("<div class='form-label'>");
+        var $formValue = $("<div class='form-value'>");
+        var $featureTypeLabel = $("<label for='feature-type'>Feature type:</label>");
+        var $featureTypeMenu = $("<select id='feature-type'>");
+        $formLabel.append($featureTypeLabel);
+        $rowElem.append($formLabel);
+        $formValue.append($featureTypeMenu);
+        $rowElem.append($formValue);
+        $featureTypeMenu.selectmenu({
+            classes: {
+                "ui-selectmenu-button": "menuselect"
+            },
+            change: function () {
+                _this.loadFeature(this.value);
             }
         });
+        return $rowElem
+    };
+    layerInteractor.prototype.createHeightNodes = function () {
+        function log10Slider(toPresent) {
+            var val = 0;
+            if (toPresent > 0.1) {
+                val = 25.0 * (Math.log10(toPresent) + 1.0);
+            }
+            return val;
+        }
+        function pow10Slider(val) {
+            var toPresent = 0;
+            if (val > 0) {
+                toPresent = Math.pow(10, (val / 25 - 1));
+            }
+            return String(toPresent);
+        }
 
-        var heightInput = document.createElement('input');
-        heightInput.className = 'form-value';
-        heightInput.id = 'height-input';
-        heightInput.type = 'number';
-        rowElem.appendChild(heightInput);
-        form.appendChild(rowElem);
+        var $rowElem = $("<div class='form-row'>");
+        var $formLabel = $("<div class='form-label'>");
+        var $formValue = $("<div class='form-value'>");
+        var $heightLabel = $("<label for='height-spinner'>Height:</label>");
+        var $heightSpinner = $("<input id='height-spinner' class='spinbox'>");
+        var $heightSlider = $("<div id='height-slider' class='slider'>");
+        $formLabel.append($heightLabel);
+        $rowElem.append($formLabel);
+        $formValue.append($heightSpinner);
+        $formValue.append($heightSlider);
+        $rowElem.append($formValue);
 
-        // When the slider value changes, update the input and span
-        heightSlider.noUiSlider.on('update', function (values, handle) {
-            heightInput.value = values[handle];
+        var amount = 10;
+        $heightSlider.slider({
+            animate: true,
+            range: "min",
+            min: 0,
+            max: 100,
+            step: 0.01,
+            slide: function (event, ui) {
+                $("#height-spinner").spinner("value", pow10Slider(ui.value));
+            },
+            change: function (event, ui) {
+                $("#height-spinner").spinner("value", pow10Slider(ui.value));
+            }
         });
-        // When the input changes, set the slider value
-        heightInput.addEventListener('change', function () {
-            heightSlider.noUiSlider.set(this.value);
+        $heightSpinner.spinner({
+            min: 0,
+            max: 1000,
+            step: 0.1,
+            spin: function (event, ui) {
+                $("#height-slider").slider("value", log10Slider(ui.value));
+            },
+            change: function () {
+                if (this.value.length > 0) {
+                    $("#height-slider").slider("value", log10Slider(this.value));
+                }
+            }
+        }).spinner("value", amount);
+        return $rowElem
+    };
+    layerInteractor.prototype.createThicknessNodes = function () {
+        var $rowElem = $("<div class='form-row'>");
+        var $formLabel = $("<div class='form-label'>");
+        var $formValue = $("<div class='form-value'>");
+        var $thicknessLabel = $("<label for='thickness-spinner'>Thickness:</label>");
+        var $thicknessSpinner = $("<input id='thickness-spinner'>");
+        var $thicknessSlider = $("<div id='thickness-slider'>");
+        $formLabel.append($thicknessLabel);
+        $rowElem.append($formLabel);
+        $formValue.append($thicknessSpinner);
+        $formValue.append($thicknessSlider);
+        $rowElem.append($formValue);
+        $thicknessSlider.slider({
+            animate: true,
+            range: "min",
+            min: 0,
+            max: 50,
+            step: 0.01,
+            slide: function (event, ui) {
+                $("#thickness-spinner").spinner("value", ui.value)
+            },
+            change: function (event, ui) {
+                console.log('slider change', this.value, ui.value);
+                $("#thickness-spinner").spinner("value", ui.value)
+            }
         });
+        $thicknessSpinner.spinner({
+            min: 0,
+            max: 50,
+            step: 0.01,
+            spin: function (event, ui) {
+                $("#thickness-slider").slider("value", ui.value)
+            },
+            change: function () {
+                if (this.value.length > 0) {
+                    $("#thickness-slider").slider("value", this.value);
+                }
+            }
+        }).spinner("value", 5);
 
-        var rowElem = document.createElement('div');
-        rowElem.appendChild(heightSlider);
-        form.appendChild(rowElem);
-
-
-        var rowElem = document.createElement('div');
-        rowElem.className = 'form-row';
-        var attributeSpan = document.createElement('div');
-        attributeSpan.className = 'form-label';
-        attributeSpan.textContent = 'Thickness: ';
-        rowElem.appendChild(attributeSpan);
-        var thicknessSlider = document.createElement('div');
-        thicknessSlider.id = 'thickness-slider';
-        noUiSlider.create(thicknessSlider, {
-            start: null,
-            margin: 20,
-            connect: 'lower',
-            behaviour: 'tap',
-            range: {'min': 0, 'max': 50}
-        });
-
-        var thicknessInput = document.createElement('input');
-        thicknessInput.className = 'form-value';
-        thicknessInput.id = 'thickness-input';
-        thicknessInput.type = "number";
-        rowElem.appendChild(thicknessInput);
-        form.appendChild(rowElem);
-
-        // When the slider value changes, update the input and span
-        thicknessSlider.noUiSlider.on('update', function (values, handle) {
-            thicknessInput.value = values[handle];
-        });
-        // When the input changes, set the slider value
-        thicknessInput.addEventListener('change', function () {
-            thicknessSlider.noUiSlider.set(this.value);
-        });
-
-        var rowElem = document.createElement('div');
-        rowElem.appendChild(thicknessSlider);
-        form.appendChild(rowElem);
-
-
-        // var table = document.createElement('table');
-        // table.appendChild(this.addGeometryType());
-        // table.appendChild(this.addName());
-        // table.appendChild(this.addDrawHoleButton());
-        // table.appendChild(this.addDeleteHoleButton());
-        // table.appendChild(this.addFeatureType());
-        // table.appendChild(this.addSubType());
-        // table.appendChild(this.addHeight());
-        // table.appendChild(this.addThickness());
-        // table.appendChild(this.addLength(geometry_type));
-        // table.appendChild(this.addArea(geometry_type));
-        // form.appendChild(table);
-
-        featureeditor.appendChild(form);
-        return this;
+        return $rowElem
+    };
+    layerInteractor.prototype.createHoleNodes = function () {
+        var $rowElem = $("<div class='form-row'>");
+        $rowElem.append($("<div class='form-label'>Hole:</div>"));
+        $rowElem.append(this.createHoleButton("add"));
+        $rowElem.append(this.createHoleButton("delete"));
+        return $rowElem
     };
 
     layerInteractor.prototype.createLabel = function (label) {
@@ -590,31 +657,6 @@ define(['jquery', 'ol',
         td.appendChild(element);
         return td;
     };
-    layerInteractor.prototype.createHoleButton = function (label) {
-        var buttonElem = document.createElement('input');
-        buttonElem.id = label + '-hole';
-        buttonElem.className = "hole-buttons ol-" + label + "hole ol-unselectable ol-control";
-        buttonElem.type = "button";
-        buttonElem.value = label.capitalizeFirstLetter();
-        var _this = this;
-
-        switch (label) {
-            case 'add':
-                buttonElem.title = 'Draw a hole in the selected feature';
-                buttonElem.addEventListener('click', function () {
-                    _this.addHole();
-                });
-                return buttonElem;
-            case 'delete':
-                buttonElem.title = 'Delete a hole from the selected feature';
-                buttonElem.addEventListener('click', function () {
-                    _this.deleteHole();
-                });
-                return buttonElem;
-            default:
-                return false;
-        }
-    };
     layerInteractor.prototype.createMenu = function (name, id) {
         var td = document.createElement('td');
         var element = document.createElement('select');
@@ -624,96 +666,41 @@ define(['jquery', 'ol',
         td.appendChild(element);
         return td;
     };
+    layerInteractor.prototype.createOption = function (optionValue) {
+        var $option = $('<option>');
+        $option.val(optionValue);
+        $option.text(optionValue);
+        return $option;
+    };
+    layerInteractor.prototype.createHoleButton = function (label) {
+        // var $buttonLabel = $('<label for="'+label+'-hole"></label>');
+        var $buttonElem = $('<button id="'+label+'-hole">');
+        $buttonElem.addClass("ol-unselectable ol-control");
+        $buttonElem.val(label.capitalizeFirstLetter());
+        var _this = this;
 
-    layerInteractor.prototype.addLayerGeometry = function () {
-        // readonly
-        var p = document.createElement('p');
-        p.appendChild(document.createTextNode("layer Geometry:"));
-        return p
-    };
-    layerInteractor.prototype.addGeometryType = function () {
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Geometry type:"));
-        tr.appendChild(this.createInput("geometry_type", "text"));
-        return tr;
-    };
-    layerInteractor.prototype.addName = function () {
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Name:"));
-        tr.appendChild(this.createInput("name", "text"));
-        return tr;
-    };
-    layerInteractor.prototype.addDrawHoleButton = function () {
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Draw:"));
-        // tr.appendChild(this.createButton("draw", "hole"));
-        tr.appendChild(this.createButton2("drawhole", "Draw Hole", "drawhole"));
-        return tr;
-    };
-    layerInteractor.prototype.addDeleteHoleButton = function () {
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Delete:"));
-        // tr.appendChild(this.createButton("delete", "hole"));
-        tr.appendChild(this.createButton2("deletehole", "Delete Hole", "deletehole"));
-        return tr;
-    };
-    layerInteractor.prototype.addFeatureType = function () {
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Feature type:"));
-        tr.appendChild(this.createMenu("feature_type", "feature-type"));
-        return tr;
-    };
-    layerInteractor.prototype.addSubType = function () {
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Sub type:"));
-        tr.appendChild(this.createMenu("subtype", ""));
-        return tr;
-    };
-    layerInteractor.prototype.addHeight = function () {
-        // add slider.
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Height:"));
-        tr.appendChild(this.createInput("height", "number"));
-        return tr;
-    };
-    layerInteractor.prototype.addThickness = function () {
-        // add slider
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Thickness:"));
-        tr.appendChild(this.createInput("thickness", "number"));
-        return tr;
-    };
-    layerInteractor.prototype.addCoordsLat = function () {
-        // readonly
-        // only for Points (not MultiPoints)
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Lat:"));
-        tr.appendChild(this.createInput("lattitude", "number"));
-        return tr;
-    };
-    layerInteractor.prototype.addCoordsLon = function () {
-        // readonly
-        // only for Points (not MultiPoints)
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Lon:"));
-        tr.appendChild(this.createInput("longitude", "number"));
-        return tr;
-    };
-    layerInteractor.prototype.addLength = function () {
-        // readonly
-        // only for Lines and LineStrings
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Length:"));
-        tr.appendChild(this.createInput("length", "text"));
-        return tr;
-    };
-    layerInteractor.prototype.addArea = function () {
-        // readonly
-        // only for Polygons and MultiPolygons
-        var tr = document.createElement('tr');
-        tr.appendChild(this.createLabel("Area:"));
-        tr.appendChild(this.createInput("area", "text"));
-        return tr;
+        switch (label) {
+            case 'add':
+                $buttonElem.button({
+                    label: "Draw"
+                });
+                $buttonElem.prop('title', 'Draw a hole in the selected feature');
+                $buttonElem.on('click', function () {
+                    _this.addHole();
+                });
+                return $buttonElem;
+            case 'delete':
+                $buttonElem.button({
+                    label: "Delete"
+                });
+                $buttonElem.prop('title', 'Delete a hole from the selected feature');
+                $buttonElem.on('click', function () {
+                    _this.deleteHole();
+                });
+                return $buttonElem;
+            default:
+                return false;
+        }
     };
 
     layerInteractor.prototype.addHole = function () {
@@ -788,9 +775,9 @@ define(['jquery', 'ol',
             }
         });
 
-        var deleteHoleIsDisabled = document.getElementById('delete-hole').disabled;
-        document.getElementById('add-hole').disabled = true;
-        document.getElementById('delete-hole').disabled = true;
+        var deleteHoleIsDisabled = $('#delete-hole').button('option', 'disabled');
+        $('#add-hole').button('disable');
+        $('#delete-hole').button('disable');
         this.map.un('pointermove', this.hoverDisplay);
         this.select.setActive(false);
         this.modify.setActive(false);
@@ -805,7 +792,8 @@ define(['jquery', 'ol',
             _this.select.setActive(true);
             // _this.translate.setActive(true);
             _this.map.on('pointermove', _this.hoverDisplay);
-            document.getElementById('add-hole').disabled = false;
+            $('#add-hole').button('enable');
+            $('#delete-hole').button('enable');
             $(document).off('keyup')
         };
 
@@ -813,14 +801,15 @@ define(['jquery', 'ol',
             if (evt.keyCode == 189 || evt.keyCode == 109) {
                 if (vertsCouter === 1) {
                     currGeom.setCoordinates(origGeom.getCoordinates());
-                    document.getElementById('delete-hole').disabled = deleteHoleIsDisabled;
+                    $('#delete-hole').button('option', 'disabled', deleteHoleIsDisabled);
                     finishHole()
                 } else {
                     holeDraw.removeLastPoint();
                 }
             } else if (evt.keyCode == 27) {
                 currGeom.setCoordinates(origGeom.getCoordinates());
-                document.getElementById('delete-hole').disabled = deleteHoleIsDisabled;
+                $('#delete-hole').button('option', 'disabled', deleteHoleIsDisabled);
+                // document.getElementById('delete-hole').disabled = deleteHoleIsDisabled;
                 finishHole()
             }
         });
@@ -920,7 +909,7 @@ define(['jquery', 'ol',
             }
 
             this.autoselect = true;
-            document.getElementById('delete-hole').disabled = false;
+            $('#delete-hole').button('enable');
             finishHole();
         }, this);
     };
@@ -1013,8 +1002,10 @@ define(['jquery', 'ol',
             _this.select.setActive(true);
             // _this.translate.setActive(true);
             _this.map.on('pointermove', _this.hoverDisplay);
-            document.getElementById('add-hole').disabled = false;
-            document.getElementById('delete-hole').disabled = (holeFeats.getArray().length == 0);
+            $('#add-hole').button('enable');
+            if (holeFeats.getArray().length > 0) {
+                $('#delete-hole').button('enable');
+            }
             $(document).off('keyup')
         };
         $(document).on('keyup', function (evt) {
@@ -1023,8 +1014,8 @@ define(['jquery', 'ol',
             }
         });
 
-        document.getElementById('add-hole').disabled = true;
-        document.getElementById('delete-hole').disabled = true;
+        $('#add-hole').button('disable');
+        $('#delete-hole').button('disable');
         this.map.un('pointermove', this.hoverDisplay);
         this.select.setActive(false);
         this.modify.setActive(false);
@@ -1098,7 +1089,7 @@ define(['jquery', 'ol',
             var area = 0;
             var area0 = 0;
             var isExterior = true;
-            if (document.getElementById('geodesic').checked) {
+            if ($("#geodesic").is(":checked")) {
                 var poly = polygon.clone().transform(sourceProj, 'EPSG:4326');
                 poly.getLinearRings().forEach(function (ring) {
                     if (isExterior) { // assume the first ring is the exterior ring.
@@ -1136,7 +1127,7 @@ define(['jquery', 'ol',
 
         var getLineStringLength = function (line) {
             var length = 0;
-            if (document.getElementById('geodesic').checked) {
+            if ($("#geodesic").is(":checked")) {
                 var coordinates = line.clone().transform(sourceProj, 'EPSG:4326').getCoordinates();
                 var nCoords = coordinates.length;
                 for (var i = 0; i < nCoords - 1; i++) {
@@ -1175,104 +1166,98 @@ define(['jquery', 'ol',
     layerInteractor.prototype.activateForm = function (feature) {
 
         var _this = this;
-        document.getElementById('featureproperties').style.display = 'block';
+        $('#featureproperties').show();
 
-        var geometry_type = document.getElementById('geometry-type');
-        geometry_type.innerHTML = feature.getGeometry().getType();
+        var $geometryType = $('#geometry-type');
+        $geometryType.val(feature.getGeometry().getType());
 
-
-        var measureLabel = document.getElementById('measure-label');
+        var $measureLabel = $('#measure-label');
         var measure;
         if (feature.getGeometry().getType().endsWith('Polygon')) {
-            measureLabel.innerHTML = 'Area:';
+            $measureLabel.html('Area:');
             measure = this.formatArea;
         } else if (feature.getGeometry().getType().endsWith('LineString')) {
-            measureLabel.innerHTML = 'Length:';
+            $measureLabel.html('Length:');
             measure = this.formatLength;
         } else if (feature.getGeometry().getType().endsWith('Point')) {
-            measureLabel.innerHTML = 'Lon, Lat';
+            $measureLabel.html('Lon, Lat');
             measure = this.formatPosition;
         }
-        var measureValue = document.getElementById('measure-feature');
-        measureValue.innerHTML = measure(feature.getGeometry(), this.map.getView().getProjection(), this.wgs84Sphere);
+        var $measure = $('#measure');
+        $measure.html(measure(feature.getGeometry(), this.map.getView().getProjection(), this.wgs84Sphere));
         this.geometrylistener = feature.getGeometry().on('change', function (evt) {
-            measureValue.innerHTML = measure(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
+            $measure.html(measure(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere));
         });
         this.geodesiclistener = function () {
-            measureValue.innerHTML = measure(_this.geometrylistener.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
+            $measure.html(measure(_this.geometrylistener.target, _this.map.getView().getProjection(), _this.wgs84Sphere));
         };
-        document.getElementById('geodesic').addEventListener('change', this.geodesiclistener);
+        $('#geodesic').on('change', this.geodesiclistener);
 
+        var $featureName = $('#feature-name');
+        $featureName.val(feature.get('name'));
+        $featureName.removeAttr('disabled');
 
-        document.getElementById('feature-name').value = feature.get('name');
-        document.getElementById('feature-name').disabled = false;
+        var $addHole = $('#add-hole');
+        var $deleteHole = $('#delete-hole');
 
-
-        document.getElementById('add-hole').disabled = true;
-        document.getElementById('delete-hole').disabled = true;
+        $addHole.button('disable');
+        $deleteHole.button('disable');
         if (feature.getGeometry().getType().endsWith('Polygon')) {
-            document.getElementById('add-hole').disabled = false;
+            $addHole.button('enable');
             if (feature.getGeometry().getType() === 'MultiPolygon') {
                 var nPolygons = feature.getGeometry().getPolygons().length;
                 for (var i = 0; i < nPolygons; i++)
                     if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
-                        document.getElementById('delete-hole').disabled = false;
+                        $deleteHole.button('enable');
                     }
             } else if (feature.getGeometry().getLinearRingCount() > 1) {
-                document.getElementById('delete-hole').disabled = false;
+                $deleteHole.button('enable');
             }
         }
 
-
+        var $featureType = $('#feature-type');
         for (var key in tobjectTemplates) {
             if (feature.getGeometry().getType().endsWith(tobjectTemplates[key]["geometry_type"])) {
-                document.getElementById('feature-type').appendChild(this.createOption(key));
+                $featureType.append(this.createOption(key));
             }
         }
-        document.getElementById('feature-type').appendChild(this.createOption('generic'));
+        $featureType.append(this.createOption('generic'));
 
         var feature_type = feature.get('type');
         if (!(feature_type && feature_type in tobjectTemplates)) {
             feature_type = 'generic';
         }
-
-        document.getElementById('feature-type').value = feature_type;
+        $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type);
+        $featureType.val(feature_type);
 
         var feature_properties = tobjectTemplates[feature_type];
 
-        var heightinput = document.getElementById('height-input');
-        var heightslider = document.getElementById('height-slider');
-        if (feature.get('height')) {
-            heightinput.disabled = false;
-            heightinput.value = feature.get('height');
-            heightslider.removeAttribute('disabled');
-            heightslider.noUiSlider.set(feature.get('height'));
-        } else if (feature_properties['height']) {
-            heightinput.disabled = false;
-            heightinput.value = feature_properties['height'];
-            heightslider.removeAttribute('disabled');
-            heightslider.noUiSlider.set(feature_properties['height']);
+        var $heightSpinner = $('#height-spinner');
+        var $heightSlider = $('#height-slider');
+        if (feature_properties['height']) {
+            $heightSpinner.spinner('enable');
+            $heightSlider.slider('enable');
+            var height = feature.get('height') || feature_properties['height'];
+            $heightSpinner.spinner("value", height);
         } else {
-            heightinput.disabled = true;
-            heightslider.setAttribute('disabled', true);
+            $heightSpinner.spinner("value", null);
+            $heightSlider.slider("value", 0);
+            $heightSpinner.spinner('disable');
+            $heightSlider.slider('disable');
         }
 
-        var thicknessinput = document.getElementById('thickness-input');
-        var thicknessslider = document.getElementById('thickness-slider');
-        if (feature.get('thickness')) {
-            thicknessinput.disabled = false;
-            thicknessinput.value = feature.get('thickness');
-            thicknessslider.removeAttribute('disabled');
-            thicknessslider.noUiSlider.set(feature.get('thickness'));
-        } else if (feature_properties['thickness']) {
-            thicknessinput.disabled = false;
-            thicknessinput.value = feature_properties['thickness'];
-            thicknessslider.removeAttribute('disabled');
-            thicknessslider.noUiSlider.set(feature_properties['thickness']);
+        var $thicknessSpinner = $('#thickness-spinner');
+        var $thicknessSlider = $('#thickness-slider');
+        if (feature_properties['thickness']) {
+            $thicknessSpinner.spinner('enable');
+            $thicknessSlider.slider('enable');
+            var thickness = feature.get('thickness') || feature_properties['thickness'];
+            $thicknessSpinner.spinner("value", thickness);
         } else {
-            thicknessinput.disabled = true;
-            thicknessslider.noUiSlider.set(null);
-            thicknessslider.setAttribute('disabled', true);
+            $thicknessSpinner.spinner("value", null);
+            $thicknessSlider.slider("value", 0);
+            $thicknessSpinner.spinner('disable');
+            $thicknessSlider.slider('disable');
         }
     };
     layerInteractor.prototype.loadFeature = function (feature_type) {
@@ -1280,88 +1265,92 @@ define(['jquery', 'ol',
 
         var feature_properties = tobjectTemplates[feature_type];
 
-        var geometry_type = document.getElementById('geometry-type');
-        var feature_name = document.getElementById('feature-name');
+        var $geometryType = $('#geometry-type');
+        var $featureName = $('#feature-name');
         for (var key in tobjectTemplates) {
             if (tobjectTemplates[key]["geometry_type"]) {
-                if (geometry_type.innerHTML.startsWith(tobjectTemplates[key]["geometry_type"])) {
-                    if (feature_name.value.startsWith(key.capitalizeFirstLetter())) {
-                        feature_name.value = feature_name.value.replace(key.capitalizeFirstLetter(), feature_type.capitalizeFirstLetter());
+                if ($geometryType.val().startsWith(tobjectTemplates[key]["geometry_type"])) {
+                    if ($featureName.val().startsWith(key.capitalizeFirstLetter())) {
+                        $featureName.val($featureName.val().replace(key.capitalizeFirstLetter(), feature_type.capitalizeFirstLetter()));
                     }
                 }
             } else if (key === 'generic') {
-                if (feature_name.value.startsWith(key.capitalizeFirstLetter())) {
-                    feature_name.value = feature_name.value.replace(key.capitalizeFirstLetter(), feature_type.capitalizeFirstLetter());
+                if ($featureName.val().startsWith(key.capitalizeFirstLetter())) {
+                    $featureName.val($featureName.val().replace(key.capitalizeFirstLetter(), feature_type.capitalizeFirstLetter()));
                 }
             }
         }
 
-        document.getElementById('feature-type').value = feature_type;
+        $('#feature-type').val(feature_type);
 
-        var heightinput = document.getElementById('height-input');
-        var heightslider = document.getElementById('height-slider');
-
-        if (!(heightinput.disabled || feature_properties['height'])) {
-            heightslider.noUiSlider.set(0);
-            heightslider.setAttribute('disabled', true);
-            heightinput.disabled = true;
-            heightinput.value = null;
-        } else if (heightinput.disabled && feature_properties['height']) {
-            heightslider.noUiSlider.set(feature_properties['height']);
-            heightslider.removeAttribute('disabled');
-            heightinput.disabled = false;
+        var $heightSpinner = $('#height-spinner');
+        var $heightSlider = $('#height-slider');
+        if (!($heightSpinner.spinner('option', 'disabled') || feature_properties['height'])) {
+            $heightSpinner.spinner("value", null);
+            $heightSlider.slider("value", 0);
+            $heightSpinner.spinner('disable');
+            $heightSlider.slider('disable');
+        } else if ($heightSpinner.spinner('option', 'disabled') && feature_properties['height']) {
+            $heightSpinner.spinner("value", feature_properties['height']);
+            $heightSlider.slider("value", feature_properties['height']);
+            $heightSpinner.spinner('enable');
+            $heightSlider.slider('enable');
         }
 
-        var thicknessinput = document.getElementById('thickness-input');
-        var thicknessslider = document.getElementById('thickness-slider');
-
-        if (!(thicknessinput.disabled || feature_properties['thickness'])) {
-            thicknessslider.noUiSlider.set(0);
-            thicknessslider.setAttribute('disabled', true);
-            thicknessinput.disabled = true;
-            thicknessinput.value = null;
-        } else if (thicknessinput.disabled && feature_properties['thickness']) {
-            thicknessslider.noUiSlider.set(feature_properties['thickness']);
-            thicknessslider.removeAttribute('disabled');
-            thicknessinput.disabled = false;
+        var $thicknessSpinner = $('#thickness-spinner');
+        var $thicknessSlider = $('#thickness-slider');
+        if (!($thicknessSpinner.spinner('option', 'disabled') || feature_properties['thickness'])) {
+            $thicknessSpinner.spinner("value", null);
+            $thicknessSlider.slider("value", 0);
+            $thicknessSpinner.spinner('disable');
+            $thicknessSlider.slider('disable');
+        } else if ($thicknessSpinner.spinner('option', 'disabled') && feature_properties['thickness']) {
+            $thicknessSpinner.spinner("value", feature_properties['thickness']);
+            $thicknessSlider.slider("value", feature_properties['thickness']);
+            $thicknessSpinner.spinner('enable');
+            $thicknessSlider.slider('enable');
         }
         return this;
     };
     layerInteractor.prototype.deactivateForm = function (feature) {
 
-        var feature_name = document.getElementById('feature-name');
+        var $featureName = $('#feature-name');
         if (feature.get('name')) {
-            feature.set('name', feature_name.value);
+            feature.set('name', $featureName.val());
         }
-        feature_name.value = null;
-        feature_name.disabled = true;
+        $featureName.val(null);
+        $featureName.attr('disabled', true);
 
-        document.getElementById('add-hole').disabled = true;
-        document.getElementById('delete-hole').disabled = true;
+        $('#add-hole').button('disable');
+        $('#delete-hole').button('disable');
 
-        var feature_type = document.getElementById('feature-type');
+        var $featureType = $('#feature-type');
         if (feature.get('type')) {
-            feature.set('type', feature_type.value);
+            feature.set('type', $featureType.val());
         }
-        this.removeContent(feature_type);
+        $featureType.empty();
 
-        var heightinput = document.getElementById('height-input');
-        if (feature.get('height')) {
-            feature.set('height', heightinput.value);
+        var $heightSpinner = $('#height-spinner');
+        var $heightSlider = $('#height-slider');
+        if ($heightSpinner.spinner("value")) {
+            feature.set('height', $heightSpinner.spinner("value"));
         }
-        heightinput.value = null;
-        heightinput.disabled = true;
+        $heightSpinner.spinner("value", null);
+        $heightSpinner.spinner('disable');
+        $heightSlider.slider('disable');
 
-        var thicknessinput = document.getElementById('thickness-input');
-        if (feature.get('thickness')) {
-            feature.set('thickness', thicknessinput.value);
+        var $thicknessSpinner = $('#thickness-spinner');
+        var $thicknessSlider = $('#thickness-slider');
+        if ($thicknessSpinner.spinner("value")) {
+            feature.set('thickness', $thicknessSpinner.spinner("value"));
         }
-        thicknessinput.value = null;
-        thicknessinput.disabled = true;
+        $thicknessSpinner.spinner("value", null);
+        $thicknessSpinner.spinner('disable');
+        $thicknessSlider.slider('disable');
 
-        document.getElementById('featureproperties').style.display = 'none';
+        $('#featureproperties').hide();
 
-        document.getElementById('geodesic').removeEventListener('change', this.geodesiclistener);
+        $('#geodesic').off('change', this.geodesiclistener);
         ol.Observable.unByKey(this.geometrylistener);
         this.geometrylistener = null;
         this.geodesiclistener = null;
@@ -1581,15 +1570,16 @@ define(['jquery', 'ol',
             // translate.setActive(false);
 
         var remove = function (evt) {
-                console.log(evt.keyCode);
-                if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
-                    var layer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
-                    layer.getSource().removeFeature(_this.highlight);
-                    _this.featureOverlay.getSource().removeFeature(_this.highlight);
-                    _this.highlight = undefined;
-                }
-            };
-        document.addEventListener('keydown', remove, false);
+            console.log(evt.keyCode);
+            if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
+                var layer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
+                layer.getSource().removeFeature(_this.highlight);
+                _this.featureOverlay.getSource().removeFeature(_this.highlight);
+                _this.highlight = undefined;
+            }
+        };
+        $(document).on('keydown', remove, false);
+        // document.addEventListener('keydown', remove, false);
 
         this.drawEventEmitter.on('change', function (evt) {
             var selectedFeatures = _this.select.getFeatures();

@@ -8,44 +8,58 @@
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script>
-        $(function () {
-            $("#slider").slider({
-                min: 0,
-                max: 100,
-                step: 0.01,
-                value: 50,
-                slide: function (event, ui) {
-                    $("#amount").val(log10Slider(ui.value));
+//        $(function () {
+            function log10Slider(toPresent) {
+                var val = 0;
+                if (toPresent > 0.1) {
+                    val = 25.0 * (Math.log10(toPresent) + 1.0);
                 }
-            });
-            $("#amount").change(function () {
-                $("#slider").slider("value", invlog10Slider(this.value));
-            });
+                return val;
+            }
 
-        });
-        function invlog10Slider(toPresent) {
-            var val = 0;
-            if (toPresent > 0.1) {
-                val = 25.0 * (Math.log10(toPresent) + 1.0);
+            function pow10Slider(val) {
+                var toPresent = 0;
+                if (val > 0) {
+                    toPresent = Math.pow(10, (val / 25 - 1));
+                }
+                return String(toPresent);
             }
-            return val;
-        }
-        function log10Slider(val) {
-            var toPresent = 0;
-            if (val > 0) {
-                toPresent = Math.pow(10, (val / 25 - 1));
-            }
-            return String(toPresent);
-        }
+
+            $(function () {
+                var amount = 50;
+                $("#slider").slider({
+                    min: 0,
+                    max: 100,
+                    step: 0.01,
+                    slide: function (event, ui) {
+                        $("#spinner").spinner("value", pow10Slider(ui.value));
+                    }
+                });
+                $("#spinner").spinner({
+                    min: 0,
+                    max: 1000,
+                    step: 0.01,
+                    spin: function (event, ui) {
+                        $("#slider").slider("value", log10Slider(ui.value));
+                    },
+                    change: function () {
+                        $("#slider").slider("value", log10Slider(this.value));
+                    }
+                }).spinner("value", amount);
+            })
+//        })
     </script>
 </head>
 <body>
-<p>
-    <label for="amount">Height:</label>
-    <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;">
-</p>
 
-<div id="slider"></div>
+<div class="container">
+    <p>
+        <label for="spinner">Height2:
+        <input id="spinner" name="value">
+        </label>
+    </p>
 
+    <div id="slider"></div>
+</div>
 </body>
 </html>

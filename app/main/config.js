@@ -24,7 +24,6 @@ require.config({
         Filter_1_1_0: "bower_components/ogc-schemas/scripts/lib/Filter_1_1_0",
         SMIL_2_0: "bower_components/ogc-schemas/scripts/lib/SMIL_2_0",
         SMIL_2_0_Language: "bower_components/ogc-schemas/scripts/lib/SMIL_2_0_Language",
-        nouislider: "gitmodules/noUiSlider/distribute/nouislider",
         shp: "gitmodules/shapefile-js/dist/shp",
         // ol: "js/ol3-3.16.0/ol",
         ol: "js/ol3-3.16.0/ol-debug",
