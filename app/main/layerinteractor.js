@@ -441,11 +441,9 @@ define(['jquery', 'ol',
     layerInteractor.prototype.attachForm = function (layergeometry) {
         var $featureeditor = $('#featureeditor');
         $featureeditor.addClass('featureeditor');
-
         var $form = $("<form id='featureproperties' class='form'>");
         $form.hide();
-        var $p = $('<p>layer Geometry: '+layergeometry+'</p>');
-        $form.append($p);
+
         // $form.append(this.createDrawPolygonNodes());
         // $form.append(this.createDrawLinestringNodes());
         // $form.append(this.createDrawPointNodes());
