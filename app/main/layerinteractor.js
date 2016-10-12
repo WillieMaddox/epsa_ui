@@ -604,6 +604,7 @@ define(['jquery', 'ol',
         $formValue.append($thicknessSpinner);
         $formValue.append($thicknessSlider);
         $rowElem.append($formValue);
+
         $thicknessSlider.slider({
             animate: true,
             range: "min",
@@ -614,7 +615,6 @@ define(['jquery', 'ol',
                 $("#thickness-spinner").spinner("value", ui.value)
             },
             change: function (event, ui) {
-                console.log('slider change', this.value, ui.value);
                 $("#thickness-spinner").spinner("value", ui.value)
             }
         });
@@ -1113,7 +1113,6 @@ define(['jquery', 'ol',
         } else {
             area = getPolygonArea(geom)
         }
-
         var output;
         var squared = "2";
         if (area > 100000) {
@@ -1121,7 +1120,7 @@ define(['jquery', 'ol',
         } else {
             output = (Math.round(area * 100) / 100) + " m" + squared.sup();
         }
-        return output;
+        $('#measure').html(output);
     };
     layerInteractor.prototype.formatLength = function (geom, sourceProj, sphere) {
 
@@ -1153,7 +1152,7 @@ define(['jquery', 'ol',
         } else {
             output = (Math.round(length * 100) / 100) + ' m';
         }
-        return output;
+        $('#measure').html(output);
     };
     layerInteractor.prototype.formatPosition = function (point, sourceProj, sphere) {
         var geom = point.clone().transform(sourceProj, 'EPSG:4326');
@@ -1183,13 +1182,13 @@ define(['jquery', 'ol',
             $measureLabel.html('Lon, Lat');
             measure = this.formatPosition;
         }
-        var $measure = $('#measure');
-        $measure.html(measure(feature.getGeometry(), this.map.getView().getProjection(), this.wgs84Sphere));
+
+        measure(feature.getGeometry(), this.map.getView().getProjection(), this.wgs84Sphere);
         this.geometrylistener = feature.getGeometry().on('change', function (evt) {
-            $measure.html(measure(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere));
+            measure(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
         });
         this.geodesiclistener = function () {
-            $measure.html(measure(_this.geometrylistener.target, _this.map.getView().getProjection(), _this.wgs84Sphere));
+            measure(_this.geometrylistener.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
         };
         $('#geodesic').on('change', this.geodesiclistener);
 
