@@ -4,10 +4,10 @@
 
 define([], function () {
     return {
-        'Polygon': 0.1,
+        'Polygon': 0.5,
         'LineString': 0,
         'Point': 0,
-        'MultiPolygon': 0.1,
+        'MultiPolygon': 0.5,
         'MultiLineString': 0,
         'MultiPoint': 0
     };

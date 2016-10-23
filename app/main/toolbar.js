@@ -91,12 +91,13 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             this.bitB = 0;
             this.activeControl = undefined;
             this.active = false;
-            this.controlEventEmitter = new ol.Observable();
+            this.drawEventEmitter = new ol.Observable();
             this.addedFeature = null;
         } else {
             throw new Error('Invalid parameter(s) provided.');
         }
     };
+
     toolBar.prototype.addControl = function (control) {
         if (!(control instanceof ol.control.Control)) {
             throw new Error('Only controls can be added to the toolbar.');
@@ -106,7 +107,7 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 if (!(this.bitA | this.bitB)) {
                     this.activeControl = control;
                     this.active = true;
-                    this.controlEventEmitter.changed()
+                    this.drawEventEmitter.changed()
                 }
                 this.bitA ^= 1;
                 if (control.get('active')) {
@@ -120,7 +121,7 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 if (!(this.bitA | this.bitB)) {
                     this.activeControl = undefined;
                     this.active = false;
-                    this.controlEventEmitter.changed()
+                    this.drawEventEmitter.changed()
                 }
             }, this);
         }
@@ -224,18 +225,25 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
 
         this.activeFeatures = new ol.Collection();
 
-        layertree.selectEventEmitter.on('change', function () {
-            var layer;
-            if (layertree.selectedLayer) {
-                layer = layertree.getLayerById(layertree.selectedLayer.id);
-            } else {
-                layer = null;
-            }
-
+        layertree.deselectEventEmitter.on('change', function () {
             this.drawControls.forEach(function (control) {
                 control.set('active', false);
                 control.setDisabled(true);
             });
+            this.activeFeatures.clear();
+            console.log('toolbar: deselect');
+        }, this);
+
+        layertree.selectEventEmitter.on('change', function () {
+            var layer;
+
+            if (layertree.selectedLayer) {
+                layer = layertree.getLayerById(layertree.selectedLayer.id);
+                console.log('toolbar: selected layer YES');
+            } else {
+                layer = null;
+                console.log('toolbar: selected layer NO');
+            }
             if (layer instanceof ol.layer.Vector) { // feature layer.
 
                 layertree.identifyLayer(layer);
@@ -259,7 +267,6 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 }
                 var _this = this;
                 setTimeout(function () {
-                    _this.activeFeatures.clear();
                     _this.activeFeatures.extend(layer.getSource().getFeatures());
                 }, 0);
             }
@@ -299,5 +306,4 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
     };
 
     return toolBar;
-
 });

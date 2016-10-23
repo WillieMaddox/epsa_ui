@@ -2,9 +2,20 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['ol', 'ttemplate', 'tcolor', 'tstyle', 'tfillopacity', 'exists'], function (ol, tobjectTemplates, tobjectColor, tobjectStyle, FillOpacity, exists) {
+define(['ol',
+    'ttemplate',
+    'tcolor',
+    'tstyle',
+    'tfillopacity',
+    'exists'], function (
+        ol,
+        tobjectTemplates,
+        tobjectColor,
+        tobjectStyle,
+        FillOpacity,
+        exists) {
 
-    var tobjectStyleFunction = (function () {
+    return (function () {
         return function (feature, resolution) {
             if (exists(feature.get('type')) && tobjectTemplates.hasOwnProperty(feature.get('type'))) {
                 return tobjectStyle(
@@ -14,12 +25,9 @@ define(['ol', 'ttemplate', 'tcolor', 'tstyle', 'tfillopacity', 'exists'], functi
             } else {
                 return tobjectStyle(
                     [255, 0, 0],
-                    0.1
+                    0.5
                 );
             }
         };
     })();
-
-    return tobjectStyleFunction;
-
 });

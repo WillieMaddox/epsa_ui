@@ -1,9 +1,9 @@
-@import url("../js/ol3-3.16.0/ol.css");
+@import url("../js/ol3-3.19.0/ol.css");
 @import url("../js/ol3-layerswitcher/ol3-layerswitcher.css");
 @import url("../bower_components/jquery-ui/themes/base/jquery-ui.min.css");
 
 body {
-    margin: 0px;
+    margin: 0;
 }
 /** {
 	border: 1px solid red !important;
@@ -136,10 +136,7 @@ body {
 .toolbar .draw-radio button {
     background-image: url(../img/radio-normal.png);
 }
-.toolbar .ol-measure button {
-    background-image: url(../img/button_measure.png);
-}
-.sidebar .featureeditor {
+.sidebar .layereditor {
     position: relative;
     padding: 4px;
     height: calc(50% - 2em);
@@ -147,68 +144,76 @@ body {
 }
 .form .form-row {
     display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    position: relative;
+}
+.form-row .form-elem {
+    margin-top: 0.5em;
     padding: 0.25em;
     width: 100%;
 }
-.form-row .form-label {
+.form-elem .form-label {
     position: relative;
-    width: 30%;
 }
-.form-row .form-value {
+.form-elem .form-value {
     display: flex;
     align-items: center;
-    box-sizing: border-box;
-    position: relative;
-    width: 70%;
 }
 .form-value input[type=text] {
     padding-left: 0.5em;
     width: 100%;
     height: 2em;
 }
-.form-value .ui-spinner {
-    box-sizing: border-box;
-    width: 35%;
-}
 .form-value .ui-slider {
     box-sizing: border-box;
     margin: 0 1em;
     height: 0.9em;
-    width: 65%;
+    width: 70%;
+}
+.form-value .ui-spinner {
+    box-sizing: border-box;
+    width: 30%;
 }
 .form-value .ui-selectmenu-button {
     margin: 0;
     width: 100%;
 }
 .form-value #geometry-type {
+    font-size: 1em;
     border: none;
 }
 .form-value #measure {
+    white-space: nowrap;
     border: none;
-    padding-left: 0.5em;
+    padding-right: 0.5em;
+    text-align: right;
+    min-width: 7em;
 }
-/*.form-label #geodesic {*/
+/*.form-value #geodesic {*/
     /*box-sizing: border-box;*/
-    /*float: right;*/
-    /*position: relative;*/
-    /*margin: 6px 0 0;*/
-    /*width: 20%;*/
+    /*min-height: 2em;*/
+    /*min-width: 2em;*/
+    /*padding: 0.5em;*/
+    /*!*float: right;*!*/
+    /*!*position: relative;*!*/
+    /*margin: 0;*/
+    /*!*width: 20%;*!*/
+/*}*/
+/*.form-value #feature-name {*/
+    /*font-size: 1em;*/
 /*}*/
 .hole-buttons {
-    display: inline-block;
-    cursor: pointer;
+    /*display: inline-block;*/
+    /*cursor: pointer;*/
     /*color: white;*/
     /*margin: 4px 2px;*/
     /*border: none;*/
-    /*padding: 4px 12px;*/
-    text-align: center;
-    text-decoration: none;
-    font-size: 16px;
+    /*padding: 0.375em;*/
+    /*text-align: center;*/
+    /*text-decoration: none;*/
+    /*font-size: 14px;*/
+    min-width: calc(100% / 2);
+    /*max-width: calc(100% / 2);*/
 }
-.form-row .ol-addhole{
+.form-elem .ol-addhole{
     background-color: #4CAF50;
 }
 .ol-addhole button:hover {
@@ -221,8 +226,8 @@ body {
     background-color: #8E2822;
 }
 .disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    opacity: 0.35;
+    /*cursor: not-allowed;*/
 }
 
 .sidebar .layertree {
@@ -312,6 +317,12 @@ body {
 .ui-corner-bottom
 {
     border-radius: 0;
+}
+.ui-button {
+    margin: 0;
+}
+.ui-spinner-input {
+    width: calc(100% - 2.4em);
 }
 .visible {
     box-sizing: border-box;
@@ -406,7 +417,7 @@ body {
     background-image: url("../img/colorwheel.png");
     background-repeat: no-repeat;
     background-position: center center;
-    z-index: 100;
+    /*z-index: 100;*/
 }
 
 .popup {
@@ -444,6 +455,7 @@ fieldset {
     border: 0;
 }
 fieldset input {
+    display: block;
     box-sizing: border-box;
     width: 100%;
     padding: .4em;
@@ -452,6 +464,9 @@ fieldset label {
     display: block;
     margin-top: 1em;
 }
+/*.addlayer span.ui-selectmenu-open {*/
+    /*z-index: 9999;*/
+/*}*/
 .overflow {
     max-height: 200px;
 }

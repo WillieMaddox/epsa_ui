@@ -13,7 +13,7 @@ define(['ol'], function (ol) {
                     width: 2
                 }),
                 fill: new ol.style.Fill({
-                    color: color.concat(0.6)
+                    color: color.concat(0.5)
                 })
             }),
             stroke: new ol.style.Stroke({

@@ -5,9 +5,10 @@ define(['jquery', 'ol',
     'ttemplate',
     'layertree',
     'toolbar',
-    'bingkey',
     'layerinteractor',
-    'layerswitcher'], function ($, ol, exists, deg2tile, tobjectTemplates, layerTree, toolBar, bingKey, layerInteractor) {
+    'featureeditor',
+    'bingkey',
+    'layerswitcher'], function ($, ol, exists, deg2tile, tobjectTemplates, layerTree, toolBar, layerInteractor, featureEditor, bingKey) {
 
     "use strict";
     String.prototype.capitalizeFirstLetter = function (flip) {
@@ -79,16 +80,18 @@ define(['jquery', 'ol',
         var mouseProjection = 'EPSG:4326';
         var mousePrecision = 4;
         var view = new ol.View({
-            // center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-86.677945, 34.723185], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-78.87532, 42.884600], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
-            center: ol.proj.transform([-105.0, 39.75], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-79.049, 43.146], 'EPSG:4326', 'EPSG:3857'),
+            center: ol.proj.transform(
+                // [-86.711, 34.636],
+                // [-86.677945, 34.723185],
+                // [-78.87532, 42.884600],
+                // [-73.9812, 40.6957],
+                [-105.539, 39.771],
+                // [-105.0, 39.75],
+                // [-79.049, 43.146],
+                'EPSG:4326', 'EPSG:3857'),
             // center: [-8238000, 4970700],
             // center: [0, 0],
-            zoom: 13
+            zoom: 15
         });
         view.on('change:resolution', function (evt) {
             var coord0 = evt.target.getCenter();
@@ -238,12 +241,11 @@ define(['jquery', 'ol',
 
         var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
 
-        // var tools = new toolBar({map: map, layertree: tree, target: 'toolbar'});
-        // tools.addDrawToolBar();
-        // var interactor = new FeatureInteractor({map: map, layertree: tree, toolbar: tools, target: 'featureeditor'});
+        var tools = new toolBar({map: map, layertree: tree, target: 'toolbar'});
+        tools.addDrawToolBar();
 
-        var interactor = new layerInteractor({map: map, layertree: tree, toolbartarget: 'toolbar'});
-        interactor.addDrawToolBar();
+        var interactor = new layerInteractor({map: map, layertree: tree, toolbar: tools});
+        tree.layerEditors['feature'] = new featureEditor({map: map, interactor: interactor});
 
         /*********** WFS-T *************/
         // var dirty = {};
@@ -274,19 +276,6 @@ define(['jquery', 'ol',
         // 		data: str
         // 	}).done();
         // };
-
-        /********* TRANSLATE ***********/
-        // When the translate interaction is active, it
-        // causes the mouse cursor to turn into a
-        // pointer when hovering over the interior
-        // of the AOR. Need to find out why.
-        // Disable until solution is found.
-        //
-        // var translate = new ol.interaction.Translate({
-        //     features: select.getFeatures()
-        // });
-        // map.addInteraction(translate);
-        // translate.setActive(false);
 
         /********* ADD SENSOR **********/
         // var iconFeature = new ol.Feature({
@@ -333,7 +322,7 @@ define(['jquery', 'ol',
         //             url: 'test_project/aor.geojson',
         //             format: new ol.format.GeoJSON()
         //         }),
-        //         style: tobjectsStyleFunction
+        //         style: tobjectStyleFunction
         //     });
         //     var vector = new ol.layer.Vector({
         //         title: 'tobjects',
@@ -342,7 +331,7 @@ define(['jquery', 'ol',
         //             url: 'test_project/tobjects_test.geojson',
         //             format: new ol.format.GeoJSON()
         //         }),
-        //         style: tobjectsStyleFunction
+        //         style: tobjectStyleFunction
         //     });
         //     var projectGroup = new ol.layer.Group({
         //         title: 'Project',
@@ -363,30 +352,6 @@ define(['jquery', 'ol',
         //     });
         // };
 
-        // var vector_aor = new ol.layer.Vector({
-        //     title: 'AOR',
-        //     name: 'AOR',
-        //     type: 'vector',
-        //     source: new ol.source.Vector(),
-        //     style: tobjectsStyleFunction
-        // });
-        // var vector = new ol.layer.Vector({
-        //     title: 'tobjects',
-        //     name: 'tobjects',
-        //     type: 'vector',
-        //     source: new ol.source.Vector(),
-        //     style: tobjectsStyleFunction
-        // });
-        // var projectGroup = new ol.layer.Group({
-        //     title: 'Project',
-        //     layers: [
-        //         // layerVector,
-        //         vector_aor,
-        //         vector
-        //     ]
-        // });
-        // map.addLayer(projectGroup);
-
         /******* LAYER SWITCHER ********/
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
@@ -397,11 +362,11 @@ define(['jquery', 'ol',
         });
         map.addControl(scaleLineControl);
 
-        var unitsSelect = $('#units');
-        unitsSelect.on('change', function () {
+        var $unitsSelect = $('#units');
+        $unitsSelect.on('change', function () {
             scaleLineControl.setUnits(this.value);
         });
-        unitsSelect.val(scaleLineControl.getUnits());
+        $unitsSelect.val(scaleLineControl.getUnits());
 
         /******** MOUSEPOSITION ********/
         var mousePositionControl = new ol.control.MousePosition({
@@ -411,13 +376,13 @@ define(['jquery', 'ol',
         });
         map.addControl(mousePositionControl);
 
-        var projectionSelect = $('#projection');
-        projectionSelect.on('change', function () {
+        var $projectionSelect = $('#projection');
+        $projectionSelect.on('change', function () {
             mouseProjection = ol.proj.get(this.value);
             mousePositionControl.setProjection(mouseProjection);
 
         });
-        projectionSelect.val(mousePositionControl.getProjection().getCode());
+        $projectionSelect.val(mousePositionControl.getProjection().getCode());
 
         var mousePositionControl2 = new ol.control.MousePosition({
             coordinateFormat: function (coordinates) {
@@ -506,175 +471,6 @@ define(['jquery', 'ol',
         //     }, tree);
         // });
 
-
-        // document.getElementById('checkwmslayer').addEventListener('click', function () {
-        //     tree.checkWmsLayer(this.form);
-        // });
-        // document.getElementById('checkwfslayer').addEventListener('click', function () {
-        //     tree.checkWfsLayer(this.form);
-        // });
-        // document.getElementById('wmsurl').addEventListener('change', function () {
-        //     tree.removeContent(this.form.layer)
-        //         .removeContent(this.form.format);
-        // });
-        // document.getElementById('wfsurl').addEventListener('change', function () {
-        //     tree.removeContent(this.form.layer);
-        // });
-        // document.getElementById('addwms_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.addWmsLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-        // document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.addWfsLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-        // document.getElementById('addvector_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.addVectorLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-        // document.getElementById('newvector_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.newVectorLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-
-        $("#checkwmslayer").button().on("click", function () {
-            tree.checkWmsLayer($(this));
-        });
-        $("#checkwfslayer").button().on("click", function () {
-            tree.checkWfsLayer($(this));
-        });
-
-        $("#url_addwms").on("change", function () {
-            var $layername = $(this).parent().find(".layername");
-            var $format = $(this).parent().find(".format");
-            $layername.empty();
-            $layername.selectmenu("refresh");
-            $format.empty();
-            $format.selectmenu("refresh");
-        });
-        $("#url_addwfs").on("change", function () {
-            var $layername = $(this).parent().find(".layername");
-            $layername.empty();
-            $layername.selectmenu("refresh");
-        });
-        var $addWmsDialog = $("#addwms").dialog({
-            title: "Add WMS layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.addWmsLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $addWmsDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.addWmsLayer($(this));
-            $(this).parent().dialog("close");
-        });
-
-        var $addWfsDialog = $("#addwfs").dialog({
-            title: "Add WFS layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.addWfsLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $addWfsDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.addWfsLayer($(this));
-            $(this).parent().dialog("close");
-        });
-
-        var $addVectorDialog = $("#addvector").dialog({
-            title: "Add Vector layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.addVectorLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $addVectorDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.addVectorLayer($(this));
-            $(this).parent().dialog("close");
-        });
-        $addVectorDialog.find(".file").on("change", function (event) {
-            var startPos = this.value.lastIndexOf("\\") + 1;
-            var stopPos = this.value.lastIndexOf(".");
-            var name = this.value.slice(startPos, stopPos);
-            $addVectorDialog.find(".displayname").val(name);
-        });
-
-        var $newVectorDialog = $("#newvector").dialog({
-            title: "Create New Vector Layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.newVectorLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $newVectorDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.newVectorLayer($(this));
-            $(this).parent().dialog("close");
-        });
-
-        $(".layername").selectmenu({
-            change: function (event, ui) {
-                $(this).parent().find(".displayname").val($(this).val());
-            }
-        }).selectmenu('menuWidget').addClass("overflow");
-        $(".geomtype").selectmenu().selectmenu('menuWidget').addClass("overflow");
-        $(".filetype").selectmenu({
-            change: function (event, ui) {
-                $(this).parent().find(".displayname").val("");
-                $(this).parent().find(".file").val("");
-                $(this).parent().find(".file")[0].accept = '.' + $(this).val();
-            }
-        }).selectmenu('menuWidget').addClass("overflow");
-        $(".format").selectmenu().selectmenu('menuWidget').addClass("overflow");
-        $(".tiled").checkboxradio();
-
         /**
          * TODO: Need to integrate the opacity sliders from this code into the layerswitcher code.
          * See http://openlayers.org/en/v3.13.0/examples/layer-group.html?q=mapquest
@@ -701,10 +497,7 @@ define(['jquery', 'ol',
         }
     });
          **/
-    };
-    // document.addEventListener('DOMContentLoaded', init);
-    // alert();
+    }
     init();
-    // alert();
 });
 // define([], function() {});

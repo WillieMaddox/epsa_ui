@@ -2,7 +2,6 @@
  * Created by maddoxw on 7/23/16.
  */
 
-
 define([
     'tfillopacity',
     'tcolor'
@@ -57,7 +56,7 @@ define([
     for (var template in tobjectTemplates) {
         if (tobjectTemplates.hasOwnProperty(template)) {
             tobjectTemplates[template].color = tobjectColor[template];
-            tobjectTemplates[template].fillopacity = template === 'aor' ? 0 : 0.1;
+            tobjectTemplates[template].fillopacity = template === 'aor' ? 0 : 0.5;
         }
     }
 
