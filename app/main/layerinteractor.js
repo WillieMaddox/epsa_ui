@@ -54,6 +54,7 @@ define(['jquery', 'ol',
             $('#map').on('mouseleave', function () {
                 if (_this.highlight) {
                     _this.featureOverlay.getSource().removeFeature(_this.highlight);
+                    // _this.featureOverlay.getSource().clear();
                     _this.highlight = undefined;
                 }
             });
@@ -258,6 +259,7 @@ define(['jquery', 'ol',
                 }
             }
         }, this, function (layer) {
+            // TODO: use this.layer ???
             if (this.layertree.selectedLayer) {
                 return layer === this.layertree.getLayerById(this.layertree.selectedLayer.id)
             }
@@ -372,6 +374,7 @@ define(['jquery', 'ol',
                 _this.editor.loadFeature(feature);
                 _this.editor.deactivateForm();
 
+                // TODO: use this.layer ???
                 selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
                 selectedLayer.getSource().addFeature(feature);
                 // _this.activeFeatures.push(feature);
@@ -401,6 +404,7 @@ define(['jquery', 'ol',
                 console.log('auto select:  ', feature.get('name'), feature.getRevision());
                 _this.editor.activateForm(feature);
 
+                // TODO: use this.layer ???
                 selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
                 selectedLayer.getSource().removeFeature(feature);
                 // _this.activeFeatures.push(feature);
@@ -436,9 +440,11 @@ define(['jquery', 'ol',
         var remove = function (evt) {
             // console.log(evt.keyCode);
             if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
+                // TODO: use this.layer ???
                 var layer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
                 layer.getSource().removeFeature(_this.highlight);
                 _this.featureOverlay.getSource().removeFeature(_this.highlight);
+                // _this.featureOverlay.getSource().clear();
                 _this.highlight = undefined;
             }
         };

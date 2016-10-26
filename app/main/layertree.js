@@ -181,7 +181,7 @@ define(["jquery", "ol",
                 var $visibleLabel = $("<label class='visible layervisible'>");
                 $visibleLabel.attr('for', layer.get('id') + "-layervisible");
                 $layerRow_1.append($visibleLabel);
-                var $visibleInput = $("<input type='checkbox' class='checkboxradio'/>");
+                var $visibleInput = $("<input type='checkbox' class='checkboxradio'>");
                 $visibleInput.attr('id', layer.get('id') + "-layervisible" );
                 $visibleInput[0].checked = layer.getVisible();
                 $layerRow_1.append($visibleInput);
@@ -267,7 +267,7 @@ define(["jquery", "ol",
                     var $hoverLabel = $("<label class='visible hovervisible'>");
                     $hoverLabel.attr('for', layer.get('id') + "-hovervisible");
                     $hoverControl.append($hoverLabel);
-                    var $hoverInput = $("<input type='checkbox' class='checkboxradio'/>");
+                    var $hoverInput = $("<input type='checkbox' class='checkboxradio' checked>");
                     $hoverInput.attr('id', layer.get('id') + "-hovervisible" );
                     $hoverControl.append($hoverInput);
                     var $hoverSelect = $("<select class='menuselect hoverselect'>");
@@ -458,6 +458,14 @@ define(["jquery", "ol",
                 if (layer.getSource().get('pendingRequests') === 0) {
                     layer.buildHeaders();
                 }
+                if (layer.getSource().getFeatures().length === 0) {
+                    var hasFeatures = [false, 'disable']
+                } else {
+                    hasFeatures = [true, 'enable']
+                }
+                $('.hovercontrol').controlgroup(hasFeatures[1]);
+                $('.colorcontrol').controlgroup(hasFeatures[1]);
+
             } else {
                 $('#' + layer.get('id')).addClass('error');
             }
