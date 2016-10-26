@@ -120,7 +120,7 @@ define(['jquery', 'ol',
                 "ui-selectmenu-button": "menuselect"
             },
             change: function () {
-                t.changeFeatureType(this.value);
+                _this.changeFeatureType(this.value);
             }
         });
 
@@ -277,7 +277,7 @@ define(['jquery', 'ol',
         return val;
     };
     featureEditor.prototype.pow10Slider = function (val) {
-        var _thisoPresent = 0;
+        var toPresent = 0;
         if (val > 0) {
             toPresent = Math.pow(10, (val / 25 - 1));
         }
@@ -866,11 +866,13 @@ define(['jquery', 'ol',
             $heightSlider.slider("value", 0);
             $heightSpinner.spinner('disable');
             $heightSlider.slider('disable');
+            $('#height-label').addClass('disabled');
         } else if ($heightSpinner.spinner('option', 'disabled') && feature_properties['height']) {
             $heightSpinner.spinner("value", feature_properties['height']);
             $heightSlider.slider("value", feature_properties['height']);
             $heightSpinner.spinner('enable');
             $heightSlider.slider('enable');
+            $('#height-label').removeClass('disabled');
         }
 
         var $thicknessSpinner = $('#thickness-spinner');
@@ -880,11 +882,13 @@ define(['jquery', 'ol',
             $thicknessSlider.slider("value", 0);
             $thicknessSpinner.spinner('disable');
             $thicknessSlider.slider('disable');
+            $('#thickness-label').addClass('disabled');
         } else if ($thicknessSpinner.spinner('option', 'disabled') && feature_properties['thickness']) {
             $thicknessSpinner.spinner("value", feature_properties['thickness']);
             $thicknessSlider.slider("value", feature_properties['thickness']);
             $thicknessSpinner.spinner('enable');
             $thicknessSlider.slider('enable');
+            $('#thickness-label').removeClass('disabled');
         }
         return this;
     };
