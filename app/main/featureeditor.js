@@ -105,6 +105,7 @@ define(['jquery', 'ol',
         return $formElem
     };
     featureEditor.prototype.createFeatureTypeNodes = function () {
+        var _this = this;
         var $formElem = $("<div class='form-elem'>");
 
         $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"));
@@ -119,14 +120,14 @@ define(['jquery', 'ol',
                 "ui-selectmenu-button": "menuselect"
             },
             change: function () {
-                this.changeFeatureType(this.value);
+                t.changeFeatureType(this.value);
             }
         });
 
         return $formElem
     };
     featureEditor.prototype.createHoleNodes = function () {
-        var t = this;
+        var _this = this;
         var $formElem = $("<div class='form-elem'>");
 
         $formElem.append($("<div id='hole-label' class='form-label'>Hole</div>"));
@@ -141,18 +142,18 @@ define(['jquery', 'ol',
         $addHole.button({
             label: "Draw"
         }).on('click', function () {
-            t.addHole();
+            _this.addHole();
         });
         $deleteHole.button({
             label: "Delete"
         }).on('click', function () {
-            t.deleteHole();
+            _this.deleteHole();
         });
 
         return $formElem
     };
     featureEditor.prototype.createHeightNodes = function () {
-        var t = this;
+        var _this = this;
         var $formElem = $("<div class='form-elem'>");
 
         $formElem.append($("<div id='height-label' class='form-label'>Height</div>"));
@@ -171,10 +172,10 @@ define(['jquery', 'ol',
             max: 100,
             step: 0.01,
             slide: function (event, ui) {
-                $("#height-spinner").spinner("value", t.pow10Slider(ui.value));
+                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
             },
             change: function (event, ui) {
-                $("#height-spinner").spinner("value", t.pow10Slider(ui.value));
+                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
             }
         });
         $heightSpinner.spinner({
@@ -182,11 +183,11 @@ define(['jquery', 'ol',
             max: 1000,
             step: 0.1,
             spin: function (event, ui) {
-                $("#height-slider").slider("value", t.log10Slider(ui.value));
+                $("#height-slider").slider("value", _this.log10Slider(ui.value));
             },
             change: function () {
                 if (this.value.length > 0) {
-                    $("#height-slider").slider("value", t.log10Slider(this.value));
+                    $("#height-slider").slider("value", _this.log10Slider(this.value));
                 }
             }
         }).spinner("value", 10);
@@ -276,7 +277,7 @@ define(['jquery', 'ol',
         return val;
     };
     featureEditor.prototype.pow10Slider = function (val) {
-        var toPresent = 0;
+        var _thisoPresent = 0;
         if (val > 0) {
             toPresent = Math.pow(10, (val / 25 - 1));
         }
