@@ -62,6 +62,7 @@ define(['jquery', 'ol',
             this.layertree.deselectEventEmitter.on('change', function () {
                 var layer;
                 if (this.layertree.selectedLayer) {
+                    // TODO: use this.layer ???
                     layer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
                     console.log('layerinteractor: deselected layer YES');
                 } else {
@@ -77,6 +78,8 @@ define(['jquery', 'ol',
 
             this.layertree.selectEventEmitter.on('change', function () {
                 this.layer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+                _this.textStyleKey = this.layer.get('textstyle');
+                _this.geomStyleKey = this.layer.get('geomstyle');
                 this.layer.on('propertychange', function (evt) {
                     if (evt.key === 'textstyle') {
                         _this.textStyleKey = this.get('textstyle');

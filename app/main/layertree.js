@@ -292,13 +292,6 @@ define(["jquery", "ol",
                         };
                         handler(event, data)
                     });
-                    // $hoverInput.change(function () {
-                    //     if (this.checked) {
-                    //         console.log("hoverselect ON");
-                    //     } else {
-                    //         console.log("hoverselect OFF");
-                    //     }
-                    // });
                     $hoverSelect.selectmenu({
                         classes: {
                             "ui-selectmenu-button": "menuselect"
@@ -356,9 +349,14 @@ define(["jquery", "ol",
 
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
-                            var activeHoverAttribute = $hoverSelect[0].value;
-                            // var activeHoverAttribute = $hoverSelect.val(); // Better ???
-                            var activeColorAttribute = $colorSelect[0].value;
+                            var opt1 = null;
+                            var opt2 = null;
+                            var opt;
+                            var id = '#'+$layerDiv[0].id;
+                            var $hoverSelect = $(id + ' .hovercontrol').find('.hoverselect');
+                            var $colorSelect = $(id + ' .colorcontrol').find('.colorselect');
+                            var activeHoverAttribute = $hoverSelect.val();
+                            var activeColorAttribute = $colorSelect.val();
                             $hoverSelect.empty();
                             $colorSelect.empty();
                             var headers = layer.get('headers');
@@ -366,29 +364,46 @@ define(["jquery", "ol",
                                 $hoverSelect.append(this.createOption(i));
                                 $colorSelect.append(this.createOption(i));
                             }
-                            if (activeHoverAttribute) {
-                                $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text(activeHoverAttribute);
-                                $hoverSelect[0].value = activeHoverAttribute;
-                            } else if ($hoverSelect.children().length > 0) {
-                                $('#' + $layerDiv[0].id + ' .hovercontrol .ui-selectmenu-text').text($hoverSelect.children()[0].value);
-                                $hoverSelect[0].value = $hoverSelect.children()[0].value;
+                            if ($hoverSelect.children().length > 0) {
+                                $hoverSelect.children().each(function () {
+                                    if ($(this).val() === activeHoverAttribute) {
+                                        opt1 = $(this).val()
+                                    }
+                                });
+                                $hoverSelect.children().each(function () {
+                                    if ($(this).val() === 'name') {
+                                        opt2 = $(this).val()
+                                    }
+                                });
+                                opt = opt1 || opt2 || $hoverSelect.children()[0].value;
                             }
-                            if (activeColorAttribute) {
-                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text(activeColorAttribute);
-                                $colorSelect[0].value = activeColorAttribute;
-                            } else if ($colorSelect.children().length > 0) {
-                                $('#' + $layerDiv[0].id + ' .colorcontrol .ui-selectmenu-text').text($colorSelect.children()[0].value);
-                                $colorSelect[0].value = $colorSelect.children()[0].value;
+                            $hoverSelect.val(opt);
+                            layer.set('textstyle', opt);
+                            opt1 = null;
+                            opt2 = null;
+                            if ($colorSelect.children().length > 0) {
+                                $colorSelect.children().each(function () {
+                                    if ($(this).val() === activeColorAttribute) {
+                                        opt1 = $(this).val()
+                                    }
+                                });
+                                $colorSelect.children().each(function () {
+                                    if ($(this).val() === 'type') {
+                                        opt2 = $(this).val()
+                                    }
+                                });
+                                opt = opt1 || opt2 || $colorSelect.children()[0].value;
                             }
-                            $hoverSelect.selectmenu("refresh");
-                            $colorSelect.selectmenu("refresh");
+                            $colorSelect.val(opt);
+                            layer.set('geomstyle', opt);
+                            $(id + ' .hovercontrol').find('.hoverselect').selectmenu("refresh");
+                            $(id + ' .colorcontrol').find('.colorselect').selectmenu("refresh");
                         }
                     }, this);
                 }
                 $(".mybutton").button();
                 $(".checkboxradio").checkboxradio();
                 $('.controlgroup').controlgroup();
-
 
                 return this;
             };
@@ -770,8 +785,8 @@ define(["jquery", "ol",
             // });
         }
         function loadEnd(evt) {
-            $('#' + layer.get('id') + ' .layertitle').unwrap();
-            layer.buildHeaders();
+            // $('#' + layer.get('id') + ' .layertitle').unwrap();
+            // layer.buildHeaders();
             // console.log('headers built');
         }
         function errorHandler(evt) {
@@ -800,6 +815,7 @@ define(["jquery", "ol",
             var source = new ol.source.Vector({
                 strategy: ol.loadingstrategy.bbox
             });
+            source.set('pendingRequests', 1);
             var layer = new ol.layer.Vector({
                 source: source,
                 name: $form.find(".displayname").val(),
@@ -808,8 +824,8 @@ define(["jquery", "ol",
                 updateWhileAnimating: true,
                 opacity: 0.6
             });
+            this.addBufferIcon(layer);
             this.map.addLayer(layer);
-            // this.addBufferIcon(layer);
             this.messages.textContent = 'Vector layer added successfully.';
             return this;
         } catch (error) {
