@@ -416,7 +416,6 @@ define(["jquery", "ol",
                 if (evt.element.get('type') !== 'overlay') {
                     $('#' + evt.element.get('id')).remove();
                     this.deselectEventEmitter.changed();
-                    //TODO: Check that this should be this.deselectEventEmitter.changed();
                 }
             }, this);
         } else {

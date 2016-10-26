@@ -53,8 +53,7 @@ define(['jquery', 'ol',
 
             $('#map').on('mouseleave', function () {
                 if (_this.highlight) {
-                    _this.featureOverlay.getSource().removeFeature(_this.highlight);
-                    // _this.featureOverlay.getSource().clear();
+                    _this.featureOverlay.getSource().clear();
                     _this.highlight = undefined;
                 }
             });
@@ -62,8 +61,6 @@ define(['jquery', 'ol',
             this.layertree.deselectEventEmitter.on('change', function () {
                 var layer;
                 if (this.layertree.selectedLayer) {
-                    // TODO: use this.layer ???
-                    layer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
                     console.log('layerinteractor: deselected layer YES');
                 } else {
                     layer = null;
@@ -71,15 +68,15 @@ define(['jquery', 'ol',
                 }
                 var selectedFeatures = this.select.getFeatures();
                 if (selectedFeatures.getLength() === 1) {
-                    layer.getSource().addFeature(selectedFeatures.getArray()[0]);
+                    this.layer.getSource().addFeature(selectedFeatures.getArray()[0]);
                     selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
                 }
             }, this);
 
             this.layertree.selectEventEmitter.on('change', function () {
                 this.layer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
-                _this.textStyleKey = this.layer.get('textstyle');
-                _this.geomStyleKey = this.layer.get('geomstyle');
+                this.textStyleKey = this.layer.get('textstyle');
+                this.geomStyleKey = this.layer.get('geomstyle');
                 this.layer.on('propertychange', function (evt) {
                     if (evt.key === 'textstyle') {
                         _this.textStyleKey = this.get('textstyle');
@@ -122,67 +119,6 @@ define(['jquery', 'ol',
     // };
     // layerInteractor.prototype.createDrawPointNodes = function () {
     //
-    // };
-
-    // layerInteractor.prototype.createLabel = function (label) {
-    //     var td = document.createElement('td');
-    //     var l = document.createTextNode(label);
-    //     td.appendChild(l);
-    //     return td;
-    // };
-    // layerInteractor.prototype.createInput = function (name, type) {
-    //     var td = document.createElement('td');
-    //     var element = document.createElement('input');
-    //     element.name = name;
-    //     element.type = type;
-    //     element.required = true;
-    //     td.appendChild(element);
-    //     return td;
-    // };
-    // layerInteractor.prototype.createMenu = function (name, id) {
-    //     var td = document.createElement('td');
-    //     var element = document.createElement('select');
-    //     element.name = name;
-    //     element.type = "text";
-    //     element.id = id;
-    //     td.appendChild(element);
-    //     return td;
-    // };
-    // layerInteractor.prototype.createOption = function (option) {
-    //     var $option = $('<option>');
-    //     $option.val(option);
-    //     $option.text(option);
-    //     return $option;
-    // };
-    // layerInteractor.prototype.createHoleButton = function (label) {
-    //     // var $buttonLabel = $('<label for="'+label+'-hole"></label>');
-    //     var $buttonElem = $('<button id="'+label+'-hole">');
-    //     $buttonElem.addClass("ol-unselectable ol-control hole-buttons");
-    //     $buttonElem.val(label.capitalizeFirstLetter());
-    //     var _this = this;
-    //
-    //     switch (label) {
-    //         case 'add':
-    //             $buttonElem.button({
-    //                 label: "Draw"
-    //             });
-    //             $buttonElem.prop('title', 'Draw a hole in the selected feature');
-    //             $buttonElem.on('click', function () {
-    //                 _this.addHole();
-    //             });
-    //             return $buttonElem;
-    //         case 'delete':
-    //             $buttonElem.button({
-    //                 label: "Delete"
-    //             });
-    //             $buttonElem.prop('title', 'Delete a hole from the selected feature');
-    //             $buttonElem.on('click', function () {
-    //                 _this.deleteHole();
-    //             });
-    //             return $buttonElem;
-    //         default:
-    //             return false;
-    //     }
     // };
 
     layerInteractor.prototype.textStyle = function (text) {
@@ -262,9 +198,8 @@ define(['jquery', 'ol',
                 }
             }
         }, this, function (layer) {
-            // TODO: use this.layer ???
-            if (this.layertree.selectedLayer) {
-                return layer === this.layertree.getLayerById(this.layertree.selectedLayer.id)
+            if (this.layer) {
+                return layer === this.layer
             }
         }, this);
         if (!(exists(featureAndLayer))) {
@@ -376,10 +311,7 @@ define(['jquery', 'ol',
                 console.log('auto deselect:', feature.get('name'), feature.getRevision());
                 _this.editor.loadFeature(feature);
                 _this.editor.deactivateForm();
-
-                // TODO: use this.layer ???
-                selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
-                selectedLayer.getSource().addFeature(feature);
+                _this.layer.getSource().addFeature(feature);
                 // _this.activeFeatures.push(feature);
 
                 // transactWFS('insert', evt.feature);
@@ -399,17 +331,13 @@ define(['jquery', 'ol',
                 //     });
                 // });
             }
-
             if (evt.selected.length == 1) {
                 feature = evt.selected[0];
                 _this.modify.setActive(true);
                 //translate.setActive(true);
                 console.log('auto select:  ', feature.get('name'), feature.getRevision());
                 _this.editor.activateForm(feature);
-
-                // TODO: use this.layer ???
-                selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
-                selectedLayer.getSource().removeFeature(feature);
+                _this.layer.getSource().removeFeature(feature);
                 // _this.activeFeatures.push(feature);
                 console.log('here')
             }
@@ -443,11 +371,8 @@ define(['jquery', 'ol',
         var remove = function (evt) {
             // console.log(evt.keyCode);
             if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
-                // TODO: use this.layer ???
-                var layer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
-                layer.getSource().removeFeature(_this.highlight);
-                _this.featureOverlay.getSource().removeFeature(_this.highlight);
-                // _this.featureOverlay.getSource().clear();
+                _this.layer.getSource().removeFeature(_this.highlight);
+                _this.featureOverlay.getSource().clear();
                 _this.highlight = undefined;
             }
         };
