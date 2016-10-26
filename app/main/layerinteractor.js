@@ -69,7 +69,8 @@ define(['jquery', 'ol',
                 var selectedFeatures = this.select.getFeatures();
                 if (selectedFeatures.getLength() === 1) {
                     this.layer.getSource().addFeature(selectedFeatures.getArray()[0]);
-                    selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
+                    // selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
+                    selectedFeatures.empty();
                 }
             }, this);
 
@@ -92,6 +93,9 @@ define(['jquery', 'ol',
                     }
                 });
                 $('.colorbutton').click(function () {
+                    _this.highlightGeomStyleCache = {};
+                });
+                $('.resetbutton').click(function () {
                     _this.highlightGeomStyleCache = {};
                 });
                 this.editor = this.layertree.layerEditors['feature'];
@@ -394,8 +398,7 @@ define(['jquery', 'ol',
                     // selectedLayer.getSource().addFeature(feature);
                     // _this.activeFeatures.push(feature);
 
-                    selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
-                    // selectedFeatures.clear();
+                    selectedFeatures.clear();
                 } else {
                     console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
                 }
@@ -410,7 +413,6 @@ define(['jquery', 'ol',
 
                 if (_this.toolbar.addedFeature) {
                     selectedFeatures.push(_this.toolbar.addedFeature);
-                    // selectedFeature = selectedFeatures.getArray()[0];
                     selectedFeature = _this.toolbar.addedFeature;
 
                     _this.editor.activateForm(selectedFeature);
