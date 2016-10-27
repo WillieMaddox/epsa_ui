@@ -250,31 +250,31 @@ define(['jquery', 'ol',
         /*********** WFS-T *************/
         // var dirty = {};
         // var formatGML = new ol.format.GML({
-        // 	featureNS: 'http://argeomatica.com',
-        // 	featureType: 'cite:nyc_buildings',
-        // 	srsName: 'EPSG:3857'
+        //     featureNS: 'http://argeomatica.com',
+        //     featureType: 'cite:nyc_buildings',
+        //     srsName: 'EPSG:3857'
         // });
         // var transactWFS = function (p, f) {
-        // 	switch (p) {
-        // 		case 'insert':
-        // 			node = formatWFS.writeTransaction([f], null, null, formatGML);
-        // 			break;
-        // 		case 'update':
-        // 			node = formatWFS.writeTransaction(null, [f], null, formatGML);
-        // 			break;
-        // 		case 'delete':
-        // 			node = formatWFS.writeTransaction(null, null, [f], formatGML);
-        // 			break;
-        // 	}
-        // 	s = new XMLSerializer();
-        // 	str = s.serializeToString(node);
-        // 	$.ajax('http://www.firefly.com/geoserver/wfs', {
-        // 		type: 'POST',
-        // 		dataType: 'xml',
-        // 		processData: false,
-        // 		contentType: 'text/xml',
-        // 		data: str
-        // 	}).done();
+        //     switch (p) {
+        //         case 'insert':
+        //             node = formatWFS.writeTransaction([f], null, null, formatGML);
+        //             break;
+        //         case 'update':
+        //             node = formatWFS.writeTransaction(null, [f], null, formatGML);
+        //             break;
+        //         case 'delete':
+        //             node = formatWFS.writeTransaction(null, null, [f], formatGML);
+        //             break;
+        //     }
+        //     s = new XMLSerializer();
+        //     str = s.serializeToString(node);
+        //     $.ajax('http://www.firefly.com/geoserver/wfs', {
+        //         type: 'POST',
+        //         dataType: 'xml',
+        //         processData: false,
+        //         contentType: 'text/xml',
+        //         data: str
+        //     }).done();
         // };
 
         /********* ADD SENSOR **********/

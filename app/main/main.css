@@ -213,21 +213,8 @@ body {
     min-width: calc(100% / 2);
     /*max-width: calc(100% / 2);*/
 }
-.form-elem .ol-addhole{
-    background-color: #4CAF50;
-}
-.ol-addhole button:hover {
-    background-color: #3e8e41;
-}
-.ol-deletehole button{
-    background-color: #f44336;
-}
-.ol-deletehole button:hover {
-    background-color: #8E2822;
-}
 .disabled {
     opacity: 0.35;
-    /*cursor: not-allowed;*/
 }
 
 .sidebar .layertree {

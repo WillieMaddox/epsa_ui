@@ -3,22 +3,16 @@
  */
 
 define(['jquery', 'ol',
-    'exists',
-    "featureid",
-    'ttemplate',
-    'ispolyvalid',
-    'jquery-ui'
-], function ($, ol,
-             exists,
-             FID,
-             tobjectTemplates,
-             isPolyValid) {
+        'exists',
+        'ispolyvalid',
+        'jquery-ui'], function ($, ol, exists, isPolyValid) {
 
+    'use strict';
     var layerInteractor = function (options) {
-        'use strict';
         if (!(this instanceof layerInteractor)) {
             throw new Error('layerInteractor must be constructed with the new keyword.');
-        } else if (typeof options === 'object' && options.map && options.layertree && options.toolbar) {
+        }
+        if (typeof options === 'object' && options.map && options.layertree && options.toolbar) {
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
@@ -28,7 +22,7 @@ define(['jquery', 'ol',
             this.toolbar = options.toolbar;
 
             this.autoselect = false;
-            this.highlight = undefined;
+            this.highlight = null;
             this.highlightTextStyleCache = {};
             this.highlightGeomStyleCache = {};
             this.textStyleKey = 'name';
@@ -36,7 +30,9 @@ define(['jquery', 'ol',
             this.featureOverlay = this.createFeatureOverlay();
             this.map.addLayer(this.featureOverlay);
             this.hoverDisplay = function (evt) {
-                if (evt.dragging) return;
+                if (evt.dragging) {
+                    return;
+                }
                 var pixel = _this.map.getEventPixel(evt.originalEvent);
                 var feature = _this.getFeatureAtPixel(pixel);
                 _this.setMouseCursor(feature);
@@ -54,22 +50,19 @@ define(['jquery', 'ol',
             $('#map').on('mouseleave', function () {
                 if (_this.highlight) {
                     _this.featureOverlay.getSource().clear();
-                    _this.highlight = undefined;
+                    _this.highlight = null;
                 }
             });
 
             this.layertree.deselectEventEmitter.on('change', function () {
-                var layer;
                 if (this.layertree.selectedLayer) {
                     console.log('layerinteractor: deselected layer YES');
                 } else {
-                    layer = null;
                     console.log('layerinteractor: deselected layer NO');
                 }
                 var selectedFeatures = this.select.getFeatures();
                 if (selectedFeatures.getLength() === 1) {
                     this.layer.getSource().addFeature(selectedFeatures.getArray()[0]);
-                    // selectedFeatures.forEach(selectedFeatures.remove, selectedFeatures);
                     selectedFeatures.empty();
                 }
             }, this);
@@ -98,7 +91,7 @@ define(['jquery', 'ol',
                 $('.resetbutton').click(function () {
                     _this.highlightGeomStyleCache = {};
                 });
-                this.editor = this.layertree.layerEditors['feature'];
+                this.editor = this.layertree.layerEditors.feature;
                 $('.layereditor').append(this.editor.$form);
                 this.editor.deactivateForm();
             }, this);
@@ -126,7 +119,6 @@ define(['jquery', 'ol',
     // };
 
     layerInteractor.prototype.textStyle = function (text) {
-        "use strict";
         var style = new ol.style.Style({
             text: new ol.style.Text({
                 font: '14px Calibri,sans-serif',
@@ -154,10 +146,10 @@ define(['jquery', 'ol',
                 if (!_this.highlightTextStyleCache[textkey]) {
                     _this.highlightTextStyleCache[textkey] = _this.textStyle(textkey);
                 }
-                if ($('#'+_this.layer.get('id')+"-hovervisible").is(":checked")) {
-                    retval = [_this.highlightGeomStyleCache[geomkey], _this.highlightTextStyleCache[textkey]]
+                if ($('#' + _this.layer.get('id') + "-hovervisible").is(":checked")) {
+                    retval = [_this.highlightGeomStyleCache[geomkey], _this.highlightTextStyleCache[textkey]];
                 } else {
-                    retval = [_this.highlightGeomStyleCache[geomkey]]
+                    retval = [_this.highlightGeomStyleCache[geomkey]];
                 }
                 return retval;
             };
@@ -174,36 +166,39 @@ define(['jquery', 'ol',
     };
     layerInteractor.prototype.getFeatureAtPixel = function (pixel) {
         var coord = this.map.getCoordinateFromPixel(pixel);
+        var feature;
         var smallestArea = 5.1e14; // approximate surface area of the earth
         var smallestFeature = null;
         var smallestFeatureLayer = null;
-        var featureAndLayer = this.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
-            var geom = feature.getGeometry();
+        var featureAndLayer = this.map.forEachFeatureAtPixel(pixel, function (feat, layer) {
+            var geom = feat.getGeometry();
             if (geom.getType().endsWith('Point')) {
                 //Need to add functionality for sensors here.
-                return {feature:feature, layer:layer};
-            } else if (geom.getType().endsWith('LineString')) {
-                return {feature:feature, layer:layer};
-            } else if (geom.getType().endsWith('Polygon')) {
-                if (feature.get('type') === 'aor') {
+                return {feature: feat, layer: layer};
+            }
+            if (geom.getType().endsWith('LineString')) {
+                return {feature: feat, layer: layer};
+            }
+            if (geom.getType().endsWith('Polygon')) {
+                if (feat.get('type') === 'aor') {
                     var point = geom.getClosestPoint(coord);
                     var pixel0 = this.map.getPixelFromCoordinate(coord);
                     var pixel1 = this.map.getPixelFromCoordinate(point);
                     if (Math.abs(pixel0[0] - pixel1[0]) < 8 && Math.abs(pixel0[1] - pixel1[1]) < 8) {
-                        return {feature:feature, layer:layer};
+                        return {feature: feat, layer: layer};
                     }
                 } else {
                     var area = geom.getArea();
                     if (area < smallestArea) {
                         smallestArea = area;
-                        smallestFeature = feature;
-                        smallestFeatureLayer = layer
+                        smallestFeature = feat;
+                        smallestFeatureLayer = layer;
                     }
                 }
             }
         }, this, function (layer) {
             if (this.layer) {
-                return layer === this.layer
+                return layer === this.layer;
             }
         }, this);
         if (!(exists(featureAndLayer))) {
@@ -212,7 +207,7 @@ define(['jquery', 'ol',
             featureAndLayer.layer = smallestFeatureLayer;
         }
         if (exists(featureAndLayer.feature)) {
-            var feature = featureAndLayer.feature;
+            feature = featureAndLayer.feature;
             var text = feature.get(this.geomStyleKey);
             if (!this.highlightGeomStyleCache[text]) {
                 var sf = featureAndLayer.layer.getStyleFunction();
@@ -233,7 +228,7 @@ define(['jquery', 'ol',
             var width;
             var color;
 
-            image =  style.getImage();
+            image = style.getImage();
             if (exists(image)) {
                 fill = image.getFill();
                 if (exists(fill)) {
@@ -290,7 +285,6 @@ define(['jquery', 'ol',
     layerInteractor.prototype.addInteractions = function () {
         var _this = this;
         var toolbar = this.toolbar;
-        var selectedLayer;
         this.select = new ol.interaction.Select({
             layers: [this.featureOverlay],
             toggleCondition: ol.events.condition.never,
@@ -303,12 +297,12 @@ define(['jquery', 'ol',
                     }
                     return true;
                 }
-            },
+            }
         });
         this.select.on('select', function (evt) {
             var feature;
             // Handle deselect first so we can move the feature back to the active layer.
-            if (evt.deselected.length == 1) {
+            if (evt.deselected.length === 1) {
                 feature = evt.deselected[0];
                 _this.modify.setActive(false);
                 // translate.setActive(false);
@@ -335,7 +329,7 @@ define(['jquery', 'ol',
                 //     });
                 // });
             }
-            if (evt.selected.length == 1) {
+            if (evt.selected.length === 1) {
                 feature = evt.selected[0];
                 _this.modify.setActive(true);
                 //translate.setActive(true);
@@ -343,7 +337,7 @@ define(['jquery', 'ol',
                 _this.editor.activateForm(feature);
                 _this.layer.getSource().removeFeature(feature);
                 // _this.activeFeatures.push(feature);
-                console.log('here')
+                console.log('here');
             }
         });
 
@@ -374,18 +368,18 @@ define(['jquery', 'ol',
 
         var remove = function (evt) {
             // console.log(evt.keyCode);
-            if (exists(_this.highlight) && evt.keyCode == 46) { //delete key pressed
+            if (exists(_this.highlight) && evt.keyCode === 46) { //delete key pressed
                 _this.layer.getSource().removeFeature(_this.highlight);
                 _this.featureOverlay.getSource().clear();
-                _this.highlight = undefined;
+                _this.highlight = null;
             }
         };
         $(document).on('keydown', remove);
 
-        toolbar.drawEventEmitter.on('change', function (evt) {
+        toolbar.drawEventEmitter.on('change', function () {
             var selectedFeatures = _this.select.getFeatures();
             var selectedFeature;
-            if (_this.toolbar.active == true) {
+            if (_this.toolbar.active === true) {
                 _this.map.un('pointermove', _this.hoverDisplay);
 
                 if (selectedFeatures.getArray().length === 1) {
@@ -400,7 +394,7 @@ define(['jquery', 'ol',
 
                     selectedFeatures.clear();
                 } else {
-                    console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
+                    console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length);
                 }
 
                 // translate.setActive(false);
@@ -418,7 +412,7 @@ define(['jquery', 'ol',
                     _this.editor.activateForm(selectedFeature);
                     console.log('manual select:  ', selectedFeature.get('name'), selectedFeature.getRevision());
                 } else {
-                    console.log('HHHHHHHERREE!!!')
+                    console.log('HHHHHHHERREE!!!');
                 }
 
                 _this.map.on('pointermove', _this.hoverDisplay);

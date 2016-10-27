@@ -22,7 +22,8 @@ define(['jquery', 'ol',
         'use strict';
         if (!(this instanceof featureEditor)) {
             throw new Error('featureEditor must be constructed with the new keyword.');
-        } else if (typeof options === 'object' && options.map && options.interactor) {
+        }
+        if (typeof options === 'object' && options.map && options.interactor) {
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
@@ -36,13 +37,13 @@ define(['jquery', 'ol',
         }
     };
     featureEditor.prototype.createForm = function () {
-        this.formElements['featurename'] = this.createNameNodes();
-        this.formElements['geometrytype'] = this.createGeometryTypeNodes();
-        this.formElements['measure'] = this.createMeasureNodes();
-        this.formElements['featuretype'] = this.createFeatureTypeNodes();
-        this.formElements['hole'] = this.createHoleNodes();
-        this.formElements['height'] = this.createHeightNodes();
-        this.formElements['thickness'] = this.createThicknessNodes();
+        this.formElements.featurename = this.createNameNodes();
+        this.formElements.geometrytype = this.createGeometryTypeNodes();
+        this.formElements.measure = this.createMeasureNodes();
+        this.formElements.featuretype = this.createFeatureTypeNodes();
+        this.formElements.hole = this.createHoleNodes();
+        this.formElements.height = this.createHeightNodes();
+        this.formElements.thickness = this.createThicknessNodes();
         var $form = $("<form id='featureproperties' class='form'>");
         $form.append(this.addFormRow(['featurename']));
         $form.append(this.addFormRow(['geometrytype', 'measure']));
@@ -91,7 +92,7 @@ define(['jquery', 'ol',
         var $measureUnits = $("<select id='measure-units'>");
         $formValue.append($measureUnits);
         $formValue.append($("<label for='geodesic' class='visible' title='Use geodesic measures'</label>"));
-        var $geodesicValue = $("<input type='checkbox' id='geodesic' class='checkboxradio'/>");
+        var $geodesicValue = $("<input type='checkbox' id='geodesic' class='checkboxradio'>");
         $formValue.append($geodesicValue);
         $formElem.append($formValue);
 

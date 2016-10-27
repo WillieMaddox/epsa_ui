@@ -2,8 +2,8 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
-
+define(["jquery", "ol", "featureid", "ispolyvalid"], function ($, ol, FID, isPolyValid) {
+    'use strict';
     ol.control.Interaction = function (opt_options) {
         var options = opt_options || {};
         var controlDiv = document.createElement('div');
@@ -49,9 +49,9 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             if (this.get('active')) {
                 controlButton.classList.add('active');
                 $(document).on('keyup', function (evt) {
-                    if (evt.keyCode == 189 || evt.keyCode == 109) {
+                    if (evt.keyCode === 189 || evt.keyCode === 109) {
                         _this.get('interaction').removeLastPoint();
-                    } else if (evt.keyCode == 27) {
+                    } else if (evt.keyCode === 27) {
                         _this.set('active', false);
                     }
                 });
@@ -76,10 +76,10 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
     };
 
     var toolBar = function (options) {
-        'use strict';
         if (!(this instanceof toolBar)) {
             throw new Error('toolBar must be constructed with the new keyword.');
-        } else if (typeof options === 'object' && options.map && options.target && options.layertree) {
+        }
+        if (typeof options === 'object' && options.map && options.target && options.layertree) {
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
@@ -89,7 +89,7 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             this.controls = new ol.Collection();
             this.bitA = 0;
             this.bitB = 0;
-            this.activeControl = undefined;
+            this.activeControl = null;
             this.active = false;
             this.drawEventEmitter = new ol.Observable();
             this.addedFeature = null;
@@ -107,7 +107,7 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 if (!(this.bitA | this.bitB)) {
                     this.activeControl = control;
                     this.active = true;
-                    this.drawEventEmitter.changed()
+                    this.drawEventEmitter.changed();
                 }
                 this.bitA ^= 1;
                 if (control.get('active')) {
@@ -119,9 +119,9 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 }
                 this.bitB ^= 1;
                 if (!(this.bitA | this.bitB)) {
-                    this.activeControl = undefined;
+                    this.activeControl = null;
                     this.active = false;
-                    this.drawEventEmitter.changed()
+                    this.drawEventEmitter.changed();
                 }
             }, this);
         }
@@ -273,7 +273,7 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
         }, this);
 
         this.drawControls.forEach(function (control) {
-            this.addControl(control)
+            this.addControl(control);
         }, this);
 
         return this;
@@ -284,22 +284,21 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             var geom = evt.feature.getGeometry();
             if (geom.getType().endsWith('Polygon') && !(isPolyValid(geom))) {
                 return;
-            } else {
-                var id = FID.gen();
-
-                evt.feature.setId(id);
-                evt.feature.set('type', feature_type);
-                evt.feature.set('name', feature_type.capitalizeFirstLetter() + '-' + id);
-
-                //TODO: The feature shouldn't be added to the layer yet.
-                //TODO: Only after deselect should the layer be updated.
-                //TODO: Need to Check.
-                // var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
-                // selectedLayer.getSource().addFeature(evt.feature);
-                // this.activeFeatures.push(evt.feature);
-
-                this.addedFeature = evt.feature;
             }
+            var id = FID.gen();
+
+            evt.feature.setId(id);
+            evt.feature.set('type', feature_type);
+            evt.feature.set('name', feature_type.capitalizeFirstLetter() + '-' + id);
+
+            //TODO: The feature shouldn't be added to the layer yet.
+            //TODO: Only after deselect should the layer be updated.
+            //TODO: Need to Check.
+            // var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+            // selectedLayer.getSource().addFeature(evt.feature);
+            // this.activeFeatures.push(evt.feature);
+
+            this.addedFeature = evt.feature;
             this.activeControl.set('active', false);
         }, this);
         return interaction;
