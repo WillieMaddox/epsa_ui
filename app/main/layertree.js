@@ -18,11 +18,12 @@ define(["jquery", "ol",
              tobjectStyleFunction,
              settings) {
 
+    'use strict';
     var layerTree = function (options) {
-        'use strict';
         if (!(this instanceof layerTree)) {
             throw new Error('layerTree must be constructed with the new keyword.');
-        } else if (typeof options === 'object' && options.map && options.target) {
+        }
+        if (typeof options === 'object' && options.map && options.target) {
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
@@ -38,13 +39,13 @@ define(["jquery", "ol",
                     var timeoutFunction = function () {
                         if (oldText !== mutations[0].target.textContent) {
                             oldText = mutations[0].target.textContent;
-                            setTimeout(timeoutFunction, 10000);
+                            setTimeout(timeoutFunction, 20000);
                         } else {
                             oldText = '';
                             mutations[0].target.textContent = '';
                         }
                     };
-                    setTimeout(timeoutFunction, 10000);
+                    setTimeout(timeoutFunction, 20000);
                 }
             });
             observer.observe(this.messages, {childList: true});
@@ -286,7 +287,6 @@ define(["jquery", "ol",
                     $layerDiv.append($layerRow_2);
 
                     $hoverInput.click(function (event) {
-                        console.log($layerDiv[0].id + ' .hoverInput click');
                         var data = {
                             stopProp: true
                         };
@@ -299,9 +299,8 @@ define(["jquery", "ol",
                         change: function () {
                             layer.set('textstyle', this.value);
                         }
-                    });
+                    }).selectmenu('menuWidget').addClass("overflow");
                     $resetButton.click(function (event) {
-                        console.log('resetbutton .layerrow click');
                         _this.styleDefault(layer, 'type');
                         layer.set('geomstyle', 'type');
                         var data = {
@@ -310,7 +309,6 @@ define(["jquery", "ol",
                         handler(event, data)
                     });
                     $colorButton.click(function (event) {
-                        console.log('colorbutton .layerrow click');
                         var attribute = $colorSelect.val();
                         if (layer.get('headers')[attribute] === 'string') {
                             _this.styleCategorized(layer, attribute);
@@ -338,7 +336,7 @@ define(["jquery", "ol",
                             }
                             layer.set('geomstyle', this.value);
                         }
-                    });
+                    }).selectmenu('menuWidget').addClass("overflow");
                     $colorSelect.click(function (event) {
                         console.log($layerDiv[0].id + ' .colorselect click');
                         var data = {
@@ -422,17 +420,11 @@ define(["jquery", "ol",
             throw new Error('Invalid parameter(s) provided.');
         }
     };
-    layerTree.prototype.createOption = function (optionValue) {
-        var option = document.createElement('option');
-        option.appendChild(document.createTextNode(optionValue));
-        // option.value = optionValue;
-        return option;
-    };
-    layerTree.prototype.createOption2 = function (optionValue, optionText) {
-        var option = document.createElement('option');
-        option.value = optionValue;
-        option.textContent = optionText || optionValue;
-        return option;
+    layerTree.prototype.createOption = function (optionValue, optionText) {
+        var $option = $('<option>');
+        $option.val(optionValue);
+        $option.text(optionText || optionValue);
+        return $option;
     };
     layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
         var _this = this;
@@ -696,9 +688,10 @@ define(["jquery", "ol",
     layerTree.prototype.addVectorLayer = function ($form) {
         var _this = this;
         var file = $form.find(".file")[0].files[0];
+        var fileType = $form.find(".filetype").val();
         var currentProj = this.map.getView().getProjection();
         var $progressbar;
-        switch ($form.find(".filetype").val()) {
+        switch (fileType) {
             // case 'shp':
             //     sourceFormat = new ol.format.GeoJSON();
             //     break;
@@ -745,7 +738,7 @@ define(["jquery", "ol",
             $progressbar.progressbar("value", false);
             var vectorData = evt.target.result;
             var dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
-            if ($form.find(".filetype").val() === 'zip') {
+            if (fileType === 'zip') {
                 shp(vectorData).then(function (geojson) {
                     source.addFeatures(sourceFormat.readFeatures(geojson, {
                         dataProjection: dataProjection,
@@ -805,7 +798,7 @@ define(["jquery", "ol",
             fr.onloadend = loadEnd;
             fr.onerror = errorHandler;
 
-            if ($form.find(".filetype").val() === 'zip') {
+            if (fileType === 'zip') {
                 fr.readAsArrayBuffer(file); // SHP
             } else {
                 fr.readAsText(file);
@@ -889,39 +882,51 @@ define(["jquery", "ol",
         this.createLayerNameNodes($fieldset);
         this.createFormatNodes($fieldset);
         this.createTiledNodes($fieldset);
-        return this.createDialog($fieldset, "Add WMS layer", 'addwms');
+        return this.createDialog($fieldset, 'addwms', "Add WMS layer");
     };
     layerTree.prototype.createAddWfsDialog = function ($fieldset) {
         this.createDisplayNameNodes($fieldset);
         this.createServerUrlNodes($fieldset, 'wfs');
         this.createLayerNameNodes($fieldset);
         this.createTiledNodes($fieldset);
-        return this.createDialog($fieldset, "Add WFS layer", 'addwfs');
+        return this.createDialog($fieldset, 'addwfs', "Add WFS layer");
     };
     layerTree.prototype.createAddVectorDialog = function ($fieldset) {
         this.createDisplayNameNodes($fieldset);
         this.createFileTypeNodes($fieldset);
         this.createFileOpenNodes($fieldset);
         this.createProjectionNodes($fieldset);
-        return this.createDialog($fieldset, "Add Vector layer", 'addvector');
+        var $dialog = this.createDialog($fieldset, 'addvector', "Add Vector layer");
+        $('.filetype').selectmenu({
+            classes: {
+                "ui-selectmenu-button": "menuselect"
+            },
+            change: function () {
+                $(this).parent().find(".file").val("");
+                $(this).parent().find(".file")[0].accept = '.' + $(this).val();
+                $(this).parent().find(".displayname").val("");
+            }
+        });
+
+        return $dialog
     };
     layerTree.prototype.createNewVectorDialog = function ($fieldset) {
         this.createDisplayNameNodes($fieldset);
         this.createGeomTypeNodes($fieldset);
-        return this.createDialog($fieldset, "Create New Vector Layer", 'newvector');
+        return this.createDialog($fieldset, 'newvector', "Create New Vector Layer");
     };
 
     layerTree.prototype.createDisplayNameNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-displayname">Display Name</label>'));
-        $fieldset.append($('<input type="text" id="open-displayname" name="displayname" class="displayname">'));
+        $fieldset.append($('<input id="open-displayname" type="text" name="displayname" class="displayname">'));
     };
     layerTree.prototype.createGeomTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
-        var $selectNode = $('<select name="geomtype" id="open-geomtype" class="geomtype ui-selectmenu">');
-        $selectNode.append($('<option value="geomcollection">Geometry Collection</option>'));
-        $selectNode.append($('<option value="polygon">Polygon</option>'));
-        $selectNode.append($('<option value="line">Line</option>'));
-        $selectNode.append($('<option value="point">Point</option>'));
+        var $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
+        $selectNode.append(this.createOption("geomcollection", "Geometry Collection"));
+        $selectNode.append(this.createOption("polygon", "Polygon"));
+        $selectNode.append(this.createOption("line", "Line"));
+        $selectNode.append(this.createOption("point", "Point"));
         $fieldset.append($selectNode);
     };
     layerTree.prototype.createServerUrlNodes = function ($fieldset, id) {
@@ -954,37 +959,30 @@ define(["jquery", "ol",
     };
     layerTree.prototype.createLayerNameNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-layername">Layer Name</label>'));
-        var $layername = $('<select id="open-layername" name="layername" class="layername ui-selectmenu"></select>');
+        var $layername = $('<select id="open-layername" name="layername" class="layername ui-selectmenu">');
         $fieldset.append($layername);
         $layername.on("change", function () {
-            "use strict";
             var name = $(this).val();
             $(this).parent().find(".displayname").val(name);
         });
     };
     layerTree.prototype.createFormatNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-format">Format</label>'));
-        $fieldset.append($('<select id="open-format" name="format" class="format ui-selectmenu"></select>'));
+        $fieldset.append($('<select id="open-format" name="format" class="format ui-selectmenu">'));
     };
     layerTree.prototype.createFileTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-filetype">File Type</label>'));
-        var $selectNode = $('<select name="filetype" id="open-filetype" class="filetype ui-selectmenu">');
-        $selectNode.append($('<option value="geojson">GeoJSON</option>'));
-        $selectNode.append($('<option value="topojson">TopoJSON</option>'));
-        $selectNode.append($('<option value="zip">Shapefile (zipped)</option>'));
-        $selectNode.append($('<option value="kml">KML</option>'));
-        $selectNode.append($('<option value="osm">OSM</option>'));
+        var $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
+        $selectNode.append(this.createOption("geojson", "GeoJSON"));
+        $selectNode.append(this.createOption("topojson", "TopoJSON"));
+        $selectNode.append(this.createOption("zip", "Shapefile (zipped)"));
+        $selectNode.append(this.createOption("kml", "KML"));
+        $selectNode.append(this.createOption("osm", "OSM"));
         $fieldset.append($selectNode);
-        $selectNode.on("change", function () {
-            "use strict";
-            $(this).parent().find(".displayname").val("");
-            $(this).parent().find(".file").val("");
-            $(this).parent().find(".file")[0].accept = '.' + $(this).val();
-        })
     };
     layerTree.prototype.createFileOpenNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-file">Vector file</label>'));
-        var $file = $('<input type="file" name="file" id="open-file" class="file ui-widget-content" accept=".geojson" required/>');
+        var $file = $('<input type="file" name="file" id="open-file" class="file ui-widget-content" accept=".geojson" required>');
         $fieldset.append($file);
         $file.on("change", function (event) {
             var startPos = this.value.lastIndexOf("\\") + 1;
@@ -995,16 +993,16 @@ define(["jquery", "ol",
     };
     layerTree.prototype.createProjectionNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-projection">Projection</label>'));
-        $fieldset.append($('<input type="text" id="open-projection" name="projection" class="projection"/>'));
+        $fieldset.append($('<input type="text" id="open-projection" name="projection" class="projection">'));
     };
     layerTree.prototype.createTiledNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-tiled">Tiled</label>'));
-        var $tiled = $('<input type="checkbox" id="open-tiled" name="tiled" class="tiled" checked/>');
+        var $tiled = $('<input type="checkbox" id="open-tiled" name="tiled" class="tiled" checked>');
         $fieldset.append($tiled);
         $tiled.checkboxradio();
     };
 
-    layerTree.prototype.createDialog = function ($fieldset, title, elemName) {
+    layerTree.prototype.createDialog = function ($fieldset, elemName, title) {
 
         var _this = this;
         function callback($form) {

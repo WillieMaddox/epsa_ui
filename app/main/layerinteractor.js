@@ -63,7 +63,7 @@ define(['jquery', 'ol',
                 var selectedFeatures = this.select.getFeatures();
                 if (selectedFeatures.getLength() === 1) {
                     this.layer.getSource().addFeature(selectedFeatures.getArray()[0]);
-                    selectedFeatures.empty();
+                    selectedFeatures.clear();
                 }
             }, this);
 
