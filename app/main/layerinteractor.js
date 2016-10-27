@@ -140,7 +140,7 @@ define(['jquery', 'ol',
         var overlayStyleFunction = (function () {
             return function (feature, resolution) {
                 var retval;
-                var textkey = feature.get(_this.textStyleKey);
+                var textkey = feature.get(_this.textStyleKey) ? feature.get(_this.textStyleKey).toString() : '';
                 var geomkey = feature.get(_this.geomStyleKey);
 
                 if (!_this.highlightTextStyleCache[textkey]) {
