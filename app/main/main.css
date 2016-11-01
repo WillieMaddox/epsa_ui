@@ -34,7 +34,7 @@ body {
     height: 2em;
 }
 .toolbar .ol-control button {
-    border-radius: 2px;
+    border-radius: 0;
     display: inline-block;
     vertical-align: middle;
     background-size: 1em;
@@ -240,8 +240,8 @@ body {
 }
 .layertree .layertree-buttons button {
     display: inline-block;
-    top: 50%;
-    transform: translateY(-50%);
+    /*top: 50%;*/
+    /*transform: translateY(-50%);*/
     vertical-align: middle;
     background-color: rgba(0,0,0,.5);
     background-size: contain;
@@ -251,7 +251,6 @@ body {
     position: relative;
     margin: 0 2px 0 2px;
     border: none;
-    border-radius: 2px;
     padding: 0;
     height: 2em;
     width: 2em;
@@ -301,8 +300,7 @@ body {
 .ui-corner-left,
 .ui-corner-right,
 .ui-corner-top,
-.ui-corner-bottom
-{
+.ui-corner-bottom {
     border-radius: 0;
 }
 .ui-button {
@@ -398,13 +396,11 @@ body {
 }
 .colorwheel-icon,
 .colorwheel-icon:hover,
-.colorwheel-icon:focus
-{
+.colorwheel-icon:focus {
     background-size: 1.4em;
-    background-image: url("../img/colorwheel.png");
+    background-image: url(../img/colorwheel.png);
     background-repeat: no-repeat;
     background-position: center center;
-    /*z-index: 100;*/
 }
 
 .popup {
@@ -492,7 +488,7 @@ fieldset label {
     height: 100%;
 }
 .mainwindow .map {
-    background: url("../img/map-background.jpg") repeat;
+    background: url(../img/map-background.jpg) repeat;
     position: relative;
     width: 100%;
 	height: calc(100% - 3em);
