@@ -357,7 +357,6 @@ define(['jquery', 'ol',
             }
         });
 
-        var deleteHoleIsDisabled = $('#delete-hole').button('option', 'disabled');
         $('#add-hole').button('disable');
         $('#delete-hole').button('disable');
         this.map.un('pointermove', this.interactor.hoverDisplay);
@@ -368,6 +367,34 @@ define(['jquery', 'ol',
 
         var _this = this;
 
+        var getPolyHoles = function (poly) {
+            var skip = true;
+            var holes = [];
+            poly.getLinearRings().forEach(function (ring) {
+                if (skip) { // assume the first ring is the exterior ring.
+                    skip = false;
+                } else {
+                    holes.push(new ol.Feature(new ol.geom.Polygon([ring.getCoordinates()])));
+                }
+            });
+            return holes;
+        };
+
+        var getHoles = function (currGeom) {
+            var holefeats = new ol.Collection();
+            var polyholes;
+            if (currGeom.getType() === 'MultiPolygon') {
+                currGeom.getPolygons().forEach(function (poly) {
+                    polyholes = getPolyHoles(poly);
+                    holefeats.extend(polyholes)
+                })
+            } else {
+                polyholes = getPolyHoles(currGeom);
+                holefeats.extend(polyholes)
+            }
+            return holefeats;
+        };
+
         var finishHole = function () {
             _this.map.removeInteraction(holeDraw);
             _this.interactor.modify.setActive(true);
@@ -375,7 +402,9 @@ define(['jquery', 'ol',
             // _this.translate.setActive(true);
             _this.map.on('pointermove', _this.interactor.hoverDisplay);
             $('#add-hole').button('enable');
-            $('#delete-hole').button('enable');
+            // $('#delete-hole').button('enable');
+            var holeFeats = getHoles(currGeom);
+            $('#delete-hole').button('option', 'disabled', holeFeats.getArray().length === 0);
             $(document).off('keyup')
         };
 
@@ -383,14 +412,12 @@ define(['jquery', 'ol',
             if (evt.keyCode == 189 || evt.keyCode == 109) {
                 if (vertsCouter === 1) {
                     currGeom.setCoordinates(origGeom.getCoordinates());
-                    $('#delete-hole').button('option', 'disabled', deleteHoleIsDisabled);
                     finishHole()
                 } else {
                     holeDraw.removeLastPoint();
                 }
             } else if (evt.keyCode == 27) {
                 currGeom.setCoordinates(origGeom.getCoordinates());
-                $('#delete-hole').button('option', 'disabled', deleteHoleIsDisabled);
                 finishHole()
             }
         });
