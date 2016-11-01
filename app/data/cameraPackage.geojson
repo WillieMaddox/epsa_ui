@@ -1,0 +1,281 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:4326"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "LRTI VZ-250-247",
+        "defaultsensor": "LRTI VZ-250",
+        "fovtype": "wide",
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "option": "GD VZ-250: Thermal 1",
+        "pan": {
+          "units": "degree",
+          "value": "270.0",
+          "wrt": "north"
+        },
+        "score": "0.160610106258",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        }
+      },
+      "id": "LRTI-0",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5432097465938,
+          39.7773823870515
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "LRTI VZ-250-3379",
+        "defaultsensor": "LRTI VZ-250",
+        "fovtype": "wide",
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "option": "GD VZ-250: Thermal 1",
+        "pan": {
+          "units": "degree",
+          "value": "270.0",
+          "wrt": "north"
+        },
+        "score": "0.260560601569",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        }
+      },
+      "id": "LRTI-1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5348119215529,
+          39.76926611135254
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "LRTI VZ-250-450",
+        "defaultsensor": "LRTI VZ-250",
+        "fovtype": "wide",
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "option": "GD VZ-250: Thermal 1",
+        "pan": {
+          "units": "degree",
+          "value": "270.0",
+          "wrt": "north"
+        },
+        "score": "0.101329122832",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        }
+      },
+      "id": "LRTI-2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5478703673761,
+          39.77398149059491
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "LRTI VZ-250-5019",
+        "defaultsensor": "LRTI VZ-250",
+        "fovtype": "wide",
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "option": "GD VZ-250: Thermal 1",
+        "pan": {
+          "units": "degree",
+          "value": "270.0",
+          "wrt": "north"
+        },
+        "score": "0.247808296995",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        }
+      },
+      "id": "LRTI-3",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5423860314494,
+          39.76565409064177
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "camera-0",
+        "defaultsensor": "LRTI VZ-250",
+        "fovtype": "wide",
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 321.91836094236834
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "option": "GD VZ-250: Thermal 1",
+        "pan": {
+          "units": "degree",
+          "value": "0.0",
+          "wrt": "north"
+        },
+        "score": "0.0344656880382",
+        "source_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        }
+      },
+      "id": "c0",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5454931602549,
+          39.7700056351582
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "camera-1",
+        "defaultsensor": "LRTI VZ-250",
+        "fovtype": "wide",
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 395.8911479231578
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "option": "GD VZ-250: Thermal 1",
+        "pan": {
+          "units": "degree",
+          "value": "0.0",
+          "wrt": "north"
+        },
+        "score": "0.0943678173273",
+        "source_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        }
+      },
+      "id": "c1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5357513771096,
+          39.77399676836959
+        ]
+      }
+    }
+  ]
+}

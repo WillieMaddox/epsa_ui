@@ -754,10 +754,11 @@ define(["jquery", "ol",
                 //         }));
                 //     });
             } else {
-                source.addFeatures(sourceFormat.readFeatures(vectorData, {
+                var features = sourceFormat.readFeatures(vectorData, {
                     dataProjection: dataProjection,
                     featureProjection: currentProj
-                }));
+                });
+                source.addFeatures(features);
             }
             // // Convert MultiPolygon to Polygons if there is only one exterior ring.
             // // Convert MultiLineString to LineString if there is only one linestring.

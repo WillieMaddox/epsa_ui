@@ -16,6 +16,7 @@
       <w>colorselect</w>
       <w>controlgroup</w>
       <w>dblclick</w>
+      <w>defaultsensor</w>
       <w>deletelayer</w>
       <w>displayname</w>
       <w>doespolycoverhole</w>
@@ -29,6 +30,7 @@
       <w>featureinteractor</w>
       <w>featureproperties</w>
       <w>featuretarget</w>
+      <w>fovtype</w>
       <w>geojson</w>
       <w>geomcollection</w>
       <w>getjstsgeom</w>
