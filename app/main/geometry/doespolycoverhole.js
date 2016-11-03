@@ -2,10 +2,11 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["ol", "getjstsgeom"], function (ol, getJSTSgeom) {
+define(["ol", "jsts"], function (ol, jsts) {
+    var parser = new jsts.io.OL3Parser();
     return function doesPolyCoverHole(geom, holecoords) {
-        var geomA = getJSTSgeom(geom);
-        var geomB = getJSTSgeom(new ol.geom.Polygon([holecoords]));
+        var geomA = parser.read(geom);
+        var geomB = parser.read(new ol.geom.Polygon([holecoords]));
         return geomA.covers(geomB);
     }
 });
