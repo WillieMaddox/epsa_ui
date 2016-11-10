@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>jQuery UI Selectmenu - Dynamic Menu Rebuild (with memory leak)</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <style>
         fieldset {
             border: 0;
@@ -25,10 +25,11 @@
             }).on('click', function () {
                 var t1, t2, dt;
                 var $testmenu = $( "#testmenu" );
-                var n = $( "#testmenu" ).val();
+                var n = $testmenu.val();
                 for (var i = 0; i < n; i += 1) {
                     run += 1;
                     t1 = new Date().getTime();
+                    $testmenu.selectmenu("destroy");
                     $testmenu.empty();
                     $testmenu.append($('<option>1</option>'));
                     $testmenu.append($('<option>2</option>'));
@@ -40,7 +41,8 @@
                     $testmenu.append($('<option>8</option>'));
                     $testmenu.append($('<option>9</option>'));
                     $testmenu.append($('<option>10</option>'));
-                    $testmenu.selectmenu("refresh");
+//                    $testmenu.selectmenu("refresh");
+                    $testmenu.selectmenu();
                     t2 = new Date().getTime();
                     dt = t2-t1;
                     $("#timing").append("<li>Run: " + run + " Time: " + dt + "</li>");
