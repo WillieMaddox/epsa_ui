@@ -64,6 +64,9 @@ define(['jquery', 'ol',
                     this.layer.getSource().getSource().addFeature(selectedFeatures.getArray()[0]);
                     selectedFeatures.clear();
                 }
+                this.editor.$form = $('.layereditor > form').detach();
+                this.layertree.layerEditors[this.layer.get('type')] = this.editor;
+                this.editor = null;
             }, this);
 
             this.layertree.selectEventEmitter.on('change', function () {
@@ -90,8 +93,8 @@ define(['jquery', 'ol',
                 $('.resetbutton').click(function () {
                     _this.highlightGeomStyleCache = {};
                 });
-                this.editor = this.layertree.layerEditors.feature;
-                $('.layereditor').append(this.editor.$form);
+                this.editor = this.layertree.layerEditors[this.layer.get('type')];
+                this.editor.$form.appendTo($('.layereditor'));
                 this.editor.styleForm();
                 this.editor.deactivateForm();
             }, this);
