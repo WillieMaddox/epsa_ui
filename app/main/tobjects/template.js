@@ -2,12 +2,7 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define([
-    'tfillopacity',
-    'tcolor'
-], function (
-    tobjectFillOpacity,
-    tobjectColor) {
+define([], function () {
 
     var tobjectTemplates = {
         aor: {
@@ -52,6 +47,17 @@ define([
             // properties: {}
         }
     };
+
+    var tobjectColor = {
+        'aor': [0, 0, 0],
+        'building': [128, 128, 128],
+        'herbage': [0, 200, 0],
+        'water': [0, 0, 200],
+        'wall': [64, 64, 64],
+        'road': [192, 51, 52],
+        'generic': [218, 188, 163]
+    };
+
 
     for (var template in tobjectTemplates) {
         if (tobjectTemplates.hasOwnProperty(template)) {
