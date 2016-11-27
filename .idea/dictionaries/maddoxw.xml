@@ -6,6 +6,7 @@
       <w>addvector</w>
       <w>addwfs</w>
       <w>addwms</w>
+      <w>allowableoptions</w>
       <w>bingkey</w>
       <w>checkboxradio</w>
       <w>checkwfslayer</w>
@@ -17,6 +18,7 @@
       <w>controlgroup</w>
       <w>dblclick</w>
       <w>defaultsensor</w>
+      <w>defaultsensors</w>
       <w>deletelayer</w>
       <w>displayname</w>
       <w>doespolycoverhole</w>
@@ -30,9 +32,11 @@
       <w>featureinteractor</w>
       <w>featureproperties</w>
       <w>featuretarget</w>
+      <w>fillopacity</w>
       <w>fovtype</w>
       <w>geojson</w>
       <w>geomcollection</w>
+      <w>geomstyle</w>
       <w>getjstsgeom</w>
       <w>gitmodules</w>
       <w>hovercontrol</w>
@@ -71,6 +75,7 @@
       <w>smil</w>
       <w>splitbutton</w>
       <w>stylelayer</w>
+      <w>textstyle</w>
       <w>thunderforest</w>
       <w>tilegrid</w>
       <w>tobject</w>
