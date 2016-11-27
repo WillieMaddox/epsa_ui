@@ -121,21 +121,36 @@ define(['jquery', 'ol',
                     if (!(targetNode.classList.contains("layer"))) {
                         return;
                     }
-                    if (_this.selectedLayer) {
-                        _this.deselectEventEmitter.changed();
-                        _this.selectedLayer.classList.remove('active');
-                    }
+                    // if (_this.selectedLayer) {
+                    //     _this.deselectEventEmitter.changed();
+                    //     _this.selectedLayer.classList.remove('active');
+                    // }
+                    // _this.selectedLayer = targetNode;
+                    // _this.selectedLayer.classList.add('active');
+                    // _this.selectEventEmitter.changed();
 
-                    // if (_this.selectedLayer !== targetNode) {
+                    // if (targetNode !== _this.selectedLayer) {
                     //     _this.selectedLayer = targetNode;
                     //     _this.selectedLayer.classList.add('active');
                     // } else {
                     //     _this.selectedLayer = null;
                     // }
 
-                    _this.selectedLayer = targetNode;
-                    _this.selectedLayer.classList.add('active');
-                    _this.selectEventEmitter.changed();
+                    if (_this.selectedLayer === targetNode) {
+                        _this.deselectEventEmitter.changed();
+                        _this.selectedLayer.classList.remove('active');
+                        _this.selectedLayer = null;
+                    } else if (_this.selectedLayer === null) {
+                        _this.selectedLayer = targetNode;
+                        _this.selectedLayer.classList.add('active');
+                        _this.selectEventEmitter.changed();
+                    } else if (_this.selectedLayer !== targetNode) {
+                        _this.deselectEventEmitter.changed();
+                        _this.selectedLayer.classList.remove('active');
+                        _this.selectedLayer = targetNode;
+                        _this.selectedLayer.classList.add('active');
+                        _this.selectEventEmitter.changed();
+                    }
                 }
                 if (event.data.stopProp) {
                     event.stopPropagation();
@@ -495,6 +510,8 @@ define(['jquery', 'ol',
                     if (_this.selectedLayer) {
                         var layer = _this.getLayerById(_this.selectedLayer.id);
                         _this.map.removeLayer(layer);
+                        _this.selectedLayer.classList.remove('active');
+                        _this.selectedLayer = null;
                         _this.messages.textContent = 'Layer removed successfully.';
                     } else {
                         _this.messages.textContent = 'No selected layer to remove.';
@@ -726,6 +743,7 @@ define(['jquery', 'ol',
         var layer = new ol.layer.Image({
             source: new ol.source.ImageVector({
                 source: source
+            }),
             name: $form.find(".displayname").val(),
             // Temp fix to lessen page load blocking. Don't draw features further than zoom level 14.
             maxResolution: 10,
@@ -834,6 +852,8 @@ define(['jquery', 'ol',
             // $('#' + layer.get('id') + ' .layertitle').unwrap();
             // layer.buildHeaders();
             // console.log('headers built');
+            // _this.identifyLayer(layer);
+            // _this.styleDefault(layer);
         }
         function errorHandler(evt) {
             if (evt.target.error.name == "NotReadableError") {
