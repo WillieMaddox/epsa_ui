@@ -121,10 +121,10 @@ define(['jquery', 'ol',
             interactions: ol.interaction.defaults({doubleClickZoom: false}),
             target: document.getElementById('map'),
             view: view,
-            logo: {
-                src: 'img/saic-logo2.png',
-                href: 'http://www.saic.com'
-            },
+            // logo: {
+            //     src: 'img/saic-logo2.png',
+            //     href: 'http://www.saic.com'
+            // },
             controls: [new ol.control.Attribution(), new ol.control.Zoom()],
             layers: [
                 new ol.layer.Group({
