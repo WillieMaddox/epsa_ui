@@ -77,8 +77,22 @@ define(['jquery', 'ol',
     function init() {
         // document.removeEventListener('DOMContentLoaded', init);
 
-        var mouseProjection = 'EPSG:4326';
+        var mouseProjection = ol.proj.get('EPSG:4326');
         var mousePrecision = 4;
+        function updateMousePosition (view) {
+            var res = view.getResolution();
+            var coord0 = view.getCenter();
+            var coord1 = [coord0[0] + res, coord0[1] + res];
+            var currentProj = map.getView().getProjection();//.getCode();
+            if (mouseProjection !== currentProj) {
+                coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
+                coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
+                res = Math.max(Math.abs(coord1[0] - coord0[0]), Math.abs(coord1[1] - coord0[1]));
+            }
+            mousePrecision = Number(Math.abs(Math.min(0, Math.floor(Math.log10(res)))).toFixed());
+            mousePositionControl.setCoordinateFormat(ol.coordinate.createStringXY(mousePrecision));
+        }
+
         var view = new ol.View({
             center: ol.proj.transform(
                 // [-86.711, 34.636],
@@ -94,24 +108,7 @@ define(['jquery', 'ol',
             zoom: 15
         });
         view.on('change:resolution', function (evt) {
-            var coord0 = evt.target.getCenter();
-            var pixel0 = map.getPixelFromCoordinate(coord0);
-            var pixel1 = [pixel0[0] + 1.0, pixel0[1] - 1.0];
-            var coord1 = map.getCoordinateFromPixel(pixel1);
-            var currentProj = map.getView().getProjection().getCode();
-            if (mouseProjection !== currentProj) {
-                coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
-                coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
-            }
-            var dx = Math.abs(coord1[0] - coord0[0]);
-            var dy = Math.abs(coord1[1] - coord0[1]);
-
-            var xp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dx)))).toFixed());
-            var yp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dy)))).toFixed());
-
-            mousePrecision = Math.max(xp, yp);
-            var format = ol.coordinate.createStringXY(mousePrecision);
-            mousePositionControl.setCoordinateFormat(format);
+            updateMousePosition(evt.target)
         });
         var thunderforestAttributions = [
             new ol.Attribution({
@@ -361,12 +358,11 @@ define(['jquery', 'ol',
             // className: 'ol-scale-line ol-scale-line-inner text-stroke',
         });
         map.addControl(scaleLineControl);
-
         var $unitsSelect = $('#units');
+        $unitsSelect.val(scaleLineControl.getUnits());
         $unitsSelect.on('change', function () {
             scaleLineControl.setUnits(this.value);
         });
-        $unitsSelect.val(scaleLineControl.getUnits());
 
         /******** MOUSEPOSITION ********/
         var mousePositionControl = new ol.control.MousePosition({
@@ -375,15 +371,16 @@ define(['jquery', 'ol',
             target: 'coordinates'
         });
         map.addControl(mousePositionControl);
-
+        mousePositionControl.on('change:projection', function (evt) {
+            updateMousePosition(view)
+        });
         var $projectionSelect = $('#projection');
+        $projectionSelect.val(mousePositionControl.getProjection().getCode());
         $projectionSelect.on('change', function () {
             mouseProjection = ol.proj.get(this.value);
             mousePositionControl.setProjection(mouseProjection);
 
         });
-        $projectionSelect.val(mousePositionControl.getProjection().getCode());
-
         var mousePositionControl2 = new ol.control.MousePosition({
             coordinateFormat: function (coordinates) {
                 var zoom = view.getZoom();
