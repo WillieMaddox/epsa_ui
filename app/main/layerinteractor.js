@@ -92,6 +92,7 @@ define(['jquery', 'ol',
                 });
                 this.editor = this.layertree.layerEditors.feature;
                 $('.layereditor').append(this.editor.$form);
+                this.editor.styleForm();
                 this.editor.deactivateForm();
             }, this);
 
@@ -162,12 +163,12 @@ define(['jquery', 'ol',
             zIndex: 9900
         });
     };
-    layerInteractor.prototype.getFeatureAtPixel = function (pixel) {
-        var coord = this.map.getCoordinateFromPixel(pixel);
+    layerInteractor.prototype.getFeatureAtPixel = function (evt) {
         var feature;
         var smallestArea = 5.1e14; // approximate surface area of the earth
         var smallestFeature = null;
         var smallestFeatureLayer = null;
+        var pixel = this.map.getEventPixel(evt.originalEvent);
         var featureAndLayer = this.map.forEachFeatureAtPixel(pixel, function (feat, layer) {
             var geom = feat.getGeometry();
             if (geom.getType().endsWith('Point')) {
@@ -179,10 +180,10 @@ define(['jquery', 'ol',
             }
             if (geom.getType().endsWith('Polygon')) {
                 if (feat.get('type') === 'aor') {
+                    var coord = this.map.getCoordinateFromPixel(pixel);
                     var point = geom.getClosestPoint(coord);
-                    var pixel0 = this.map.getPixelFromCoordinate(coord);
                     var pixel1 = this.map.getPixelFromCoordinate(point);
-                    if (Math.abs(pixel0[0] - pixel1[0]) < 8 && Math.abs(pixel0[1] - pixel1[1]) < 8) {
+                    if (Math.abs(pixel[0] - pixel1[0]) < 8 && Math.abs(pixel[1] - pixel1[1]) < 8) {
                         return {feature: feat, layer: layer};
                     }
                 } else {
@@ -209,8 +210,13 @@ define(['jquery', 'ol',
             var text = feature.get(this.geomStyleKey);
             if (!this.highlightGeomStyleCache[text]) {
                 var sf = featureAndLayer.layer.getSource().getStyleFunction();
-                var style = sf(feature)[0].clone();
-                this.highlightGeomStyleCache[text] = this.setFeatureStyle(style);
+                var styles = sf(feature);
+                var style = styles[styles.length-1].clone();
+                if (text === 'camera') {
+                    this.highlightGeomStyleCache[text] = this.setSensorStyle(style);
+                } else {
+                    this.highlightGeomStyleCache[text] = this.setFeatureStyle(style);
+                }
             }
         } else {
             feature = null;
@@ -346,7 +352,7 @@ define(['jquery', 'ol',
                 _this.editor.activateForm(feature);
                 _this.layer.getSource().getSource().removeFeature(feature);
                 // _this.activeFeatures.push(feature);
-                console.log('here');
+                _this.hoverDisplay(evt.mapBrowserEvent);
             }
         });
 

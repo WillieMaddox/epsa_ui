@@ -52,6 +52,91 @@ define(['jquery', 'ol',
         $form.append(this.addFormRow(['thickness']));
         return $form;
     };
+    featureEditor.prototype.styleForm = function () {
+
+        var _this = this;
+        $('#measure-units').selectmenu({
+            classes: {
+                "ui-selectmenu-button": "menuselect"
+            }
+        });
+        $('#geodesic').checkboxradio();
+
+        $('#feature-type').selectmenu({
+            classes: {
+                "ui-selectmenu-button": "menuselect"
+            },
+            change: function () {
+                _this.changeFeatureType(this.value);
+            }
+        });
+
+        $('#add-hole').button({
+            label: "Draw"
+        }).on('click', function () {
+            _this.addHole();
+        });
+        $('#delete-hole').button({
+            label: "Delete"
+        }).on('click', function () {
+            _this.deleteHole();
+        });
+
+        $('#height-slider').slider({
+            animate: true,
+            range: "min",
+            min: 0,
+            max: 100,
+            step: 0.01,
+            slide: function (event, ui) {
+                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
+            },
+            change: function (event, ui) {
+                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
+            }
+        });
+        $('#height-spinner').spinner({
+            min: 0,
+            max: 1000,
+            step: 0.1,
+            spin: function (event, ui) {
+                $("#height-slider").slider("value", _this.log10Slider(ui.value));
+            },
+            change: function () {
+                if (this.value.length > 0) {
+                    $("#height-slider").slider("value", _this.log10Slider(this.value));
+                }
+            }
+        }).spinner("value", 10);
+
+        $('#thickness-slider').slider({
+            animate: true,
+            range: "min",
+            min: 0,
+            max: 50,
+            step: 0.01,
+            slide: function (event, ui) {
+                $('#thickness-spinner').spinner("value", ui.value)
+            },
+            change: function (event, ui) {
+                $('#thickness-spinner').spinner("value", ui.value)
+            }
+        });
+        $('#thickness-spinner').spinner({
+            min: 0,
+            max: 50,
+            step: 0.01,
+            spin: function (event, ui) {
+                $('#thickness-slider').slider("value", ui.value)
+            },
+            change: function () {
+                if (this.value.length > 0) {
+                    $('#thickness-slider').slider("value", this.value);
+                }
+            }
+        }).spinner("value", 5);
+
+    };
 
     featureEditor.prototype.addFormRow = function (labels) {
         var $formRow = $("<div class='form-row'>");
@@ -91,8 +176,9 @@ define(['jquery', 'ol',
         $formValue.append($("<div id='measure' readonly>"));
         var $measureUnits = $("<select id='measure-units'>");
         $formValue.append($measureUnits);
-        $formValue.append($("<label for='geodesic' class='visible' title='Use geodesic measures'</label>"));
-        var $geodesicValue = $("<input type='checkbox' id='geodesic' class='checkboxradio'>");
+
+        $formValue.append($("<label for='geodesic' class='visible' title='Use geodesic measures'>"));
+        var $geodesicValue = $("<input type='checkbox' id='geodesic' checked>");
         $formValue.append($geodesicValue);
         $formElem.append($formValue);
 
@@ -106,7 +192,7 @@ define(['jquery', 'ol',
         return $formElem
     };
     featureEditor.prototype.createFeatureTypeNodes = function () {
-        var _this = this;
+        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
 
         $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"));
@@ -116,19 +202,19 @@ define(['jquery', 'ol',
         $formValue.append($featureType);
         $formElem.append($formValue);
 
-        $featureType.selectmenu({
-            classes: {
-                "ui-selectmenu-button": "menuselect"
-            },
-            change: function () {
-                _this.changeFeatureType(this.value);
-            }
-        });
+        // $featureType.selectmenu({
+        //     classes: {
+        //         "ui-selectmenu-button": "menuselect"
+        //     },
+        //     change: function () {
+        //         _this.changeFeatureType(this.value);
+        //     }
+        // });
 
         return $formElem
     };
     featureEditor.prototype.createHoleNodes = function () {
-        var _this = this;
+        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
 
         $formElem.append($("<div id='hole-label' class='form-label'>Hole</div>"));
@@ -140,58 +226,58 @@ define(['jquery', 'ol',
         $formValue.append($deleteHole);
         $formElem.append($formValue);
 
-        $addHole.button({
-            label: "Draw"
-        }).on('click', function () {
-            _this.addHole();
-        });
-        $deleteHole.button({
-            label: "Delete"
-        }).on('click', function () {
-            _this.deleteHole();
-        });
+        // $addHole.button({
+        //     label: "Draw"
+        // }).on('click', function () {
+        //     _this.addHole();
+        // });
+        // $deleteHole.button({
+        //     label: "Delete"
+        // }).on('click', function () {
+        //     _this.deleteHole();
+        // });
 
         return $formElem
     };
     featureEditor.prototype.createHeightNodes = function () {
-        var _this = this;
+        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
 
         $formElem.append($("<div id='height-label' class='form-label'>Height</div>"));
 
         var $formValue = $("<div class='form-value'>");
-        var $heightSlider = $("<div id='height-slider' class='slider'>");
+        var $heightSlider = $("<div id='height-slider'>");
         $formValue.append($heightSlider);
-        var $heightSpinner = $("<input id='height-spinner' class='spinbox'>");
+        var $heightSpinner = $("<input id='height-spinner'>");
         $formValue.append($heightSpinner);
         $formElem.append($formValue);
 
-        $heightSlider.slider({
-            animate: true,
-            range: "min",
-            min: 0,
-            max: 100,
-            step: 0.01,
-            slide: function (event, ui) {
-                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
-            },
-            change: function (event, ui) {
-                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
-            }
-        });
-        $heightSpinner.spinner({
-            min: 0,
-            max: 1000,
-            step: 0.1,
-            spin: function (event, ui) {
-                $("#height-slider").slider("value", _this.log10Slider(ui.value));
-            },
-            change: function () {
-                if (this.value.length > 0) {
-                    $("#height-slider").slider("value", _this.log10Slider(this.value));
-                }
-            }
-        }).spinner("value", 10);
+        // $heightSlider.slider({
+        //     animate: true,
+        //     range: "min",
+        //     min: 0,
+        //     max: 100,
+        //     step: 0.01,
+        //     slide: function (event, ui) {
+        //         $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
+        //     },
+        //     change: function (event, ui) {
+        //         $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
+        //     }
+        // });
+        // $heightSpinner.spinner({
+        //     min: 0,
+        //     max: 1000,
+        //     step: 0.1,
+        //     spin: function (event, ui) {
+        //         $("#height-slider").slider("value", _this.log10Slider(ui.value));
+        //     },
+        //     change: function () {
+        //         if (this.value.length > 0) {
+        //             $("#height-slider").slider("value", _this.log10Slider(this.value));
+        //         }
+        //     }
+        // }).spinner("value", 10);
 
         return $formElem
     };
@@ -207,32 +293,32 @@ define(['jquery', 'ol',
         $formValue.append($thicknessSpinner);
         $formElem.append($formValue);
 
-        $thicknessSlider.slider({
-            animate: true,
-            range: "min",
-            min: 0,
-            max: 50,
-            step: 0.01,
-            slide: function (event, ui) {
-                $($thicknessSpinner).spinner("value", ui.value)
-            },
-            change: function (event, ui) {
-                $($thicknessSpinner).spinner("value", ui.value)
-            }
-        });
-        $thicknessSpinner.spinner({
-            min: 0,
-            max: 50,
-            step: 0.01,
-            spin: function (event, ui) {
-                $($thicknessSlider).slider("value", ui.value)
-            },
-            change: function () {
-                if (this.value.length > 0) {
-                    $($thicknessSlider).slider("value", this.value);
-                }
-            }
-        }).spinner("value", 5);
+        // $thicknessSlider.slider({
+        //     animate: true,
+        //     range: "min",
+        //     min: 0,
+        //     max: 50,
+        //     step: 0.01,
+        //     slide: function (event, ui) {
+        //         $thicknessSpinner.spinner("value", ui.value)
+        //     },
+        //     change: function (event, ui) {
+        //         $thicknessSpinner.spinner("value", ui.value)
+        //     }
+        // });
+        // $thicknessSpinner.spinner({
+        //     min: 0,
+        //     max: 50,
+        //     step: 0.01,
+        //     spin: function (event, ui) {
+        //         $thicknessSlider.slider("value", ui.value)
+        //     },
+        //     change: function () {
+        //         if (this.value.length > 0) {
+        //             $thicknessSlider.slider("value", this.value);
+        //         }
+        //     }
+        // }).spinner("value", 5);
 
         return $formElem
     };
@@ -256,10 +342,10 @@ define(['jquery', 'ol',
         $menu.id = id;
         return $menu;
     };
-    featureEditor.prototype.createOption = function (option) {
+    featureEditor.prototype.createMenuOption = function (value, text) {
         var $option = $('<option>');
-        $option.val(option);
-        $option.text(option);
+        $option.val(value);
+        $option.text(value || text);
         return $option;
     };
     featureEditor.prototype.createHoleButton = function (label, title) {
@@ -853,24 +939,18 @@ define(['jquery', 'ol',
 
         var feature_properties = tobjectTemplates[feature_type];
 
-        var $heightSpinner = $('#height-spinner');
-        var $heightSlider = $('#height-slider');
         if (feature_properties['height']) {
             $('#height-label').removeClass('disabled');
             $heightSpinner.spinner('enable');
             $heightSlider.slider('enable');
-            var height = feature.get('height') || feature_properties['height'];
-            $heightSpinner.spinner("value", height);
+            $heightSpinner.spinner("value", feature.get('height') || feature_properties['height']);
         }
 
-        var $thicknessSpinner = $('#thickness-spinner');
-        var $thicknessSlider = $('#thickness-slider');
         if (feature_properties['thickness']) {
             $('#thickness-label').removeClass('disabled');
             $thicknessSpinner.spinner('enable');
             $thicknessSlider.slider('enable');
-            var thickness = feature.get('thickness') || feature_properties['thickness'];
-            $thicknessSpinner.spinner("value", thickness);
+            $thicknessSpinner.spinner("value", feature.get('thickness') || feature_properties['thickness']);
         }
     };
     featureEditor.prototype.changeFeatureType = function (feature_type) {
@@ -896,7 +976,7 @@ define(['jquery', 'ol',
         var $heightSpinner = $('#height-spinner');
         var $heightSlider = $('#height-slider');
         if (!($heightSpinner.spinner('option', 'disabled') || feature_properties['height'])) {
-            $heightSpinner.spinner("value", null);
+            $heightSpinner.spinner("value", 0);
             $heightSlider.slider("value", 0);
             $heightSpinner.spinner('disable');
             $heightSlider.slider('disable');
@@ -912,7 +992,7 @@ define(['jquery', 'ol',
         var $thicknessSpinner = $('#thickness-spinner');
         var $thicknessSlider = $('#thickness-slider');
         if (!($thicknessSpinner.spinner('option', 'disabled') || feature_properties['thickness'])) {
-            $thicknessSpinner.spinner("value", null);
+            $thicknessSpinner.spinner("value", 0);
             $thicknessSlider.slider("value", 0);
             $thicknessSpinner.spinner('disable');
             $thicknessSlider.slider('disable');
@@ -959,10 +1039,9 @@ define(['jquery', 'ol',
 
         $('#geometry-type').val(null);
 
-        $geodesic.off('change', this.geodesiclistener);
+        $geodesic.off('change');
         ol.Observable.unByKey(this.geometrylistener);
         this.geometrylistener = null;
-        this.geodesiclistener = null;
         $geodesic.checkboxradio('disable');
         $('#measure').html(null);
         $('#measure-label').html('Measure');

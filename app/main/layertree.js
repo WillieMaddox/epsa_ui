@@ -145,6 +145,7 @@ define(['jquery', 'ol',
             this.createRegistry = function (layer) {
                 var lid = 'layer_' + idCounter;
                 layer.set('id', lid);
+
                 idCounter += 1;
                 var mouseDownFired = false;
                 var _this = this;
@@ -270,28 +271,39 @@ define(['jquery', 'ol',
                     var $layerRow_2 = $("<div class='layerrow layerrow2'>");
 
                     var $hoverControl = $("<div class='controlgroup hovercontrol'>");
-                    var $hoverLabel = $("<label class='visible hovervisible'>");
-                    $hoverLabel.attr('for', layer.get('id') + "-hovervisible");
-                    $hoverControl.append($hoverLabel);
-                    var $hoverInput = $("<input type='checkbox' class='checkboxradio' checked>");
-                    $hoverInput.attr('id', layer.get('id') + "-hovervisible" );
-                    $hoverControl.append($hoverInput);
-                    var $hoverSelect = $("<select class='menuselect hoverselect'>");
+
+                    var $hoverVisibleLabel = $("<label class='visible hovervisible'>");
+                    var $hoverVisible = $("<input type='checkbox' class='checkboxradio' checked>");
+                    var $hoverSelectLabel = $("<label for='"+lid+"-hoverselect'>");
+                    var $hoverSelect = $("<select id='"+lid+"-hoverselect' class='hoverselect'>");
+
+                    $hoverVisibleLabel.attr('for', lid + "-hovervisible");
+                    $hoverVisible.attr('id', lid + "-hovervisible" );
+
+                    $hoverControl.append($hoverVisibleLabel);
+                    $hoverControl.append($hoverVisible);
+                    $hoverControl.append($hoverSelectLabel);
                     $hoverControl.append($hoverSelect);
+
                     $layerRow_2.append($hoverControl);
 
                     var $colorControl = $("<div class='controlgroup colorcontrol'>");
+
                     var $resetButton = $("<button class='mybutton defaultbutton'>Reset</button>");
                     var $colorButton = $("<button class='mybutton colorbutton colorwheel-icon'></button>");
+                    var $colorSelectLabel = $("<label for='"+lid+"-colorselect'>");
+                    var $colorSelect = $("<select id='"+lid+"-colorselect' class='colorselect'>");
+
                     $colorControl.append($resetButton);
                     $colorControl.append($colorButton);
-                    var $colorSelect = $("<select class='menuselect colorselect'>");
+                    $colorControl.append($colorSelectLabel);
                     $colorControl.append($colorSelect);
+
                     $layerRow_2.append($colorControl);
 
                     $layerDiv.append($layerRow_2);
 
-                    $hoverInput.click(function (event) {
+                    $hoverVisible.click(function (event) {
                         var data = {
                             stopProp: true
                         };
@@ -306,6 +318,7 @@ define(['jquery', 'ol',
                         }
                     }).selectmenu('menuWidget').addClass("overflow");
                     $resetButton.click(function (event) {
+
                         _this.styleDefault(layer, 'type');
                         layer.set('geomstyle', 'type');
                         var data = {
@@ -342,65 +355,98 @@ define(['jquery', 'ol',
                             layer.set('geomstyle', this.value);
                         }
                     }).selectmenu('menuWidget').addClass("overflow");
-                    $colorSelect.click(function (event) {
-                        console.log($layerDiv[0].id + ' .colorselect click');
-                        var data = {
-                            stopProp: true
-                        };
-                        handler(event, data)
-                    });
 
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
-                            var opt1 = null;
-                            var opt2 = null;
-                            var opt;
-                            var id = '#'+$layerDiv[0].id;
-                            var $hoverSelect = $(id + ' .hovercontrol').find('.hoverselect');
-                            var $colorSelect = $(id + ' .colorcontrol').find('.colorselect');
-                            var activeHoverAttribute = $hoverSelect.val();
-                            var activeColorAttribute = $colorSelect.val();
-                            $hoverSelect.empty();
-                            $colorSelect.empty();
-                            var headers = layer.get('headers');
-                            for (var i in headers) {
-                                $hoverSelect.append(this.createOption(i));
-                                $colorSelect.append(this.createOption(i));
+                            var refresh = false;
+                            var opt, i;
+                            var headers = evt.target.get('headers');
+                            var previous = evt.oldValue;
+
+                            for (i in headers) {
+                                if (!previous || !previous[i]) {
+                                    refresh = true;
+                                }
                             }
-                            if ($hoverSelect.children().length > 0) {
-                                $hoverSelect.children().each(function () {
-                                    if ($(this).val() === activeHoverAttribute) {
-                                        opt1 = $(this).val()
-                                    }
-                                });
-                                $hoverSelect.children().each(function () {
-                                    if ($(this).val() === 'name') {
-                                        opt2 = $(this).val()
-                                    }
-                                });
-                                opt = opt1 || opt2 || $hoverSelect.children()[0].value;
+                            if (refresh) {
+                                this.identifyLayer(layer);
+                                this.styleDefault(layer);
+                                var opt1 = null;
+                                var opt2 = null;
+                                var id = '#' + evt.target.get('id');
+                                var $hoverSelect = $(id + '-hoverselect');
+                                var $colorSelect = $(id + '-colorselect');
+                                var $hoverAttribute = $hoverSelect.val();
+                                var $colorAttribute = $colorSelect.val();
+                                $hoverSelect.selectmenu("destroy");
+                                $colorSelect.selectmenu("destroy");
+                                $hoverSelect.empty();
+                                $colorSelect.empty();
+                                for (i in headers) {
+                                    $hoverSelect.append(this.createMenuOption(null, i));
+                                    $colorSelect.append(this.createMenuOption(null, i));
+                                }
+                                if ($hoverSelect.children().length > 0) {
+                                    $hoverSelect.children().each(function () {
+                                        if ($(this).text() === $hoverAttribute) {
+                                            opt1 = $(this).text()
+                                        }
+                                    });
+                                    $hoverSelect.children().each(function () {
+                                        if ($(this).text() === 'name') {
+                                            opt2 = $(this).text()
+                                        }
+                                    });
+                                    opt = opt1 || opt2 || $hoverSelect.children()[0].value;
+                                }
+                                // $hoverButtonText.text(opt);
+                                $hoverSelect.val(opt);
+                                layer.set('textstyle', opt);
+
+                                opt1 = null;
+                                opt2 = null;
+
+                                if ($colorSelect.children().length > 0) {
+                                    $colorSelect.children().each(function () {
+                                        if ($(this).text() === $colorAttribute) {
+                                            opt1 = $colorAttribute
+                                        }
+                                        if ($(this).text() === 'type') {
+                                            opt2 = 'type'
+                                        }
+                                    });
+                                    opt = opt1 || opt2 || $colorSelect.children()[0].value;
+                                }
+                                // $colorButtonText.text(opt);
+                                $colorSelect.val(opt);
+                                layer.set('geomstyle', opt);
+
+                                if (refresh) {
+                                    $hoverSelect.selectmenu({
+                                        classes: {
+                                            "ui-selectmenu-button": "menuselect"
+                                        },
+                                        change: function () {
+                                            layer.set('textstyle', this.value);
+                                        }
+                                    }).selectmenu('menuWidget').addClass("overflow");
+                                    $colorSelect.selectmenu({
+                                        classes: {
+                                            "ui-selectmenu-button": "menuselect"
+                                        },
+                                        change: function () {
+                                            if (layer.get('headers')[this.value] === 'string') {
+                                                _this.styleCategorized(layer, this.value);
+                                            } else if (layer.get('headers')[this.value] === 'number') {
+                                                _this.styleGraduated(layer, this.value);
+                                            } else {
+                                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
+                                            }
+                                            layer.set('geomstyle', this.value);
+                                        }
+                                    }).selectmenu('menuWidget').addClass("overflow");
+                                }
                             }
-                            $hoverSelect.val(opt);
-                            layer.set('textstyle', opt);
-                            opt1 = null;
-                            opt2 = null;
-                            if ($colorSelect.children().length > 0) {
-                                $colorSelect.children().each(function () {
-                                    if ($(this).val() === activeColorAttribute) {
-                                        opt1 = $(this).val()
-                                    }
-                                });
-                                $colorSelect.children().each(function () {
-                                    if ($(this).val() === 'type') {
-                                        opt2 = $(this).val()
-                                    }
-                                });
-                                opt = opt1 || opt2 || $colorSelect.children()[0].value;
-                            }
-                            $colorSelect.val(opt);
-                            layer.set('geomstyle', opt);
-                            $(id + ' .hovercontrol').find('.hoverselect').selectmenu("refresh");
-                            $(id + ' .colorcontrol').find('.colorselect').selectmenu("refresh");
                         }
                     }, this);
                 }
@@ -419,6 +465,7 @@ define(['jquery', 'ol',
                 if (evt.element.get('type') !== 'overlay') {
                     if (evt.element instanceof ol.layer.Image) {
                         this.deselectEventEmitter.changed();
+                    }
                     $('#' + evt.element.get('id')).remove();
                 }
             }, this);
@@ -505,7 +552,7 @@ define(['jquery', 'ol',
             var parser = new ol.format.WMSCapabilities();
             var capabilities = parser.read(response);
             var currentProj = _this.map.getView().getProjection().getCode();
-            var crs;
+            var crs, i;
             var messageText = 'Layers read successfully.';
             if (capabilities.version === '1.3.0') {
                 crs = capabilities.Capability.Layer.CRS;
@@ -602,6 +649,7 @@ define(['jquery', 'ol',
         });
     };
     layerTree.prototype.addWfsLayer = function ($form) {
+        var _this = this;
 
         var buildQueryString = function (options) {
             var queryArray = [];
@@ -1138,21 +1186,42 @@ define(['jquery', 'ol',
         var step = (max - min) / 5;
         var colors = this.graduatedColorFactory(5, [254, 240, 217], [179, 0, 0]);
         layer.getSource().setStyle(function (feature, res) {
-            var property = feature.get(attribute);
+            var property = feature.get(attribute) || 0;
+            // var opacity = feature.get('type') === 'aor' ? 0.0 : 0.9;
             var color = property < min + step ? colors[0] :
                 property < min + step * 2 ? colors[1] :
                     property < min + step * 3 ? colors[2] :
                         property < min + step * 4 ? colors[3] : colors[4];
-            var style = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: [0, 0, 0, 1],
-                    width: 1
-                }),
-                fill: new ol.style.Fill({
-                    color: color.concat(0.9)
-                })
-            });
-            return [style];
+            var style;
+            if (feature.getGeometry().getType().endsWith('LineString') || feature.get('type') === 'aor') {
+                style = [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: [0, 0, 0, 1],
+                            width: 4
+                        })
+                    }),
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: color.concat(1),
+                            width: 2
+                        })
+                    })
+                ]
+            } else {
+                style = [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: [0, 0, 0, 1],
+                            width: 1
+                        }),
+                        fill: new ol.style.Fill({
+                            color: color.concat(1)
+                        })
+                    })
+                ];
+            }
+            return style;
         });
     };
     layerTree.prototype.graduatedColorFactory = function (intervals, rgb1, rgb2) {
@@ -1165,9 +1234,9 @@ define(['jquery', 'ol',
             var red = Math.ceil(rgb1[0] + redStep * i);
             var green = Math.ceil(rgb1[1] + greenStep * i);
             var blue = Math.ceil(rgb1[2] + blueStep * i);
-            colors.push([red, green, blue, 1]);
+            colors.push([red, green, blue]);
         }
-        colors.push([rgb2[0], rgb2[1], rgb2[2], 1]);
+        colors.push([rgb2[0], rgb2[1], rgb2[2]]);
         return colors;
     };
     layerTree.prototype.styleCategorized = function (layer, attribute) {
@@ -1193,17 +1262,69 @@ define(['jquery', 'ol',
             }
         }, this);
         layer.getSource().setStyle(function (feature, res) {
-            var index = feature.get(attribute) ? attributeArray.indexOf(feature.get(attribute).toString()) : 0;
-            var style = new ol.style.Style({
-                stroke: new ol.style.Stroke({
-                    color: [0, 0, 0, 1],
-                    width: 1
-                }),
-                fill: new ol.style.Fill({
-                    color: convertHex(colorArray[index], 0.9)
-                })
-            });
-            return [style]
+            var index = feature.get(attribute) ? attributeArray.indexOf(feature.get(attribute).toString()) : attributeArray.indexOf('');
+            var style;
+            if (feature.getGeometry().getType().endsWith('Point')) {
+                if (feature.get('type') === 'camera' || feature.get('type') === 'radio') {
+                    style = [
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 5,
+                                stroke: new ol.style.Stroke({
+                                    color: convertHex(colorArray[index], 1),
+                                    width: 2
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: convertHex(colorArray[index], 0.5)
+                                })
+                            })
+                        })
+                    ]
+                } else {
+                    style = [
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 5,
+                                stroke: new ol.style.Stroke({
+                                    color: convertHex(colorArray[index], 1),
+                                    width: 2
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: convertHex(colorArray[index], 0.5)
+                                })
+                            })
+                        })
+                    ]
+                }
+            } else if (feature.getGeometry().getType().endsWith('LineString') || feature.get('type') === 'aor') {
+                style = [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: [0, 0, 0, 1],
+                            width: 4
+                        })
+                    }),
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: convertHex(colorArray[index], 1),
+                            width: 2
+                        })
+                    })
+                ]
+            } else {
+                style = [
+                    new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: [0, 0, 0, 1],
+                            width: 1
+                        }),
+                        fill: new ol.style.Fill({
+                            color: convertHex(colorArray[index], 1)
+                        })
+                    })
+                ];
+            }
+            return style;
         });
     };
     layerTree.prototype.randomHexColor = function () {
