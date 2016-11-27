@@ -25,6 +25,7 @@ require.config({
         SMIL_2_0: "bower_components/ogc-schemas/scripts/lib/SMIL_2_0",
         SMIL_2_0_Language: "bower_components/ogc-schemas/scripts/lib/SMIL_2_0_Language",
         shp: "gitmodules/shapefile-js/dist/shp",
+        jsts: "js/jsts-1.2.1/jsts.min",
         // ol: "js/ol3-3.19.1/ol",
         ol: "js/ol3-3.19.1/ol-debug",
         exists: "main/utils/exists",
@@ -44,7 +45,6 @@ require.config({
         tcolor: "main/tobjects/color",
         tstyle: "main/tobjects/style",
         tstylefunction: "main/tobjects/stylefunction",
-        getjstsgeom: "main/geometry/getjstsgeom",
         stemplate: "main/sensors/template",
         sstylefunction: "main/sensors/stylefunction",
         defaultsensors: "main/utils/defaultsensors",
@@ -56,7 +56,7 @@ require.config({
     },
     shim: {
         // jsts: {
-        //     deps: ['jstsutil', 'ol']
+        //     deps: ['ol']
         // },
         layerswitcher: ['ol'],
 
