@@ -61,7 +61,7 @@ define(['jquery', 'ol',
                 }
                 var selectedFeatures = this.select.getFeatures();
                 if (selectedFeatures.getLength() === 1) {
-                    this.layer.getSource().addFeature(selectedFeatures.getArray()[0]);
+                    this.layer.getSource().getSource().addFeature(selectedFeatures.getArray()[0]);
                     selectedFeatures.clear();
                 }
             }, this);
@@ -208,7 +208,7 @@ define(['jquery', 'ol',
             feature = featureAndLayer.feature;
             var text = feature.get(this.geomStyleKey);
             if (!this.highlightGeomStyleCache[text]) {
-                var sf = featureAndLayer.layer.getStyleFunction();
+                var sf = featureAndLayer.layer.getSource().getStyleFunction();
                 var style = sf(feature)[0].clone();
                 this.highlightGeomStyleCache[text] = this.setFeatureStyle(style);
             }
@@ -216,6 +216,17 @@ define(['jquery', 'ol',
             feature = null;
         }
         return feature;
+    };
+    layerInteractor.prototype.setSensorStyle = function (style) {
+        if (style) {
+            var image = style.getImage();
+            if (exists(image)) {
+                if (image.getImage().tagName === 'IMG') {
+                    image.setOpacity(0.5);
+                }
+            }
+        }
+        return style;
     };
     layerInteractor.prototype.setFeatureStyle = function (style) {
         if (style) {
@@ -307,7 +318,7 @@ define(['jquery', 'ol',
                 console.log('auto deselect:', feature.get('name'), feature.getRevision());
                 _this.editor.loadFeature(feature);
                 _this.editor.deactivateForm();
-                _this.layer.getSource().addFeature(feature);
+                _this.layer.getSource().getSource().addFeature(feature);
                 // _this.activeFeatures.push(feature);
 
                 // transactWFS('insert', evt.feature);
@@ -333,7 +344,7 @@ define(['jquery', 'ol',
                 //translate.setActive(true);
                 console.log('auto select:  ', feature.get('name'), feature.getRevision());
                 _this.editor.activateForm(feature);
-                _this.layer.getSource().removeFeature(feature);
+                _this.layer.getSource().getSource().removeFeature(feature);
                 // _this.activeFeatures.push(feature);
                 console.log('here');
             }
@@ -367,7 +378,7 @@ define(['jquery', 'ol',
         var remove = function (evt) {
             // console.log(evt.keyCode);
             if (exists(_this.highlight) && evt.keyCode === 46) { //delete key pressed
-                _this.layer.getSource().removeFeature(_this.highlight);
+                _this.layer.getSource().getSource().removeFeature(_this.highlight);
                 _this.featureOverlay.getSource().clear();
                 _this.highlight = null;
             }
@@ -387,7 +398,7 @@ define(['jquery', 'ol',
                     console.log('manual deselect:', selectedFeature.get('name'), selectedFeature.getRevision());
 
                     // var selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
-                    // selectedLayer.getSource().addFeature(feature);
+                    // selectedLayer.getSource().getSource().addFeature(feature);
                     // _this.activeFeatures.push(feature);
 
                     selectedFeatures.clear();

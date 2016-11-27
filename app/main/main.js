@@ -27,10 +27,10 @@ define(['jquery', 'ol',
         }
     };
 
-    ol.layer.Vector.prototype.buildHeaders = function () {
+    ol.layer.Image.prototype.buildHeaders = function () {
         var oldHeaders = this.get('headers') || {};
         var headers = {};
-        var features = this.getSource().getFeatures();
+        var features = this.getSource().getSource().getFeatures();
         var len = features.length;
         for (var i = 0; i < len; i += 1) {
             var attributes = features[i].getProperties();

@@ -236,7 +236,8 @@ define(["jquery", "ol", "featureid", "ispolyvalid"], function ($, ol, FID, isPol
         layertree.selectEventEmitter.on('change', function () {
 
             var layer = layertree.getLayerById(layertree.selectedLayer.id);
-            if (layer instanceof ol.layer.Vector) { // feature layer.
+
+            if (layer instanceof ol.layer.Image) { // feature layer.
 
                 // layertree.identifyLayer(layer);
                 var layerGeomType = layer.get('geomtype');

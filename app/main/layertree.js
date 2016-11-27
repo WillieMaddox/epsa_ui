@@ -265,7 +265,7 @@ define(['jquery', 'ol',
 
                 $layerDiv.append($layerRow_1);
 
-                if (layer instanceof ol.layer.Vector) {
+                if (layer instanceof ol.layer.Image) {
 
                     var $layerRow_2 = $("<div class='layerrow layerrow2'>");
 
@@ -417,8 +417,9 @@ define(['jquery', 'ol',
             }, this);
             this.map.getLayers().on('remove', function (evt) {
                 if (evt.element.get('type') !== 'overlay') {
+                    if (evt.element instanceof ol.layer.Image) {
+                        this.deselectEventEmitter.changed();
                     $('#' + evt.element.get('id')).remove();
-                    this.deselectEventEmitter.changed();
                 }
             }, this);
         } else {
@@ -456,20 +457,20 @@ define(['jquery', 'ol',
         }
     };
     layerTree.prototype.addBufferIcon = function (layer) {
-        layer.getSource().on('change', function (evt) {
+        layer.getSource().getSource().on('change', function (evt) {
             if (evt.target.getState() === 'ready') {
-                if (layer.getSource().get('pendingRequests') > 0) {
-                    layer.getSource().set('pendingRequests', layer.getSource().get('pendingRequests') - 1);
-                    // console.log('Remaining', layer.getSource().get('pendingRequests'));
+                if (layer.getSource().getSource().get('pendingRequests') > 0) {
+                    layer.getSource().getSource().set('pendingRequests', layer.getSource().getSource().get('pendingRequests') - 1);
+                    // console.log('Remaining', layer.getSource().getSource().get('pendingRequests'));
                     // Only unwrap layers with progressbar (i.e. addWfs and addVector)
-                    if (layer.getSource().get('pendingRequests') === 0) {
+                    if (layer.getSource().getSource().get('pendingRequests') === 0) {
                         $('#' + layer.get('id') + ' .layertitle').unwrap();
                     }
                 }
-                if (layer.getSource().get('pendingRequests') === 0) {
+                if (layer.getSource().getSource().get('pendingRequests') === 0) {
                     layer.buildHeaders();
                 }
-                if (layer.getSource().getFeatures().length === 0) {
+                if (layer.getSource().getSource().getFeatures().length === 0) {
                     var hasFeatures = [false, 'disable']
                 } else {
                     hasFeatures = [true, 'enable']
@@ -656,13 +657,13 @@ define(['jquery', 'ol',
                     });
                     var t1 = new Date().getTime();
                     var nAdd = features.length;
-                    // console.log('Remaining', layer.getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAdd, 'n/t=', nAdd / (t1-t0));
-                    // console.log('Remaining', layer.getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1-t0));
+                    console.log('Remaining', layer.getSource().getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAdd, 'n/t=', nAdd / (t1-t0));
                     var nBefore = source.getFeatures().length;
                     var t0 = new Date().getTime();
                     source.addFeatures(features);
                     var t1 = new Date().getTime();
                     var nAfter = source.getFeatures().length;
+                    console.log('Remaining', layer.getSource().getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1-t0));
                 }).fail(function (response) {
                     _this.messages.textContent = 'Some unexpected error occurred in addWfsLayer: (' + response.message + ').';
                 });
@@ -672,7 +673,8 @@ define(['jquery', 'ol',
         });
         source.set('pendingRequests', 0);
 
-        var layer = new ol.layer.Vector({
+        var layer = new ol.layer.Image({
+            source: new ol.source.ImageVector({
                 source: source
             name: $form.find(".displayname").val(),
             // Temp fix to lessen page load blocking. Don't draw features further than zoom level 14.
@@ -804,16 +806,16 @@ define(['jquery', 'ol',
             } else {
                 fr.readAsText(file);
             }
-
             var source = new ol.source.Vector({
                 strategy: ol.loadingstrategy.bbox,
                 format: sourceFormat
             });
             source.set('pendingRequests', 1);
-            var layer = new ol.layer.Vector({
-                source: source,
+            var layer = new ol.layer.Image({
+                source: new ol.source.ImageVector({
+                    source: source
+                }),
                 name: $form.find(".displayname").val(),
-                style: tobjectStyleFunction,
                 updateWhileInteracting: true,
                 updateWhileAnimating: true,
                 opacity: 0.6
@@ -840,16 +842,18 @@ define(['jquery', 'ol',
             wrapX: false
         });
         source.set('pendingRequests', 0);
-        var layer = new ol.layer.Vector({
-            source: source,
+        var layer = new ol.layer.Image({
+            source: new ol.source.ImageVector({
+                source: source
+            }),
             name: $form.find(".displayname").val() || geomType + ' Layer',
             geomtype: geomType,
             opacity: 0.6
         });
         this.addBufferIcon(layer);
         this.map.addLayer(layer);
-        layer.getSource().changed();
-        layer.setStyle(tobjectStyleFunction);
+        layer.getSource().getSource().changed();
+        // layer.setStyle(tobjectStyleFunction);
         this.messages.textContent = 'New vector layer created successfully.';
         return this;
     };
@@ -1118,18 +1122,22 @@ define(['jquery', 'ol',
         return layer;
     };
     layerTree.prototype.styleDefault = function (layer, attribute) {
-        layer.setStyle(tobjectStyleFunction);
+        if (layer.get('type') === 'feature') {
+            layer.getSource().setStyle(tobjectStyleFunction);
+        } else if (layer.get('type') === 'sensor') {
+            layer.getSource().setStyle(sensorStyleFunction);
+        }
     };
     layerTree.prototype.styleGraduated = function (layer, attribute) {
         var attributeArray = [];
-        layer.getSource().forEachFeature(function (feat) {
-            attributeArray.push(feat.get(attribute));
+        layer.getSource().getSource().forEachFeature(function (feat) {
+            attributeArray.push(feat.get(attribute) || 0);
         });
         var max = Math.max.apply(null, attributeArray);
         var min = Math.min.apply(null, attributeArray);
         var step = (max - min) / 5;
         var colors = this.graduatedColorFactory(5, [254, 240, 217], [179, 0, 0]);
-        layer.setStyle(function (feature, res) {
+        layer.getSource().setStyle(function (feature, res) {
             var property = feature.get(attribute);
             var color = property < min + step ? colors[0] :
                 property < min + step * 2 ? colors[1] :
@@ -1174,7 +1182,7 @@ define(['jquery', 'ol',
             var b = parseInt(hex.substring(4,6), 16);
             return [r, g, b, opacity];
         }
-        layer.getSource().forEachFeature(function (feature) {
+        layer.getSource().getSource().forEachFeature(function (feature) {
             var property = feature.get(attribute) ? feature.get(attribute).toString() : '';
             if (attributeArray.indexOf(property) === -1) {
                 attributeArray.push(property);
@@ -1184,7 +1192,7 @@ define(['jquery', 'ol',
                 colorArray.push(randomColor);
             }
         }, this);
-        layer.setStyle(function (feature, res) {
+        layer.getSource().setStyle(function (feature, res) {
             var index = feature.get(attribute) ? attributeArray.indexOf(feature.get(attribute).toString()) : 0;
             var style = new ol.style.Style({
                 stroke: new ol.style.Stroke({
