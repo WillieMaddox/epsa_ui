@@ -745,8 +745,8 @@ define(['jquery', 'ol',
                 source: source
             }),
             name: $form.find(".displayname").val(),
-            // Temp fix to lessen page load blocking. Don't draw features further than zoom level 14.
-            maxResolution: 10,
+            updateWhileInteracting: true,
+            updateWhileAnimating: true,
             opacity: 0.7
         });
 
@@ -1059,7 +1059,7 @@ define(['jquery', 'ol',
     };
     layerTree.prototype.createFileOpenNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-file">Vector file</label>'));
-        var $file = $('<input type="file" name="file" id="open-file" class="file ui-widget-content" accept=".geojson" required>');
+        var $file = $('<input type="file" name="file" id="open-file" class="file ui-widget-content ui-button" accept=".geojson" required>');
         $fieldset.append($file);
         $file.on("change", function (event) {
             var startPos = this.value.lastIndexOf("\\") + 1;
