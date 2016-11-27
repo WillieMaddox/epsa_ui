@@ -189,6 +189,13 @@ body {
     text-align: right;
     min-width: 7em;
 }
+.form-value #position {
+    white-space: nowrap;
+    border: none;
+    padding-right: 0.5em;
+    text-align: right;
+    min-width: 7em;
+}
 /*.form-value #geodesic {*/
     /*box-sizing: border-box;*/
     /*min-height: 2em;*/
