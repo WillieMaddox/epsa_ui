@@ -18,8 +18,8 @@ define(['jquery', 'ol',
              isPointInPoly,
              doesPolyCoverHole) {
 
+    'use strict';
     var featureEditor = function (options) {
-        'use strict';
         if (!(this instanceof featureEditor)) {
             throw new Error('featureEditor must be constructed with the new keyword.');
         }
@@ -88,7 +88,7 @@ define(['jquery', 'ol',
         $formElem.append($("<div id='measure-label' class='form-label'>Measure</div>"));
 
         var $formValue = $("<div class='form-value'>");
-        $formValue.append($("<div id='measure' readonly/>"));
+        $formValue.append($("<div id='measure' readonly>"));
         var $measureUnits = $("<select id='measure-units'>");
         $formValue.append($measureUnits);
         $formValue.append($("<label for='geodesic' class='visible' title='Use geodesic measures'</label>"));
@@ -771,21 +771,29 @@ define(['jquery', 'ol',
     featureEditor.prototype.activateForm = function (feature) {
 
         var _this = this;
-        $('#featureproperties').show();
-
-        $('#feature-name-label').removeClass('disabled');
         var $featureName = $('#feature-name');
-        $featureName.removeClass('ui-state-disabled');
-        $featureName.val(feature.get('name'));
-
-        $('#geometry-type-label').removeClass('disabled');
         var $geometryType = $('#geometry-type');
-        $geometryType.val(feature.getGeometry().getType());
-
         var $measureLabel = $('#measure-label');
         var $measureUnits = $('#measure-units');
         var $geodesic = $('#geodesic');
         var measure;
+        var $deleteHole = $('#delete-hole');
+        var $featureType = $('#feature-type');
+        var feature_type = feature.get('type');
+        var $heightSpinner = $('#height-spinner');
+        var $heightSlider = $('#height-slider');
+        var $thicknessSpinner = $('#thickness-spinner');
+        var $thicknessSlider = $('#thickness-slider');
+
+        $('#featureproperties').show();
+
+        $('#feature-name-label').removeClass('disabled');
+        $featureName.removeClass('ui-state-disabled');
+        $featureName.val(feature.get('name'));
+
+        $('#geometry-type-label').removeClass('disabled');
+        $geometryType.val(feature.getGeometry().getType());
+
         $measureLabel.removeClass('disabled');
         if (feature.getGeometry().getType().endsWith('Polygon')) {
             $measureLabel.html('Area');
@@ -829,16 +837,14 @@ define(['jquery', 'ol',
         }
 
         $('#feature-type-label').removeClass('disabled');
-        var $featureType = $('#feature-type');
         $featureType.selectmenu('enable');
         for (var key in tobjectTemplates) {
             if (feature.getGeometry().getType().endsWith(tobjectTemplates[key]["geometry_type"])) {
-                $featureType.append(this.createOption(key));
+                $featureType.append(this.createMenuOption(key));
             }
         }
-        $featureType.append(this.createOption('generic'));
+        $featureType.append(this.createMenuOption('generic'));
 
-        var feature_type = feature.get('type');
         if (!(feature_type && feature_type in tobjectTemplates)) {
             feature_type = 'generic';
         }

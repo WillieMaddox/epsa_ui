@@ -83,7 +83,6 @@ define(['jquery', 'ol',
     ol.inherits(ol.interaction.ChooseHole, ol.interaction.Pointer);
 
     function init() {
-        // document.removeEventListener('DOMContentLoaded', init);
 
         var mouseProjection = ol.proj.get('EPSG:4326');
         var mousePrecision = 4;

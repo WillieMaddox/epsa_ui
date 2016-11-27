@@ -143,14 +143,15 @@ define(['jquery', 'ol',
             };
 
             this.createRegistry = function (layer) {
-                layer.set('id', 'layer_' + idCounter);
+                var lid = 'layer_' + idCounter;
+                layer.set('id', lid);
                 idCounter += 1;
                 var mouseDownFired = false;
                 var _this = this;
 
                 var $layerDiv = $("<div class='layer ol-unselectable'>");
                 $layerDiv[0].title = layer.get('name') || 'Unnamed Layer';
-                $layerDiv[0].id = layer.get('id');
+                $layerDiv[0].id = lid;
                 this.layerContainer.prepend($layerDiv);
 
                 $layerDiv.on("click", null, function (event) {
@@ -184,10 +185,10 @@ define(['jquery', 'ol',
                 var $layerRow_1 = $("<div class='layerrow layerrow1'>");
 
                 var $visibleLabel = $("<label class='visible layervisible'>");
-                $visibleLabel.attr('for', layer.get('id') + "-layervisible");
+                $visibleLabel.attr('for', lid + "-layervisible");
                 $layerRow_1.append($visibleLabel);
                 var $visibleInput = $("<input type='checkbox' class='checkboxradio'>");
-                $visibleInput.attr('id', layer.get('id') + "-layervisible" );
+                $visibleInput.attr('id', lid + "-layervisible" );
                 $visibleInput[0].checked = layer.getVisible();
                 $layerRow_1.append($visibleInput);
                 $visibleInput.change(function () {
@@ -281,8 +282,8 @@ define(['jquery', 'ol',
 
                     var $colorControl = $("<div class='controlgroup colorcontrol'>");
                     var $resetButton = $("<button class='mybutton defaultbutton'>Reset</button>");
-                    $colorControl.append($resetButton);
                     var $colorButton = $("<button class='mybutton colorbutton colorwheel-icon'></button>");
+                    $colorControl.append($resetButton);
                     $colorControl.append($colorButton);
                     var $colorSelect = $("<select class='menuselect colorselect'>");
                     $colorControl.append($colorSelect);
@@ -492,7 +493,6 @@ define(['jquery', 'ol',
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         $form.find(".url").val(serverUrl);
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
         var url = settings.proxyUrl + serverUrl + query;
         console.log(url);
@@ -515,13 +515,13 @@ define(['jquery', 'ol',
             var layers = capabilities.Capability.Layer.Layer;
             if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
                 var nLayers = layers.length;
-                for (var i = 0; i < nLayers; i += 1) {
-                    $form.find(".layername").append(_this.createOption(layers[i].Name));
+                for (i = 0; i < nLayers; i += 1) {
+                    $form.find(".layername").append(_this.createMenuOption(layers[i].Name));
                 }
                 var formats = capabilities.Capability.Request.GetMap.Format;
                 var nFormats = formats.length;
                 for (i = 0; i < nFormats; i += 1) {
-                    $form.find(".format").append(_this.createOption(formats[i]));
+                    $form.find(".format").append(_this.createMenuOption(formats[i]));
                 }
                 _this.messages.textContent = messageText;
             }
@@ -588,7 +588,7 @@ define(['jquery', 'ol',
                 var re = /}(.*)/;
                 for (var i = 0; i < nLayers; i += 1) {
                     var name = re.exec(layers[i].name)[1];
-                    $form.find(".layername").append(_this.createOption(name));
+                    $form.find(".layername").append(_this.createMenuOption(name));
                     _this.wfsProjections[name] = layers[i].defaultSRS;
                 }
                 _this.messages.textContent = messageText;
@@ -619,10 +619,8 @@ define(['jquery', 'ol',
             return queryArray.join('&')
         };
         var typeName = $form.find(".layername").val();
-        var mapProj = this.map.getView().getProjection();
         var proj = this.wfsProjections[typeName];
         var formatWFS = new ol.format.WFS();
-        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var serverUrl = $form.find(".url").val();
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
@@ -633,40 +631,38 @@ define(['jquery', 'ol',
         } else {
             strategy = ol.loadingstrategy.bbox
         }
-        var sourceWFS = new ol.source.Vector({
+        var source = new ol.source.Vector({
             loader: function (extent, res, mapProj) {
-                var _this = this;
                 var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
-                // console.log(extent, mapProj);
                 $.ajax({
                     type: 'GET',
                     url: settings.proxyUrl + serverUrl + query,
                     beforeSend: function () {
-                        if (sourceWFS.get('pendingRequests') == 0) {
+                        if (source.get('pendingRequests') == 0) {
                             var $progressbar = $("<div class='buffering'></div>");
                             $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
                             $progressbar.progressbar({value: false});
                             $progressbar.insertBefore($('#' + layer.get('id') + ' .opacity'));
                         }
-                        sourceWFS.set('pendingRequests', sourceWFS.get('pendingRequests') + 1);
-                        console.log('Pending', sourceWFS.get('pendingRequests'), 'res', res);
+                        source.set('pendingRequests', source.get('pendingRequests') + 1);
+                        console.log('Pending', source.get('pendingRequests'), 'res', res);
                     }
                 }).done(function (response) {
-                    // console.log('*******************************************');
-                    // var t0 = new Date().getTime();
+                    console.log('*******************************************');
+                    var t0 = new Date().getTime();
                     var features = formatWFS.readFeatures(response, {
                         dataProjection: proj,
                         featureProjection: mapProj.getCode()
                     });
-                    // var t1 = new Date().getTime();
-                    // var nAdd = features.length;
+                    var t1 = new Date().getTime();
+                    var nAdd = features.length;
                     // console.log('Remaining', layer.getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAdd, 'n/t=', nAdd / (t1-t0));
-                    // var nBefore = sourceWFS.getFeatures().length;
-                    // var t0 = new Date().getTime();
-                    sourceWFS.addFeatures(features);
-                    // var t1 = new Date().getTime();
-                    // var nAfter = sourceWFS.getFeatures().length;
                     // console.log('Remaining', layer.getSource().get('pendingRequests'), 't=', t1-t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1-t0));
+                    var nBefore = source.getFeatures().length;
+                    var t0 = new Date().getTime();
+                    source.addFeatures(features);
+                    var t1 = new Date().getTime();
+                    var nAfter = source.getFeatures().length;
                 }).fail(function (response) {
                     _this.messages.textContent = 'Some unexpected error occurred in addWfsLayer: (' + response.message + ').';
                 });
@@ -674,10 +670,10 @@ define(['jquery', 'ol',
             strategy: strategy,
             wrapX: false
         });
-        sourceWFS.set('pendingRequests', 0);
+        source.set('pendingRequests', 0);
 
         var layer = new ol.layer.Vector({
-            source: sourceWFS,
+                source: source
             name: $form.find(".displayname").val(),
             // Temp fix to lessen page load blocking. Don't draw features further than zoom level 14.
             maxResolution: 10,
@@ -695,6 +691,7 @@ define(['jquery', 'ol',
         var fileType = $form.find(".filetype").val();
         var currentProj = this.map.getView().getProjection();
         var $progressbar;
+        var sourceFormat;
         switch (fileType) {
             // case 'shp':
             //     sourceFormat = new ol.format.GeoJSON();
@@ -719,7 +716,7 @@ define(['jquery', 'ol',
         }
 
         function loadStart(evt) {
-            $progressbar = $("<div class='buffering'></div>");
+            $progressbar = $("<div class='buffering'>");
             $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
             if (evt.lengthComputable) {
                 $progressbar.progressbar({
@@ -796,7 +793,6 @@ define(['jquery', 'ol',
 
         try {
             var fr = new FileReader();
-            var sourceFormat;
             fr.onloadstart = loadStart;
             fr.onprogress = updateProgress;
             fr.onload = loaded;
@@ -810,7 +806,8 @@ define(['jquery', 'ol',
             }
 
             var source = new ol.source.Vector({
-                strategy: ol.loadingstrategy.bbox
+                strategy: ol.loadingstrategy.bbox,
+                format: sourceFormat
             });
             source.set('pendingRequests', 1);
             var layer = new ol.layer.Vector({
@@ -827,14 +824,15 @@ define(['jquery', 'ol',
             return this;
         } catch (error) {
             this.messages.textContent = 'Some unexpected error occurred in addVectorLayer: (' + error.message + ').';
+            console.log(error.stack);
             return error;
         }
     };
     layerTree.prototype.newVectorLayer = function ($form) {
-        var type = $form.find(".geomtype").val();
+        var geomType = $form.find(".geomtype").val();
         var geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
         var sourceTypes = Object.keys(tobjectTemplates);
-        if (sourceTypes.indexOf(type) === -1 && geomTypes.indexOf(type) === -1) {
+        if (sourceTypes.indexOf(geomType) === -1 && geomTypes.indexOf(geomType) === -1) {
             this.messages.textContent = 'Unrecognized layer type.';
             return false;
         }
@@ -844,8 +842,8 @@ define(['jquery', 'ol',
         source.set('pendingRequests', 0);
         var layer = new ol.layer.Vector({
             source: source,
-            name: $form.find(".displayname").val() || type + ' Layer',
-            type: type,
+            name: $form.find(".displayname").val() || geomType + ' Layer',
+            geomtype: geomType,
             opacity: 0.6
         });
         this.addBufferIcon(layer);
@@ -928,10 +926,10 @@ define(['jquery', 'ol',
     layerTree.prototype.createGeomTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
         var $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
-        $selectNode.append(this.createOption("geomcollection", "Geometry Collection"));
-        $selectNode.append(this.createOption("polygon", "Polygon"));
-        $selectNode.append(this.createOption("line", "Line"));
-        $selectNode.append(this.createOption("point", "Point"));
+        $selectNode.append(this.createMenuOption("geomcollection", "Geometry Collection"));
+        $selectNode.append(this.createMenuOption("polygon", "Polygon"));
+        $selectNode.append(this.createMenuOption("line", "Line"));
+        $selectNode.append(this.createMenuOption("point", "Point"));
         $fieldset.append($selectNode);
     };
     layerTree.prototype.createServerUrlNodes = function ($fieldset, id) {
@@ -978,11 +976,11 @@ define(['jquery', 'ol',
     layerTree.prototype.createFileTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-filetype">File Type</label>'));
         var $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
-        $selectNode.append(this.createOption("geojson", "GeoJSON"));
-        $selectNode.append(this.createOption("topojson", "TopoJSON"));
-        $selectNode.append(this.createOption("zip", "Shapefile (zipped)"));
-        $selectNode.append(this.createOption("kml", "KML"));
-        $selectNode.append(this.createOption("osm", "OSM"));
+        $selectNode.append(this.createMenuOption("geojson", "GeoJSON"));
+        $selectNode.append(this.createMenuOption("topojson", "TopoJSON"));
+        $selectNode.append(this.createMenuOption("zip", "Shapefile (zipped)"));
+        $selectNode.append(this.createMenuOption("kml", "KML"));
+        $selectNode.append(this.createMenuOption("osm", "OSM"));
         $fieldset.append($selectNode);
     };
     layerTree.prototype.createFileOpenNodes = function ($fieldset) {

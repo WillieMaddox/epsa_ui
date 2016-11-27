@@ -33,8 +33,7 @@ define(['jquery', 'ol',
                 if (evt.dragging) {
                     return;
                 }
-                var pixel = _this.map.getEventPixel(evt.originalEvent);
-                var feature = _this.getFeatureAtPixel(pixel);
+                var feature = _this.getFeatureAtPixel(evt);
                 _this.setMouseCursor(feature);
                 _this.displayFeatureInfo(feature);
             };
@@ -119,7 +118,7 @@ define(['jquery', 'ol',
     // };
 
     layerInteractor.prototype.textStyle = function (text) {
-        var style = new ol.style.Style({
+        return new ol.style.Style({
             text: new ol.style.Text({
                 font: '14px Calibri,sans-serif',
                 text: text,
@@ -133,7 +132,6 @@ define(['jquery', 'ol',
                 })
             })
         });
-        return style;
     };
     layerInteractor.prototype.createFeatureOverlay = function () {
         var _this = this;

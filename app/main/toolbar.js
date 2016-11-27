@@ -223,52 +223,44 @@ define(["jquery", "ol", "featureid", "ispolyvalid"], function ($, ol, FID, isPol
         }).setDisabled(true);
         this.drawControls.push(drawCamera);
 
-        this.activeFeatures = new ol.Collection();
+        // this.activeFeatures = new ol.Collection();
 
         layertree.deselectEventEmitter.on('change', function () {
             this.drawControls.forEach(function (control) {
                 control.set('active', false);
                 control.setDisabled(true);
             });
-            this.activeFeatures.clear();
-            console.log('toolbar: deselect');
+            // this.activeFeatures.clear();
         }, this);
 
         layertree.selectEventEmitter.on('change', function () {
-            var layer;
 
-            if (layertree.selectedLayer) {
-                layer = layertree.getLayerById(layertree.selectedLayer.id);
-                console.log('toolbar: selected layer YES');
-            } else {
-                layer = null;
-                console.log('toolbar: selected layer NO');
-            }
+            var layer = layertree.getLayerById(layertree.selectedLayer.id);
             if (layer instanceof ol.layer.Vector) { // feature layer.
 
-                layertree.identifyLayer(layer);
-                var layerType = layer.get('type');
+                // layertree.identifyLayer(layer);
+                var layerGeomType = layer.get('geomtype');
 
-                if (layerType === 'geomcollection' || layerType === 'point') {
+                if (layerGeomType === 'geomcollection' || layerGeomType === 'point') {
                     drawPoint.setDisabled(false);
                     drawCamera.setDisabled(false);
                 }
-                if (layerType === 'geomcollection' || layerType === 'line') {
+                if (layerGeomType === 'geomcollection' || layerGeomType === 'line') {
                     drawLineString.setDisabled(false);
                     drawWall.setDisabled(false);
                     drawRoad.setDisabled(false);
                 }
-                if (layerType === 'geomcollection' || layerType === 'polygon') {
+                if (layerGeomType === 'geomcollection' || layerGeomType === 'polygon') {
                     drawPolygon.setDisabled(false);
                     drawAOR.setDisabled(false);
                     drawWater.setDisabled(false);
                     drawHerbage.setDisabled(false);
                     drawBuilding.setDisabled(false);
                 }
-                var _this = this;
-                setTimeout(function () {
-                    _this.activeFeatures.extend(layer.getSource().getFeatures());
-                }, 0);
+                // var _this = this;
+                // setTimeout(function () {
+                //     _this.activeFeatures.extend(layer.getSource().getFeatures());
+                // }, 0);
             }
         }, this);
 
