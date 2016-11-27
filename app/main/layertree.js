@@ -473,10 +473,12 @@ define(['jquery', 'ol',
             throw new Error('Invalid parameter(s) provided.');
         }
     };
-    layerTree.prototype.createOption = function (optionValue, optionText) {
+    layerTree.prototype.createMenuOption = function (value, text) {
         var $option = $('<option>');
-        $option.val(optionValue);
-        $option.text(optionText || optionValue);
+        if (value) {
+            $option.val(value);
+        }
+        $option.text(text || value);
         return $option;
     };
     layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {

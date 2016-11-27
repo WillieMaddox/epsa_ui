@@ -182,12 +182,16 @@ define(['jquery', 'ol',
         $formValue.append($geodesicValue);
         $formElem.append($formValue);
 
-        $measureUnits.selectmenu({
-            classes: {
-                "ui-selectmenu-button": "menuselect"
-            }
-        });
-        $geodesicValue.checkboxradio();
+        var units = ['metric', 'english'];
+        for (var i = 0; i < units.length; i += 1) {
+            $measureUnits.append(this.createMenuOption(units[i]));
+        }
+        // $measureUnits.selectmenu({
+        //     classes: {
+        //         "ui-selectmenu-button": "menuselect"
+        //     }
+        // });
+        // $geodesicValue.checkboxradio();
 
         return $formElem
     };
@@ -893,20 +897,15 @@ define(['jquery', 'ol',
         }
         $geodesic.checkboxradio('enable');
         $measureUnits.selectmenu('enable');
-        var units = ['metric', 'english'];
-        for (i = 0; i < units.length; i += 1) {
-            $measureUnits.append(_this.createOption(units[i]));
-        }
         measure(feature.getGeometry(), this.map.getView().getProjection(), this.wgs84Sphere);
         this.geometrylistener = feature.getGeometry().on('change', function (evt) {
             measure(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
         });
-        this.geodesiclistener = function () {
+        $geodesic.on('change', function () {
+            // For some reason this checkbox doesn't auto reset on change, so we force a refresh here.
+            $(this).checkboxradio("refresh");
             measure(_this.geometrylistener.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
-        };
-        $geodesic.on('change', this.geodesiclistener);
-
-        var $deleteHole = $('#delete-hole');
+        });
 
         if (feature.getGeometry().getType().endsWith('Polygon')) {
             $('#hole-label').removeClass('disabled');
