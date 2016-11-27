@@ -1129,48 +1129,86 @@ define(['jquery', 'ol',
     };
     layerTree.prototype.identifyLayer = function (layer) {
 
-        if (layer.getSource().getFeatures().length === 0) {
-            return layer;
+        var geomType = null;
+        var geomTypes = [];
+        var geomTypesDefault = ['point', 'line', 'polygon', 'geomcollection'];
+        var geomTypeIsVerified = false;
+
+        var layerType;
+        var layerTypes = [];
+        var layerTypesDefault = {
+            'feature': Object.keys(tobjectTemplates),
+            'sensor': Object.keys(sensorTemplates)
+        };
+        var layerTypeIsVerified = false;
+
+        var getLayerType = function (featureType) {
+            for (var ltype in layerTypesDefault) {
+                for (var ftype in layerTypesDefault[ltype]) {
+                    if (featureType === layerTypesDefault[ltype][ftype]) {
+                        return ltype;
+                    }
+                }
+            }
+        };
+        var getGeometryType = function (geomType) {
+            if (geomType.endsWith('Point')) {
+                return 'point';
+            } else if (geomType.endsWith('LineString')) {
+                return 'line';
+            } else if (geomType.endsWith('Polygon')) {
+                return 'polygon';
+            } else {
+                return 'geomcollection';
+            }
+        };
+        if (geomTypesDefault.indexOf(layer.get('geomtype')) >= 0) {
+            geomTypeIsVerified = true;
         }
-        if (['point', 'line', 'polygon', 'geomcollection'].indexOf(layer.get('type')) >= 0) {
-            return layer;
+        if (Object.keys(layerTypesDefault).indexOf(layer.get('type')) >= 0) {
+            layerTypeIsVerified = true;
         }
 
-        var geomType;
-        var geomTypes = [];
-        var geomTypeIsVerified = false;
-        layer.getSource().forEachFeature(function (feat) {
+        layer.getSource().getSource().forEachFeature(function (feature) {
             if (!(geomTypeIsVerified)) {
-                var geom = feat.getGeometry();
-                if (geom.getType().endsWith('Point')) {
-                    geomType = 'point';
-                } else if (geom.getType().endsWith('LineString')) {
-                    geomType = 'line';
-                } else if (geom.getType().endsWith('Polygon')) {
-                    geomType = 'polygon';
-                } else {
-                    geomType = 'geomcollection';
-                }
+                geomType = getGeometryType(feature.getGeometry().getType());
                 if (geomTypes.indexOf(geomType) === -1) {
                     geomTypes.push(geomType);
-                    if (geomType === 'geomcollection' || geomTypes.length >= 2) {
+
+                    if (geomTypes.length > 1) {
+                        geomTypes = ['geomcollection'];
                         geomTypeIsVerified = true;
                     }
                 }
             }
-            if (geomTypeIsVerified) {
+            if (!(layerTypeIsVerified)) {
+                layerType = getLayerType(feature.get('type'));
+                if (layerType && layerTypes.indexOf(layerType) === -1) {
+                    layerTypes.push(layerType);
+
+                    if (layerTypes.length > 1) {
+                        layerTypes = ['feature'];
+                        layerTypeIsVerified = true;
+                    }
+                }
+            }
+            if (geomTypeIsVerified && layerTypeIsVerified) {
                 return true;
             }
         });
-        if (geomTypeIsVerified) {
-            layer.set('type', 'geomcollection')
-        } else if (geomTypes.length === 1) {
-            layer.set('type', geomTypes[0])
+
+        if (geomTypes.length === 1) {
+            layer.set('geomtype', geomTypes[0])
+        }
+
+        if (layerTypes.length === 1) {
+            layer.set('type', layerTypes[0])
         } else {
-            this.messages.textContent = 'Error: Unable to Determine Layer Type';
+            layer.set('type', 'feature')
         }
         return layer;
     };
+
     layerTree.prototype.styleDefault = function (layer, attribute) {
         if (layer.get('type') === 'feature') {
             layer.getSource().setStyle(tobjectStyleFunction);
