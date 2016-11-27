@@ -2,13 +2,21 @@
 define(['jquery', 'ol',
     'exists',
     'deg2tile',
-    'ttemplate',
     'layertree',
     'toolbar',
     'layerinteractor',
     'featureeditor',
+    'cameraeditor',
     'bingkey',
-    'layerswitcher'], function ($, ol, exists, deg2tile, tobjectTemplates, layerTree, toolBar, layerInteractor, featureEditor, bingKey) {
+    'layerswitcher'], function ($, ol,
+                                exists,
+                                deg2tile,
+                                layerTree,
+                                toolBar,
+                                layerInteractor,
+                                featureEditor,
+                                cameraEditor,
+                                bingKey) {
 
     "use strict";
     String.prototype.capitalizeFirstLetter = function (flip) {
@@ -243,6 +251,7 @@ define(['jquery', 'ol',
 
         var interactor = new layerInteractor({map: map, layertree: tree, toolbar: tools});
         tree.layerEditors['feature'] = new featureEditor({map: map, interactor: interactor});
+        tree.layerEditors['sensor'] = new cameraEditor({map: map, interactor: interactor});
 
         /*********** WFS-T *************/
         // var dirty = {};
@@ -273,28 +282,6 @@ define(['jquery', 'ol',
         //         data: str
         //     }).done();
         // };
-
-        /********* ADD SENSOR **********/
-        // var iconFeature = new ol.Feature({
-        //     geometry: new ol.geom.Point([0, 0]),
-        //     name: 'Camera',
-        //     maxRange: 4000,
-        //     minRange: 500,
-        //     sourceHeight: 3,
-        //     targetHeight: 3
-        // });
-        // var iconStyle = new ol.style.Style({
-        //     image: new ol.style.Icon({
-        //         anchor: [0.5, 46],
-        //         anchorXUnits: 'fraction',
-        //         anchorYUnits: 'pixels',
-        //         src: 'resources/camera-normal.png'
-        //     })
-        // });
-        // iconFeature.setStyle(iconStyle);
-        // var vectorSource = new ol.source.Vector({
-        //     features: [iconFeature]
-        // });
 
         /********* ADD PROJECT *********/
         // var loadProject = document.getElementById('loadProject');

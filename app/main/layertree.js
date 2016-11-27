@@ -2,20 +2,24 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["jquery", "ol",
-    "exists",
-    "shp",
+define(['jquery', 'ol',
+    'exists',
+    'shp',
     'wfs110context',
-    "ttemplate",
-    "tstylefunction",
-    "serversettings",
-    "jquery-ui"
+    'ttemplate',
+    'tstylefunction',
+    'stemplate',
+    'sstylefunction',
+    'serversettings',
+    'jquery-ui'
 ], function ($, ol,
              exists,
              shp,
              WFSContext,
              tobjectTemplates,
              tobjectStyleFunction,
+             sensorTemplates,
+             sensorStyleFunction,
              settings) {
 
     'use strict';
