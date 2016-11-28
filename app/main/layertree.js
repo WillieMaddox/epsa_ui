@@ -121,21 +121,6 @@ define(['jquery', 'ol',
                     if (!(targetNode.classList.contains("layer"))) {
                         return;
                     }
-                    // if (_this.selectedLayer) {
-                    //     _this.deselectEventEmitter.changed();
-                    //     _this.selectedLayer.classList.remove('active');
-                    // }
-                    // _this.selectedLayer = targetNode;
-                    // _this.selectedLayer.classList.add('active');
-                    // _this.selectEventEmitter.changed();
-
-                    // if (targetNode !== _this.selectedLayer) {
-                    //     _this.selectedLayer = targetNode;
-                    //     _this.selectedLayer.classList.add('active');
-                    // } else {
-                    //     _this.selectedLayer = null;
-                    // }
-
                     if (_this.selectedLayer === targetNode) {
                         _this.deselectEventEmitter.changed();
                         _this.selectedLayer.classList.remove('active');
@@ -177,11 +162,10 @@ define(['jquery', 'ol',
                         event.stopPropagation();
                         return;
                     }
-                    var data = {
+                    handler(event, {
                         selectevent: true,
                         stopProp: true
-                    };
-                    handler(event, data)
+                    })
                 });
 
                 $layerDiv.on("click", ".layerrow", function (event) {
@@ -191,11 +175,10 @@ define(['jquery', 'ol',
                         event.stopPropagation();
                         return;
                     }
-                    var data = {
+                    handler(event, {
                         selectevent: true,
                         stopProp: true
-                    };
-                    handler(event, data)
+                    })
                 });
 
                 var $layerRow_1 = $("<div class='layerrow layerrow1'>");
@@ -261,10 +244,9 @@ define(['jquery', 'ol',
                 $opacitySlider.on("mousedown", function (event) {
                     console.log($layerDiv[0].id + ' .opacity mousedown');
                     mouseDownFired = true;
-                    var data = {
+                    handler(event, {
                         stopProp: true
-                    };
-                    handler(event, data)
+                    })
                 });
                 $opacitySlider.on("mouseup", function (event) {
                     console.log($layerDiv[0].id + ' .opacity mouseup');
@@ -273,10 +255,9 @@ define(['jquery', 'ol',
                         event.stopPropagation();
                         return;
                     }
-                    var data = {
+                    handler(event, {
                         stopProp: true
-                    };
-                    handler(event, data)
+                    })
                 });
 
                 $layerDiv.append($layerRow_1);
@@ -319,10 +300,9 @@ define(['jquery', 'ol',
                     $layerDiv.append($layerRow_2);
 
                     $hoverVisible.click(function (event) {
-                        var data = {
+                        handler(event, {
                             stopProp: true
-                        };
-                        handler(event, data)
+                        })
                     });
                     $hoverSelect.selectmenu({
                         classes: {
@@ -333,13 +313,11 @@ define(['jquery', 'ol',
                         }
                     }).selectmenu('menuWidget').addClass("overflow");
                     $resetButton.click(function (event) {
-
                         _this.styleDefault(layer, 'type');
                         layer.set('geomstyle', 'type');
-                        var data = {
+                        handler(event, {
                             stopProp: true
-                        };
-                        handler(event, data)
+                        })
                     });
                     $colorButton.click(function (event) {
                         var attribute = $colorSelect.val();
@@ -350,10 +328,9 @@ define(['jquery', 'ol',
                         } else {
                             _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
                         }
-                        var data = {
+                        handler(event, {
                             stopProp: true
-                        };
-                        handler(event, data)
+                        })
                     });
                     $colorSelect.selectmenu({
                         classes: {
@@ -436,31 +413,29 @@ define(['jquery', 'ol',
                                 $colorSelect.val(opt);
                                 layer.set('geomstyle', opt);
 
-                                if (refresh) {
-                                    $hoverSelect.selectmenu({
-                                        classes: {
-                                            "ui-selectmenu-button": "menuselect"
-                                        },
-                                        change: function () {
-                                            layer.set('textstyle', this.value);
+                                $hoverSelect.selectmenu({
+                                    classes: {
+                                        "ui-selectmenu-button": "menuselect"
+                                    },
+                                    change: function () {
+                                        layer.set('textstyle', this.value);
+                                    }
+                                }).selectmenu('menuWidget').addClass("overflow");
+                                $colorSelect.selectmenu({
+                                    classes: {
+                                        "ui-selectmenu-button": "menuselect"
+                                    },
+                                    change: function () {
+                                        if (layer.get('headers')[this.value] === 'string') {
+                                            _this.styleCategorized(layer, this.value);
+                                        } else if (layer.get('headers')[this.value] === 'number') {
+                                            _this.styleGraduated(layer, this.value);
+                                        } else {
+                                            _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
                                         }
-                                    }).selectmenu('menuWidget').addClass("overflow");
-                                    $colorSelect.selectmenu({
-                                        classes: {
-                                            "ui-selectmenu-button": "menuselect"
-                                        },
-                                        change: function () {
-                                            if (layer.get('headers')[this.value] === 'string') {
-                                                _this.styleCategorized(layer, this.value);
-                                            } else if (layer.get('headers')[this.value] === 'number') {
-                                                _this.styleGraduated(layer, this.value);
-                                            } else {
-                                                _this.messages.textContent = 'A string or numeric column is required for attribute coloring.';
-                                            }
-                                            layer.set('geomstyle', this.value);
-                                        }
-                                    }).selectmenu('menuWidget').addClass("overflow");
-                                }
+                                        layer.set('geomstyle', this.value);
+                                    }
+                                }).selectmenu('menuWidget').addClass("overflow");
                             }
                         }
                     }, this);
