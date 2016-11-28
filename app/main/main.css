@@ -394,7 +394,7 @@ body {
 .colorcontrol {
     width: calc(50% + 2.875em/2);
 }
-.defaultbutton {
+.resetbutton {
     width: 3.875em;
     padding: 0.375em;
 }

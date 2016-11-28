@@ -304,7 +304,7 @@ define(['jquery', 'ol',
 
                     var $colorControl = $("<div class='controlgroup colorcontrol'>");
 
-                    var $resetButton = $("<button class='mybutton defaultbutton'>Reset</button>");
+                    var $resetButton = $("<button class='mybutton resetbutton'>Reset</button>");
                     var $colorButton = $("<button class='mybutton colorbutton colorwheel-icon'></button>");
                     var $colorSelectLabel = $("<label for='"+lid+"-colorselect'>");
                     var $colorSelect = $("<select id='"+lid+"-colorselect' class='colorselect'>");
