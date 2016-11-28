@@ -1044,7 +1044,6 @@ define(['jquery', 'ol',
                 $(this).parent().find(".displayname").val("");
             }
         });
-
         return $dialog
     };
     layerTree.prototype.createNewVectorDialog = function ($fieldset) {
@@ -1128,7 +1127,7 @@ define(['jquery', 'ol',
     };
     layerTree.prototype.createTiledNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-tiled">Tiled</label>'));
-        var $tiled = $('<input type="checkbox" id="open-tiled" name="tiled" class="tiled" checked>');
+        var $tiled = $('<input type="checkbox" id="open-tiled" name="tiled" class="tiled">');
         $fieldset.append($tiled);
         $tiled.checkboxradio();
     };
