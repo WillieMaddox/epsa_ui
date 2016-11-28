@@ -635,7 +635,6 @@ define(['jquery', 'ol',
         serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         $form.find(".url").val(serverUrl);
         serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-        // var proxyUrl = "https://www.osmfire.com/cgi-bin/proxy.py?";
         var query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
         var url = settings.proxyUrl + serverUrl + query;
 
@@ -927,9 +926,64 @@ define(['jquery', 'ol',
         this.messages.textContent = 'New vector layer created successfully.';
         return this;
     };
+    // layerTree.prototype.getDefaultSensors = function () {
+    //     var _this = this;
+    //     var $form = $button.form();
+    //     $button.button("disable");
+    //     $form.find(".layername").empty();
+    //     $form.find(".format").empty();
+    //     var serverUrl = $form.find(".url").val();
+    //     serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
+    //     $form.find(".url").val(serverUrl);
+    //     serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
+    //     var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
+    //     var url = settings.proxyUrl + serverUrl + query;
+    //     console.log(url);
+
+        // var defsens = null;
+        // $.getJSON('data/default_sensors.json', function (data) {
+        //     defsens = data;
+        // });
+        // return defsens;
+
+        // $.ajax({
+        //     type: 'GET',
+        //     url: url
+        // }).done(function (response) {
+        //     var parser = new ol.format.WMSCapabilities();
+        //     var capabilities = parser.read(response);
+        //     var currentProj = _this.map.getView().getProjection().getCode();
+        //     var crs, i;
+        //     var messageText = 'Layers read successfully.';
+        //     if (capabilities.version === '1.3.0') {
+        //         crs = capabilities.Capability.Layer.CRS;
+        //     } else {
+        //         crs = [currentProj];
+        //         messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
+        //     }
+        //     var layers = capabilities.Capability.Layer.Layer;
+        //     if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
+        //         var nLayers = layers.length;
+        //         for (i = 0; i < nLayers; i += 1) {
+        //             $form.find(".layername").append(_this.createMenuOption(layers[i].Name));
+        //         }
+        //         var formats = capabilities.Capability.Request.GetMap.Format;
+        //         var nFormats = formats.length;
+        //         for (i = 0; i < nFormats; i += 1) {
+        //             $form.find(".format").append(_this.createMenuOption(formats[i]));
+        //         }
+        //         _this.messages.textContent = messageText;
+        //     }
+        // }).fail(function (error) {
+        //     _this.messages.textContent = 'Some unexpected error occurred in checkWmsLayer: (' + error.message + ').';
+        // }).always(function () {
+        //     $form.find(".layername").selectmenu("refresh");
+        //     $form.find(".format").selectmenu("refresh");
+        //     $button.button("enable");
+        // });
+    // };
 
     layerTree.prototype.openDialog = function (elemName) {
-        "use strict";
         var $dialog;
         var $fieldset = $('<fieldset>');
         switch (elemName) {
@@ -966,7 +1020,13 @@ define(['jquery', 'ol',
         this.createServerUrlNodes($fieldset, 'wfs');
         this.createLayerNameNodes($fieldset);
         this.createTiledNodes($fieldset);
-        return this.createDialog($fieldset, 'addwfs', "Add WFS layer");
+        var $dialog = this.createDialog($fieldset, 'addwfs', "Add WFS layer");
+        $('.layername').selectmenu({
+            change: function () {
+                $(this).parent().find(".displayname").val($(this).val());
+            }
+        });
+        return $dialog
     };
     layerTree.prototype.createAddVectorDialog = function ($fieldset) {
         this.createDisplayNameNodes($fieldset);
@@ -995,7 +1055,7 @@ define(['jquery', 'ol',
 
     layerTree.prototype.createDisplayNameNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-displayname">Display Name</label>'));
-        $fieldset.append($('<input id="open-displayname" type="text" name="displayname" class="displayname">'));
+        $fieldset.append($('<input type="text" id="open-displayname" name="displayname" class="displayname">'));
     };
     layerTree.prototype.createGeomTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
@@ -1013,7 +1073,18 @@ define(['jquery', 'ol',
         $fieldset.append($url);
         var $check = $('<input type="button" name="check" value="Check for layers">');
         $fieldset.append($check);
-
+        $url.on("change", function () {
+            // for both addwms and addwfs.
+            var $layername = $(this).parent().find(".layername");
+            $layername.empty();
+            $layername.selectmenu("refresh");
+            $(this).parent().find(".displayname").val("");
+            if (id == 'wms') {
+                var $format = $(this).parent().find(".format");
+                $format.empty();
+                $format.selectmenu("refresh");
+            }
+        });
         $check.button().on("click", function () {
             if (id == 'wms') {
                 _this.checkWmsLayer($(this));
@@ -1021,31 +1092,10 @@ define(['jquery', 'ol',
                 _this.checkWfsLayer($(this));
             }
         });
-
-        $url.on("change", function () {
-            // for both addwms and addwfs.
-            var $layername = $(this).parent().find(".layername");
-            $layername.empty();
-            $layername.selectmenu("refresh");
-            if (id == 'wms') {
-                var $format = $(this).parent().find(".format");
-                $format.empty();
-                $format.selectmenu("refresh");
-            }
-        });
     };
     layerTree.prototype.createLayerNameNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-layername">Layer Name</label>'));
-        var $layername = $('<select id="open-layername" name="layername" class="layername ui-selectmenu">');
-        $fieldset.append($layername);
-        $layername.on("change", function () {
-            var name = $(this).val();
-            $(this).parent().find(".displayname").val(name);
-        });
-    };
-    layerTree.prototype.createFormatNodes = function ($fieldset) {
-        $fieldset.append($('<label for="open-format">Format</label>'));
-        $fieldset.append($('<select id="open-format" name="format" class="format ui-selectmenu">'));
+        $fieldset.append($('<select id="open-layername" name="layername" class="layername ui-selectmenu">'));
     };
     layerTree.prototype.createFileTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-filetype">File Type</label>'));
@@ -1059,9 +1109,9 @@ define(['jquery', 'ol',
     };
     layerTree.prototype.createFileOpenNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-file">Vector file</label>'));
-        var $file = $('<input type="file" name="file" id="open-file" class="file ui-widget-content ui-button" accept=".geojson" required>');
+        var $file = $('<input type="file" id="open-file" name="file" class="file ui-widget-content ui-button" accept=".geojson" required>');
         $fieldset.append($file);
-        $file.on("change", function (event) {
+        $file.on("change", function () {
             var startPos = this.value.lastIndexOf("\\") + 1;
             var stopPos = this.value.lastIndexOf(".");
             var name = this.value.slice(startPos, stopPos);
@@ -1071,6 +1121,10 @@ define(['jquery', 'ol',
     layerTree.prototype.createProjectionNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-projection">Projection</label>'));
         $fieldset.append($('<input type="text" id="open-projection" name="projection" class="projection">'));
+    };
+    layerTree.prototype.createFormatNodes = function ($fieldset) {
+        $fieldset.append($('<label for="open-format">Format</label>'));
+        $fieldset.append($('<select id="open-format" name="format" class="format ui-selectmenu">'));
     };
     layerTree.prototype.createTiledNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-tiled">Tiled</label>'));
