@@ -432,6 +432,7 @@ define(['jquery', 'ol',
                                         layer.set('geomstyle', this.value);
                                     }
                                 }).selectmenu('menuWidget').addClass("overflow");
+                                $('.controlgroup').controlgroup('refresh')
                             }
                         }
                     }, this);
