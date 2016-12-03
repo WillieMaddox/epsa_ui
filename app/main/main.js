@@ -28,21 +28,28 @@ define(['jquery', 'ol',
     };
 
     ol.layer.Image.prototype.buildHeaders = function () {
-        var oldHeaders = this.get('headers') || {};
-        var headers = {};
         var features = this.getSource().getSource().getFeatures();
         var len = features.length;
+        if (len === 0) {
+            return this;
+        }
+        var hasNew = false;
+        var oldHeaders = this.get('headers') || {};
+        var headers = {};
         for (var i = 0; i < len; i += 1) {
             var attributes = features[i].getProperties();
             for (var j in attributes) {
                 if (typeof attributes[j] !== 'object' && !(j in oldHeaders)) {
                     headers[j] = typeof attributes[j];
+                    hasNew = true;
                 } else if (j in oldHeaders) {
                     headers[j] = oldHeaders[j];
                 }
             }
         }
-        this.set('headers', headers);
+        if (hasNew) {
+            this.set('headers', headers);
+        }
         return this;
     };
 
