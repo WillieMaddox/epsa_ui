@@ -2,7 +2,11 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol', 'featureid', 'ispolyvalid'], function ($, ol, FID, isPolyValid) {
+define(['jquery', 'ol',
+        'featureid',
+        'ispolyvalid',
+        'sstylefunction'], function ($, ol, FID, isPolyValid, sensorStyleFunction) {
+
     'use strict';
     ol.control.Interaction = function (opt_options) {
         var options = opt_options || {};
@@ -219,7 +223,20 @@ define(['jquery', 'ol', 'featureid', 'ispolyvalid'], function ($, ol, FID, isPol
             feature_type: 'camera',
             geometry_type: 'Point',
             className: 'ol-addcamera ol-unselectable ol-control',
-            interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'camera')
+            interaction: this.handleEvents(new ol.interaction.Draw({
+                type: 'Point',
+                style: new ol.style.Style({
+                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                        anchor: [0.5, 0.5],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'fraction',
+                        // size: [20, 20],
+                        color: [255, 0, 0],
+                        scale: 0.05,
+                        src: 'img/camera-normal.png'
+                    }))
+                })
+            }), 'camera')
         }).setDisabled(true);
         this.drawControls.push(drawCamera);
 

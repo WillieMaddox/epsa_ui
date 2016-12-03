@@ -877,14 +877,17 @@ define(['jquery', 'ol',
         var geomTypes = [];
         var sourceTypes = {};
         var layerName;
+        var styleFunction;
         if (layerType === 'feature') {
             geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
             sourceTypes = Object.keys(tobjectTemplates);
             layerName = geomType;
+            styleFunction = tobjectStyleFunction;
         } else if (layerType === 'sensor') {
             geomTypes = ['point'];
             sourceTypes = Object.keys(sensorTemplates);
             layerName = layerType;
+            styleFunction = sensorStyleFunction;
         }
         if (sourceTypes.indexOf(geomType) === -1 && geomTypes.indexOf(geomType) === -1) {
             this.messages.textContent = 'Unrecognized layer type.';
@@ -896,7 +899,8 @@ define(['jquery', 'ol',
         source.set('pendingRequests', 0);
         var layer = new ol.layer.Image({
             source: new ol.source.ImageVector({
-                source: source
+                source: source,
+                style: styleFunction
             }),
             name: $form.find(".displayname").val() || layerName + ' Layer',
             type: layerType,
@@ -906,7 +910,6 @@ define(['jquery', 'ol',
         this.addBufferIcon(layer);
         this.map.addLayer(layer);
         layer.getSource().getSource().changed();
-        // layer.setStyle(tobjectStyleFunction);
         this.messages.textContent = 'New vector layer created successfully.';
         return this;
     };
@@ -1242,9 +1245,11 @@ define(['jquery', 'ol',
             }
         };
         if (geomTypesDefault.indexOf(layer.get('geomtype')) >= 0) {
+            geomTypes.push(layer.get('geomtype'));
             geomTypeIsVerified = true;
         }
         if (Object.keys(layerTypesDefault).indexOf(layer.get('type')) >= 0) {
+            layerTypes.push(layer.get('type'));
             layerTypeIsVerified = true;
         }
 

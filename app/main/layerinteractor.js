@@ -175,7 +175,6 @@ define(['jquery', 'ol',
         var featureAndLayer = this.map.forEachFeatureAtPixel(pixel, function (feat, layer) {
             var geom = feat.getGeometry();
             if (geom.getType().endsWith('Point')) {
-                //Need to add functionality for sensors here.
                 return {feature: feat, layer: layer};
             }
             if (geom.getType().endsWith('LineString')) {
@@ -303,8 +302,25 @@ define(['jquery', 'ol',
     layerInteractor.prototype.addInteractions = function () {
         var _this = this;
         var toolbar = this.toolbar;
+
+        var featureSelectStyle = function (feature) {
+            if (feature.get('type') === 'camera') {
+                return [new ol.style.Style({
+                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                        anchor: [0.5, 0.5],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'fraction',
+                        color: [0, 153, 255, 1],
+                        scale: 0.05,
+                        src: './img/camera-normal.png'
+                    }))
+                })]
+            }
+        };
+
         this.select = new ol.interaction.Select({
             layers: [this.featureOverlay],
+            style: featureSelectStyle,
             toggleCondition: ol.events.condition.never,
             condition: function (evt) {
                 if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
@@ -319,7 +335,7 @@ define(['jquery', 'ol',
         });
         this.select.on('select', function (evt) {
             var feature;
-            // Handle deselect first so we can move the feature back to the active layer.
+            // Handle the deselect first so we can move the feature back to the selected layer.
             if (evt.deselected.length === 1) {
                 feature = evt.deselected[0];
                 _this.modify.setActive(false);

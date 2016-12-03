@@ -726,7 +726,7 @@ define(['jquery', 'ol',
         $('#cameraproperties').show();
 
         var cameraTemplates = sensorTemplates['camera'].defaultSensors;
-
+        var sensor_properties = sensorTemplates['camera'].properties;
         var i, key;
         var units = ['metric', 'english'];
 
@@ -745,17 +745,41 @@ define(['jquery', 'ol',
         var $panSpinner = $('#pan-spinner');
         var $tiltSpinner = $('#tilt-spinner');
 
-        var camera_type = feature.get('defaultsensor');
-        var camera_option = feature.get('option');
-
-        var feature_properties = cameraTemplates[camera_type];
-
-        var sourceHeight = feature.get('source_height').value;
-        var targetHeight = feature.get('target_height').value;
-        var rangeMin = feature.get('min_range').value;
-        var rangeMax = feature.get('max_range').value;
-        var pan = feature.get('pan').value;
-        var tilt = feature.get('tilt').value;
+        var camera_type = feature.get('defaultsensor') || sensor_properties['defaultsensor'];
+        var camera_option = feature.get('option') || sensor_properties['option'];
+        var isotropic = feature.get("isotropic") || sensor_properties['isotropic'];
+        var source_height, target_height, min_range, max_range, pan, tilt;
+        if (feature.get('source_height')) {
+            source_height = feature.get('source_height').value
+        } else {
+            source_height = sensor_properties['source_height'].value
+        }
+        if (feature.get('target_height')) {
+            target_height = feature.get('target_height').value
+        } else {
+            target_height = sensor_properties['target_height'].value
+        }
+        if (feature.get('min_range')) {
+            min_range = feature.get('min_range').value
+        } else {
+            min_range = sensor_properties['min_range'].value
+        }
+        if (feature.get('max_range')) {
+            max_range = feature.get('max_range').value
+        } else {
+            max_range = sensor_properties['max_range'].value
+        }
+        if (feature.get('pan')) {
+            pan = feature.get('pan').value
+        } else {
+            pan = sensor_properties['pan'].value
+        }
+        if (feature.get('tilt')) {
+            tilt = feature.get('tilt').value
+        } else {
+            tilt = sensor_properties['tilt'].value
+        }
+        var camera_properties = cameraTemplates[camera_type];
 
         $('#feature-name-label').removeClass('disabled');
         $featureName.removeClass('ui-state-disabled');
@@ -777,7 +801,7 @@ define(['jquery', 'ol',
 
         $('#camera-option-label').removeClass('disabled');
         $cameraOption.selectmenu('enable');
-        for (key in feature_properties['options']) {
+        for (key in camera_properties['options']) {
             $cameraOption.append(this.createMenuOption(key));
         }
         $('#camera-option-button').find('.ui-selectmenu-text').text(camera_option);
@@ -785,20 +809,20 @@ define(['jquery', 'ol',
 
 
         $sourceHeightSpinner.spinner('enable');
-        $sourceHeightSpinner.spinner("value", sourceHeight);
+        $sourceHeightSpinner.spinner("value", source_height);
         $('#source-height-label').removeClass('disabled');
         $('#source-height-slider').slider('enable');
 
         $targetHeightSpinner.spinner('enable');
-        $targetHeightSpinner.spinner("value", targetHeight);
+        $targetHeightSpinner.spinner("value", target_height);
         $('#target-height-label').removeClass('disabled');
         $('#target-height-slider').slider('enable');
 
         $rangeSpinnerMin.spinner('enable');
-        $rangeSpinnerMin.spinner("value", rangeMin);
+        $rangeSpinnerMin.spinner("value", min_range);
 
         $rangeSpinnerMax.spinner('enable');
-        $rangeSpinnerMax.spinner("value", rangeMax);
+        $rangeSpinnerMax.spinner("value", max_range);
 
         $('#range-label').removeClass('disabled');
         $rangeSlider.slider('enable');
@@ -853,7 +877,7 @@ define(['jquery', 'ol',
 
         $('#isotropic-label').removeClass('disabled');
         $isotropic.checkboxradio("enable");
-        $isotropic.attr("checked", feature.get("isotropic")).trigger("change");
+        $isotropic.attr("checked", isotropic).trigger("change");
         // $isotropic.checkboxradio("refresh");
 
     };

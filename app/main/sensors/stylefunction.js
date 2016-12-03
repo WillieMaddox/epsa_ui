@@ -10,35 +10,13 @@ define(["jquery", "stemplate"], function ($, sensorTemplates) {
             "camera": './img/camera-normal.png',
             "radio": './img/radio-normal.png'
         };
-
-        // var iconFeature = new ol.Feature({
-        //     geometry: new ol.geom.Point([0, 0]),
-        //     name: 'Camera',
-        //     maxRange: 4000,
-        //     minRange: 500,
-        //     sourceHeight: 3,
-        //     targetHeight: 3
-        // });
-        // var iconStyle = new ol.style.Style({
-        //     image: new ol.style.Icon({
-        //         anchor: [0.5, 46],
-        //         anchorXUnits: 'fraction',
-        //         anchorYUnits: 'pixels',
-        //         src: 'resources/camera-normal.png'
-        //     })
-        // });
-        // iconFeature.setStyle(iconStyle);
-        // var vectorSource = new ol.source.Vector({
-        //     features: [iconFeature]
-        // });
-
         var setStyle = function (icon_src) {
             var style = new ol.style.Style({
                 image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                    // size: [20, 20],
                     anchor: [0.5, 0.5],
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'fraction',
-                    // size: [20, 20],
                     color: [255, 0, 0],
                     scale: 0.05,
                     src: icon_src
