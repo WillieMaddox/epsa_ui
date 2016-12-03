@@ -241,22 +241,26 @@ define(['jquery', 'ol', 'featureid', 'ispolyvalid'], function ($, ol, FID, isPol
 
                 // layertree.identifyLayer(layer);
                 var layerGeomType = layer.get('geomtype');
+                var layerType = layer.get('type');
 
-                if (layerGeomType === 'geomcollection' || layerGeomType === 'point') {
-                    drawPoint.setDisabled(false);
+                if (layerType === 'sensor') {
                     drawCamera.setDisabled(false);
-                }
-                if (layerGeomType === 'geomcollection' || layerGeomType === 'line') {
-                    drawLineString.setDisabled(false);
-                    drawWall.setDisabled(false);
-                    drawRoad.setDisabled(false);
-                }
-                if (layerGeomType === 'geomcollection' || layerGeomType === 'polygon') {
-                    drawPolygon.setDisabled(false);
-                    drawAOR.setDisabled(false);
-                    drawWater.setDisabled(false);
-                    drawHerbage.setDisabled(false);
-                    drawBuilding.setDisabled(false);
+                } else if (layerType === 'feature') {
+                    if (layerGeomType === 'geomcollection' || layerGeomType === 'point') {
+                        drawPoint.setDisabled(false);
+                    }
+                    if (layerGeomType === 'geomcollection' || layerGeomType === 'line') {
+                        drawLineString.setDisabled(false);
+                        drawWall.setDisabled(false);
+                        drawRoad.setDisabled(false);
+                    }
+                    if (layerGeomType === 'geomcollection' || layerGeomType === 'polygon') {
+                        drawPolygon.setDisabled(false);
+                        drawAOR.setDisabled(false);
+                        drawWater.setDisabled(false);
+                        drawHerbage.setDisabled(false);
+                        drawBuilding.setDisabled(false);
+                    }
                 }
                 // var _this = this;
                 // setTimeout(function () {

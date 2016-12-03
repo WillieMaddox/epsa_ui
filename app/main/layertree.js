@@ -873,8 +873,19 @@ define(['jquery', 'ol',
     };
     layerTree.prototype.newVectorLayer = function ($form) {
         var geomType = $form.find(".geomtype").val();
-        var geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
-        var sourceTypes = Object.keys(tobjectTemplates);
+        var layerType = $form.find(".layertype").val();
+        var geomTypes = [];
+        var sourceTypes = {};
+        var layerName;
+        if (layerType === 'feature') {
+            geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
+            sourceTypes = Object.keys(tobjectTemplates);
+            layerName = geomType;
+        } else if (layerType === 'sensor') {
+            geomTypes = ['point'];
+            sourceTypes = Object.keys(sensorTemplates);
+            layerName = layerType;
+        }
         if (sourceTypes.indexOf(geomType) === -1 && geomTypes.indexOf(geomType) === -1) {
             this.messages.textContent = 'Unrecognized layer type.';
             return false;
@@ -887,7 +898,8 @@ define(['jquery', 'ol',
             source: new ol.source.ImageVector({
                 source: source
             }),
-            name: $form.find(".displayname").val() || geomType + ' Layer',
+            name: $form.find(".displayname").val() || layerName + ' Layer',
+            type: layerType,
             geomtype: geomType,
             opacity: 0.6
         });
@@ -1021,13 +1033,34 @@ define(['jquery', 'ol',
     };
     layerTree.prototype.createNewVectorDialog = function ($fieldset) {
         this.createDisplayNameNodes($fieldset);
+        this.createLayerTypeNodes($fieldset);
         this.createGeomTypeNodes($fieldset);
-        return this.createDialog($fieldset, 'newvector', "Create New Vector Layer");
+        var $dialog = this.createDialog($fieldset, 'newvector', "Create New Vector Layer");
+        $('.layertype').selectmenu({
+            change: function () {
+                var $geomType = $(this).parent().find(".geomtype");
+                if ($(this).val() === 'sensor') {
+                    $geomType.val('point');
+                    $geomType.selectmenu('refresh');
+                    $geomType.selectmenu('disable');
+                } else if ($(this).val() === 'feature') {
+                    $geomType.selectmenu('enable');
+                }
+            }
+        });
+        return $dialog
     };
 
     layerTree.prototype.createDisplayNameNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-displayname">Display Name</label>'));
         $fieldset.append($('<input type="text" id="open-displayname" name="displayname" class="displayname">'));
+    };
+    layerTree.prototype.createLayerTypeNodes = function ($fieldset) {
+        $fieldset.append($('<label for="open-layertype">Layer Type</label>'));
+        var $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">');
+        $selectNode.append(this.createMenuOption("feature", "Feature"));
+        $selectNode.append(this.createMenuOption("sensor", "Sensor"));
+        $fieldset.append($selectNode);
     };
     layerTree.prototype.createGeomTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
