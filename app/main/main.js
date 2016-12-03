@@ -18,7 +18,7 @@ define(['jquery', 'ol',
                                 cameraEditor,
                                 bingKey) {
 
-    "use strict";
+    'use strict';
     String.prototype.capitalizeFirstLetter = function (flip) {
         if (flip) {
             return this.charAt(0).toLowerCase() + this.slice(1);

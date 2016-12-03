@@ -300,12 +300,12 @@ define(['jquery', 'ol',
                     });
                     $hoverSelect.selectmenu({
                         classes: {
-                            "ui-selectmenu-button": "menuselect"
+                            'ui-selectmenu-button': 'menuselect'
                         },
                         change: function () {
                             layer.set('textstyle', this.value);
                         }
-                    }).selectmenu('menuWidget').addClass("overflow");
+                    }).selectmenu('menuWidget').addClass('overflow');
                     $resetButton.click(function (event) {
                         _this.styleDefault(layer, 'type');
                         layer.set('geomstyle', 'type');
@@ -328,7 +328,7 @@ define(['jquery', 'ol',
                     });
                     $colorSelect.selectmenu({
                         classes: {
-                            "ui-selectmenu-button": "menuselect"
+                            'ui-selectmenu-button': 'menuselect'
                         },
                         change: function () {
                             if (layer.get('headers')[this.value] === 'string') {
@@ -340,7 +340,7 @@ define(['jquery', 'ol',
                             }
                             layer.set('geomstyle', this.value);
                         }
-                    }).selectmenu('menuWidget').addClass("overflow");
+                    }).selectmenu('menuWidget').addClass('overflow');
 
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
@@ -366,8 +366,8 @@ define(['jquery', 'ol',
                                 var $colorSelect = $(id + '-colorselect');
                                 var $hoverAttribute = $hoverSelect.val();
                                 var $colorAttribute = $colorSelect.val();
-                                $hoverSelect.selectmenu("destroy");
-                                $colorSelect.selectmenu("destroy");
+                                $hoverSelect.selectmenu('destroy');
+                                $colorSelect.selectmenu('destroy');
                                 $hoverSelect.empty();
                                 $colorSelect.empty();
                                 for (i in headers) {
@@ -411,15 +411,15 @@ define(['jquery', 'ol',
 
                                 $hoverSelect.selectmenu({
                                     classes: {
-                                        "ui-selectmenu-button": "menuselect"
+                                        'ui-selectmenu-button': 'menuselect'
                                     },
                                     change: function () {
                                         layer.set('textstyle', this.value);
                                     }
-                                }).selectmenu('menuWidget').addClass("overflow");
+                                }).selectmenu('menuWidget').addClass('overflow');
                                 $colorSelect.selectmenu({
                                     classes: {
-                                        "ui-selectmenu-button": "menuselect"
+                                        'ui-selectmenu-button': 'menuselect'
                                     },
                                     change: function () {
                                         if (layer.get('headers')[this.value] === 'string') {
@@ -431,14 +431,14 @@ define(['jquery', 'ol',
                                         }
                                         layer.set('geomstyle', this.value);
                                     }
-                                }).selectmenu('menuWidget').addClass("overflow");
+                                }).selectmenu('menuWidget').addClass('overflow');
                                 $('.controlgroup').controlgroup('refresh')
                             }
                         }
                     }, this);
                 }
-                $(".mybutton").button();
-                $(".checkboxradio").checkboxradio();
+                $('.mybutton').button();
+                $('.checkboxradio').checkboxradio();
                 $('.controlgroup').controlgroup();
 
                 return this;

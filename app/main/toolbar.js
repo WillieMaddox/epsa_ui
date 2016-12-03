@@ -2,7 +2,7 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["jquery", "ol", "featureid", "ispolyvalid"], function ($, ol, FID, isPolyValid) {
+define(['jquery', 'ol', 'featureid', 'ispolyvalid'], function ($, ol, FID, isPolyValid) {
     'use strict';
     ol.control.Interaction = function (opt_options) {
         var options = opt_options || {};

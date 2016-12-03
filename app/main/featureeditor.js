@@ -4,7 +4,7 @@
 
 define(['jquery', 'ol',
     'exists',
-    "featureid",
+    'featureid',
     'ttemplate',
     'ispolyvalid',
     'ispointinpoly',

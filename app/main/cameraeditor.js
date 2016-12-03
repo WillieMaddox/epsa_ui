@@ -4,7 +4,7 @@
 
 define(['jquery', 'ol',
     'exists',
-    "featureid",
+    'featureid',
     'stemplate',
     'jsts',
     'jquery-ui'
@@ -14,8 +14,8 @@ define(['jquery', 'ol',
              sensorTemplates,
              jsts) {
 
+    'use strict';
     var cameraEditor = function (options) {
-        'use strict';
         if (!(this instanceof cameraEditor)) {
             throw new Error('cameraEditor must be constructed with the new keyword.');
         }
