@@ -181,15 +181,13 @@ define(['jquery', 'ol',
                     })
                 });
 
-                var $layerRow_1 = $("<div class='layerrow layerrow1'>");
+                var $layerRow1 = $("<div class='layerrow layerrow1'>");
 
-                var $visibleLabel = $("<label class='visible layervisible'>");
-                $visibleLabel.attr('for', lid + "-layervisible");
-                $layerRow_1.append($visibleLabel);
-                var $visibleInput = $("<input type='checkbox' class='checkboxradio'>");
-                $visibleInput.attr('id', lid + "-layervisible" );
+                var $visibleLabel = $("<label for='"+lid+"-layervisible' class='visible layervisible'>");
+                var $visibleInput = $("<input type='checkbox' id='"+lid+"-layervisible' class='checkboxradio'>");
                 $visibleInput[0].checked = layer.getVisible();
-                $layerRow_1.append($visibleInput);
+                $layerRow1.append($visibleLabel);
+                $layerRow1.append($visibleInput);
                 $visibleInput.change(function () {
                     if (this.checked) {
                         layer.setVisible(true);
@@ -203,7 +201,7 @@ define(['jquery', 'ol',
 
                 var $layerTitle = $("<div class='layertitle'>");
                 $layerTitle[0].textContent = $layerDiv[0].title;
-                $layerRow_1.append($layerTitle);
+                $layerRow1.append($layerTitle);
                 $layerTitle.dblclick(function () {
                     this.contentEditable = true;
                     this.style.textOverflow = 'initial';
@@ -228,8 +226,7 @@ define(['jquery', 'ol',
                 }, handler);
 
                 var $opacitySlider = $("<div class='opacity'>");
-                $layerRow_1.append($opacitySlider);
-
+                $layerRow1.append($opacitySlider);
                 $opacitySlider.slider({
                     animate: true,
                     range: "min",
@@ -260,28 +257,25 @@ define(['jquery', 'ol',
                     })
                 });
 
-                $layerDiv.append($layerRow_1);
+                $layerDiv.append($layerRow1);
 
                 if (layer instanceof ol.layer.Image) {
 
-                    var $layerRow_2 = $("<div class='layerrow layerrow2'>");
+                    var $layerRow2 = $("<div class='layerrow layerrow2'>");
 
                     var $hoverControl = $("<div class='controlgroup hovercontrol'>");
 
-                    var $hoverVisibleLabel = $("<label class='visible hovervisible'>");
-                    var $hoverVisible = $("<input type='checkbox' class='checkboxradio' checked>");
+                    var $hoverVisibleLabel = $("<label for='"+lid+"-hovervisible' class='visible hovervisible'>");
+                    var $hoverVisible = $("<input type='checkbox' id='"+lid+"-hovervisible' class='checkboxradio' checked>");
                     var $hoverSelectLabel = $("<label for='"+lid+"-hoverselect'>");
                     var $hoverSelect = $("<select id='"+lid+"-hoverselect' class='hoverselect'>");
-
-                    $hoverVisibleLabel.attr('for', lid + "-hovervisible");
-                    $hoverVisible.attr('id', lid + "-hovervisible" );
 
                     $hoverControl.append($hoverVisibleLabel);
                     $hoverControl.append($hoverVisible);
                     $hoverControl.append($hoverSelectLabel);
                     $hoverControl.append($hoverSelect);
 
-                    $layerRow_2.append($hoverControl);
+                    $layerRow2.append($hoverControl);
 
                     var $colorControl = $("<div class='controlgroup colorcontrol'>");
 
@@ -295,9 +289,9 @@ define(['jquery', 'ol',
                     $colorControl.append($colorSelectLabel);
                     $colorControl.append($colorSelect);
 
-                    $layerRow_2.append($colorControl);
+                    $layerRow2.append($colorControl);
 
-                    $layerDiv.append($layerRow_2);
+                    $layerDiv.append($layerRow2);
 
                     $hoverVisible.click(function (event) {
                         handler(event, {
@@ -358,6 +352,8 @@ define(['jquery', 'ol',
                             for (i in headers) {
                                 if (!previous || !previous[i]) {
                                     refresh = true;
+                                } else {
+                                    console.log('Warning: This should have been caught in buildHeaders function.')
                                 }
                             }
                             if (refresh) {
@@ -982,6 +978,7 @@ define(['jquery', 'ol',
         });
         $dialog.dialog("open");
     };
+
     layerTree.prototype.createAddWmsDialog = function ($fieldset) {
         this.createDisplayNameNodes($fieldset);
         this.createServerUrlNodes($fieldset, 'wms');
