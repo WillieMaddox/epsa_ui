@@ -28,7 +28,7 @@ define(['jquery', 'ol',
             this.textStyleKey = 'name';
             this.geomStyleKey = 'type';
             this.featureOverlay = this.createFeatureOverlay();
-            this.map.addLayer(this.featureOverlay);
+            // this.map.addLayer(this.featureOverlay);
             this.hoverDisplay = function (evt) {
                 if (evt.dragging) {
                     return;
@@ -160,7 +160,7 @@ define(['jquery', 'ol',
             source: new ol.source.Vector(),
             // Should probably attach the map to the overlay here so that the map doesn't manage the overlay.
             // Need to test this.
-            // map: _this.map,
+            map: _this.map,
             type: 'overlay',
             style: overlayStyleFunction,
             zIndex: 9900
@@ -229,6 +229,8 @@ define(['jquery', 'ol',
         if (style) {
             var image = style.getImage();
             if (exists(image)) {
+                image.setOpacity(1);
+                image.setScale(0.3);
                 if (image.getImage().tagName === 'IMG') {
                     image.setOpacity(0.5);
                 }
@@ -268,7 +270,7 @@ define(['jquery', 'ol',
             fill = style.getFill();
             if (exists(fill)) {
                 color = fill.getColor();
-                color[3] = 0.1;
+                color[3] = 0.4;
                 fill.setColor(color);
             }
             stroke = style.getStroke();
@@ -303,18 +305,24 @@ define(['jquery', 'ol',
         var _this = this;
         var toolbar = this.toolbar;
 
-        var featureSelectStyle = function (feature) {
+        var featureSelectStyle = function (feature, resolution) {
             if (feature.get('type') === 'camera') {
                 return [new ol.style.Style({
                     image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
                         anchor: [0.5, 0.5],
                         anchorXUnits: 'fraction',
                         anchorYUnits: 'fraction',
-                        color: [0, 153, 255, 1],
+                        color: [0, 153, 255],
+                        opacity: 0.5,
                         scale: 0.05,
+                        snapToPixel: false,
                         src: './img/camera-normal.png'
                     }))
                 })]
+            } else {
+                return _this.featureOverlay.getStyleFunction()(feature);
+                // return _this.highlightGeomStyleCache[setFeatureStyle(ol.style.Style.defaultFunction(feature, resolution)[0].clone());
+                // return _this.highlightGeomStyleCache[feature.get(_this.geomStyleKey)]
             }
         };
 

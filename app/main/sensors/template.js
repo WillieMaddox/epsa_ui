@@ -36,12 +36,13 @@ define(["jquery", "defaultsensors"], function ($, defaultSensors) {
         type: 'camera',
         defaultsensor: 'TC1',
         option: 'A1',
-        fovtype: 'wide'
+        fov: 'wide'
     };
     var radioProperties = {
         type: 'radio',
         defaultsensor: 'TR1',
-        option: 'A1'
+        option: 'A1',
+        pattern: 'pattern'
     };
 
     var sensorTemplates = {

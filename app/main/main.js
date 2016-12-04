@@ -49,6 +49,7 @@ define(['jquery', 'ol',
         }
         if (hasNew) {
             this.set('headers', headers);
+            console.log("addBufferIcon headers built");
         }
         return this;
     };

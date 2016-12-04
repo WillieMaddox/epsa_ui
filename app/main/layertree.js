@@ -796,11 +796,10 @@ define(['jquery', 'ol',
                 //         }));
                 //     });
             } else {
-                var features = sourceFormat.readFeatures(vectorData, {
+                source.addFeatures(sourceFormat.readFeatures(vectorData, {
                     dataProjection: dataProjection,
                     featureProjection: currentProj
-                });
-                source.addFeatures(features);
+                }));
             }
             // // Convert MultiPolygon to Polygons if there is only one exterior ring.
             // // Convert MultiLineString to LineString if there is only one linestring.
@@ -822,7 +821,7 @@ define(['jquery', 'ol',
         function loadEnd(evt) {
             // $('#' + layer.get('id') + ' .layertitle').unwrap();
             // layer.buildHeaders();
-            // console.log('headers built');
+            console.log('addVectorLayer loadEnd');
             // _this.identifyLayer(layer);
             // _this.styleDefault(layer);
         }
@@ -1317,7 +1316,39 @@ define(['jquery', 'ol',
                     property < min + step * 3 ? colors[2] :
                         property < min + step * 4 ? colors[3] : colors[4];
             var style;
-            if (feature.getGeometry().getType().endsWith('LineString') || feature.get('type') === 'aor') {
+            if (feature.getGeometry().getType().endsWith('Point')) {
+                if (feature.get('type') === 'camera' || feature.get('type') === 'radio') {
+                    style = [
+                        new ol.style.Style({
+                            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                                anchor: [0.5, 0.5],
+                                anchorXUnits: 'fraction',
+                                anchorYUnits: 'fraction',
+                                color: color,
+                                opacity: 1,
+                                scale: 0.05,
+                                snapToPixel: false,
+                                src: './img/camera-normal.png'
+                            }))
+                        })
+                    ]
+                } else {
+                    style = [
+                        new ol.style.Style({
+                            image: new ol.style.Circle({
+                                radius: 5,
+                                stroke: new ol.style.Stroke({
+                                    color: [0, 0, 0, 1],
+                                    width: 2
+                                }),
+                                fill: new ol.style.Fill({
+                                    color: color.concat(0.5)
+                                })
+                            })
+                        })
+                    ]
+                }
+            } else if (feature.getGeometry().getType().endsWith('LineString') || feature.get('type') === 'aor') {
                 style = [
                     new ol.style.Style({
                         stroke: new ol.style.Stroke({
@@ -1373,7 +1404,11 @@ define(['jquery', 'ol',
             var r = parseInt(hex.substring(0,2), 16);
             var g = parseInt(hex.substring(2,4), 16);
             var b = parseInt(hex.substring(4,6), 16);
-            return [r, g, b, opacity];
+            if (opacity) {
+                return [r, g, b, opacity];
+            } else {
+                return [r, g, b];
+            }
         }
         layer.getSource().getSource().forEachFeature(function (feature) {
             var property = feature.get(attribute) ? feature.get(attribute).toString() : '';
@@ -1392,16 +1427,16 @@ define(['jquery', 'ol',
                 if (feature.get('type') === 'camera' || feature.get('type') === 'radio') {
                     style = [
                         new ol.style.Style({
-                            image: new ol.style.Circle({
-                                radius: 5,
-                                stroke: new ol.style.Stroke({
-                                    color: convertHex(colorArray[index], 1),
-                                    width: 2
-                                }),
-                                fill: new ol.style.Fill({
-                                    color: convertHex(colorArray[index], 0.5)
-                                })
-                            })
+                            image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                                anchor: [0.5, 0.5],
+                                anchorXUnits: 'fraction',
+                                anchorYUnits: 'fraction',
+                                color: convertHex(colorArray[index]),
+                                opacity: 0.8,
+                                scale: 0.05,
+                                snapToPixel: false,
+                                src: './img/camera-normal.png'
+                            }))
                         })
                     ]
                 } else {

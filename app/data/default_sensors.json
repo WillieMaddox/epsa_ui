@@ -8,40 +8,36 @@
         "value": 10
       },
       "options": {
-        "A1-wide": {
+        "A1": {
           "fov": {
-            "horizontal": 90,
-            "vertical": 60
+            "wide": {
+              "horizontal": 120,
+              "vertical": 90
+            },
+            "medium": {
+              "horizontal": 90,
+              "vertical": 60
+            },
+            "narrow": {
+              "horizontal": 45,
+              "vertical": 30
+            }
           }
         },
-        "A1-medium": {
+        "B1": {
           "fov": {
-            "horizontal": 60,
-            "vertical": 45
-          }
-        },
-        "A1-narrow": {
-          "fov": {
-            "horizontal": 45,
-            "vertical": 30
-          }
-        },
-        "B1-wide": {
-          "fov": {
-            "horizontal": 120,
-            "vertical": 90
-          }
-        },
-        "B1-medium": {
-          "fov": {
-            "horizontal": 90,
-            "vertical": 60
-          }
-        },
-        "B1-narrow": {
-          "fov": {
-            "horizontal": 60,
-            "vertical": 45
+            "wide": {
+              "horizontal": 50,
+              "vertical": 25
+            },
+            "medium": {
+              "horizontal": 40,
+              "vertical": 20
+            },
+            "narrow": {
+              "horizontal": 30,
+              "vertical": 15
+            }
           }
         }
       }
@@ -54,40 +50,36 @@
         "value": 10
       },
       "options": {
-        "A2-wide": {
+        "A2": {
           "fov": {
-            "horizontal": 90,
-            "vertical": 180
+            "wide": {
+              "horizontal": 90,
+              "vertical": 180
+            },
+            "medium": {
+              "horizontal": 60,
+              "vertical": 180
+            },
+            "narrow": {
+              "horizontal": 45,
+              "vertical": 180
+            }
           }
         },
-        "A2-medium": {
+        "B2": {
           "fov": {
-            "horizontal": 60,
-            "vertical": 180
-          }
-        },
-        "A2-narrow": {
-          "fov": {
-            "horizontal": 45,
-            "vertical": 180
-          }
-        },
-        "B2-wide": {
-          "fov": {
-            "horizontal": 120,
-            "vertical": 180
-          }
-        },
-        "B2-medium": {
-          "fov": {
-            "horizontal": 90,
-            "vertical": 180
-          }
-        },
-        "B2-narrow": {
-          "fov": {
-            "horizontal": 60,
-            "vertical": 180
+            "wide": {
+              "horizontal": 120,
+              "vertical": 180
+            },
+            "medium": {
+              "horizontal": 90,
+              "vertical": 180
+            },
+            "narrow": {
+              "horizontal": 60,
+              "vertical": 180
+            }
           }
         }
       }

@@ -13,7 +13,8 @@
         "type": "camera",
         "name": "TC1-0",
         "defaultsensor": "TC1",
-        "option": "A1-wide",
+        "option": "A1",
+        "fov": "wide",
         "source_height": {
           "units": "meter",
           "value": 2.0
@@ -57,7 +58,8 @@
         "type": "camera",
         "name": "TC1-1",
         "defaultsensor": "TC1",
-        "option": "A1-medium",
+        "option": "A1",
+        "fov": "medium",
         "source_height": {
           "units": "meter",
           "value": 2.0
@@ -101,7 +103,8 @@
         "type": "camera",
         "name": "TC1-2",
         "defaultsensor": "TC1",
-        "option": "B1-medium",
+        "option": "B1",
+        "fov": "medium",
         "source_height": {
           "units": "meter",
           "value": 2.0
@@ -145,7 +148,8 @@
         "type": "camera",
         "name": "TC1-3",
         "defaultsensor": "TC1",
-        "option": "B1-narrow",
+        "option": "B1",
+        "fov": "narrow",
         "source_height": {
           "units": "meter",
           "value": 2.0
@@ -189,7 +193,8 @@
         "type": "camera",
         "name": "TC2-0",
         "defaultsensor": "TC2",
-        "option": "A2-wide",
+        "option": "A2",
+        "fov": "wide",
         "source_height": {
           "units": "meter",
           "value": 3.0
@@ -233,7 +238,8 @@
         "type": "camera",
         "name": "TC2-1",
         "defaultsensor": "TC2",
-        "option": "B2-narrow",
+        "option": "B2",
+        "fov": "narrow",
         "source_height": {
           "units": "meter",
           "value": 3.0

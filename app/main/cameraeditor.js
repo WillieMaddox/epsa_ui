@@ -38,6 +38,7 @@ define(['jquery', 'ol',
         this.formElements.position = this.createPositionNodes();
         this.formElements.cameraType = this.createCameraTypeNodes();
         this.formElements.cameraOption = this.createCameraOptionNodes();
+        this.formElements.cameraFOV = this.createCameraFOVNodes();
         this.formElements.sourceHeight = this.createSourceHeightNodes();
         this.formElements.targetHeight = this.createTargetHeightNodes();
         this.formElements.range = this.createRangeNodes();
@@ -48,8 +49,7 @@ define(['jquery', 'ol',
         var $form = $("<form id='cameraproperties' class='form'>");
         $form.append(this.addFormRow(['cameraName']));
         $form.append(this.addFormRow(['position']));
-        $form.append(this.addFormRow(['cameraType']));
-        $form.append(this.addFormRow(['cameraOption']));
+        $form.append(this.addFormRow(['cameraType', 'cameraOption', 'cameraFOV']));
         $form.append(this.addFormRow(['sourceHeight']));
         $form.append(this.addFormRow(['targetHeight']));
         $form.append(this.addFormRow(['isotropic']));
@@ -66,20 +66,49 @@ define(['jquery', 'ol',
         $('#camera-type').selectmenu({
             classes: {
                 "ui-selectmenu-button": "menuselect"
-            },
-            change: function () {
-                _this.changeCameraType(this.value);
             }
+        }).on('selectmenuchange', function () {
+            _this.changeCameraType(this.value);
         });
-
         $("#camera-option").selectmenu({
             classes: {
                 "ui-selectmenu-button": "menuselect"
-            },
-            change: function () {
-                _this.changeCameraOption(this.value);
             }
+        }).on('selectmenuchange', function () {
+            _this.changeCameraOption(this.value);
         });
+        $("#camera-fov").selectmenu({
+            classes: {
+                "ui-selectmenu-button": "menuselect"
+            }
+        }).on('selectmenuchange', function () {
+            _this.changeCameraFOV(this.value);
+        });
+
+        // $('#camera-type').selectmenu({
+        //     classes: {
+        //         "ui-selectmenu-button": "menuselect"
+        //     },
+        //     change: function () {
+        //         _this.changeCameraType(this.value);
+        //     }
+        // });
+        // $("#camera-option").selectmenu({
+        //     classes: {
+        //         "ui-selectmenu-button": "menuselect"
+        //     },
+        //     change: function () {
+        //         _this.changeCameraOption(this.value);
+        //     }
+        // });
+        // $("#camera-fov").selectmenu({
+        //     classes: {
+        //         "ui-selectmenu-button": "menuselect"
+        //     },
+        //     change: function () {
+        //         _this.changeCameraFOV(this.value);
+        //     }
+        // });
 
         $('#isotropic').change(function () {
             if (this.checked) {
@@ -97,9 +126,7 @@ define(['jquery', 'ol',
                 $('#tilt-spinner').spinner('enable');
                 $('#tilt-label').removeClass('disabled');
             }
-        });
-
-        $('#isotropic').checkboxradio();
+        }).checkboxradio();
 
         $("#measure-units").selectmenu({
             classes: {
@@ -275,13 +302,10 @@ define(['jquery', 'ol',
     };
     cameraEditor.prototype.createNameNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='feature-name-label' class='form-label'>Camera Name</div>"));
-
         var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='feature-name-label' class='form-label'>Camera Name</div>"));
         $formValue.append($("<input type='text' id='feature-name' class='ui-widget'>"));
         $formElem.append($formValue);
-
         return $formElem
     };
     cameraEditor.prototype.createPositionNodes = function () {
@@ -300,334 +324,93 @@ define(['jquery', 'ol',
         return $formElem
     };
     cameraEditor.prototype.createCameraTypeNodes = function () {
-        var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='camera-type-label' class='form-label'>Camera Type</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $cameraType = $("<select id='camera-type'>");
-        $formValue.append($cameraType);
+        $formElem.append($("<div id='camera-type-label' class='form-label'>Camera Type</div>"));
+        $formValue.append($("<select id='camera-type'>"));
         $formElem.append($formValue);
-
-        // $cameraType.selectmenu({
-        //     classes: {
-        //         "ui-selectmenu-button": "menuselect"
-        //     },
-        //     change: function () {
-        //         _this.changeCameraType(this.value);
-        //     }
-        // });
-
         return $formElem
     };
     cameraEditor.prototype.createCameraOptionNodes = function () {
-        var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='camera-option-label' class='form-label'>Camera Option</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $cameraOption = $("<select id='camera-option'>");
-        $formValue.append($cameraOption);
+        $formElem.append($("<div id='camera-option-label' class='form-label'>Camera Option</div>"));
+        $formValue.append($("<select id='camera-option'>"));
         $formElem.append($formValue);
-
-        // $cameraOption.selectmenu({
-        //     classes: {
-        //         "ui-selectmenu-button": "menuselect"
-        //     },
-        //     change: function () {
-        //         _this.changeCameraOption(this.value);
-        //     }
-        // });
-
+        return $formElem
+    };
+    cameraEditor.prototype.createCameraFOVNodes = function () {
+        var $formElem = $("<div class='form-elem'>");
+        var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='camera-fov-label' class='form-label'>Camera FOV</div>"));
+        $formValue.append($("<select id='camera-fov'>"));
+        $formElem.append($formValue);
         return $formElem
     };
     cameraEditor.prototype.createMeasureNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='measure-label' class='form-label'>Max Visible Area</div>"));
-
         var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='measure-label' class='form-label'>Max Visible Area</div>"));
         $formValue.append($("<div id='measure' readonly>"));
-        var $measureUnits = $("<select id='measure-units'>");
-        $formValue.append($measureUnits);
+        $formValue.append($("<select id='measure-units'>"));
         $formValue.append($("<label for='geodesic2' class='visible' title='Use geodesic measures'>"));
-        var $geodesicValue = $("<input type='checkbox' id='geodesic2' class='checkboxradio'>");
-        $formValue.append($geodesicValue);
+        $formValue.append($("<input type='checkbox' id='geodesic2' class='checkboxradio'>"));
         $formElem.append($formValue);
-
-        // $measureUnits.selectmenu({
-        //     classes: {
-        //         "ui-selectmenu-button": "menuselect"
-        //     }
-        // });
-        // $geodesicValue.checkboxradio();
-
         return $formElem
     };
     cameraEditor.prototype.createSourceHeightNodes = function () {
-        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='source-height-label' class='form-label'>Source Height</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $heightSlider = $("<div id='source-height-slider'>");
-        $formValue.append($heightSlider);
-        var $heightSpinner = $("<input id='source-height-spinner'>");
-        $formValue.append($heightSpinner);
+        $formElem.append($("<div id='source-height-label' class='form-label'>Source Height</div>"));
+        $formValue.append($("<div id='source-height-slider'>"));
+        $formValue.append($("<input id='source-height-spinner'>"));
         $formElem.append($formValue);
-
-        // $heightSlider.slider({
-        //     animate: true,
-        //     range: "min",
-        //     min: 0,
-        //     max: 100,
-        //     step: 0.01,
-        //     slide: function (event, ui) {
-        //         $("#source-height-spinner").spinner("value", _this.pow10Slider(ui.value));
-        //     },
-        //     change: function (event, ui) {
-        //         $("#source-height-spinner").spinner("value", _this.pow10Slider(ui.value));
-        //     }
-        // });
-        // $heightSpinner.spinner({
-        //     min: 0,
-        //     max: 1000,
-        //     step: 0.1,
-        //     spin: function (event, ui) {
-        //         $("#source-height-slider").slider("value", _this.log10Slider(ui.value));
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $("#source-height-slider").slider("value", _this.log10Slider(this.value));
-        //         }
-        //     }
-        // }).spinner("value", 10);
-
         return $formElem
     };
     cameraEditor.prototype.createTargetHeightNodes = function () {
-        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='target-height-label' class='form-label'>Target Height</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $heightSlider = $("<div id='target-height-slider'>");
-        $formValue.append($heightSlider);
-        var $heightSpinner = $("<input id='target-height-spinner'>");
-        $formValue.append($heightSpinner);
+        $formElem.append($("<div id='target-height-label' class='form-label'>Target Height</div>"));
+        $formValue.append($("<div id='target-height-slider'>"));
+        $formValue.append($("<input id='target-height-spinner'>"));
         $formElem.append($formValue);
-
-        // $heightSlider.slider({
-        //     animate: true,
-        //     range: "min",
-        //     min: 0,
-        //     max: 100,
-        //     step: 0.01,
-        //     slide: function (event, ui) {
-        //         $("#target-height-spinner").spinner("value", _this.pow10Slider(ui.value));
-        //     },
-        //     change: function (event, ui) {
-        //         $("#target-height-spinner").spinner("value", _this.pow10Slider(ui.value));
-        //     }
-        // });
-        // $heightSpinner.spinner({
-        //     min: 0,
-        //     max: 1000,
-        //     step: 0.1,
-        //     spin: function (event, ui) {
-        //         $("#target-height-slider").slider("value", _this.log10Slider(ui.value));
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $("#target-height-slider").slider("value", _this.log10Slider(this.value));
-        //         }
-        //     }
-        // }).spinner("value", 10);
-
         return $formElem
     };
     cameraEditor.prototype.createRangeNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='range-label' class='form-label'>Range</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $rangeSlider = $("<div id='range-slider'>");
-        $formValue.append($rangeSlider);
-        var $rangeSpinnerMin = $("<input id='range-spinner-min'>");
-        $formValue.append($rangeSpinnerMin);
-        var $rangeSpinnerMax = $("<input id='range-spinner-max'>");
-        $formValue.append($rangeSpinnerMax);
+        $formElem.append($("<div id='range-label' class='form-label'>Range</div>"));
+        $formValue.append($("<div id='range-slider'>"));
+        $formValue.append($("<input id='range-spinner-min'>"));
+        $formValue.append($("<input id='range-spinner-max'>"));
         $formElem.append($formValue);
-
-        // $rangeSlider.slider({
-        //     animate: true,
-        //     range: true,
-        //     min: 0,
-        //     max: 10000,
-        //     step: 1,
-        //     // values: [100, 1000],
-        //     slide: function (event, ui) {
-        //         if (ui.handleIndex === 0) {
-        //             $rangeSpinnerMin.spinner("value", ui.value)
-        //         } else if (ui.handleIndex === 1) {
-        //             $rangeSpinnerMax.spinner("value", ui.value)
-        //         }
-        //     },
-        //     change: function (event, ui) {
-        //         if (ui.handleIndex === 0) {
-        //             $rangeSpinnerMin.spinner("value", ui.value)
-        //         } else if (ui.handleIndex === 1) {
-        //             $rangeSpinnerMax.spinner("value", ui.value)
-        //         }
-        //     }
-        // });
-        // $rangeSpinnerMin.spinner({
-        //     min: 0,
-        //     max: 10000,
-        //     step: 1,
-        //     spin: function (event, ui) {
-        //         $rangeSlider.slider("values", 0, ui.value)
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $rangeSlider.slider("values", 0, this.value);
-        //         }
-        //     }
-        // }).spinner("value", 100);
-        // $rangeSpinnerMax.spinner({
-        //     min: 0,
-        //     max: 10000,
-        //     step: 1,
-        //     spin: function (event, ui) {
-        //         $rangeSlider.slider("values", 1, ui.value)
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $rangeSlider.slider("values", 1, this.value);
-        //         }
-        //     }
-        // }).spinner("value", 1000);
-
         return $formElem
     };
     cameraEditor.prototype.createIsotropicNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='isotropic-label' class='form-label'>Isotropic</div>"));
-
         var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='isotropic-label' class='form-label'>Isotropic</div>"));
         $formValue.append($("<label for='isotropic' class='visible' title='Force spherical field of view'>"));
-        var $isotropicToggle = $("<input type='checkbox' id='isotropic' class='checkboxradio'>");
-        $formValue.append($isotropicToggle);
+        $formValue.append($("<input type='checkbox' id='isotropic' class='checkboxradio'>"));
         $formElem.append($formValue);
-
-        // $isotropicToggle.change(function () {
-        //     if (this.checked) {
-        //         $('#pan-slider').slider('disable');
-        //         $('#pan-spinner').spinner('disable');
-        //         $('#pan-label').addClass('disabled');
-        //         $('#tilt-slider').slider('disable');
-        //         $('#tilt-spinner').spinner('disable');
-        //         $('#tilt-label').addClass('disabled');
-        //     } else {
-        //         $('#pan-slider').slider('enable');
-        //         $('#pan-spinner').spinner('enable');
-        //         $('#pan-label').removeClass('disabled');
-        //         $('#tilt-slider').slider('enable');
-        //         $('#tilt-spinner').spinner('enable');
-        //         $('#tilt-label').removeClass('disabled');
-        //     }
-        // });
-        //
-        // $isotropicToggle.checkboxradio();
-
         return $formElem
     };
     cameraEditor.prototype.createPanNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='pan-label' class='form-label'>Pan</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $panSlider = $("<div id='pan-slider'>");
-        $formValue.append($panSlider);
-        var $panSpinner = $("<input id='pan-spinner'>");
-        $formValue.append($panSpinner);
+        $formElem.append($("<div id='pan-label' class='form-label'>Pan</div>"));
+        $formValue.append($("<div id='pan-slider'>"));
+        $formValue.append($("<input id='pan-spinner'>"));
         $formElem.append($formValue);
-
-        // $panSlider.slider({
-        //     animate: true,
-        //     range: "min",
-        //     min: 0,
-        //     max: 359.9,
-        //     step: 0.1,
-        //     slide: function (event, ui) {
-        //         $panSpinner.spinner("value", ui.value)
-        //     },
-        //     change: function (event, ui) {
-        //         $panSpinner.spinner("value", ui.value)
-        //     }
-        // });
-        // $panSpinner.spinner({
-        //     min: 0,
-        //     max: 359.9,
-        //     step: 0.1,
-        //     spin: function (event, ui) {
-        //         $panSlider.slider("value", ui.value)
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $panSlider.slider("value", this.value);
-        //         }
-        //     }
-        // }).spinner("value", 0);
-
         return $formElem
     };
     cameraEditor.prototype.createTiltNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='tilt-label' class='form-label'>Tilt</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $tiltSlider = $("<div id='tilt-slider'>");
-        $formValue.append($tiltSlider);
-        var $tiltSpinner = $("<input id='tilt-spinner'>");
-        $formValue.append($tiltSpinner);
+        $formElem.append($("<div id='tilt-label' class='form-label'>Tilt</div>"));
+        $formValue.append($("<div id='tilt-slider'>"));
+        $formValue.append($("<input id='tilt-spinner'>"));
         $formElem.append($formValue);
-
-        // $tiltSlider.slider({
-        //     animate: true,
-        //     range: "min",
-        //     min: -89.9,
-        //     max: 90,
-        //     step: 0.1,
-        //     slide: function (event, ui) {
-        //         $tiltSpinner.spinner("value", ui.value)
-        //     },
-        //     change: function (event, ui) {
-        //         $tiltSpinner.spinner("value", ui.value)
-        //     }
-        // });
-        // $tiltSpinner.spinner({
-        //     min: -89.9,
-        //     max: 90,
-        //     step: 0.1,
-        //     spin: function (event, ui) {
-        //         $tiltSlider.slider("value", ui.value)
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $tiltSlider.slider("value", this.value);
-        //         }
-        //     }
-        // }).spinner("value", 0);
-
         return $formElem
     };
 
@@ -726,13 +509,14 @@ define(['jquery', 'ol',
         $('#cameraproperties').show();
 
         var cameraTemplates = sensorTemplates['camera'].defaultSensors;
-        var sensor_properties = sensorTemplates['camera'].properties;
+        var sensorProperties = sensorTemplates['camera'].properties;
         var i, key;
         var units = ['metric', 'english'];
 
         var $featureName = $('#feature-name');
         var $cameraType = $('#camera-type');
         var $cameraOption = $('#camera-option');
+        var $cameraFOV = $('#camera-fov');
         var $sourceHeightSpinner = $('#source-height-spinner');
         var $targetHeightSpinner = $('#target-height-spinner');
         var $isotropic = $('#isotropic');
@@ -745,41 +529,41 @@ define(['jquery', 'ol',
         var $panSpinner = $('#pan-spinner');
         var $tiltSpinner = $('#tilt-spinner');
 
-        var camera_type = feature.get('defaultsensor') || sensor_properties['defaultsensor'];
-        var camera_option = feature.get('option') || sensor_properties['option'];
-        var isotropic = feature.get("isotropic") || sensor_properties['isotropic'];
+        var camera_type = feature.get('defaultsensor') || sensorProperties['defaultsensor'];
+        var camera_option = feature.get('option') || sensorProperties['option'];
+        var camera_fov = feature.get('fov') || sensorProperties['fov'];
+        var isotropic = feature.get("isotropic") || sensorProperties['isotropic'];
         var source_height, target_height, min_range, max_range, pan, tilt;
         if (feature.get('source_height')) {
             source_height = feature.get('source_height').value
         } else {
-            source_height = sensor_properties['source_height'].value
+            source_height = sensorProperties['source_height'].value
         }
         if (feature.get('target_height')) {
             target_height = feature.get('target_height').value
         } else {
-            target_height = sensor_properties['target_height'].value
+            target_height = sensorProperties['target_height'].value
         }
         if (feature.get('min_range')) {
             min_range = feature.get('min_range').value
         } else {
-            min_range = sensor_properties['min_range'].value
+            min_range = sensorProperties['min_range'].value
         }
         if (feature.get('max_range')) {
             max_range = feature.get('max_range').value
         } else {
-            max_range = sensor_properties['max_range'].value
+            max_range = sensorProperties['max_range'].value
         }
         if (feature.get('pan')) {
             pan = feature.get('pan').value
         } else {
-            pan = sensor_properties['pan'].value
+            pan = sensorProperties['pan'].value
         }
         if (feature.get('tilt')) {
             tilt = feature.get('tilt').value
         } else {
-            tilt = sensor_properties['tilt'].value
+            tilt = sensorProperties['tilt'].value
         }
-        var camera_properties = cameraTemplates[camera_type];
 
         $('#feature-name-label').removeClass('disabled');
         $featureName.removeClass('ui-state-disabled');
@@ -801,11 +585,20 @@ define(['jquery', 'ol',
 
         $('#camera-option-label').removeClass('disabled');
         $cameraOption.selectmenu('enable');
-        for (key in camera_properties['options']) {
+        for (key in cameraTemplates[camera_type]['options']) {
             $cameraOption.append(this.createMenuOption(key));
         }
         $('#camera-option-button').find('.ui-selectmenu-text').text(camera_option);
         $cameraOption.val(camera_option);
+
+
+        $('#camera-fov-label').removeClass('disabled');
+        $cameraFOV.selectmenu('enable');
+        for (key in cameraTemplates[camera_type]['options'][camera_option]['fov']) {
+            $cameraFOV.append(this.createMenuOption(key));
+        }
+        $('#camera-fov-button').find('.ui-selectmenu-text').text(camera_fov);
+        $cameraFOV.val(camera_fov);
 
 
         $sourceHeightSpinner.spinner('enable');
@@ -882,10 +675,39 @@ define(['jquery', 'ol',
 
     };
     cameraEditor.prototype.changeCameraType = function (camera_type) {
-
+        // manufacturer
+        // model
+        // cost
+        var $cameraOption = $('#camera-option');
+        $cameraOption.empty();
+        for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options']) {
+            $cameraOption.append(this.createMenuOption(key));
+        }
+        // $cameraOption.selectmenu('refresh');
+        // $('#camera-option-button').find('.ui-selectmenu-text').text($cameraOption[0].options[0].value);
+        $cameraOption.val($cameraOption[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
+        // $cameraOption.selectmenu('value', $cameraOption[0].options[0].value);
     };
     cameraEditor.prototype.changeCameraOption = function (camera_option) {
-
+        var camera_type = $('#camera-type').val();
+        var $cameraFOV = $('#camera-fov');
+        $cameraFOV.empty();
+        for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov']) {
+            $cameraFOV.append(this.createMenuOption(key));
+        }
+        // $cameraFOV.selectmenu('refresh');
+        // $('#camera-fov-button').find('.ui-selectmenu-text').text($cameraFOV[0].options[0].value);
+        // $cameraFOV.val($cameraFOV[0].options[0].value);
+        $cameraFOV.val($cameraFOV[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
+    };
+    cameraEditor.prototype.changeCameraFOV = function (camera_fov) {
+        var camera_type = $('#camera-type').val();
+        var camera_option = $('#camera-option').val();
+        var fovs = sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov'][camera_fov];
+        // $('#horizontal_fov').val(fovs['horizontal']);
+        // $('#vertical_fov').val(fovs['vertical']);
+        console.log(fovs['horizontal']);
+        console.log(fovs['vertical']);
     };
 
     cameraEditor.prototype.loadFeature = function (feature) {
@@ -901,6 +723,10 @@ define(['jquery', 'ol',
         if (feature.get('option')) {
             feature.set('option', $cameraOption.val());
         }
+        var $cameraFOV = $('#camera-fov');
+        if (feature.get('fov')) {
+            feature.set('fov', $cameraFOV.val());
+        }
         feature.set('isotropic', $('#isotropic').is(':checked'));
 
         feature.set('source_height', {'value': $('#source-height-spinner').spinner("value"), 'units': 'meter'});
@@ -915,6 +741,7 @@ define(['jquery', 'ol',
         var $cameraName = $('#feature-name');
         var $cameraType = $('#camera-type');
         var $cameraOption = $('#camera-option');
+        var $cameraFOV = $('#camera-fov');
         var $sourceHeightSpinner = $('#source-height-spinner');
         var $sourceHeightSlider = $('#source-height-slider');
         var $targetHeightSpinner = $('#target-height-spinner');
@@ -953,6 +780,11 @@ define(['jquery', 'ol',
         $cameraOption.val('');
         $cameraOption.selectmenu('disable');
         $('#camera-option-button').find('.ui-selectmenu-text').html('&nbsp;');
+
+        $cameraFOV.empty();
+        $cameraFOV.val('');
+        $cameraFOV.selectmenu('disable');
+        $('#camera-fov-button').find('.ui-selectmenu-text').html('&nbsp;');
 
         $sourceHeightSpinner.spinner("value", 0);
         $sourceHeightSpinner.spinner('disable');
