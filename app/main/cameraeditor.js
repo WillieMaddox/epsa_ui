@@ -683,10 +683,7 @@ define(['jquery', 'ol',
         for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options']) {
             $cameraOption.append(this.createMenuOption(key));
         }
-        // $cameraOption.selectmenu('refresh');
-        // $('#camera-option-button').find('.ui-selectmenu-text').text($cameraOption[0].options[0].value);
         $cameraOption.val($cameraOption[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
-        // $cameraOption.selectmenu('value', $cameraOption[0].options[0].value);
     };
     cameraEditor.prototype.changeCameraOption = function (camera_option) {
         var camera_type = $('#camera-type').val();
@@ -695,17 +692,12 @@ define(['jquery', 'ol',
         for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov']) {
             $cameraFOV.append(this.createMenuOption(key));
         }
-        // $cameraFOV.selectmenu('refresh');
-        // $('#camera-fov-button').find('.ui-selectmenu-text').text($cameraFOV[0].options[0].value);
-        // $cameraFOV.val($cameraFOV[0].options[0].value);
         $cameraFOV.val($cameraFOV[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
     };
     cameraEditor.prototype.changeCameraFOV = function (camera_fov) {
         var camera_type = $('#camera-type').val();
         var camera_option = $('#camera-option').val();
         var fovs = sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov'][camera_fov];
-        // $('#horizontal_fov').val(fovs['horizontal']);
-        // $('#vertical_fov').val(fovs['vertical']);
         console.log(fovs['horizontal']);
         console.log(fovs['vertical']);
     };
