@@ -145,7 +145,10 @@
         h22 = outerRadius * sinPmax;
 
 
-        if (h11 < height && height < h12) {
+        if (innerRadius <= 0) {
+            r1 = Math.abs(height * Math.tan(deg2rad(90 - phiMin)));
+            r1count = r1array.push('innerRadius <= 0');
+        } else if (h11 < height && height < h12) {
             r1 = Math.sqrt(innerRadius**2 - height**2);
             r1count = r1array.push('h11 < height < h12');
         } else if (h21 < height && height < h11) {
@@ -170,10 +173,10 @@
             r2 = null;
         }
 
-        if (r1count > 1) {
+        if (r1count > 0) {
             console.log('r1:', r1array)
         }
-        if (r2count > 1) {
+        if (r2count > 0) {
             console.log('r2:', r2array)
         }
         console.log('r1:', r1, 'r2:', r2, 'phiMin:', phiMin, 'phiMax:', phiMax);
