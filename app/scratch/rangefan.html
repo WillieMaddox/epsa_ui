@@ -3,118 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <title>Range Fan Example</title>
-    <!--<link rel="stylesheet" href="../bower_components/jquery-ui/themes/base/jquery-ui.min.css">-->
-    <!--<script src="../bower_components/jquery/dist/jquery.js"></script>-->
-    <!--<script src="../bower_components/jquery-ui/jquery-ui.js"></script>-->
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://openlayers.org/en/v3.19.1/css/ol.css" type="text/css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://openlayers.org/en/v3.19.1/build/ol-debug.js"></script>
 </head>
 <body>
-
-<p>Inner Radius:</p>
-<div id="innerradius"></div>
-<p>Outer Radius:</p>
-<div id="outerradius"></div>
-<p>Pan Angle:</p>
-<div id="panangle"></div>
-<p>Field of View:</p>
-<div id="fov"></div>
-<br>
-<canvas id="rangefan" width="300" height="300" style="border:1px solid #d3d3d3;">
-    Your browser does not support the HTML5 canvas tag.
-</canvas>
+    <div>
+        <div id="sliders"  style="height: 130px; width: 100%">
+            <div id="horizontal" style="display: flex; justify-content: space-between">
+                <div style="width:32%">
+                    <p>Radius: <span id="irad"></span> <span id="orad"></span></p>
+                    <div id="radius"></div>
+                </div>
+                <div style="width:32%">
+                    <p>Pan Angle: <span id="pan"></span></p>
+                    <div id="panangle"></div>
+                </div>
+                <div style="width:32%">
+                    <p>Horizontal FOV: <span id="hfov"></span></p>
+                    <div id="horizfov"></div>
+                </div>
+            </div>
+            <div id="vertical" style="display: flex; justify-content: space-between">
+                <div style="width:24%">
+                    <p>Source height: <span id="sheight"></span></p>
+                    <div id="source-height"></div>
+                </div>
+                <div style="width:24%">
+                    <p>Target height: <span id="theight"></span></p>
+                    <div id="target-height"></div>
+                </div>
+                <div style="width:24%">
+                    <p>Tilt Angle: <span id="tilt"></span></p>
+                    <div id="tiltangle"></div>
+                </div>
+                <div style="width:24%">
+                    <p>Vertical FOV: <span id="vfov"></span></p>
+                    <div id="vertfov"></div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div id="map" class="map"></div>
+        <canvas id="rangefanpan" class="rangefan" style="width: 100%; height: 500px; border: 2px solid #9933cc; box-sizing: border-box">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <canvas id="rangefantilt" class="rangefan" style="width: 100%; height: 300px; border: 2px solid #9933cc; box-sizing: border-box">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+    </div>
 
 <script>
 
+//    var featurePoint = new ol.Feature(new ol.geom.Point([0, 0]));
+//    var vectorSource = new ol.source.Vector({
+//        features: [featurePoint]
+//    });
+//    var vectorLayer = new ol.layer.Vector({
+//        source: vectorSource
+//    });
+//    var view = new ol.View({
+//        center: [0, 0],
+//        zoom: 15
+//    });
+//    var map = new ol.Map({
+//        target: 'map',
+//        layers: [
+//            new ol.layer.Tile({source: new ol.source.OSM()}),
+//            vectorLayer
+//        ],
+//        view: view
+//    });
+//    var resolution = map.getView().getResolution();
+//    view.on('change:resolution', function (evt) {
+//        resolution = evt.target.getResolution();
+//    });
+//    var rangefan = new ol.Overlay({
+//        element: document.getElementById('rangefan'),
+//        position: featurePoint.getGeometry().getCoordinates(),
+//        positioning: 'center-center',
+//        stopEvent: false,
+//        insertFirst: false
+//    });
+//    map.addOverlay(rangefan);
+
     function deg2rad(deg) {
         return deg * Math.PI / 180.0;
-    };
+    }
+    function rad2deg(rad) {
+        return rad * 180.0 / Math.PI;
+    }
 
-    var centerX = 150;
-    var centerY = 150;
-    var innerRadius = 30;
-    var outerRadius = 100;
-    var panAngle = 330;
-    var fov = 60;
+    var innerRadius = 50;
+    $('#irad').html(innerRadius);
+    var outerRadius = 90;
+    $('#orad').html(outerRadius);
+    var pan = 0;
+    $('#pan').html(pan);
+    var hfov = 60;
+    $('#hfov').html(hfov);
 
-    var drawWedge = function () {
+    var sourceHeight = 125;
+    $('#sheight').html(sourceHeight);
+    var targetHeight = 75;
+    $('#theight').html(targetHeight);
+    var tilt = 0;
+    $('#tilt').html(tilt);
+    var vfov = 120;
+    $('#vfov').html(vfov);
 
-        var thetaStart = deg2rad(panAngle - fov / 2);
-        var thetaStop = deg2rad(panAngle + fov / 2);
+    var r1, r2;
 
-        var c = $("#rangefan");
-        var ctx = c[0].getContext("2d");
-        ctx.clearRect(0, 0, 300, 300);
+    var calculateRadii = function () {
+
+        var ground = 20;
+        var height = targetHeight - sourceHeight;
+        var phiMin = Math.max(tilt - vfov / 2, -90);
+        var phiMax = Math.min(tilt + vfov / 2, 90);
+        var r1count = 0;
+        var r2count = 0;
+        var r1array = [];
+        var r2array = [];
+
+        var h11, h12, h21, h22, x11, x12, x21, x22;
+
+        var cosPmin = Math.cos(deg2rad(phiMin));
+        var cosPmax = Math.cos(deg2rad(phiMax));
+        var sinPmin = Math.sin(deg2rad(phiMin));
+        var sinPmax = Math.sin(deg2rad(phiMax));
+
+        x11 = innerRadius * cosPmin;
+        x12 = innerRadius * cosPmax;
+        x21 = outerRadius * cosPmin;
+        x22 = outerRadius * cosPmax;
+
+        h11 = innerRadius * sinPmin;
+        h12 = innerRadius * sinPmax;
+        h21 = outerRadius * sinPmin;
+        h22 = outerRadius * sinPmax;
+
+
+        if (h11 < height && height < h12) {
+            r1 = Math.sqrt(innerRadius**2 - height**2);
+            r1count = r1array.push('h11 < height < h12');
+        } else if (h21 < height && height < h11) {
+            r1 = (height / h11) * Math.sqrt(innerRadius**2 - h11**2);
+            r1count = r1array.push('h21 < height < h11');
+        } else if (h12 < height && height < h22) {
+            r1 = (height / h22) * Math.sqrt(outerRadius**2 - h22**2);
+            r1count = r1array.push('h12 < height < h22');
+        } else {
+            r1 = null;
+        }
+        if (h11 < height && height < h21) {
+            r2 = (height / h11) * Math.sqrt(innerRadius**2 - h11**2);
+            r2count = r2array.push('h11 < height < h21');
+        } else if (h22 < height && height < h12) {
+            r2 = (height / h22) * Math.sqrt(outerRadius**2 - h22**2);
+            r2count = r2array.push('h22 < height < h12');
+        } else if (h21 < height && height < h22) {
+            r2 = Math.sqrt(outerRadius**2 - height**2);
+            r2count = r2array.push('h21 < height < h22');
+        } else {
+            r2 = null;
+        }
+
+        if (r1count > 1) {
+            console.log('r1:', r1array)
+        }
+        if (r2count > 1) {
+            console.log('r2:', r2array)
+        }
+        console.log('r1:', r1, 'r2:', r2, 'phiMin:', phiMin, 'phiMax:', phiMax);
+        console.log('h11:', h11, 'h21:', h21, 'h12:', h12, 'h22:', h22, 'height:', height);
+
+        var sx = 0;
+        var sy = sourceHeight;
+
+        var c = document.getElementById("rangefantilt");
+        var ctx = c.getContext("2d");
+        c.width = c.getBoundingClientRect().width;
+        c.height = c.getBoundingClientRect().height;
+        var cwidth = c.width;
+        var cheight = c.height;
+//        console.log('rangefantilt:', cwidth, cheight);
+        ctx.clearRect(0, 0, cwidth, cheight);
+
+        ctx.translate(cwidth/2, cheight/2);
+        ctx.transform(1, 0, 0, -1, 0, 0);
+        ctx.translate(0, ground - cheight/2);
 
         ctx.beginPath();
-        ctx.moveTo(centerX + innerRadius * Math.cos(thetaStart), centerY + innerRadius * Math.sin(thetaStart));
-        ctx.lineTo(centerX + outerRadius * Math.cos(thetaStart), centerY + outerRadius * Math.sin(thetaStart));
-        ctx.arc(centerX, centerY, outerRadius, thetaStart, thetaStop);
-        ctx.lineTo(centerX + innerRadius * Math.cos(thetaStop), centerY + innerRadius * Math.sin(thetaStop));
-        ctx.moveTo(centerX + innerRadius * Math.cos(thetaStart), centerY + innerRadius * Math.sin(thetaStart));
-        ctx.arc(centerX, centerY, innerRadius, thetaStart, thetaStop);
+        // ground
+        ctx.moveTo(-cwidth/2, 0); ctx.lineTo(cwidth/2, 0);
+        // sensor
+        ctx.moveTo(sx, 0); ctx.lineTo(sx, sy);
+        ctx.lineWidth=5;
+        ctx.strokeStyle='black';
+        ctx.stroke();
+
+        ctx.beginPath();
+        // top ray
+        ctx.moveTo(sx, sy); ctx.lineTo(cwidth*cosPmin, cwidth*sinPmin+sy);
+        // bottom ray
+        ctx.moveTo(sx, sy); ctx.lineTo(cwidth*cosPmax, cwidth*sinPmax+sy);
+        ctx.lineWidth=1;
+        ctx.strokeStyle='black';
+        ctx.stroke();
+
+        ctx.beginPath();
+        // inner ring
+        ctx.moveTo(sx + innerRadius, sy); ctx.arc(sx, sy, innerRadius, 0, 2.0*Math.PI);
+        // outer ring
+        ctx.moveTo(sx + outerRadius, sy); ctx.arc(sx, sy, outerRadius, 0, 2.0*Math.PI);
+        ctx.lineWidth=1;
+        ctx.strokeStyle='black';
+        ctx.stroke();
+
+        ctx.beginPath();
+        // target height line
+        ctx.moveTo(-cwidth/2, targetHeight); ctx.lineTo(cwidth/2, targetHeight);
+        ctx.lineWidth=1;
+        ctx.strokeStyle='black';
+        ctx.stroke();
+
+        if (r1 !== null && r2 !== null) {
+            ctx.beginPath();
+            // target height line
+            ctx.moveTo(r1, targetHeight); ctx.lineTo(r2, targetHeight);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'black';
+            ctx.stroke();
+        }
+
+        // wedge
+        ctx.beginPath();
+        ctx.moveTo(x11, h11 + sy); ctx.lineTo(x21, h21 + sy);
+        ctx.lineWidth=5;
+        ctx.strokeStyle='green';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x11, h11 + sy); ctx.arc(sx, sy, innerRadius, deg2rad(phiMin), deg2rad(phiMax));
+        ctx.lineWidth=5;
+        ctx.strokeStyle='orange';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x12, h12 + sy); ctx.lineTo(x22, h22 + sy);
+        ctx.lineWidth=5;
+        ctx.strokeStyle='red';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x21, h21 + sy); ctx.arc(sx, sy, outerRadius, deg2rad(phiMin), deg2rad(phiMax));
+        ctx.lineWidth=5;
+        ctx.strokeStyle='blue';
         ctx.stroke();
 
     };
 
-    $("#innerradius").slider({
-        range: "min",
+    var drawRangeFan = function () {
+
+//        hfov = 360;
+
+        var thetaRight = deg2rad(pan - hfov / 2);
+        var thetaLeft = deg2rad(pan + hfov / 2);
+
+        var cosR = Math.cos(thetaRight);
+        var cosL = Math.cos(thetaLeft);
+        var sinR = Math.sin(thetaRight);
+        var sinL = Math.sin(thetaLeft);
+
+        var nearRx = r1 * cosR;
+        var nearRy = r1 * sinR;
+        var nearLx = r1 * cosL;
+        var nearLy = r1 * sinL;
+        var farRx = r2 * cosR;
+        var farRy = r2 * sinR;
+        var farLx = r2 * cosL;
+        var farLy = r2 * sinL;
+
+        var c = document.getElementById("rangefanpan");
+        var ctx = c.getContext("2d");
+//        c.width = 2*r2;
+//        c.height = 2*r2;
+        c.width = c.getBoundingClientRect().width;
+        c.height = c.getBoundingClientRect().height;
+        var cwidth = c.width;
+        var cheight = c.height;
+//        console.log('rangefanpan:', cwidth, cheight);
+        ctx.clearRect(0, 0, cwidth, cheight);
+
+//        ctx.translate(r2, r2);
+        ctx.translate(cwidth/2, cheight/2);
+        ctx.transform(1, 0, 0, -1, 0, 0);
+
+        ctx.beginPath();
+        // left ray
+        ctx.moveTo(0, 0); ctx.lineTo(cwidth*cosL, cwidth*sinL);
+        // right ray
+        ctx.moveTo(0, 0); ctx.lineTo(cwidth*cosR, cwidth*sinR);
+        ctx.lineWidth=1;
+        ctx.strokeStyle='black';
+        ctx.stroke();
+
+        ctx.beginPath();
+        // inner ring
+        ctx.moveTo(innerRadius, 0); ctx.arc(0, 0, innerRadius, 0, 2.0*Math.PI);
+        // outer ring
+        ctx.moveTo(outerRadius, 0); ctx.arc(0, 0, outerRadius, 0, 2.0*Math.PI);
+        ctx.lineWidth=1;
+        ctx.strokeStyle='black';
+        ctx.stroke();
+
+
+        if (r1 !== null && r2 !== null) {
+            ctx.beginPath();
+            ctx.moveTo(nearRx, nearRy); ctx.lineTo(farRx, farRy);
+            ctx.moveTo(nearLx, nearLy); ctx.lineTo(farLx, farLy);
+            ctx.lineWidth=5;
+            ctx.strokeStyle='black';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(nearRx, nearRy); ctx.arc(0, 0, r1, thetaRight, thetaLeft);
+            ctx.lineWidth=5;
+            ctx.strokeStyle='orange';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(farRx, farRy); ctx.arc(0, 0, r2, thetaRight, thetaLeft);
+            ctx.lineWidth=5;
+            ctx.strokeStyle='blue';
+            ctx.stroke();
+        }
+
+//        ctx.beginPath();
+//        ctx.moveTo(r2 + r1 * Math.cos(thetaStart), r2 + r1 * Math.sin(thetaStart));
+//        ctx.lineTo(r2 + r2 * Math.cos(thetaStart), r2 + r2 * Math.sin(thetaStart));
+//        ctx.arc(r2, r2, r2, thetaStart, thetaStop);
+//        ctx.lineTo(r2 + r1 * Math.cos(thetaStop), r2 + r1 * Math.sin(thetaStop));
+//        ctx.moveTo(r2 + r1 * Math.cos(thetaStart), r2 + r1 * Math.sin(thetaStart));
+//        ctx.arc(r2, r2, r1, thetaStart, thetaStop);
+//        ctx.stroke();
+
+        // Use this for isotropic (e.g. hfov = 360)
+
+//        ctx.beginPath();
+//        ctx.moveTo(r2 + r1 * Math.cos(thetaStart), r2 + r1 * Math.sin(thetaStart));
+//        ctx.arc(r2, r2, r1, thetaStart, thetaStop);
+//        ctx.moveTo(r2 + r2 * Math.cos(thetaStart), r2 + r2 * Math.sin(thetaStart));
+//        ctx.arc(r2, r2, r2, thetaStart, thetaStop);
+//        ctx.stroke();
+
+//        rangefan.setPosition(featurePoint.getGeometry().getCoordinates())
+    };
+
+    $("#radius").slider({
+        range: true,
         min: 0,
-        max: 75,
+        max: 350,
         step: 1,
-        value: innerRadius,
+        values: [50, 90],
         animate: true,
-        slide : function (event, ui)
-        {
-            innerRadius = ui.value;
-            drawWedge();
+        slide: function (event, ui) {
+            innerRadius = ui.values[0];
+            outerRadius = ui.values[1];
+            $('#irad').html(innerRadius);
+            $('#orad').html(outerRadius);
+            calculateRadii();
+            drawRangeFan();
         }
     });
-
-    $("#outerradius").slider({
-        range: "min",
-        min: 76,
-        max: 150,
-        step: 1,
-        value: outerRadius,
-        animate: true,
-        slide : function (event, ui)
-        {
-            outerRadius = ui.value;
-            drawWedge();
-        }
-    });
-
     $("#panangle").slider({
         range: "min",
-        min: 0,
-        max: 359,
+        min: -180,
+        max: 180,
         step: 1,
-        value: panAngle,
+        value: 0,
         animate: true,
-        slide : function (event, ui)
-        {
-            panAngle = ui.value;
-            drawWedge();
+        slide: function (event, ui) {
+            pan = ui.value;
+            $('#pan').html(pan);
+            calculateRadii();
+            drawRangeFan();
         }
     });
-
-    $("#fov").slider({
+    $("#horizfov").slider({
         range: "min",
         min: 1,
         max: 180,
         step: 1,
-        value: fov,
+        value: 60,
         animate: true,
-        slide : function (event, ui)
-        {
-            fov = ui.value;
-            drawWedge();
+        slide: function (event, ui) {
+            hfov = ui.value;
+            $('#hfov').html(hfov);
+            calculateRadii();
+            drawRangeFan();
+        }
+    });
+    $("#source-height").slider({
+        range: "min",
+        min: 0,
+        max: 250,
+        step: 1,
+        value: 125,
+        animate: true,
+        slide: function (event, ui) {
+            sourceHeight = ui.value;
+            $('#sheight').html(sourceHeight);
+            calculateRadii();
+            drawRangeFan();
+        }
+    });
+    $("#target-height").slider({
+        range: "min",
+        min: 0,
+        max: 200,
+        step: 1,
+        value: 75,
+        animate: true,
+        slide: function (event, ui) {
+            targetHeight = ui.value;
+            $('#theight').html(targetHeight);
+            calculateRadii();
+            drawRangeFan();
+        }
+    });
+    $("#tiltangle").slider({
+        range: "min",
+        min: -75,
+        max: 75,
+        step: 1,
+        value: 0,
+        animate: true,
+        slide: function (event, ui) {
+            tilt = ui.value;
+            $('#tilt').html(tilt);
+            calculateRadii();
+            drawRangeFan();
+        }
+    });
+    $("#vertfov").slider({
+        range: "min",
+        min: 1,
+        max: 170,
+        step: 1,
+        value: 120,
+        animate: true,
+        slide: function (event, ui) {
+            vfov = ui.value;
+            $('#vfov').html(vfov);
+            calculateRadii();
+            drawRangeFan();
         }
     });
 
-    drawWedge();
+    calculateRadii();
+    drawRangeFan();
 </script>
 
 
