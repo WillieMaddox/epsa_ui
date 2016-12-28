@@ -515,20 +515,20 @@ define(['jquery', 'ol',
         var units = ['metric', 'english'];
 
         var $featureName = $('#feature-name');
-        var $cameraType = $('#camera-type');
-        var $cameraOption = $('#camera-option');
-        var $cameraFOV = $('#camera-fov');
+        var $rangeSpinnerMin = $('#range-spinner-min');
+        var $rangeSpinnerMax = $('#range-spinner-max');
         var $sourceHeightSpinner = $('#source-height-spinner');
         var $targetHeightSpinner = $('#target-height-spinner');
         var $isotropic = $('#isotropic');
-        var $rangeSpinnerMin = $('#range-spinner-min');
-        var $rangeSpinnerMax = $('#range-spinner-max');
         var $rangeSlider = $('#range-slider');
         var $measureLabel = $('#measure-label');
         var $measureUnits = $('#measure-units');
         var $geodesic = $('#geodesic2');
         var $panSpinner = $('#pan-spinner');
         var $tiltSpinner = $('#tilt-spinner');
+        var $cameraType = $('#camera-type');
+        var $cameraOption = $('#camera-option');
+        var $cameraFOV = $('#camera-fov');
 
         var camera_type = feature.get('defaultsensor') || sensorProperties['defaultsensor'];
         var camera_option = feature.get('option') || sensorProperties['option'];
@@ -601,17 +601,6 @@ define(['jquery', 'ol',
         $('#camera-fov-button').find('.ui-selectmenu-text').text(camera_fov);
         $cameraFOV.val(camera_fov);
 
-
-        $sourceHeightSpinner.spinner('enable');
-        $sourceHeightSpinner.spinner("value", source_height);
-        $('#source-height-label').removeClass('disabled');
-        $('#source-height-slider').slider('enable');
-
-        $targetHeightSpinner.spinner('enable');
-        $targetHeightSpinner.spinner("value", target_height);
-        $('#target-height-label').removeClass('disabled');
-        $('#target-height-slider').slider('enable');
-
         $rangeSpinnerMin.spinner('enable');
         $rangeSpinnerMin.spinner("value", min_range);
 
@@ -641,6 +630,16 @@ define(['jquery', 'ol',
                 _this.rangePolygon.setCoordinates(_this.parser.write(jstshoop).getCoordinates())
             }
         });
+
+        $sourceHeightSpinner.spinner('enable');
+        $sourceHeightSpinner.spinner("value", source_height);
+        $('#source-height-label').removeClass('disabled');
+        $('#source-height-slider').slider('enable');
+
+        $targetHeightSpinner.spinner('enable');
+        $targetHeightSpinner.spinner("value", target_height);
+        $('#target-height-label').removeClass('disabled');
+        $('#target-height-slider').slider('enable');
 
         $measureLabel.removeClass('disabled');
         $measureUnits.selectmenu('enable');
@@ -704,21 +703,17 @@ define(['jquery', 'ol',
     };
 
     cameraEditor.prototype.loadFeature = function (feature) {
-        var $featureName = $('#feature-name');
         if (feature.get('name')) {
-            feature.set('name', $featureName.val());
+            feature.set('name', $('#feature-name').val());
         }
-        var $cameraType = $('#camera-type');
         if (feature.get('defaultsensor')) {
-            feature.set('defaultsensor', $cameraType.val());
+            feature.set('defaultsensor', $('#camera-type').val());
         }
-        var $cameraOption = $('#camera-option');
         if (feature.get('option')) {
-            feature.set('option', $cameraOption.val());
+            feature.set('option', $('#camera-option').val());
         }
-        var $cameraFOV = $('#camera-fov');
         if (feature.get('fov')) {
-            feature.set('fov', $cameraFOV.val());
+            feature.set('fov', $('#camera-fov').val());
         }
         feature.set('isotropic', $('#isotropic').is(':checked'));
 
