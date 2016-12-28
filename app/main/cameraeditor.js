@@ -774,35 +774,24 @@ define(['jquery', 'ol',
         $cameraFOV.selectmenu('disable');
         $('#camera-fov-button').find('.ui-selectmenu-text').html('&nbsp;');
 
-        $sourceHeightSpinner.spinner("value", 0);
         $sourceHeightSpinner.spinner('disable');
-        $sourceHeightSlider.slider("value", 0);
         $sourceHeightSlider.slider('disable');
 
-        $targetHeightSpinner.spinner("value", 0);
         $targetHeightSpinner.spinner('disable');
-        $targetHeightSlider.slider("value", 0);
         $targetHeightSlider.slider('disable');
 
         $rangeSpinnerMin.off('spinchange');
-        $rangeSpinnerMin.spinner("value", 0);
         $rangeSpinnerMin.spinner('disable');
         $rangeSpinnerMax.off('spinchange');
-        $rangeSpinnerMax.spinner("value", 10000);
         $rangeSpinnerMax.spinner('disable');
         $rangeSlider.slider("disable");
-        $rangeSlider.slider("values", [0, 10000]);
 
         $('#isotropic').checkboxradio('disable');
 
-        $panSpinner.spinner("value", 0);
         $panSpinner.spinner('disable');
-        $panSlider.slider("value", 0);
         $panSlider.slider('disable');
 
-        $tiltSpinner.spinner("value", 0);
         $tiltSpinner.spinner('disable');
-        $tiltSlider.slider("value", 0);
         $tiltSlider.slider('disable');
 
         this.innerCircle = null;
