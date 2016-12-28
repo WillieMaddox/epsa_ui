@@ -23,6 +23,7 @@ define(['jquery', 'ol',
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
+            this.isStyled = false;
             this.parser = new jsts.io.OL3Parser();
             this.map = options.map;
             this.interactor = options.interactor;

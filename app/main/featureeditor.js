@@ -27,6 +27,7 @@ define(['jquery', 'ol',
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
+            this.isStyled = false;
             this.map = options.map;
             this.interactor = options.interactor;
             this.wgs84Sphere = new ol.Sphere(6378137);

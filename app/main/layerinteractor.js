@@ -97,7 +97,10 @@ define(['jquery', 'ol',
                 });
                 this.editor = this.layertree.layerEditors[this.layer.get('type')];
                 this.editor.$form.appendTo($('.layereditor'));
-                this.editor.styleForm();
+                if (!(this.editor.isStyled)) {
+                    this.editor.styleForm();
+                    this.editor.isStyled = true;
+                }
                 this.editor.deactivateForm();
             }, this);
 
