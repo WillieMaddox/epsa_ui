@@ -383,9 +383,9 @@ define(['jquery', 'ol',
     cameraEditor.prototype.createRangeNodes = function () {
         var $formElem = $("<div class='form-elem'>");
         var $formValue = $("<div class='form-value'>");
+        $formValue.append($("<input id='range-spinner-min'>"));
         $formElem.append($("<div id='range-label' class='form-label'>Range</div>"));
         $formValue.append($("<div id='range-slider'>"));
-        $formValue.append($("<input id='range-spinner-min'>"));
         $formValue.append($("<input id='range-spinner-max'>"));
         $formElem.append($formValue);
         return $formElem
