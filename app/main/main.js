@@ -92,21 +92,46 @@ define(['jquery',
 
     function init() {
 
+        var layerSwitcher = new ol.control.LayerSwitcher();
+        var scaleLineControl = new ol.control.ScaleLine();
+        var $unitsSelect = $('#units');
+        var $projectionSelect = $('#projection');
+
         var mouseProjection = ol.proj.get('EPSG:4326');
         var mousePrecision = 4;
-        function updateMousePosition (view) {
+
+        function updateMousePrecision (view) {
             var res = view.getResolution();
-            var coord0 = view.getCenter();
-            var coord1 = [coord0[0] + res, coord0[1] + res];
             var currentProj = map.getView().getProjection();//.getCode();
             if (mouseProjection !== currentProj) {
+                var coord0 = view.getCenter();
+                var coord1 = [coord0[0] + res, coord0[1] + res];
                 coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
                 coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
                 res = Math.max(Math.abs(coord1[0] - coord0[0]), Math.abs(coord1[1] - coord0[1]));
             }
             mousePrecision = Number(Math.abs(Math.min(0, Math.floor(Math.log10(res)))).toFixed());
-            mousePositionControl.setCoordinateFormat(ol.coordinate.createStringXY(mousePrecision));
         }
+
+        function coordinateFormat (coordinates) {
+            var zoom = view.getZoom();
+            var lonlatstr = ol.coordinate.createStringXY(mousePrecision);
+            var lonlat = lonlatstr(coordinates).split(',');
+            var coord0 = ol.proj.transform(coordinates, mouseProjection, 'EPSG:4326');
+            var xytile = deg2tile(coord0[0], coord0[1], zoom);
+            var lon = "Lon: " + lonlat[0];
+            var lat = "Lat: " + lonlat[1];
+            var x = "X: " + xytile[0];
+            var y = "Y: " + xytile[1];
+            var z = "Z: " + zoom;
+            return [lon, lat, x, y, z].join('  ')
+        }
+
+        var mousePositionControl = new ol.control.MousePosition({
+            coordinateFormat: coordinateFormat,
+            projection: mouseProjection,
+            target: 'coordinates'
+        });
 
         var view = new ol.View({
             center: ol.proj.transform(
@@ -123,7 +148,7 @@ define(['jquery',
             zoom: 15
         });
         view.on('change:resolution', function (evt) {
-            updateMousePosition(evt.target)
+            updateMousePrecision(evt.target)
         });
         var thunderforestAttributions = [
             new ol.Attribution({
@@ -343,48 +368,21 @@ define(['jquery',
         //     });
         // };
 
-        /******* LAYER SWITCHER ********/
-        var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
-
-        /********** SCALELINE **********/
-        var scaleLineControl = new ol.control.ScaleLine({
-            // className: 'ol-scale-line ol-scale-line-inner text-stroke',
-        });
         map.addControl(scaleLineControl);
-        var $unitsSelect = $('#units');
         $unitsSelect.val(scaleLineControl.getUnits());
         $unitsSelect.on('change', function () {
             scaleLineControl.setUnits(this.value);
         });
-
-        /******** MOUSEPOSITION ********/
-        var mousePositionControl = new ol.control.MousePosition({
-            coordinateFormat: ol.coordinate.createStringXY(mousePrecision),
-            projection: mouseProjection,
-            target: 'coordinates'
-        });
-        map.addControl(mousePositionControl);
-        mousePositionControl.on('change:projection', function (evt) {
-            updateMousePosition(view)
-        });
-        var $projectionSelect = $('#projection');
         $projectionSelect.val(mousePositionControl.getProjection().getCode());
         $projectionSelect.on('change', function () {
             mouseProjection = ol.proj.get(this.value);
             mousePositionControl.setProjection(mouseProjection);
-
         });
-        var mousePositionControl2 = new ol.control.MousePosition({
-            coordinateFormat: function (coordinates) {
-                var zoom = view.getZoom();
-                var xytile = deg2tile(coordinates[0], coordinates[1], zoom);
-                return "Tile: [Z: " + zoom + "  X: " + xytile[0] + "  Y: " + xytile[1] + "]";
-            },
-            projection: 'EPSG:4326',
-            target: 'tile'
+        map.addControl(mousePositionControl);
+        mousePositionControl.on('change:projection', function (evt) {
+            updateMousePrecision(view)
         });
-        map.addControl(mousePositionControl2);
 
         // map.on('click', function (evt) {
         //     var pixel = evt.pixel;

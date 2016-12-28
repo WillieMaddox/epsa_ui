@@ -531,13 +531,10 @@ th, td {
     height: 100%;
 }
 .notificationbar .coordinates {
-    width: calc(50% - 200px);
+    width: calc(100% - 200px);
 }
 .notificationbar .ol-mouse-position {
     position: static;
-}
-.notificationbar .tile {
-    width: calc(50% - 200px);
 }
 .map-container .messagebar {
     width: 100%;
