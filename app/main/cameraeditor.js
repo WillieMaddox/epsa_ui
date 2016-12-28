@@ -53,8 +53,7 @@ define(['jquery', 'ol',
         $form.append(this.addFormRow(['range']));
         $form.append(this.addFormRow(['sourceHeight']));
         $form.append(this.addFormRow(['targetHeight']));
-        $form.append(this.addFormRow(['isotropic']));
-        $form.append(this.addFormRow(['measure']));
+        $form.append(this.addFormRow(['isotropic', 'measure']));
         $form.append(this.addFormRow(['pan']));
         $form.append(this.addFormRow(['tilt']));
         $form.append(this.addFormRow(['cameraType', 'cameraOption', 'cameraFOV']));
