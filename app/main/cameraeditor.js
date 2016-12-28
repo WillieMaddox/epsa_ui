@@ -36,7 +36,6 @@ define(['jquery', 'ol',
     };
     cameraEditor.prototype.createForm = function () {
         this.formElements.cameraName = this.createNameNodes();
-        this.formElements.position = this.createPositionNodes();
         this.formElements.range = this.createRangeNodes();
         this.formElements.sourceHeight = this.createSourceHeightNodes();
         this.formElements.targetHeight = this.createTargetHeightNodes();
@@ -47,9 +46,9 @@ define(['jquery', 'ol',
         this.formElements.cameraType = this.createCameraTypeNodes();
         this.formElements.cameraOption = this.createCameraOptionNodes();
         this.formElements.cameraFOV = this.createCameraFOVNodes();
+        this.formElements.summary = this.createSummaryTableNodes();
         var $form = $("<form id='cameraproperties' class='form'>");
         $form.append(this.addFormRow(['cameraName']));
-        $form.append(this.addFormRow(['position']));
         $form.append(this.addFormRow(['range']));
         $form.append(this.addFormRow(['sourceHeight']));
         $form.append(this.addFormRow(['targetHeight']));
@@ -57,6 +56,7 @@ define(['jquery', 'ol',
         $form.append(this.addFormRow(['pan']));
         $form.append(this.addFormRow(['tilt']));
         $form.append(this.addFormRow(['cameraType', 'cameraOption', 'cameraFOV']));
+        $form.append(this.addFormRow(['summary']));
         return $form;
     };
     cameraEditor.prototype.styleForm = function () {
@@ -124,6 +124,8 @@ define(['jquery', 'ol',
                 $('#camera-option-label').addClass('disabled');
                 $('#camera-fov').selectmenu('disable');
                 $('#camera-fov-label').addClass('disabled');
+                $('.camera-hfov').addClass('disabled');
+                $('.camera-vfov').addClass('disabled');
             } else {
                 $('#pan-slider').slider('enable');
                 $('#pan-spinner').spinner('enable');
@@ -137,6 +139,8 @@ define(['jquery', 'ol',
                 $('#camera-option-label').removeClass('disabled');
                 $('#camera-fov').selectmenu('enable');
                 $('#camera-fov-label').removeClass('disabled');
+                $('.camera-hfov').removeClass('disabled');
+                $('.camera-vfov').removeClass('disabled');
             }
         }).checkboxradio();
 
@@ -320,21 +324,6 @@ define(['jquery', 'ol',
         $formElem.append($formValue);
         return $formElem
     };
-    cameraEditor.prototype.createPositionNodes = function () {
-        var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='camera-lon-label' class='form-label'>Lon</div>"));
-        var $formLon = $("<div class='form-value'>");
-        $formLon.append($("<div id='camera-lon'>"));
-        $formElem.append($formLon);
-
-        $formElem.append($("<div id='camera-lat-label' class='form-label'>Lat</div>"));
-        var $formLat = $("<div class='form-value'>");
-        $formLat.append($("<div id='camera-lat'>"));
-        $formElem.append($formLat);
-
-        return $formElem
-    };
     cameraEditor.prototype.createCameraTypeNodes = function () {
         var $formElem = $("<div class='form-elem'>");
         var $formValue = $("<div class='form-value'>");
@@ -429,6 +418,30 @@ define(['jquery', 'ol',
         return $formElem
     };
 
+    cameraEditor.prototype.createSummaryTableNodes = function () {
+        var createTableRow = function (opts) {
+            var $trow = $("<tr>");
+            $trow.append($("<td class='summary-attribute-tag "+opts['label']+"'>"+opts['tag']+"</td>"));
+            $trow.append($("<td class='summary-attribute-value "+opts['label']+"' id='"+opts['label']+"'>"+opts['value']+"</td>"));
+            return $trow
+        };
+        var $formElem = $("<div class='form-elem'>");
+        var $table = $("<table class='summary-table' style='width:100%'>");
+        // var $thead = $("<thead>");
+        var $tbody = $("<tbody>");
+        // $thead.append(createTableRow({'label': 'summary-head', 'tag': 'Attribute', 'value': 'Value'}));
+        $tbody.append(createTableRow({'label': 'camera-position', 'tag': 'Lon, Lat', 'value': ''}));
+        $tbody.append(createTableRow({'label': 'camera-manufacturer', 'tag': 'Manufacturer', 'value': ''}));
+        $tbody.append(createTableRow({'label': 'camera-model', 'tag': 'Model', 'value': ''}));
+        $tbody.append(createTableRow({'label': 'camera-cost', 'tag': 'Cost', 'value': ''}));
+        $tbody.append(createTableRow({'label': 'camera-hfov', 'tag': 'Horizontal FOV', 'value': ''}));
+        $tbody.append(createTableRow({'label': 'camera-vfov', 'tag': 'Vertical FOV', 'value': ''}));
+        // $table.append($thead);
+        $table.append($tbody);
+        $formElem.append($table);
+        return $formElem
+    };
+
     cameraEditor.prototype.createLabel = function (label) {
         var $label = $('<label>');
         $label.attr('for', label);
@@ -513,9 +526,7 @@ define(['jquery', 'ol',
         var coords = geom.getCoordinates();
         var coord_x = coords[0].toFixed(6);
         var coord_y = coords[1].toFixed(6);
-        $('#camera-lat').html(coord_y);
-        $('#camera-lon').html(coord_x);
-        // return coord_x + ', ' + coord_y;
+        $('#camera-position').html(coord_x + ', ' + coord_y);
     };
 
     cameraEditor.prototype.activateForm = function (feature) {
@@ -678,6 +689,14 @@ define(['jquery', 'ol',
         $('#tilt-label').removeClass('disabled');
         $('#tilt-slider').slider('enable');
 
+        $('#camera-manufacturer').html(cameraTemplates[camera_type]['manufacturer']);
+        $('#camera-model').html(cameraTemplates[camera_type]['model']);
+        $('#camera-cost').html(cameraTemplates[camera_type]['cost']['value']);
+        $('#camera-hfov').html(cameraTemplates[camera_type]['options'][camera_option]['fov'][camera_fov]['horizontal']);
+        $('#camera-vfov').html(cameraTemplates[camera_type]['options'][camera_option]['fov'][camera_fov]['vertical']);
+
+        $('.summary-table').removeClass('ui-state-disabled');
+
         $('#isotropic-label').removeClass('disabled');
         $isotropic.checkboxradio("enable");
         $isotropic.attr("checked", isotropic).trigger("change");
@@ -685,12 +704,13 @@ define(['jquery', 'ol',
 
     };
     cameraEditor.prototype.changeCameraType = function (camera_type) {
-        // manufacturer
-        // model
-        // cost
         var $cameraOption = $('#camera-option');
+        var defaultSensor = sensorTemplates['camera']['defaultSensors'][camera_type];
+        $('#camera-manufacturer').html(defaultSensor['manufacturer']);
+        $('#camera-model').html(defaultSensor['model']);
+        $('#camera-cost').html(defaultSensor['cost']['value']);
         $cameraOption.empty();
-        for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options']) {
+        for (var key in defaultSensor['options']) {
             $cameraOption.append(this.createMenuOption(key));
         }
         $cameraOption.val($cameraOption[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
@@ -708,8 +728,8 @@ define(['jquery', 'ol',
         var camera_type = $('#camera-type').val();
         var camera_option = $('#camera-option').val();
         var fovs = sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov'][camera_fov];
-        console.log(fovs['horizontal']);
-        console.log(fovs['vertical']);
+        $('#camera-hfov').html(fovs['horizontal']);
+        $('#camera-vfov').html(fovs['vertical']);
     };
 
     cameraEditor.prototype.loadFeature = function (feature) {
@@ -724,6 +744,12 @@ define(['jquery', 'ol',
         }
         if (feature.get('fov')) {
             feature.set('fov', $('#camera-fov').val());
+        }
+        if (feature.get('hfov')) {
+            feature.set('hfov', $('#camera-hfov').val());
+        }
+        if (feature.get('vfov')) {
+            feature.set('vfov', $('#camera-vfov').val());
         }
         feature.set('isotropic', $('#isotropic').is(':checked'));
 
@@ -755,9 +781,6 @@ define(['jquery', 'ol',
 
         $cameraName.val(null);
         $cameraName.addClass('ui-state-disabled');
-
-        $('#camera-lat').html('&nbsp;');
-        $('#camera-lon').html('&nbsp;');
 
         $geodesic.off('change');
         ol.Observable.unByKey(this.geometrylistener);
@@ -807,7 +830,8 @@ define(['jquery', 'ol',
         this.innerCircle = null;
         this.outerCircle = null;
         this.rangePolygon = null;
-
+        $('.camera-attribute-value').html('&nbsp;');
+        $('.summary-table').addClass('ui-state-disabled');
         $('.form-label').addClass('disabled');
     };
 
