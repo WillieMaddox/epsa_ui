@@ -24,7 +24,7 @@ require.config({
         'Filter_1_1_0': 'bower_components/ogc-schemas/scripts/lib/Filter_1_1_0',
         'SMIL_2_0': 'bower_components/ogc-schemas/scripts/lib/SMIL_2_0',
         'SMIL_2_0_Language': 'bower_components/ogc-schemas/scripts/lib/SMIL_2_0_Language',
-        'shp': 'gitmodules/shapefile-js/dist/shp',
+        'shp': 'js/libs/gitmodules/shapefile-js/dist/shp',
         'jsts': 'js/libs/jsts-1.2.1/jsts.min',
         // 'ol': 'js/libs/ol3-3.19.1/ol',
         'ol': 'js/libs/ol3-3.19.1/ol-debug',
