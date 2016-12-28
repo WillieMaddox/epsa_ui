@@ -353,7 +353,10 @@ define(['jquery', 'ol',
         var $formValue = $("<div class='form-value'>");
         $formElem.append($("<div id='measure-label' class='form-label'>Max Visible Area</div>"));
         $formValue.append($("<div id='measure' readonly>"));
-        $formValue.append($("<select id='measure-units'>"));
+        var $selectNode = $("<select id='measure-units'>");
+        $selectNode.append(this.createMenuOption("metric", "Metric"));
+        $selectNode.append(this.createMenuOption("english", "English"));
+        $formValue.append($selectNode);
         $formValue.append($("<label for='geodesic2' class='visible' title='Use geodesic measures'>"));
         $formValue.append($("<input type='checkbox' id='geodesic2' class='checkboxradio'>"));
         $formElem.append($formValue);
@@ -512,7 +515,6 @@ define(['jquery', 'ol',
         var cameraTemplates = sensorTemplates['camera'].defaultSensors;
         var sensorProperties = sensorTemplates['camera'].properties;
         var i, key;
-        var units = ['metric', 'english'];
 
         var $featureName = $('#feature-name');
         var $rangeSpinnerMin = $('#range-spinner-min');
@@ -521,8 +523,8 @@ define(['jquery', 'ol',
         var $targetHeightSpinner = $('#target-height-spinner');
         var $isotropic = $('#isotropic');
         var $rangeSlider = $('#range-slider');
-        var $measureLabel = $('#measure-label');
-        var $measureUnits = $('#measure-units');
+        // var $measureLabel = $('#measure-label');
+        // var $measureUnits = $('#measure-units');
         var $geodesic = $('#geodesic2');
         var $panSpinner = $('#pan-spinner');
         var $tiltSpinner = $('#tilt-spinner');
@@ -641,11 +643,8 @@ define(['jquery', 'ol',
         $('#target-height-label').removeClass('disabled');
         $('#target-height-slider').slider('enable');
 
-        $measureLabel.removeClass('disabled');
-        $measureUnits.selectmenu('enable');
-        for (i = 0; i < units.length; i += 1) {
-            $measureUnits.append(_this.createMenuOption(units[i]));
-        }
+        $('#measure-label').removeClass('disabled');
+        $('#measure-units').selectmenu('enable');
         $geodesic.checkboxradio('enable');
 
         this.formatArea(this.rangePolygon, this.map.getView().getProjection(), this.wgs84Sphere);
@@ -757,7 +756,7 @@ define(['jquery', 'ol',
         $geodesic.checkboxradio('disable');
         $('#measure').html('&nbsp;');
         $('#measure-units').selectmenu('disable');
-        $('#measure-units-button').find('.ui-selectmenu-text').html('&nbsp;');
+        // $('#measure-units-button').find('.ui-selectmenu-text').html('&nbsp;');
 
         $cameraType.empty();
         $cameraType.val('');
