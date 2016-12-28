@@ -52,11 +52,19 @@ require.config({
         'main': 'main/main'
     },
     shim: {
-        // jsts: {
-        //     deps: ['ol']
-        // },
-        'layerswitcher': ['ol'],
-
+        'ol': {
+            exports: 'ol'
+        },
+        'jsts': {
+            deps: ['ol']
+        },
+        "layerswitcher": {
+            deps: ['ol'],
+            exports: "layerswitcher"
+        },
+        'toolbar': {
+            deps: ['ol']
+        },
         // OWS_1_0_0: {
         //     deps: ['XLink_1_0'],
         //     exports: 'OWS_1_0_0'
