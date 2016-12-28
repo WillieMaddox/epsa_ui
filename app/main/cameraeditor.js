@@ -544,7 +544,6 @@ define(['jquery', 'ol',
         var $sourceHeightSpinner = $('#source-height-spinner');
         var $targetHeightSpinner = $('#target-height-spinner');
         var $isotropic = $('#isotropic');
-        var $rangeSlider = $('#range-slider');
         // var $measureLabel = $('#measure-label');
         // var $measureUnits = $('#measure-units');
         var $geodesic = $('#geodesic2');
@@ -632,7 +631,7 @@ define(['jquery', 'ol',
         $rangeSpinnerMax.spinner("value", max_range);
 
         $('#range-label').removeClass('disabled');
-        $rangeSlider.slider('enable');
+        $('#range-slider').slider('enable');
 
 
         this.innerCircle = this.parser.read(feature.getGeometry()).buffer($rangeSpinnerMin.val());
