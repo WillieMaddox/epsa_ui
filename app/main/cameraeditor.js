@@ -118,6 +118,12 @@ define(['jquery', 'ol',
                 $('#tilt-slider').slider('disable');
                 $('#tilt-spinner').spinner('disable');
                 $('#tilt-label').addClass('disabled');
+                $('#camera-type').selectmenu('disable');
+                $('#camera-type-label').addClass('disabled');
+                $('#camera-option').selectmenu('disable');
+                $('#camera-option-label').addClass('disabled');
+                $('#camera-fov').selectmenu('disable');
+                $('#camera-fov-label').addClass('disabled');
             } else {
                 $('#pan-slider').slider('enable');
                 $('#pan-spinner').spinner('enable');
@@ -125,6 +131,12 @@ define(['jquery', 'ol',
                 $('#tilt-slider').slider('enable');
                 $('#tilt-spinner').spinner('enable');
                 $('#tilt-label').removeClass('disabled');
+                $('#camera-type').selectmenu('enable');
+                $('#camera-type-label').removeClass('disabled');
+                $('#camera-option').selectmenu('enable');
+                $('#camera-option-label').removeClass('disabled');
+                $('#camera-fov').selectmenu('enable');
+                $('#camera-fov-label').removeClass('disabled');
             }
         }).checkboxradio();
 
