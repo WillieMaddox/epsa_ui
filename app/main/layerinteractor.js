@@ -33,9 +33,11 @@ define(['jquery', 'ol',
                 if (evt.dragging) {
                     return;
                 }
-                var feature = _this.getFeatureAtPixel(evt);
-                _this.setMouseCursor(feature);
-                _this.displayFeatureInfo(feature);
+                _this.getFeatureAtPixel(evt);
+                // TODO: delete these 3 lines.
+                // var feature = _this.getFeatureAtPixel(evt);
+                // _this.setMouseCursor(feature);
+                // _this.displayFeatureInfo(feature);
             };
             this.addInteractions();
 
@@ -223,7 +225,9 @@ define(['jquery', 'ol',
         } else {
             feature = null;
         }
-        return feature;
+        // return feature;
+        this.setMouseCursor(feature);
+        this.displayFeatureInfo(feature);
     };
     layerInteractor.prototype.setSensorStyle = function (style) {
         if (style) {
@@ -305,30 +309,26 @@ define(['jquery', 'ol',
         var _this = this;
         var toolbar = this.toolbar;
 
-        var featureSelectStyle = function (feature, resolution) {
-            if (feature.get('type') === 'camera') {
-                return [new ol.style.Style({
-                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                        anchor: [0.5, 0.5],
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'fraction',
-                        color: [0, 153, 255],
-                        opacity: 0.5,
-                        scale: 0.05,
-                        snapToPixel: false,
-                        src: './img/camera-normal.png'
-                    }))
-                })]
-            } else {
-                return _this.featureOverlay.getStyleFunction()(feature);
-                // return _this.highlightGeomStyleCache[setFeatureStyle(ol.style.Style.defaultFunction(feature, resolution)[0].clone());
-                // return _this.highlightGeomStyleCache[feature.get(_this.geomStyleKey)]
-            }
-        };
-
         this.select = new ol.interaction.Select({
             layers: [this.featureOverlay],
-            style: featureSelectStyle,
+            style: function (feature, resolution) {
+                if (feature.get('type') === 'camera') {
+                    return [new ol.style.Style({
+                        image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                            anchor: [0.5, 0.5],
+                            anchorXUnits: 'fraction',
+                            anchorYUnits: 'fraction',
+                            color: [0, 153, 255],
+                            opacity: 0.5,
+                            scale: 0.05,
+                            snapToPixel: false,
+                            src: './img/camera-normal.png'
+                        }))
+                    })]
+                } else {
+                    return _this.featureOverlay.getStyleFunction()(feature);
+                }
+            },
             toggleCondition: ol.events.condition.never,
             condition: function (evt) {
                 if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
