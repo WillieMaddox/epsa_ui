@@ -556,7 +556,7 @@ define(['jquery', 'ol',
         var camera_type = feature.get('defaultsensor') || sensorProperties['defaultsensor'];
         var camera_option = feature.get('option') || sensorProperties['option'];
         var camera_fov = feature.get('fov') || sensorProperties['fov'];
-        var isotropic = feature.get("isotropic") || sensorProperties['isotropic'];
+        var isotropic = exists(feature.get("isotropic")) ? feature.get("isotropic") : sensorProperties['isotropic'];
         var source_height, target_height, min_range, max_range, pan, tilt;
         if (feature.get('source_height')) {
             source_height = feature.get('source_height').value
@@ -698,7 +698,7 @@ define(['jquery', 'ol',
 
         $('#isotropic-label').removeClass('disabled');
         $isotropic.checkboxradio("enable");
-        $isotropic.attr("checked", isotropic).trigger("change");
+        $isotropic.prop("checked", isotropic).change();
         // $isotropic.checkboxradio("refresh");
 
     };
@@ -750,7 +750,7 @@ define(['jquery', 'ol',
         if (feature.get('vfov')) {
             feature.set('vfov', $('#camera-vfov').val());
         }
-        feature.set('isotropic', $('#isotropic').is(':checked'));
+        feature.set('isotropic', $('#isotropic').prop('checked'));
 
         feature.set('source_height', {'value': $('#source-height-spinner').spinner("value"), 'units': 'meter'});
         feature.set('target_height', {'value': $('#target-height-spinner').spinner("value"), 'units': 'meter'});
@@ -772,6 +772,7 @@ define(['jquery', 'ol',
         var $rangeSpinnerMin = $('#range-spinner-min');
         var $rangeSpinnerMax = $('#range-spinner-max');
         var $rangeSlider = $('#range-slider');
+        var $isotropic = $('#isotropic');
         var $panSpinner = $('#pan-spinner');
         var $panSlider = $('#pan-slider');
         var $tiltSpinner = $('#tilt-spinner');
@@ -818,7 +819,8 @@ define(['jquery', 'ol',
         $rangeSpinnerMax.spinner('disable');
         $rangeSlider.slider("disable");
 
-        $('#isotropic').checkboxradio('disable');
+        $isotropic.prop('checked', false).change();
+        $isotropic.checkboxradio('disable');
 
         $panSpinner.spinner('disable');
         $panSlider.slider('disable');
