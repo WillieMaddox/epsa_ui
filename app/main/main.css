@@ -8,19 +8,19 @@ body {
 /** {
 	border: 1px solid red !important;
 }*/
-.map-container {
+.main-container {
     display: flex;
     width: 100%;
     height: 100%; /*Fallback*/
     height: 100vh;
 }
-.sidebar {
+.sidebar-container {
     box-sizing: border-box;
     border: 1px solid grey;
     width: 400px;
     height: 100%;
 }
-.sidebar .toolbar {
+.sidebar-container .toolbar {
     box-sizing: border-box;
     display: table;
     padding-left: .2em;
@@ -137,7 +137,7 @@ body {
 .toolbar .draw-radio button {
     background-image: url(../img/radio-normal.png);
 }
-.sidebar .layereditor {
+.sidebar-container .layereditor {
     position: relative;
     box-sizing: border-box;
     padding: 4px;
@@ -226,7 +226,7 @@ body {
     opacity: 0.35;
 }
 
-.sidebar .layertree {
+.sidebar-container .layertree {
     box-sizing: border-box;
     float: left;
     border-top: 1px solid grey;
@@ -505,23 +505,23 @@ table .summary-attribute-value {
 th, td {
     padding: 5px;
 }
-.mainwindow {
+.map-container {
     width: calc(100% - 400px);
     height: 100%;
 }
-.mainwindow .map {
+.map-container .map {
     background: url(../img/map-background.jpg) repeat;
     position: relative;
     width: 100%;
 	height: calc(100% - 3em);
     overflow: hidden;
 }
-.mainwindow .notification-bar {
+.map-container .notificationbar {
     display: table;
     width: 100%;
 	height: 1.5em;
 }
-.notification-bar > div {
+.notificationbar > div {
     display: table-cell;
     vertical-align: middle;
     text-align: center;
@@ -530,16 +530,16 @@ th, td {
     width: 100px;
     height: 100%;
 }
-.notification-bar .coordinates {
+.notificationbar .coordinates {
     width: calc(50% - 200px);
 }
-.notification-bar .ol-mouse-position {
+.notificationbar .ol-mouse-position {
     position: static;
 }
-.notification-bar .tile {
+.notificationbar .tile {
     width: calc(50% - 200px);
 }
-.mainwindow .message-bar {
+.map-container .messagebar {
     width: 100%;
     height: 1.5em;
 }

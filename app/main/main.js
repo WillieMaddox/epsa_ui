@@ -251,7 +251,7 @@ define(['jquery', 'ol',
             loadTilesWhileAnimating: true
         });
 
-        var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
+        var tree = new layerTree({map: map, target: 'layertree', messages: 'messagebar'});
 
         var tools = new toolBar({map: map, layertree: tree, target: 'toolbar'});
         tools.addDrawToolBar();

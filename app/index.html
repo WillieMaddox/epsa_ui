@@ -8,15 +8,15 @@
         <link rel="icon" href="/app/favicon.ico" type="image/x-icon">
     </head>
     <body>
-        <div class="map-container">
-            <div id="sidebar" class="sidebar">
+        <div class="main-container">
+            <div class="sidebar-container">
                 <div id="toolbar" class="toolbar"></div>
                 <div id="layereditor" class="layereditor"></div>
                 <div id="layertree" class="layertree"></div>
             </div>
-            <div id="mainwindow" class="mainwindow">
+            <div class="map-container">
                 <div id="map" class="map"></div>
-                <div class="notification-bar">
+                <div id="notificationbar" class="notificationbar">
                     <div>
                         <select id="units" title="Units of the scale line.">
                             <option value="nautical">nautical mile</option>
@@ -40,7 +40,7 @@
                         <label id="tile"></label>
                     </div>
                 </div>
-                <div id="messageBar" class="message-bar"></div>
+                <div id="messagebar" class="messagebar"></div>
             </div>
         </div>
     </body>

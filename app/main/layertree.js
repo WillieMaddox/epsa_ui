@@ -1144,7 +1144,6 @@ define(['jquery', 'ol',
 
         var _this = this;
         function callback($form) {
-            "use strict";
             switch (elemName) {
                 case 'addwms':
                     _this.addWmsLayer($form);
