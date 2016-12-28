@@ -2,10 +2,7 @@
  * Created by maddoxw on 9/6/16.
  */
 
-define(['jquery', 'ol',
-        'exists',
-        'ispolyvalid',
-        'jquery-ui'], function ($, ol, exists, isPolyValid) {
+define(['jquery', 'exists', 'ispolyvalid'], function ($, exists, isPolyValid) {
 
     'use strict';
     var layerInteractor = function (options) {

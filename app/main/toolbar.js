@@ -2,10 +2,11 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol',
+define(['jquery',
         'featureid',
         'ispolyvalid',
-        'sstylefunction'], function ($, ol, FID, isPolyValid, sensorStyleFunction) {
+        'sstylefunction'
+], function ($, FID, isPolyValid, sensorStyleFunction) {
 
     'use strict';
     ol.control.Interaction = function (opt_options) {

@@ -2,7 +2,7 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol',
+define(['jquery',
     'exists',
     'shp',
     'wfs110context',
@@ -10,9 +10,8 @@ define(['jquery', 'ol',
     'tstylefunction',
     'stemplate',
     'sstylefunction',
-    'serversettings',
-    'jquery-ui'
-], function ($, ol,
+    'serversettings'
+], function ($,
              exists,
              shp,
              WFSContext,

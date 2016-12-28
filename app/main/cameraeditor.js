@@ -2,13 +2,12 @@
  * Created by maddoxw on 10/14/16.
  */
 
-define(['jquery', 'ol',
+define(['jquery',
     'exists',
     'featureid',
     'stemplate',
-    'jsts',
-    'jquery-ui'
-], function ($, ol,
+    'jsts'
+], function ($,
              exists,
              FID,
              sensorTemplates,

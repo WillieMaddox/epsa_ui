@@ -2,15 +2,14 @@
  * Created by maddoxw on 10/14/16.
  */
 
-define(['jquery', 'ol',
+define(['jquery',
     'exists',
     'featureid',
     'ttemplate',
     'ispolyvalid',
     'ispointinpoly',
-    'doespolycoverhole',
-    'jquery-ui'
-], function ($, ol,
+    'doespolycoverhole'
+], function ($,
              exists,
              FID,
              tobjectTemplates,
