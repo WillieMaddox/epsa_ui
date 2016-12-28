@@ -8,7 +8,7 @@ app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
 });
 
-console.log('ASPE UI server listening on port ' + port);
+console.log('OSM Fire listening on port ' + port);
 
 app.listen(port);
 
