@@ -37,27 +37,27 @@ define(['jquery', 'ol',
     cameraEditor.prototype.createForm = function () {
         this.formElements.cameraName = this.createNameNodes();
         this.formElements.position = this.createPositionNodes();
+        this.formElements.range = this.createRangeNodes();
+        this.formElements.sourceHeight = this.createSourceHeightNodes();
+        this.formElements.targetHeight = this.createTargetHeightNodes();
+        this.formElements.isotropic = this.createIsotropicNodes();
+        this.formElements.measure = this.createMeasureNodes();
+        this.formElements.pan = this.createPanNodes();
+        this.formElements.tilt = this.createTiltNodes();
         this.formElements.cameraType = this.createCameraTypeNodes();
         this.formElements.cameraOption = this.createCameraOptionNodes();
         this.formElements.cameraFOV = this.createCameraFOVNodes();
-        this.formElements.sourceHeight = this.createSourceHeightNodes();
-        this.formElements.targetHeight = this.createTargetHeightNodes();
-        this.formElements.range = this.createRangeNodes();
-        this.formElements.measure = this.createMeasureNodes();
-        this.formElements.isotropic = this.createIsotropicNodes();
-        this.formElements.pan = this.createPanNodes();
-        this.formElements.tilt = this.createTiltNodes();
         var $form = $("<form id='cameraproperties' class='form'>");
         $form.append(this.addFormRow(['cameraName']));
         $form.append(this.addFormRow(['position']));
-        $form.append(this.addFormRow(['cameraType', 'cameraOption', 'cameraFOV']));
+        $form.append(this.addFormRow(['range']));
         $form.append(this.addFormRow(['sourceHeight']));
         $form.append(this.addFormRow(['targetHeight']));
         $form.append(this.addFormRow(['isotropic']));
-        $form.append(this.addFormRow(['range']));
         $form.append(this.addFormRow(['measure']));
         $form.append(this.addFormRow(['pan']));
         $form.append(this.addFormRow(['tilt']));
+        $form.append(this.addFormRow(['cameraType', 'cameraOption', 'cameraFOV']));
         return $form;
     };
     cameraEditor.prototype.styleForm = function () {
