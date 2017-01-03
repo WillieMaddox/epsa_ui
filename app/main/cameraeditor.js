@@ -367,8 +367,8 @@ define(['jquery', 'ol',
         $formElem.append($("<div id='measure-label' class='form-label'>Max Visible Area</div>"));
         $formValue.append($("<div id='measure' readonly>"));
         var $selectNode = $("<select id='measure-units'>");
-        $selectNode.append(this.createMenuOption("metric", "Metric"));
-        $selectNode.append(this.createMenuOption("english", "English"));
+        $selectNode.append(utils.createMenuOption("metric", "Metric"));
+        $selectNode.append(utils.createMenuOption("english", "English"));
         $formValue.append($selectNode);
         $formValue.append($("<label for='geodesic2' class='visible' title='Use geodesic measures'>"));
         $formValue.append($("<input type='checkbox' id='geodesic2' class='checkboxradio' checked>"));
@@ -439,32 +439,6 @@ define(['jquery', 'ol',
         $table.append($tbody);
         $formElem.append($table);
         return $formElem
-    };
-
-    cameraEditor.prototype.createLabel = function (label) {
-        var $label = $('<label>');
-        $label.attr('for', label);
-        return $label;
-    };
-    cameraEditor.prototype.createInput = function (name, type) {
-        var $input = $('<input>');
-        $input.name = name;
-        $input.type = type;
-        $input.required = true;
-        return $input;
-    };
-    cameraEditor.prototype.createMenu = function (name, id) {
-        var $menu = $('<select>');
-        $menu.name = name;
-        $menu.type = "text";
-        $menu.id = id;
-        return $menu;
-    };
-    cameraEditor.prototype.createMenuOption = function (value, text) {
-        var $option = $('<option>');
-        $option.val(value);
-        $option.text(text || value);
-        return $option;
     };
 
     cameraEditor.prototype.formatArea = function (geom, sourceProj, sphere) {
@@ -647,7 +621,7 @@ define(['jquery', 'ol',
         $('#camera-type-label').removeClass('disabled');
         $cameraType.selectmenu('enable');
         for (key in cameraTemplates) {
-            $cameraType.append(this.createMenuOption(key));
+            $cameraType.append(utils.createMenuOption(key));
         }
         $('#camera-type-button').find('.ui-selectmenu-text').text(camera_type);
         $cameraType.val(camera_type);
@@ -655,7 +629,7 @@ define(['jquery', 'ol',
         $('#camera-option-label').removeClass('disabled');
         $cameraOption.selectmenu('enable');
         for (key in cameraTemplates[camera_type]['options']) {
-            $cameraOption.append(this.createMenuOption(key));
+            $cameraOption.append(utils.createMenuOption(key));
         }
         $('#camera-option-button').find('.ui-selectmenu-text').text(camera_option);
         $cameraOption.val(camera_option);
@@ -663,7 +637,7 @@ define(['jquery', 'ol',
         $('#camera-fov-label').removeClass('disabled');
         $cameraFOV.selectmenu('enable');
         for (key in cameraTemplates[camera_type]['options'][camera_option]['fov']) {
-            $cameraFOV.append(this.createMenuOption(key));
+            $cameraFOV.append(utils.createMenuOption(key));
         }
         $('#camera-fov-button').find('.ui-selectmenu-text').text(camera_fov);
         $cameraFOV.val(camera_fov);
@@ -690,7 +664,7 @@ define(['jquery', 'ol',
         $('#camera-cost').html(defaultSensor['cost']['value']);
         $cameraOption.empty();
         for (var key in defaultSensor['options']) {
-            $cameraOption.append(this.createMenuOption(key));
+            $cameraOption.append(utils.createMenuOption(key));
         }
         $cameraOption.val($cameraOption[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
     };
@@ -699,7 +673,7 @@ define(['jquery', 'ol',
         var $cameraFOV = $('#camera-fov');
         $cameraFOV.empty();
         for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov']) {
-            $cameraFOV.append(this.createMenuOption(key));
+            $cameraFOV.append(utils.createMenuOption(key));
         }
         $cameraFOV.val($cameraFOV[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
     };
@@ -710,7 +684,6 @@ define(['jquery', 'ol',
         $('#camera-hfov').html(fovs['horizontal']);
         $('#camera-vfov').html(fovs['vertical']);
     };
-
     cameraEditor.prototype.loadFeature = function (feature) {
         if (feature.get('name')) {
             feature.set('name', $('#feature-name').val());

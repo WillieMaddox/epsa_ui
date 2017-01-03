@@ -168,8 +168,8 @@ define(['jquery', 'ol',
         $formElem.append($("<div id='measure-label' class='form-label'>Measure</div>"));
         $formValue.append($("<div id='measure' readonly>"));
         var $selectNode = $("<select id='measure-units'>");
-        $selectNode.append(this.createMenuOption("metric", "Metric"));
-        $selectNode.append(this.createMenuOption("english", "English"));
+        $selectNode.append(utils.createMenuOption("metric", "Metric"));
+        $selectNode.append(utils.createMenuOption("english", "English"));
         $formValue.append($selectNode);
         $formValue.append($("<label for='geodesic' class='visible' title='Use geodesic measures'>"));
         $formValue.append($("<input type='checkbox' id='geodesic' checked>"));
@@ -214,31 +214,6 @@ define(['jquery', 'ol',
         return $formElem
     };
 
-    featureEditor.prototype.createLabel = function (label) {
-        var $label = $('<label>');
-        $label.attr('for', label);
-        return $label;
-    };
-    featureEditor.prototype.createInput = function (name, type) {
-        var $input = $('<input>');
-        $input.name = name;
-        $input.type = type;
-        $input.required = true;
-        return $input;
-    };
-    featureEditor.prototype.createMenu = function (name, id) {
-        var $menu = $('<select>');
-        $menu.name = name;
-        $menu.type = "text";
-        $menu.id = id;
-        return $menu;
-    };
-    featureEditor.prototype.createMenuOption = function (value, text) {
-        var $option = $('<option>');
-        $option.val(value);
-        $option.text(value || text);
-        return $option;
-    };
     featureEditor.prototype.createHoleButton = function (label, title) {
         var $buttonElem = $('<button id="' + label + '-hole">');
         $buttonElem.addClass("ol-unselectable ol-control hole-buttons");
@@ -796,10 +771,10 @@ define(['jquery', 'ol',
         $featureType.selectmenu('enable');
         for (var key in tobjectTemplates) {
             if (feature.getGeometry().getType().endsWith(tobjectTemplates[key]["geometry_type"])) {
-                $featureType.append(this.createMenuOption(key));
+                $featureType.append(utils.createMenuOption(key));
             }
         }
-        $featureType.append(this.createMenuOption('generic'));
+        $featureType.append(utils.createMenuOption('generic'));
 
         if (!(feature_type && feature_type in tobjectTemplates)) {
             feature_type = 'generic';

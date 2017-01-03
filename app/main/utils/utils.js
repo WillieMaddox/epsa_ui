@@ -62,5 +62,31 @@ define([], function () {
         return String(pval);
     };
 
+    utils.createLabel = function (label) {
+        var $label = $('<label>');
+        $label.attr('for', label);
+        return $label;
+    };
+    utils.createInput = function (name, type) {
+        var $input = $('<input>');
+        $input.name = name;
+        $input.type = type;
+        $input.required = true;
+        return $input;
+    };
+    utils.createMenu = function (name, id) {
+        var $menu = $('<select>');
+        $menu.name = name;
+        $menu.type = "text";
+        $menu.id = id;
+        return $menu;
+    };
+    utils.createMenuOption = function (value, text) {
+        var $option = $('<option>');
+        $option.val(value);
+        $option.text(text || value);
+        return $option;
+    };
+
     return utils
 });

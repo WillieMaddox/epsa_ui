@@ -2,17 +2,20 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery',
+define(['jquery', 'ol',
     'exists',
+    'utils',
     'shp',
     'wfs110context',
     'ttemplate',
     'tstylefunction',
     'stemplate',
     'sstylefunction',
-    'serversettings'
-], function ($,
+    'serversettings',
+    'jquery-ui'
+], function ($, ol,
              exists,
+             utils,
              shp,
              WFSContext,
              tobjectTemplates,
@@ -22,6 +25,7 @@ define(['jquery',
              settings) {
 
     'use strict';
+
     var layerTree = function (options) {
         if (!(this instanceof layerTree)) {
             throw new Error('layerTree must be constructed with the new keyword.');
@@ -35,6 +39,7 @@ define(['jquery',
             if (containerDiv === null || containerDiv.nodeType !== 1) {
                 throw new Error('Please provide a valid element id.');
             }
+
             this.messages = document.getElementById(options.messages) || document.createElement('span');
             var observer = new MutationObserver(function (mutations) {
                 if (mutations[0].target.textContent) {
@@ -344,12 +349,12 @@ define(['jquery',
                     layer.on('propertychange', function (evt) {
                         if (evt.key === 'headers') {
                             var refresh = false;
-                            var opt, i;
                             var headers = evt.target.get('headers');
                             var previous = evt.oldValue;
+                            let opt, header;
 
-                            for (i in headers) {
-                                if (!previous || !previous[i]) {
+                            for (header in headers) {
+                                if (!previous || !previous[header]) {
                                     refresh = true;
                                 } else {
                                     console.log('Warning: This should have been caught in buildHeaders function.')
@@ -369,9 +374,9 @@ define(['jquery',
                                 $colorSelect.selectmenu('destroy');
                                 $hoverSelect.empty();
                                 $colorSelect.empty();
-                                for (i in headers) {
-                                    $hoverSelect.append(this.createMenuOption(null, i));
-                                    $colorSelect.append(this.createMenuOption(null, i));
+                                for (header in headers) {
+                                    $hoverSelect.append(utils.createMenuOption(header));
+                                    $colorSelect.append(utils.createMenuOption(header));
                                 }
                                 if ($hoverSelect.children().length > 0) {
                                     $hoverSelect.children().each(function () {
@@ -459,14 +464,7 @@ define(['jquery',
             throw new Error('Invalid parameter(s) provided.');
         }
     };
-    layerTree.prototype.createMenuOption = function (value, text) {
-        var $option = $('<option>');
-        if (value) {
-            $option.val(value);
-        }
-        $option.text(text || value);
-        return $option;
-    };
+
     layerTree.prototype.createButton = function (elemName, elemTitle, elemType, layer) {
         var _this = this;
         var $button = $('<button class="'+elemName+'" title="'+elemTitle+'"></button>');
@@ -554,12 +552,12 @@ define(['jquery',
             if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
                 var nLayers = layers.length;
                 for (i = 0; i < nLayers; i += 1) {
-                    $form.find(".layername").append(_this.createMenuOption(layers[i].Name));
+                    $form.find(".layername").append(utils.createMenuOption(layers[i].Name));
                 }
                 var formats = capabilities.Capability.Request.GetMap.Format;
                 var nFormats = formats.length;
                 for (i = 0; i < nFormats; i += 1) {
-                    $form.find(".format").append(_this.createMenuOption(formats[i]));
+                    $form.find(".format").append(utils.createMenuOption(formats[i]));
                 }
                 _this.messages.textContent = messageText;
             }
@@ -625,7 +623,7 @@ define(['jquery',
                 var re = /}(.*)/;
                 for (var i = 0; i < nLayers; i += 1) {
                     var name = re.exec(layers[i].name)[1];
-                    $form.find(".layername").append(_this.createMenuOption(name));
+                    $form.find(".layername").append(utils.createMenuOption(name));
                     _this.wfsProjections[name] = layers[i].defaultSRS;
                 }
                 _this.messages.textContent = messageText;
@@ -1059,17 +1057,17 @@ define(['jquery',
     layerTree.prototype.createLayerTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-layertype">Layer Type</label>'));
         var $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">');
-        $selectNode.append(this.createMenuOption("feature", "Feature"));
-        $selectNode.append(this.createMenuOption("sensor", "Sensor"));
+        $selectNode.append(utils.createMenuOption("feature", "Feature"));
+        $selectNode.append(utils.createMenuOption("sensor", "Sensor"));
         $fieldset.append($selectNode);
     };
     layerTree.prototype.createGeomTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
         var $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
-        $selectNode.append(this.createMenuOption("geomcollection", "Geometry Collection"));
-        $selectNode.append(this.createMenuOption("polygon", "Polygon"));
-        $selectNode.append(this.createMenuOption("line", "Line"));
-        $selectNode.append(this.createMenuOption("point", "Point"));
+        $selectNode.append(utils.createMenuOption("geomcollection", "Geometry Collection"));
+        $selectNode.append(utils.createMenuOption("polygon", "Polygon"));
+        $selectNode.append(utils.createMenuOption("line", "Line"));
+        $selectNode.append(utils.createMenuOption("point", "Point"));
         $fieldset.append($selectNode);
     };
     layerTree.prototype.createServerUrlNodes = function ($fieldset, id) {
@@ -1106,11 +1104,11 @@ define(['jquery',
     layerTree.prototype.createFileTypeNodes = function ($fieldset) {
         $fieldset.append($('<label for="open-filetype">File Type</label>'));
         var $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
-        $selectNode.append(this.createMenuOption("geojson", "GeoJSON"));
-        $selectNode.append(this.createMenuOption("topojson", "TopoJSON"));
-        $selectNode.append(this.createMenuOption("zip", "Shapefile (zipped)"));
-        $selectNode.append(this.createMenuOption("kml", "KML"));
-        $selectNode.append(this.createMenuOption("osm", "OSM"));
+        $selectNode.append(utils.createMenuOption("geojson", "GeoJSON"));
+        $selectNode.append(utils.createMenuOption("topojson", "TopoJSON"));
+        $selectNode.append(utils.createMenuOption("zip", "Shapefile (zipped)"));
+        $selectNode.append(utils.createMenuOption("kml", "KML"));
+        $selectNode.append(utils.createMenuOption("osm", "OSM"));
         $fieldset.append($selectNode);
     };
     layerTree.prototype.createFileOpenNodes = function ($fieldset) {
