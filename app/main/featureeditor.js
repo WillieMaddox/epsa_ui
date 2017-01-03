@@ -37,6 +37,7 @@ define(['jquery', 'ol',
             throw new Error('Invalid parameter(s) provided.');
         }
     };
+
     featureEditor.prototype.createForm = function () {
         this.formElements.featurename = this.createNameNodes();
         this.formElements.geometrytype = this.createGeometryTypeNodes();
@@ -72,10 +73,10 @@ define(['jquery', 'ol',
             }
         });
 
-        $('#add-hole').button({
+        $('#draw-hole').button({
             label: "Draw"
         }).on('click', function () {
-            _this.addHole();
+            _this.drawHole();
         });
         $('#delete-hole').button({
             label: "Delete"
@@ -138,7 +139,6 @@ define(['jquery', 'ol',
         }).spinner("value", 5);
 
     };
-
     featureEditor.prototype.addFormRow = function (labels) {
         var $formRow = $("<div class='form-row'>");
         for (let label of labels) {
@@ -148,183 +148,69 @@ define(['jquery', 'ol',
     };
     featureEditor.prototype.createNameNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='feature-name-label' class='form-label'>Feature Name</div>"));
-
         var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='feature-name-label' class='form-label'>Feature Name</div>"));
         $formValue.append($("<input type='text' id='feature-name' class='ui-widget'>"));
         $formElem.append($formValue);
-
         return $formElem
     };
     featureEditor.prototype.createGeometryTypeNodes = function () {
         var $formElem = $("<div class='form-elem' style='width:12em'>");
-
-        $formElem.append($("<div id='geometry-type-label' class='form-label'>Geometry Type</div>"));
-
         var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='geometry-type-label' class='form-label'>Geometry Type</div>"));
         $formValue.append($("<input type='text' id='geometry-type' readonly>"));
         $formElem.append($formValue);
-
         return $formElem
     };
     featureEditor.prototype.createMeasureNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='measure-label' class='form-label'>Measure</div>"));
-
         var $formValue = $("<div class='form-value'>");
+        $formElem.append($("<div id='measure-label' class='form-label'>Measure</div>"));
         $formValue.append($("<div id='measure' readonly>"));
-        var $measureUnits = $("<select id='measure-units'>");
-        $formValue.append($measureUnits);
-
+        var $selectNode = $("<select id='measure-units'>");
+        $selectNode.append(this.createMenuOption("metric", "Metric"));
+        $selectNode.append(this.createMenuOption("english", "English"));
+        $formValue.append($selectNode);
         $formValue.append($("<label for='geodesic' class='visible' title='Use geodesic measures'>"));
-        var $geodesicValue = $("<input type='checkbox' id='geodesic' checked>");
-        $formValue.append($geodesicValue);
+        $formValue.append($("<input type='checkbox' id='geodesic' checked>"));
         $formElem.append($formValue);
-
-        var units = ['metric', 'english'];
-        for (var i = 0; i < units.length; i += 1) {
-            $measureUnits.append(this.createMenuOption(units[i]));
-        }
-        // $measureUnits.selectmenu({
-        //     classes: {
-        //         "ui-selectmenu-button": "menuselect"
-        //     }
-        // });
-        // $geodesicValue.checkboxradio();
-
         return $formElem
     };
     featureEditor.prototype.createFeatureTypeNodes = function () {
-        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $featureType = $("<select id='feature-type'>");
-        $formValue.append($featureType);
+        $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"));
+        $formValue.append($("<select id='feature-type'>"));
         $formElem.append($formValue);
-
-        // $featureType.selectmenu({
-        //     classes: {
-        //         "ui-selectmenu-button": "menuselect"
-        //     },
-        //     change: function () {
-        //         _this.changeFeatureType(this.value);
-        //     }
-        // });
-
         return $formElem
     };
     featureEditor.prototype.createHoleNodes = function () {
-        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='hole-label' class='form-label'>Hole</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $addHole = $('<button id="add-hole" class="ol-unselectable ol-control hole-buttons" title="Draw a hole in the selected feature">Draw</button>');
-        $formValue.append($addHole);
-        var $deleteHole = $('<button id="delete-hole" class="ol-unselectable ol-control hole-buttons" title="Delete a hole from the selected feature">Delete</button>');
-        $formValue.append($deleteHole);
+        $formElem.append($("<div id='hole-label' class='form-label'>Hole</div>"));
+        $formValue.append(this.createHoleButton('draw', 'Draw a hole in the selected feature'));
+        $formValue.append(this.createHoleButton('delete', 'Delete a hole from the selected feature'));
+        // $formValue.append($('<button id="draw-hole" class="ol-unselectable ol-control hole-buttons" title="Draw a hole in the selected feature">Draw</button>'));
+        // $formValue.append($('<button id="delete-hole" class="ol-unselectable ol-control hole-buttons" title="Delete a hole from the selected feature">Delete</button>'));
         $formElem.append($formValue);
-
-        // $addHole.button({
-        //     label: "Draw"
-        // }).on('click', function () {
-        //     _this.addHole();
-        // });
-        // $deleteHole.button({
-        //     label: "Delete"
-        // }).on('click', function () {
-        //     _this.deleteHole();
-        // });
-
         return $formElem
     };
     featureEditor.prototype.createHeightNodes = function () {
-        // var _this = this;
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='height-label' class='form-label'>Height</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $heightSlider = $("<div id='height-slider'>");
-        $formValue.append($heightSlider);
-        var $heightSpinner = $("<input id='height-spinner'>");
-        $formValue.append($heightSpinner);
+        $formElem.append($("<div id='height-label' class='form-label'>Height</div>"));
+        $formValue.append($("<div id='height-slider'>"));
+        $formValue.append($("<input id='height-spinner'>"));
         $formElem.append($formValue);
-
-        // $heightSlider.slider({
-        //     animate: true,
-        //     range: "min",
-        //     min: 0,
-        //     max: 100,
-        //     step: 0.01,
-        //     slide: function (event, ui) {
-        //         $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
-        //     },
-        //     change: function (event, ui) {
-        //         $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
-        //     }
-        // });
-        // $heightSpinner.spinner({
-        //     min: 0,
-        //     max: 1000,
-        //     step: 0.1,
-        //     spin: function (event, ui) {
-        //         $("#height-slider").slider("value", _this.log10Slider(ui.value));
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $("#height-slider").slider("value", _this.log10Slider(this.value));
-        //         }
-        //     }
-        // }).spinner("value", 10);
-
         return $formElem
     };
     featureEditor.prototype.createThicknessNodes = function () {
         var $formElem = $("<div class='form-elem'>");
-
-        $formElem.append($("<div id='thickness-label' class='form-label'>Thickness</div>"));
-
         var $formValue = $("<div class='form-value'>");
-        var $thicknessSlider = $("<div id='thickness-slider'>");
-        $formValue.append($thicknessSlider);
-        var $thicknessSpinner = $("<input id='thickness-spinner'>");
-        $formValue.append($thicknessSpinner);
+        $formElem.append($("<div id='thickness-label' class='form-label'>Thickness</div>"));
+        $formValue.append($("<div id='thickness-slider'>"));
+        $formValue.append($("<input id='thickness-spinner'>"));
         $formElem.append($formValue);
-
-        // $thicknessSlider.slider({
-        //     animate: true,
-        //     range: "min",
-        //     min: 0,
-        //     max: 50,
-        //     step: 0.01,
-        //     slide: function (event, ui) {
-        //         $thicknessSpinner.spinner("value", ui.value)
-        //     },
-        //     change: function (event, ui) {
-        //         $thicknessSpinner.spinner("value", ui.value)
-        //     }
-        // });
-        // $thicknessSpinner.spinner({
-        //     min: 0,
-        //     max: 50,
-        //     step: 0.01,
-        //     spin: function (event, ui) {
-        //         $thicknessSlider.slider("value", ui.value)
-        //     },
-        //     change: function () {
-        //         if (this.value.length > 0) {
-        //             $thicknessSlider.slider("value", this.value);
-        //         }
-        //     }
-        // }).spinner("value", 5);
-
         return $formElem
     };
 
@@ -360,8 +246,7 @@ define(['jquery', 'ol',
         $buttonElem.attr('title', title);
         return $buttonElem;
     };
-
-    featureEditor.prototype.addHole = function () {
+    featureEditor.prototype.drawHole = function () {
         var holeStyle = [
             new ol.style.Style({
                 stroke: new ol.style.Stroke({
@@ -433,7 +318,7 @@ define(['jquery', 'ol',
             }
         });
 
-        $('#add-hole').button('disable');
+        $('#draw-hole').button('disable');
         $('#delete-hole').button('disable');
         this.map.un('pointermove', this.interactor.hoverDisplay);
         this.interactor.select.setActive(false);
@@ -477,7 +362,7 @@ define(['jquery', 'ol',
             _this.interactor.select.setActive(true);
             // _this.translate.setActive(true);
             _this.map.on('pointermove', _this.interactor.hoverDisplay);
-            $('#add-hole').button('enable');
+            $('#draw-hole').button('enable');
             // $('#delete-hole').button('enable');
             var holeFeats = getHoles(currGeom);
             $('#delete-hole').button('option', 'disabled', holeFeats.getArray().length === 0);
@@ -683,7 +568,7 @@ define(['jquery', 'ol',
             _this.interactor.select.setActive(true);
             // _this.translate.setActive(true);
             _this.map.on('pointermove', _this.interactor.hoverDisplay);
-            $('#add-hole').button('enable');
+            $('#draw-hole').button('enable');
             if (holeFeats.getArray().length > 0) {
                 $('#delete-hole').button('enable');
             }
@@ -695,7 +580,7 @@ define(['jquery', 'ol',
             }
         });
 
-        $('#add-hole').button('disable');
+        $('#draw-hole').button('disable');
         $('#delete-hole').button('disable');
         this.map.un('pointermove', this.interactor.hoverDisplay);
         this.interactor.select.setActive(false);
@@ -895,7 +780,7 @@ define(['jquery', 'ol',
 
         if (feature.getGeometry().getType().endsWith('Polygon')) {
             $('#hole-label').removeClass('disabled');
-            $('#add-hole').button('enable');
+            $('#draw-hole').button('enable');
             if (feature.getGeometry().getType() === 'MultiPolygon') {
                 var nPolygons = feature.getGeometry().getPolygons().length;
                 for (var i = 0; i < nPolygons; i++)
@@ -1038,7 +923,7 @@ define(['jquery', 'ol',
         $('#feature-type-button').find('.ui-selectmenu-text').html('&nbsp;');
         $featureType.selectmenu('disable');
 
-        $('#add-hole').button('disable');
+        $('#draw-hole').button('disable');
         $('#delete-hole').button('disable');
 
         $heightSpinner.spinner("value", null);
