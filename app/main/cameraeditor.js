@@ -370,7 +370,7 @@ define(['jquery',
         $selectNode.append(this.createMenuOption("english", "English"));
         $formValue.append($selectNode);
         $formValue.append($("<label for='geodesic2' class='visible' title='Use geodesic measures'>"));
-        $formValue.append($("<input type='checkbox' id='geodesic2' class='checkboxradio'>"));
+        $formValue.append($("<input type='checkbox' id='geodesic2' class='checkboxradio' checked>"));
         $formElem.append($formValue);
         return $formElem
     };
