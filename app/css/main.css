@@ -8,7 +8,7 @@ body {
 /** {
 	border: 1px solid red !important;
 }*/
-.main-container {
+.app-container {
     display: flex;
     width: 100%;
     height: 100%; /*Fallback*/
@@ -367,7 +367,7 @@ body {
 .error {
     border-color: red;
 }
-.opacity {
+.layeropacity {
     box-sizing: border-box;
     margin: 0 1em;
     height: 0.9em;
@@ -380,6 +380,12 @@ body {
     box-sizing: border-box;
     margin: 0.25em;
 }
+.hovercontrol {
+    width: calc(50% - 4.875em/2);
+}
+.colorcontrol {
+    width: calc(50% + 2.875em/2);
+}
 .menuselect {
     box-sizing: border-box;
     overflow-x: hidden;
@@ -387,12 +393,6 @@ body {
 }
 .menuselect.ui-selectmenu-button.ui-button {
     text-align: center;
-}
-.hovercontrol {
-    width: calc(50% - 4.875em/2);
-}
-.colorcontrol {
-    width: calc(50% + 2.875em/2);
 }
 .resetbutton {
     width: 3.875em;
@@ -505,18 +505,22 @@ table .summary-attribute-value {
 th, td {
     padding: 5px;
 }
-.map-container {
+.main-container {
     width: calc(100% - 400px);
     height: 100%;
+}
+.main-container .map-container {
+    height: calc(100% - 3em);
+    overflow: hidden;
+
 }
 .map-container .map {
     background: url(../img/map-background.jpg) repeat;
     position: relative;
     width: 100%;
-	height: calc(100% - 3em);
-    overflow: hidden;
+    height: 100%;
 }
-.map-container .notificationbar {
+.main-container .notificationbar {
     display: table;
     width: 100%;
 	height: 1.5em;
@@ -536,7 +540,7 @@ th, td {
 .notificationbar .ol-mouse-position {
     position: static;
 }
-.map-container .messagebar {
+.main-container .messagebar {
     width: 100%;
     height: 1.5em;
 }
