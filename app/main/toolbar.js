@@ -2,11 +2,10 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery',
-        'featureid',
-        'ispolyvalid',
-        'sstylefunction'
-], function ($, FID, isPolyValid, sensorStyleFunction) {
+define(['jquery', 'ol',
+        'utils',
+        'ispolyvalid'
+], function ($, ol, utils, isPolyValid) {
 
     'use strict';
     ol.control.Interaction = function (opt_options) {
@@ -300,7 +299,7 @@ define(['jquery',
             if (geom.getType().endsWith('Polygon') && !(isPolyValid(geom))) {
                 return;
             }
-            var id = FID.gen();
+            var id = utils.FID.gen();
 
             evt.feature.setId(id);
             evt.feature.set('type', feature_type);

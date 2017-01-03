@@ -4,12 +4,10 @@
 
 define(['jquery',
     'exists',
-    'featureid',
     'stemplate',
     'jsts'
 ], function ($,
              exists,
-             FID,
              sensorTemplates,
              jsts) {
 

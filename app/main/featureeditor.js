@@ -4,14 +4,12 @@
 
 define(['jquery',
     'exists',
-    'featureid',
     'ttemplate',
     'ispolyvalid',
     'ispointinpoly',
     'doespolycoverhole'
 ], function ($,
              exists,
-             FID,
              tobjectTemplates,
              isPolyValid,
              isPointInPoly,

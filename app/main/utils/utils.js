@@ -1,9 +1,12 @@
 /**
- * Created by maddoxw on 7/23/16.
+ * Created by maddoxw on 1/3/17.
  */
 
 define([], function () {
-    var FID = (function () {
+
+    var utils = {};
+
+    utils.FID = (function () {
         /**
          * Feature Id Generator based on
          * Linear Congruential Generator
@@ -44,6 +47,5 @@ define([], function () {
         }
     })();
 
-    return FID;
-
+    return utils
 });
