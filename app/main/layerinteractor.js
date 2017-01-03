@@ -2,9 +2,10 @@
  * Created by maddoxw on 9/6/16.
  */
 
-define(['jquery', 'exists', 'ispolyvalid'], function ($, exists, isPolyValid) {
+define(['jquery', 'ol', 'exists', 'ispolyvalid'], function ($, ol, exists, isPolyValid) {
 
     'use strict';
+
     var layerInteractor = function (options) {
         if (!(this instanceof layerInteractor)) {
             throw new Error('layerInteractor must be constructed with the new keyword.');
@@ -304,7 +305,6 @@ define(['jquery', 'exists', 'ispolyvalid'], function ($, exists, isPolyValid) {
             this.highlight = feature;
         }
     };
-
     layerInteractor.prototype.addInteractions = function () {
         var _this = this;
         var toolbar = this.toolbar;
@@ -461,5 +461,6 @@ define(['jquery', 'exists', 'ispolyvalid'], function ($, exists, isPolyValid) {
             }
         });
     };
+
     return layerInteractor;
 });

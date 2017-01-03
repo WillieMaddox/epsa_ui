@@ -34,6 +34,7 @@ define(['jquery', 'ol',
             throw new Error('Invalid parameter(s) provided.');
         }
     };
+
     cameraEditor.prototype.createForm = function () {
         this.formElements.cameraName = this.createNameNodes();
         this.formElements.range = this.createRangeNodes();
@@ -327,8 +328,8 @@ define(['jquery', 'ol',
     cameraEditor.prototype.createRangeNodes = function () {
         var $formElem = $("<div class='form-elem'>");
         var $formValue = $("<div class='form-value'>");
-        $formValue.append($("<input id='range-spinner-min'>"));
         $formElem.append($("<div id='range-label' class='form-label'>Range</div>"));
+        $formValue.append($("<input id='range-spinner-min'>"));
         $formValue.append($("<div id='range-slider'>"));
         $formValue.append($("<input id='range-spinner-max'>"));
         $formElem.append($formValue);
@@ -426,16 +427,13 @@ define(['jquery', 'ol',
         };
         var $formElem = $("<div class='form-elem'>");
         var $table = $("<table class='summary-table' style='width:100%'>");
-        // var $thead = $("<thead>");
         var $tbody = $("<tbody>");
-        // $thead.append(createTableRow({'label': 'summary-head', 'tag': 'Attribute', 'value': 'Value'}));
         $tbody.append(createTableRow({'label': 'camera-position', 'tag': 'Lon, Lat', 'value': ''}));
         $tbody.append(createTableRow({'label': 'camera-manufacturer', 'tag': 'Manufacturer', 'value': ''}));
         $tbody.append(createTableRow({'label': 'camera-model', 'tag': 'Model', 'value': ''}));
         $tbody.append(createTableRow({'label': 'camera-cost', 'tag': 'Cost', 'value': ''}));
         $tbody.append(createTableRow({'label': 'camera-hfov', 'tag': 'Horizontal FOV', 'value': ''}));
         $tbody.append(createTableRow({'label': 'camera-vfov', 'tag': 'Vertical FOV', 'value': ''}));
-        // $table.append($thead);
         $table.append($tbody);
         $formElem.append($table);
         return $formElem
@@ -494,7 +492,7 @@ define(['jquery', 'ol',
 
         var cameraTemplates = sensorTemplates['camera'].defaultSensors;
         var sensorProperties = sensorTemplates['camera'].properties;
-        var i, key;
+        var key;
 
         var $featureName = $('#feature-name');
         var $rangeSpinnerMin = $('#range-spinner-min');
@@ -558,7 +556,7 @@ define(['jquery', 'ol',
         $('#range-label').removeClass('disabled');
         $('#range-slider').slider('enable');
 
-
+        // the rangefan will replace this
         this.innerCircle = this.parser.read(feature.getGeometry()).buffer($rangeSpinnerMin.val());
         this.outerCircle = this.parser.read(feature.getGeometry()).buffer($rangeSpinnerMax.val());
         var jstshoop = this.outerCircle.difference(this.innerCircle);
@@ -593,6 +591,7 @@ define(['jquery', 'ol',
         $('#measure-units').selectmenu('enable');
         $geodesic.checkboxradio('enable');
 
+        // the rangefan will replace this
         this.formatArea(this.rangePolygon, this.map.getView().getProjection(), this.wgs84Sphere);
         this.rangelistener = this.rangePolygon.on('change', function (evt) {
             _this.formatArea(evt.target, _this.map.getView().getProjection(), _this.wgs84Sphere);
