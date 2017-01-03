@@ -2,20 +2,23 @@
  * Created by maddoxw on 10/14/16.
  */
 
-define(['jquery',
+define(['jquery', 'ol',
     'exists',
+    'utils',
     'ttemplate',
     'ispolyvalid',
     'ispointinpoly',
     'doespolycoverhole'
-], function ($,
+], function ($, ol,
              exists,
+             utils,
              tobjectTemplates,
              isPolyValid,
              isPointInPoly,
              doesPolyCoverHole) {
 
     'use strict';
+
     var featureEditor = function (options) {
         if (!(this instanceof featureEditor)) {
             throw new Error('featureEditor must be constructed with the new keyword.');
@@ -87,10 +90,10 @@ define(['jquery',
             max: 100,
             step: 0.01,
             slide: function (event, ui) {
-                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
+                $("#height-spinner").spinner("value", utils.pow10Slider(ui.value));
             },
             change: function (event, ui) {
-                $("#height-spinner").spinner("value", _this.pow10Slider(ui.value));
+                $("#height-spinner").spinner("value", utils.pow10Slider(ui.value));
             }
         });
         $('#height-spinner').spinner({
@@ -98,11 +101,11 @@ define(['jquery',
             max: 1000,
             step: 0.1,
             spin: function (event, ui) {
-                $("#height-slider").slider("value", _this.log10Slider(ui.value));
+                $("#height-slider").slider("value", utils.log10Slider(ui.value));
             },
             change: function () {
                 if (this.value.length > 0) {
-                    $("#height-slider").slider("value", _this.log10Slider(this.value));
+                    $("#height-slider").slider("value", utils.log10Slider(this.value));
                 }
             }
         }).spinner("value", 10);
@@ -356,21 +359,6 @@ define(['jquery',
         $buttonElem.val(label.capitalizeFirstLetter());
         $buttonElem.attr('title', title);
         return $buttonElem;
-    };
-
-    featureEditor.prototype.log10Slider = function (toPresent) {
-        var val = 0;
-        if (toPresent > 0.1) {
-            val = 25.0 * (Math.log10(toPresent) + 1.0);
-        }
-        return val;
-    };
-    featureEditor.prototype.pow10Slider = function (val) {
-        var toPresent = 0;
-        if (val > 0) {
-            toPresent = Math.pow(10, (val / 25 - 1));
-        }
-        return String(toPresent);
     };
 
     featureEditor.prototype.addHole = function () {

@@ -37,7 +37,6 @@ require.config({
         'doespolycoverhole': 'main/geometry/doespolycoverhole',
         'deg2tile': 'main/tools/deg2tile',
         'exists': 'main/utils/exists',
-        'featureid': 'main/utils/featureid',
         'defaultsensors': 'main/utils/defaultsensors',
         'layertree': 'main/layertree',
         'toolbar': 'main/toolbar',
@@ -50,6 +49,7 @@ require.config({
         'sstylefunction': 'main/sensors/stylefunction',
         'bingkey': ['main/bingkey', 'main/bingkey-sample'],
         'main': 'main/main'
+        'utils': 'utils/utils',
     },
     shim: {
         'jquery': {

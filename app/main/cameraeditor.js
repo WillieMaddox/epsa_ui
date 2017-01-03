@@ -2,16 +2,19 @@
  * Created by maddoxw on 10/14/16.
  */
 
-define(['jquery',
+define(['jquery', 'ol',
     'exists',
+    'utils',
     'stemplate',
     'jsts'
-], function ($,
+], function ($, ol,
              exists,
+             utils,
              sensorTemplates,
              jsts) {
 
     'use strict';
+
     var cameraEditor = function (options) {
         if (!(this instanceof cameraEditor)) {
             throw new Error('cameraEditor must be constructed with the new keyword.');
@@ -155,10 +158,10 @@ define(['jquery',
             max: 100,
             step: 0.01,
             slide: function (event, ui) {
-                $("#source-height-spinner").spinner("value", _this.pow10Slider(ui.value));
+                $("#source-height-spinner").spinner("value", utils.pow10Slider(ui.value));
             },
             change: function (event, ui) {
-                $("#source-height-spinner").spinner("value", _this.pow10Slider(ui.value));
+                $("#source-height-spinner").spinner("value", utils.pow10Slider(ui.value));
             }
         });
         $("#source-height-spinner").spinner({
@@ -166,11 +169,11 @@ define(['jquery',
             max: 1000,
             step: 0.1,
             spin: function (event, ui) {
-                $("#source-height-slider").slider("value", _this.log10Slider(ui.value));
+                $("#source-height-slider").slider("value", utils.log10Slider(ui.value));
             },
             change: function () {
                 if (this.value.length > 0) {
-                    $("#source-height-slider").slider("value", _this.log10Slider(this.value));
+                    $("#source-height-slider").slider("value", utils.log10Slider(this.value));
                 }
             }
         }).spinner("value", 10);
@@ -182,10 +185,10 @@ define(['jquery',
             max: 100,
             step: 0.01,
             slide: function (event, ui) {
-                $("#target-height-spinner").spinner("value", _this.pow10Slider(ui.value));
+                $("#target-height-spinner").spinner("value", utils.pow10Slider(ui.value));
             },
             change: function (event, ui) {
-                $("#target-height-spinner").spinner("value", _this.pow10Slider(ui.value));
+                $("#target-height-spinner").spinner("value", utils.pow10Slider(ui.value));
             }
         });
         $("#target-height-spinner").spinner({
@@ -193,11 +196,11 @@ define(['jquery',
             max: 1000,
             step: 0.1,
             spin: function (event, ui) {
-                $("#target-height-slider").slider("value", _this.log10Slider(ui.value));
+                $("#target-height-slider").slider("value", utils.log10Slider(ui.value));
             },
             change: function () {
                 if (this.value.length > 0) {
-                    $("#target-height-slider").slider("value", _this.log10Slider(this.value));
+                    $("#target-height-slider").slider("value", utils.log10Slider(this.value));
                 }
             }
         }).spinner("value", 10);
@@ -462,21 +465,6 @@ define(['jquery',
         $option.val(value);
         $option.text(text || value);
         return $option;
-    };
-
-    cameraEditor.prototype.log10Slider = function (toPresent) {
-        var val = 0;
-        if (toPresent > 0.1) {
-            val = 25.0 * (Math.log10(toPresent) + 1.0);
-        }
-        return val;
-    };
-    cameraEditor.prototype.pow10Slider = function (val) {
-        var toPresent = 0;
-        if (val > 0) {
-            toPresent = Math.pow(10, (val / 25 - 1));
-        }
-        return String(toPresent);
     };
 
     cameraEditor.prototype.formatArea = function (geom, sourceProj, sphere) {

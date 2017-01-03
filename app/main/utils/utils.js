@@ -47,5 +47,20 @@ define([], function () {
         }
     })();
 
+    utils.log10Slider = function (pval) {
+        var lval = 0;
+        if (pval > 0.1) {
+            lval = 25.0 * (Math.log10(pval) + 1.0);
+        }
+        return lval;
+    };
+    utils.pow10Slider = function (lval) {
+        var pval = 0;
+        if (lval > 0) {
+            pval = Math.pow(10, (lval / 25 - 1));
+        }
+        return String(pval);
+    };
+
     return utils
 });
