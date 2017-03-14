@@ -6,6 +6,7 @@
       <w>addvector</w>
       <w>addwfs</w>
       <w>addwms</w>
+      <w>allowableoptions</w>
       <w>bingkey</w>
       <w>checkboxradio</w>
       <w>checkwfslayer</w>
@@ -16,6 +17,8 @@
       <w>colorselect</w>
       <w>controlgroup</w>
       <w>dblclick</w>
+      <w>defaultsensor</w>
+      <w>defaultsensors</w>
       <w>deletelayer</w>
       <w>displayname</w>
       <w>doespolycoverhole</w>
@@ -29,8 +32,11 @@
       <w>featureinteractor</w>
       <w>featureproperties</w>
       <w>featuretarget</w>
+      <w>fillopacity</w>
+      <w>fovtype</w>
       <w>geojson</w>
       <w>geomcollection</w>
+      <w>geomstyle</w>
       <w>getjstsgeom</w>
       <w>gitmodules</w>
       <w>hovercontrol</w>
@@ -40,14 +46,17 @@
       <w>ispointinpoly</w>
       <w>ispolyvalid</w>
       <w>jsonix</w>
+      <w>jsts</w>
       <w>keydown</w>
       <w>layercontainer</w>
+      <w>layereditor</w>
       <w>layerid</w>
       <w>layerinteractor</w>
       <w>layerrow</w>
       <w>layerswitcher</w>
       <w>layertag</w>
       <w>layertitle</w>
+      <w>layertype</w>
       <w>loadingstrategy</w>
       <w>mainwindow</w>
       <w>modifyend</w>
@@ -59,6 +68,7 @@
       <w>parserformat</w>
       <w>pointermove</w>
       <w>requirejs</w>
+      <w>resetbutton</w>
       <w>selectcontrol</w>
       <w>selectevent</w>
       <w>selectmenu</w>
@@ -67,6 +77,7 @@
       <w>smil</w>
       <w>splitbutton</w>
       <w>stylelayer</w>
+      <w>textstyle</w>
       <w>thunderforest</w>
       <w>tilegrid</w>
       <w>tobject</w>

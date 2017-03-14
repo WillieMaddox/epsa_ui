@@ -1,0 +1,140 @@
+{
+  "camera": {
+    "TC1": {
+      "manufacturer": "ACME",
+      "model": "TEST CAMERA 1",
+      "cost": {
+        "units": "USD",
+        "value": 10
+      },
+      "options": {
+        "A1-wide": {
+          "fov": {
+            "horizontal": 90,
+            "vertical": 60
+          }
+        },
+        "A1-medium": {
+          "fov": {
+            "horizontal": 60,
+            "vertical": 45
+          }
+        },
+        "A1-narrow": {
+          "fov": {
+            "horizontal": 45,
+            "vertical": 30
+          }
+        },
+        "B1-wide": {
+          "fov": {
+            "horizontal": 120,
+            "vertical": 90
+          }
+        },
+        "B1-medium": {
+          "fov": {
+            "horizontal": 90,
+            "vertical": 60
+          }
+        },
+        "B1-narrow": {
+          "fov": {
+            "horizontal": 60,
+            "vertical": 45
+          }
+        }
+      }
+    },
+    "TC2": {
+      "manufacturer": "ACME",
+      "model": "TEST CAMERA 2",
+      "cost": {
+        "units": "USD",
+        "value": 10
+      },
+      "options": {
+        "A2-wide": {
+          "fov": {
+            "horizontal": 90,
+            "vertical": 180
+          }
+        },
+        "A2-medium": {
+          "fov": {
+            "horizontal": 60,
+            "vertical": 180
+          }
+        },
+        "A2-narrow": {
+          "fov": {
+            "horizontal": 45,
+            "vertical": 180
+          }
+        },
+        "B2-wide": {
+          "fov": {
+            "horizontal": 120,
+            "vertical": 180
+          }
+        },
+        "B2-medium": {
+          "fov": {
+            "horizontal": 90,
+            "vertical": 180
+          }
+        },
+        "B2-narrow": {
+          "fov": {
+            "horizontal": 60,
+            "vertical": 180
+          }
+        }
+      }
+    }
+  },
+  "radio": {
+    "TR1": {
+      "manufacturer": "ACME",
+      "model": "TEST RADIO 1",
+      "cost": {
+        "units": "USD",
+        "value": 100
+      },
+      "frequency": {
+        "units": "MHz",
+        "value": 2400
+      },
+      "power": {
+        "units": "Watts",
+        "value": 1
+      },
+      "sensitivity": {
+        "units": "dBm",
+        "value": -85
+      },
+      "options": {
+        "A1": {
+          "gain": {
+            "units": "dB",
+            "value": 8
+          },
+          "pattern": {
+            "horizontal": 50,
+            "vertical": 40
+          }
+        },
+        "A2": {
+          "gain": {
+            "units": "dB",
+            "value": 3
+          },
+          "pattern": {
+            "horizontal": 360,
+            "vertical": 90
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,10 +9,11 @@
  * @returns {Boolean} true||false
  */
 
-define(["ol", "getjstsgeom"], function (ol, getJSTSgeom) {
+define(["ol", "jsts"], function (ol, jsts) {
+    var parser = new jsts.io.OL3Parser();
     return function isPointInPoly(geom, pointcoords) {
-        var geomA = getJSTSgeom(geom);
-        var geomB = getJSTSgeom(new ol.geom.Point(pointcoords));
+        var geomA = parser.read(geom);
+        var geomB = parser.read(new ol.geom.Point(pointcoords));
         return geomB.within(geomA);
     };
 });

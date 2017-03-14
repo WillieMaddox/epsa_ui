@@ -1,17 +1,24 @@
 
 define(['jquery', 'ol',
-    'nouislider',
     'exists',
     'deg2tile',
-    'featureinteractor',
-    'ttemplate',
     'layertree',
     'toolbar',
-    'bingkey',
     'layerinteractor',
-    'layerswitcher'], function ($, ol, noUiSlider, exists, deg2tile, FeatureInteractor, tobjectTemplates, layerTree, toolBar, bingKey, layerInteractor) {
+    'featureeditor',
+    'cameraeditor',
+    'bingkey',
+    'layerswitcher'], function ($, ol,
+                                exists,
+                                deg2tile,
+                                layerTree,
+                                toolBar,
+                                layerInteractor,
+                                featureEditor,
+                                cameraEditor,
+                                bingKey) {
 
-    "use strict";
+    'use strict';
     String.prototype.capitalizeFirstLetter = function (flip) {
         if (flip) {
             return this.charAt(0).toLowerCase() + this.slice(1);
@@ -20,22 +27,29 @@ define(['jquery', 'ol',
         }
     };
 
-    ol.layer.Vector.prototype.buildHeaders = function () {
+    ol.layer.Image.prototype.buildHeaders = function () {
+        var features = this.getSource().getSource().getFeatures();
+        var len = features.length;
+        if (len === 0) {
+            return this;
+        }
+        var hasNew = false;
         var oldHeaders = this.get('headers') || {};
         var headers = {};
-        var features = this.getSource().getFeatures();
-        var len = features.length;
         for (var i = 0; i < len; i += 1) {
             var attributes = features[i].getProperties();
             for (var j in attributes) {
                 if (typeof attributes[j] !== 'object' && !(j in oldHeaders)) {
                     headers[j] = typeof attributes[j];
+                    hasNew = true;
                 } else if (j in oldHeaders) {
                     headers[j] = oldHeaders[j];
                 }
             }
         }
-        this.set('headers', headers);
+        if (hasNew) {
+            this.set('headers', headers);
+        }
         return this;
     };
 
@@ -76,41 +90,39 @@ define(['jquery', 'ol',
     ol.inherits(ol.interaction.ChooseHole, ol.interaction.Pointer);
 
     function init() {
-        // document.removeEventListener('DOMContentLoaded', init);
 
-        var mouseProjection = 'EPSG:4326';
+        var mouseProjection = ol.proj.get('EPSG:4326');
         var mousePrecision = 4;
-        var view = new ol.View({
-            // center: ol.proj.transform([-86.711, 34.636], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-86.677945, 34.723185], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-78.87532, 42.884600], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-73.9812, 40.6957], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-105.539, 39.771], 'EPSG:4326', 'EPSG:3857'),
-            center: ol.proj.transform([-105.0, 39.75], 'EPSG:4326', 'EPSG:3857'),
-            // center: ol.proj.transform([-79.049, 43.146], 'EPSG:4326', 'EPSG:3857'),
-            // center: [-8238000, 4970700],
-            // center: [0, 0],
-            zoom: 13
-        });
-        view.on('change:resolution', function (evt) {
-            var coord0 = evt.target.getCenter();
-            var pixel0 = map.getPixelFromCoordinate(coord0);
-            var pixel1 = [pixel0[0] + 1.0, pixel0[1] - 1.0];
-            var coord1 = map.getCoordinateFromPixel(pixel1);
-            var currentProj = map.getView().getProjection().getCode();
+        function updateMousePosition (view) {
+            var res = view.getResolution();
+            var coord0 = view.getCenter();
+            var coord1 = [coord0[0] + res, coord0[1] + res];
+            var currentProj = map.getView().getProjection();//.getCode();
             if (mouseProjection !== currentProj) {
                 coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
                 coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
+                res = Math.max(Math.abs(coord1[0] - coord0[0]), Math.abs(coord1[1] - coord0[1]));
             }
-            var dx = Math.abs(coord1[0] - coord0[0]);
-            var dy = Math.abs(coord1[1] - coord0[1]);
+            mousePrecision = Number(Math.abs(Math.min(0, Math.floor(Math.log10(res)))).toFixed());
+            mousePositionControl.setCoordinateFormat(ol.coordinate.createStringXY(mousePrecision));
+        }
 
-            var xp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dx)))).toFixed());
-            var yp = Number(Math.abs(Math.min(0, Math.floor(Math.log10(dy)))).toFixed());
-
-            mousePrecision = Math.max(xp, yp);
-            var format = ol.coordinate.createStringXY(mousePrecision);
-            mousePositionControl.setCoordinateFormat(format);
+        var view = new ol.View({
+            center: ol.proj.transform(
+                // [-86.711, 34.636],
+                // [-86.677945, 34.723185],
+                // [-78.87532, 42.884600],
+                // [-73.9812, 40.6957],
+                [-105.539, 39.771],
+                // [-105.0, 39.75],
+                // [-79.049, 43.146],
+                'EPSG:4326', 'EPSG:3857'),
+            // center: [-8238000, 4970700],
+            // center: [0, 0],
+            zoom: 15
+        });
+        view.on('change:resolution', function (evt) {
+            updateMousePosition(evt.target)
         });
         var thunderforestAttributions = [
             new ol.Attribution({
@@ -123,10 +135,10 @@ define(['jquery', 'ol',
             interactions: ol.interaction.defaults({doubleClickZoom: false}),
             target: document.getElementById('map'),
             view: view,
-            logo: {
-                src: 'img/saic-logo2.png',
-                href: 'http://www.saic.com'
-            },
+            // logo: {
+            //     src: 'img/saic-logo2.png',
+            //     href: 'http://www.saic.com'
+            // },
             controls: [new ol.control.Attribution(), new ol.control.Zoom()],
             layers: [
                 new ol.layer.Group({
@@ -240,77 +252,42 @@ define(['jquery', 'ol',
 
         var tree = new layerTree({map: map, target: 'layertree', messages: 'messageBar'});
 
-        // var tools = new toolBar({map: map, layertree: tree, target: 'toolbar'});
-        // tools.addDrawToolBar();
-        // var interactor = new FeatureInteractor({map: map, layertree: tree, toolbar: tools, target: 'featureeditor'});
+        var tools = new toolBar({map: map, layertree: tree, target: 'toolbar'});
+        tools.addDrawToolBar();
 
-        var interactor = new layerInteractor({map: map, layertree: tree, toolbartarget: 'toolbar', featuretarget: 'featureeditor'});
-        interactor.addDrawToolBar();
+        var interactor = new layerInteractor({map: map, layertree: tree, toolbar: tools});
+        tree.layerEditors['feature'] = new featureEditor({map: map, interactor: interactor});
+        tree.layerEditors['sensor'] = new cameraEditor({map: map, interactor: interactor});
 
         /*********** WFS-T *************/
         // var dirty = {};
         // var formatGML = new ol.format.GML({
-        // 	featureNS: 'http://argeomatica.com',
-        // 	featureType: 'cite:nyc_buildings',
-        // 	srsName: 'EPSG:3857'
+        //     featureNS: 'http://argeomatica.com',
+        //     featureType: 'cite:nyc_buildings',
+        //     srsName: 'EPSG:3857'
         // });
         // var transactWFS = function (p, f) {
-        // 	switch (p) {
-        // 		case 'insert':
-        // 			node = formatWFS.writeTransaction([f], null, null, formatGML);
-        // 			break;
-        // 		case 'update':
-        // 			node = formatWFS.writeTransaction(null, [f], null, formatGML);
-        // 			break;
-        // 		case 'delete':
-        // 			node = formatWFS.writeTransaction(null, null, [f], formatGML);
-        // 			break;
-        // 	}
-        // 	s = new XMLSerializer();
-        // 	str = s.serializeToString(node);
-        // 	$.ajax('http://www.firefly.com/geoserver/wfs', {
-        // 		type: 'POST',
-        // 		dataType: 'xml',
-        // 		processData: false,
-        // 		contentType: 'text/xml',
-        // 		data: str
-        // 	}).done();
+        //     switch (p) {
+        //         case 'insert':
+        //             node = formatWFS.writeTransaction([f], null, null, formatGML);
+        //             break;
+        //         case 'update':
+        //             node = formatWFS.writeTransaction(null, [f], null, formatGML);
+        //             break;
+        //         case 'delete':
+        //             node = formatWFS.writeTransaction(null, null, [f], formatGML);
+        //             break;
+        //     }
+        //     s = new XMLSerializer();
+        //     str = s.serializeToString(node);
+        //     $.ajax('http://www.firefly.com/geoserver/wfs', {
+        //         type: 'POST',
+        //         dataType: 'xml',
+        //         processData: false,
+        //         contentType: 'text/xml',
+        //         data: str
+        //     }).done();
         // };
-
-        /********* TRANSLATE ***********/
-        // When the translate interaction is active, it
-        // causes the mouse cursor to turn into a
-        // pointer when hovering over the interior
-        // of the AOR. Need to find out why.
-        // Disable until solution is found.
-        //
-        // var translate = new ol.interaction.Translate({
-        //     features: select.getFeatures()
-        // });
-        // map.addInteraction(translate);
-        // translate.setActive(false);
-
-        /********* ADD SENSOR **********/
-        // var iconFeature = new ol.Feature({
-        //     geometry: new ol.geom.Point([0, 0]),
-        //     name: 'Camera',
-        //     maxRange: 4000,
-        //     minRange: 500,
-        //     sourceHeight: 3,
-        //     targetHeight: 3
-        // });
-        // var iconStyle = new ol.style.Style({
-        //     image: new ol.style.Icon({
-        //         anchor: [0.5, 46],
-        //         anchorXUnits: 'fraction',
-        //         anchorYUnits: 'pixels',
-        //         src: 'resources/camera-normal.png'
-        //     })
-        // });
-        // iconFeature.setStyle(iconStyle);
-        // var vectorSource = new ol.source.Vector({
-        //     features: [iconFeature]
-        // });
 
         /********* ADD PROJECT *********/
         // var loadProject = document.getElementById('loadProject');
@@ -335,7 +312,7 @@ define(['jquery', 'ol',
         //             url: 'test_project/aor.geojson',
         //             format: new ol.format.GeoJSON()
         //         }),
-        //         style: tobjectsStyleFunction
+        //         style: tobjectStyleFunction
         //     });
         //     var vector = new ol.layer.Vector({
         //         title: 'tobjects',
@@ -344,7 +321,7 @@ define(['jquery', 'ol',
         //             url: 'test_project/tobjects_test.geojson',
         //             format: new ol.format.GeoJSON()
         //         }),
-        //         style: tobjectsStyleFunction
+        //         style: tobjectStyleFunction
         //     });
         //     var projectGroup = new ol.layer.Group({
         //         title: 'Project',
@@ -365,30 +342,6 @@ define(['jquery', 'ol',
         //     });
         // };
 
-        // var vector_aor = new ol.layer.Vector({
-        //     title: 'AOR',
-        //     name: 'AOR',
-        //     type: 'vector',
-        //     source: new ol.source.Vector(),
-        //     style: tobjectsStyleFunction
-        // });
-        // var vector = new ol.layer.Vector({
-        //     title: 'tobjects',
-        //     name: 'tobjects',
-        //     type: 'vector',
-        //     source: new ol.source.Vector(),
-        //     style: tobjectsStyleFunction
-        // });
-        // var projectGroup = new ol.layer.Group({
-        //     title: 'Project',
-        //     layers: [
-        //         // layerVector,
-        //         vector_aor,
-        //         vector
-        //     ]
-        // });
-        // map.addLayer(projectGroup);
-
         /******* LAYER SWITCHER ********/
         var layerSwitcher = new ol.control.LayerSwitcher();
         map.addControl(layerSwitcher);
@@ -398,12 +351,11 @@ define(['jquery', 'ol',
             // className: 'ol-scale-line ol-scale-line-inner text-stroke',
         });
         map.addControl(scaleLineControl);
-
-        var unitsSelect = $('#units');
-        unitsSelect.on('change', function () {
+        var $unitsSelect = $('#units');
+        $unitsSelect.val(scaleLineControl.getUnits());
+        $unitsSelect.on('change', function () {
             scaleLineControl.setUnits(this.value);
         });
-        unitsSelect.val(scaleLineControl.getUnits());
 
         /******** MOUSEPOSITION ********/
         var mousePositionControl = new ol.control.MousePosition({
@@ -412,15 +364,16 @@ define(['jquery', 'ol',
             target: 'coordinates'
         });
         map.addControl(mousePositionControl);
-
-        var projectionSelect = $('#projection');
-        projectionSelect.on('change', function () {
+        mousePositionControl.on('change:projection', function (evt) {
+            updateMousePosition(view)
+        });
+        var $projectionSelect = $('#projection');
+        $projectionSelect.val(mousePositionControl.getProjection().getCode());
+        $projectionSelect.on('change', function () {
             mouseProjection = ol.proj.get(this.value);
             mousePositionControl.setProjection(mouseProjection);
 
         });
-        projectionSelect.val(mousePositionControl.getProjection().getCode());
-
         var mousePositionControl2 = new ol.control.MousePosition({
             coordinateFormat: function (coordinates) {
                 var zoom = view.getZoom();
@@ -508,175 +461,6 @@ define(['jquery', 'ol',
         //     }, tree);
         // });
 
-
-        // document.getElementById('checkwmslayer').addEventListener('click', function () {
-        //     tree.checkWmsLayer(this.form);
-        // });
-        // document.getElementById('checkwfslayer').addEventListener('click', function () {
-        //     tree.checkWfsLayer(this.form);
-        // });
-        // document.getElementById('wmsurl').addEventListener('change', function () {
-        //     tree.removeContent(this.form.layer)
-        //         .removeContent(this.form.format);
-        // });
-        // document.getElementById('wfsurl').addEventListener('change', function () {
-        //     tree.removeContent(this.form.layer);
-        // });
-        // document.getElementById('addwms_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.addWmsLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-        // document.getElementById('addwfs_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.addWfsLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-        // document.getElementById('addvector_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.addVectorLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-        // document.getElementById('newvector_form').addEventListener('submit', function (evt) {
-        //     evt.preventDefault();
-        //     tree.newVectorLayer(this);
-        //     this.parentNode.style.display = 'none';
-        // });
-
-        $("#checkwmslayer").button().on("click", function () {
-            tree.checkWmsLayer($(this));
-        });
-        $("#checkwfslayer").button().on("click", function () {
-            tree.checkWfsLayer($(this));
-        });
-
-        $("#url_addwms").on("change", function () {
-            var $layername = $(this).parent().find(".layername");
-            var $format = $(this).parent().find(".format");
-            $layername.empty();
-            $layername.selectmenu("refresh");
-            $format.empty();
-            $format.selectmenu("refresh");
-        });
-        $("#url_addwfs").on("change", function () {
-            var $layername = $(this).parent().find(".layername");
-            $layername.empty();
-            $layername.selectmenu("refresh");
-        });
-        var $addWmsDialog = $("#addwms").dialog({
-            title: "Add WMS layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.addWmsLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $addWmsDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.addWmsLayer($(this));
-            $(this).parent().dialog("close");
-        });
-
-        var $addWfsDialog = $("#addwfs").dialog({
-            title: "Add WFS layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.addWfsLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $addWfsDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.addWfsLayer($(this));
-            $(this).parent().dialog("close");
-        });
-
-        var $addVectorDialog = $("#addvector").dialog({
-            title: "Add Vector layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.addVectorLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $addVectorDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.addVectorLayer($(this));
-            $(this).parent().dialog("close");
-        });
-        $addVectorDialog.find(".file").on("change", function (event) {
-            var startPos = this.value.lastIndexOf("\\") + 1;
-            var stopPos = this.value.lastIndexOf(".");
-            var name = this.value.slice(startPos, stopPos);
-            $addVectorDialog.find(".displayname").val(name);
-        });
-
-        var $newVectorDialog = $("#newvector").dialog({
-            title: "Create New Vector Layer",
-            autoOpen: false,
-            modal: true,
-            buttons: {
-                "Add Layer": function () {
-                    tree.newVectorLayer($(this).children());
-                    $(this).dialog("close")
-                },
-                Cancel: function () {
-                    $(this).dialog("close");
-                }
-            },
-            close: function () {
-                $(this).find("form")[0].reset();
-            }
-        });
-        $newVectorDialog.find("form").on("submit", function (event) {
-            event.preventDefault();
-            tree.newVectorLayer($(this));
-            $(this).parent().dialog("close");
-        });
-
-        $(".layername").selectmenu({
-            change: function (event, ui) {
-                $(this).parent().find(".displayname").val($(this).val());
-            }
-        }).selectmenu('menuWidget').addClass("overflow");
-        $(".geomtype").selectmenu().selectmenu('menuWidget').addClass("overflow");;
-        $(".filetype").selectmenu({
-            change: function (event, ui) {
-                $(this).parent().find(".displayname").val("");
-                $(this).parent().find(".file").val("");
-                $(this).parent().find(".file")[0].accept = '.' + $(this).val();
-            }
-        }).selectmenu('menuWidget').addClass("overflow");;
-        $(".format").selectmenu().selectmenu('menuWidget').addClass("overflow");;
-        $(".tiled").checkboxradio();
-
         /**
          * TODO: Need to integrate the opacity sliders from this code into the layerswitcher code.
          * See http://openlayers.org/en/v3.13.0/examples/layer-group.html?q=mapquest
@@ -703,10 +487,7 @@ define(['jquery', 'ol',
         }
     });
          **/
-    };
-    // document.addEventListener('DOMContentLoaded', init);
-    // alert();
+    }
     init();
-    // alert();
 });
 // define([], function() {});

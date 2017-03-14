@@ -1,0 +1,275 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:4326"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "TC1-0",
+        "defaultsensor": "TC1",
+        "option": "A1-wide",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "isotropic": true,
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "pan": {
+          "units": "degree",
+          "value": 270.0,
+          "wrt": "north"
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        },
+        "score": "0.160610106258"
+      },
+      "id": "LRTI-0",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5432097465938,
+          39.7773823870515
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "TC1-1",
+        "defaultsensor": "TC1",
+        "option": "A1-medium",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "isotropic": false,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "pan": {
+          "units": "degree",
+          "value": 270.0,
+          "wrt": "north"
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        },
+        "score": "0.260560601569"
+      },
+      "id": "LRTI-1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5348119215529,
+          39.76926611135254
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "TC1-2",
+        "defaultsensor": "TC1",
+        "option": "B1-medium",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "pan": {
+          "units": "degree",
+          "value": 270.0,
+          "wrt": "north"
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        },
+        "score": "0.101329122832"
+      },
+      "id": "LRTI-2",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5478703673761,
+          39.77398149059491
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "TC1-3",
+        "defaultsensor": "TC1",
+        "option": "B1-narrow",
+        "source_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 2.0
+        },
+        "isotropic": false,
+        "max_range": {
+          "units": "meter",
+          "value": 5000.0
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "pan": {
+          "units": "degree",
+          "value": 270.0,
+          "wrt": "north"
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        },
+        "score": "0.247808296995"
+      },
+      "id": "LRTI-3",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5423860314494,
+          39.76565409064177
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "TC2-0",
+        "defaultsensor": "TC2",
+        "option": "A2-wide",
+        "source_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "isotropic": false,
+        "max_range": {
+          "units": "meter",
+          "value": 321.91836094236834
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "pan": {
+          "units": "degree",
+          "value": 0.0,
+          "wrt": "north"
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        },
+        "score": "0.0344656880382"
+      },
+      "id": "c0",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5454931602549,
+          39.7700056351582
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "camera",
+        "name": "TC2-1",
+        "defaultsensor": "TC2",
+        "option": "B2-narrow",
+        "source_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "target_height": {
+          "units": "meter",
+          "value": 3.0
+        },
+        "isotropic": true,
+        "max_range": {
+          "units": "meter",
+          "value": 395.8911479231578
+        },
+        "min_range": {
+          "units": "meter",
+          "value": 0.0
+        },
+        "pan": {
+          "units": "degree",
+          "value": 0.0,
+          "wrt": "north"
+        },
+        "tilt": {
+          "units": "degree",
+          "value": 0
+        },
+        "score": "0.0943678173273"
+      },
+      "id": "c1",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.5357513771096,
+          39.77399676836959
+        ]
+      }
+    }
+  ]
+}

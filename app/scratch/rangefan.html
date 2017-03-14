@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Range Fan Example</title>
+    <!--<link rel="stylesheet" href="../bower_components/jquery-ui/themes/base/jquery-ui.min.css">-->
+    <!--<script src="../bower_components/jquery/dist/jquery.js"></script>-->
+    <!--<script src="../bower_components/jquery-ui/jquery-ui.js"></script>-->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+
+<p>Inner Radius:</p>
+<div id="innerradius"></div>
+<p>Outer Radius:</p>
+<div id="outerradius"></div>
+<p>Pan Angle:</p>
+<div id="panangle"></div>
+<p>Field of View:</p>
+<div id="fov"></div>
+<br>
+<canvas id="rangefan" width="300" height="300" style="border:1px solid #d3d3d3;">
+    Your browser does not support the HTML5 canvas tag.
+</canvas>
+
+<script>
+
+    function deg2rad(deg) {
+        return deg * Math.PI / 180.0;
+    };
+
+    var centerX = 150;
+    var centerY = 150;
+    var innerRadius = 30;
+    var outerRadius = 100;
+    var panAngle = 330;
+    var fov = 60;
+
+    var drawWedge = function () {
+
+        var thetaStart = deg2rad(panAngle - fov / 2);
+        var thetaStop = deg2rad(panAngle + fov / 2);
+
+        var c = $("#rangefan");
+        var ctx = c[0].getContext("2d");
+        ctx.clearRect(0, 0, 300, 300);
+
+        ctx.beginPath();
+        ctx.moveTo(centerX + innerRadius * Math.cos(thetaStart), centerY + innerRadius * Math.sin(thetaStart));
+        ctx.lineTo(centerX + outerRadius * Math.cos(thetaStart), centerY + outerRadius * Math.sin(thetaStart));
+        ctx.arc(centerX, centerY, outerRadius, thetaStart, thetaStop);
+        ctx.lineTo(centerX + innerRadius * Math.cos(thetaStop), centerY + innerRadius * Math.sin(thetaStop));
+        ctx.moveTo(centerX + innerRadius * Math.cos(thetaStart), centerY + innerRadius * Math.sin(thetaStart));
+        ctx.arc(centerX, centerY, innerRadius, thetaStart, thetaStop);
+        ctx.stroke();
+
+    };
+
+    $("#innerradius").slider({
+        range: "min",
+        min: 0,
+        max: 75,
+        step: 1,
+        value: innerRadius,
+        animate: true,
+        slide : function (event, ui)
+        {
+            innerRadius = ui.value;
+            drawWedge();
+        }
+    });
+
+    $("#outerradius").slider({
+        range: "min",
+        min: 76,
+        max: 150,
+        step: 1,
+        value: outerRadius,
+        animate: true,
+        slide : function (event, ui)
+        {
+            outerRadius = ui.value;
+            drawWedge();
+        }
+    });
+
+    $("#panangle").slider({
+        range: "min",
+        min: 0,
+        max: 359,
+        step: 1,
+        value: panAngle,
+        animate: true,
+        slide : function (event, ui)
+        {
+            panAngle = ui.value;
+            drawWedge();
+        }
+    });
+
+    $("#fov").slider({
+        range: "min",
+        min: 1,
+        max: 180,
+        step: 1,
+        value: fov,
+        animate: true,
+        slide : function (event, ui)
+        {
+            fov = ui.value;
+            drawWedge();
+        }
+    });
+
+    drawWedge();
+</script>
+
+
+</body>
+</html>

@@ -89,8 +89,7 @@
       "properties": {
         "type": "building",
         "name": "Building-2",
-        "height": 20.0,
-        "subtype": "metal"
+        "height": 20.0
       },
       "id": "building-2",
       "geometry": {
@@ -196,16 +195,16 @@
     {
       "type": "Feature",
       "properties": {
-        "type": "herbage",
-        "name": "Herbage-0",
-        "height": 20.0,
-        "subtype": "sparse"
+        "type": "road",
+        "name": "Road-0",
+        "thickness": 20.0,
+        "subtype": "dirt"
       },
-      "id": "herbage-0",
+      "id": "road-0",
       "geometry": {
-        "type": "Polygon",
+        "type": "LineString",
         "coordinates": [
-          [
+
             [
               -105.53734997368367,
               39.77049216997994
@@ -221,12 +220,8 @@
             [
               -105.5386803493553,
               39.77042619935854
-            ],
-            [
-              -105.53734997368367,
-              39.77049216997994
             ]
-          ]
+
         ]
       }
     },
@@ -272,8 +267,7 @@
       "properties": {
         "type": "herbage",
         "name": "Herbage-2",
-        "height": 20.0,
-        "subtype": "sparse"
+        "height": 20.0
       },
       "id": "herbage-2",
       "geometry": {

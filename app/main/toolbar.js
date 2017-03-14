@@ -2,8 +2,12 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
+define(['jquery', 'ol',
+        'featureid',
+        'ispolyvalid',
+        'sstylefunction'], function ($, ol, FID, isPolyValid, sensorStyleFunction) {
 
+    'use strict';
     ol.control.Interaction = function (opt_options) {
         var options = opt_options || {};
         var controlDiv = document.createElement('div');
@@ -49,9 +53,9 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             if (this.get('active')) {
                 controlButton.classList.add('active');
                 $(document).on('keyup', function (evt) {
-                    if (evt.keyCode == 189 || evt.keyCode == 109) {
+                    if (evt.keyCode === 189 || evt.keyCode === 109) {
                         _this.get('interaction').removeLastPoint();
-                    } else if (evt.keyCode == 27) {
+                    } else if (evt.keyCode === 27) {
                         _this.set('active', false);
                     }
                 });
@@ -76,10 +80,10 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
     };
 
     var toolBar = function (options) {
-        'use strict';
         if (!(this instanceof toolBar)) {
             throw new Error('toolBar must be constructed with the new keyword.');
-        } else if (typeof options === 'object' && options.map && options.target && options.layertree) {
+        }
+        if (typeof options === 'object' && options.map && options.target && options.layertree) {
             if (!(options.map instanceof ol.Map)) {
                 throw new Error('Please provide a valid OpenLayers 3 map object.');
             }
@@ -89,14 +93,15 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             this.controls = new ol.Collection();
             this.bitA = 0;
             this.bitB = 0;
-            this.activeControl = undefined;
+            this.activeControl = null;
             this.active = false;
-            this.controlEventEmitter = new ol.Observable();
+            this.drawEventEmitter = new ol.Observable();
             this.addedFeature = null;
         } else {
             throw new Error('Invalid parameter(s) provided.');
         }
     };
+
     toolBar.prototype.addControl = function (control) {
         if (!(control instanceof ol.control.Control)) {
             throw new Error('Only controls can be added to the toolbar.');
@@ -106,7 +111,7 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 if (!(this.bitA | this.bitB)) {
                     this.activeControl = control;
                     this.active = true;
-                    this.controlEventEmitter.changed()
+                    this.drawEventEmitter.changed();
                 }
                 this.bitA ^= 1;
                 if (control.get('active')) {
@@ -118,9 +123,9 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
                 }
                 this.bitB ^= 1;
                 if (!(this.bitA | this.bitB)) {
-                    this.activeControl = undefined;
+                    this.activeControl = null;
                     this.active = false;
-                    this.controlEventEmitter.changed()
+                    this.drawEventEmitter.changed();
                 }
             }, this);
         }
@@ -218,55 +223,71 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             feature_type: 'camera',
             geometry_type: 'Point',
             className: 'ol-addcamera ol-unselectable ol-control',
-            interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'camera')
+            interaction: this.handleEvents(new ol.interaction.Draw({
+                type: 'Point',
+                style: new ol.style.Style({
+                    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+                        anchor: [0.5, 0.5],
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'fraction',
+                        // size: [20, 20],
+                        color: [255, 0, 0],
+                        scale: 0.05,
+                        src: 'img/camera-normal.png'
+                    }))
+                })
+            }), 'camera')
         }).setDisabled(true);
         this.drawControls.push(drawCamera);
 
-        this.activeFeatures = new ol.Collection();
+        // this.activeFeatures = new ol.Collection();
 
-        layertree.selectEventEmitter.on('change', function () {
-            var layer;
-            if (layertree.selectedLayer) {
-                layer = layertree.getLayerById(layertree.selectedLayer.id);
-            } else {
-                layer = null;
-            }
-
+        layertree.deselectEventEmitter.on('change', function () {
             this.drawControls.forEach(function (control) {
                 control.set('active', false);
                 control.setDisabled(true);
             });
-            if (layer instanceof ol.layer.Vector) { // feature layer.
+            // this.activeFeatures.clear();
+        }, this);
 
-                layertree.identifyLayer(layer);
+        layertree.selectEventEmitter.on('change', function () {
+
+            var layer = layertree.getLayerById(layertree.selectedLayer.id);
+
+            if (layer instanceof ol.layer.Image) { // feature layer.
+
+                // layertree.identifyLayer(layer);
+                var layerGeomType = layer.get('geomtype');
                 var layerType = layer.get('type');
 
-                if (layerType === 'geomcollection' || layerType === 'point') {
-                    drawPoint.setDisabled(false);
+                if (layerType === 'sensor') {
                     drawCamera.setDisabled(false);
+                } else if (layerType === 'feature') {
+                    if (layerGeomType === 'geomcollection' || layerGeomType === 'point') {
+                        drawPoint.setDisabled(false);
+                    }
+                    if (layerGeomType === 'geomcollection' || layerGeomType === 'line') {
+                        drawLineString.setDisabled(false);
+                        drawWall.setDisabled(false);
+                        drawRoad.setDisabled(false);
+                    }
+                    if (layerGeomType === 'geomcollection' || layerGeomType === 'polygon') {
+                        drawPolygon.setDisabled(false);
+                        drawAOR.setDisabled(false);
+                        drawWater.setDisabled(false);
+                        drawHerbage.setDisabled(false);
+                        drawBuilding.setDisabled(false);
+                    }
                 }
-                if (layerType === 'geomcollection' || layerType === 'line') {
-                    drawLineString.setDisabled(false);
-                    drawWall.setDisabled(false);
-                    drawRoad.setDisabled(false);
-                }
-                if (layerType === 'geomcollection' || layerType === 'polygon') {
-                    drawPolygon.setDisabled(false);
-                    drawAOR.setDisabled(false);
-                    drawWater.setDisabled(false);
-                    drawHerbage.setDisabled(false);
-                    drawBuilding.setDisabled(false);
-                }
-                var _this = this;
-                setTimeout(function () {
-                    _this.activeFeatures.clear();
-                    _this.activeFeatures.extend(layer.getSource().getFeatures());
-                }, 0);
+                // var _this = this;
+                // setTimeout(function () {
+                //     _this.activeFeatures.extend(layer.getSource().getFeatures());
+                // }, 0);
             }
         }, this);
 
         this.drawControls.forEach(function (control) {
-            this.addControl(control)
+            this.addControl(control);
         }, this);
 
         return this;
@@ -277,27 +298,25 @@ define(["ol", "featureid", "ispolyvalid"], function (ol, FID, isPolyValid) {
             var geom = evt.feature.getGeometry();
             if (geom.getType().endsWith('Polygon') && !(isPolyValid(geom))) {
                 return;
-            } else {
-                var id = FID.gen();
-
-                evt.feature.setId(id);
-                evt.feature.set('type', feature_type);
-                evt.feature.set('name', feature_type.capitalizeFirstLetter() + '-' + id);
-
-                //TODO: The feature shouldn't be added to the layer yet.
-                //TODO: Only after deselect should the layer be updated.
-                //TODO: Need to Check.
-                // var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
-                // selectedLayer.getSource().addFeature(evt.feature);
-                // this.activeFeatures.push(evt.feature);
-
-                this.addedFeature = evt.feature;
             }
+            var id = FID.gen();
+
+            evt.feature.setId(id);
+            evt.feature.set('type', feature_type);
+            evt.feature.set('name', feature_type.capitalizeFirstLetter() + '-' + id);
+
+            //TODO: The feature shouldn't be added to the layer yet.
+            //TODO: Only after deselect should the layer be updated.
+            //TODO: Need to Check.
+            // var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+            // selectedLayer.getSource().addFeature(evt.feature);
+            // this.activeFeatures.push(evt.feature);
+
+            this.addedFeature = evt.feature;
             this.activeControl.set('active', false);
         }, this);
         return interaction;
     };
 
     return toolBar;
-
 });

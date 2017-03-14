@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery UI Selectmenu - Dynamic Menu Rebuild (with memory leak)</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+        fieldset {
+            border: 0;
+        }
+        label {
+            display: block;
+            margin: 30px 0 0 0;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $( function() {
+            var run = 0;
+            $( "#testmenu" ).selectmenu();
+            $( "#memoryleak" ).button({
+                label: "Memory Leak Test"
+            }).on('click', function () {
+                var t1, t2, dt;
+                var $testmenu = $( "#testmenu" );
+                var n = $testmenu.val();
+                for (var i = 0; i < n; i += 1) {
+                    run += 1;
+                    t1 = new Date().getTime();
+                    $testmenu.selectmenu("destroy");
+                    $testmenu.empty();
+                    $testmenu.append($('<option>1</option>'));
+                    $testmenu.append($('<option>2</option>'));
+                    $testmenu.append($('<option>3</option>'));
+                    $testmenu.append($('<option>4</option>'));
+                    $testmenu.append($('<option>5</option>'));
+                    $testmenu.append($('<option>6</option>'));
+                    $testmenu.append($('<option>7</option>'));
+                    $testmenu.append($('<option>8</option>'));
+                    $testmenu.append($('<option>9</option>'));
+                    $testmenu.append($('<option>10</option>'));
+//                    $testmenu.selectmenu("refresh");
+                    $testmenu.selectmenu();
+                    t2 = new Date().getTime();
+                    dt = t2-t1;
+                    $("#timing").append("<li>Run: " + run + " Time: " + dt + "</li>");
+                }
+            });
+        } );
+    </script>
+</head>
+<body>
+
+<div class="demo">
+    <form action="#">
+        <fieldset>
+            <label for="testmenu">Number of tests to Run</label>
+            <select name="testmenu" id="testmenu">
+                <option>1</option>
+            </select>
+            <button id="memoryleak"></button>
+        </fieldset>
+    </form>
+</div>
+
+<h3>Output:</h3>
+<ul id="timing"></ul>
+
+</body>
+</html>
