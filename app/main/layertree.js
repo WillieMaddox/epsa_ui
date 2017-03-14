@@ -685,9 +685,10 @@ define(["jquery", "ol",
         var _this = this;
         // var file = form.file.files[0];
         var file = $form.find(".file")[0].files[0];
+        var filetype = $form.find(".filetype").val();
         var currentProj = this.map.getView().getProjection();
         var $progressbar;
-        switch ($form.find(".filetype").val()) {
+        switch (filetype) {
             // switch (form.format.value) {
             // case 'shp':
             //     sourceFormat = new ol.format.GeoJSON();
@@ -736,7 +737,7 @@ define(["jquery", "ol",
             var vectorData = evt.target.result;
             var dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
             // var dataProjection = form.projection.value || sourceFormat.readProjection(vectorData) || currentProj;
-            if ($form.find(".filetype").val() === 'zip') {
+            if (filetype === 'zip') {
                 // if (form.format.value === 'zip') {
                 shp(vectorData).then(function (geojson) {
                     source.addFeatures(sourceFormat.readFeatures(geojson, {
@@ -797,7 +798,7 @@ define(["jquery", "ol",
             fr.onloadend = loadEnd;
             fr.onerror = errorHandler;
 
-            if ($form.find(".filetype").val() === 'zip') {
+            if (filetype === 'zip') {
                 // if (form.format.value === 'zip') {
                 fr.readAsArrayBuffer(file); // SHP
             } else {
