@@ -9,25 +9,28 @@
         <link rel="icon" href="/app/favicon.ico" type="image/x-icon">
     </head>
     <body>
-        <div class="app-container">
+        <div id="app-container" class="app-container">
             <div class="sidebar-container">
                 <div id="toolbar" class="toolbar"></div>
                 <div id="layereditor" class="layereditor"></div>
-                <div id="layertoolbar" class="layertoolbar"></div>
-                <div id="layertree" class="layertree"></div>
+                <div id="layertoolbar-container" class="layertoolbar-container"></div>
+                <div id="layertree-container" class="layertree-container"></div>
+                <!--<div id="layertree" class="layertree"></div>-->
             </div>
             <div class="main-container">
                 <div id="map-container" class="map-container">
                     <div id="map" class="map"></div>
                 </div>
                 <div class="notificationbar">
-                    <div id="map-units-container"></div>
-                    <div id="map-projection-container"></div>
-                    <div id="map-coordinates-container" class="coordinates">
+                    <div id="mouse-units-container"></div>
+                    <div id="mouse-projection-container"></div>
+                    <div id="mouse-coordinates-container" class="coordinates">
                         <label id="coordinates"></label>
                     </div>
                 </div>
-                <div id="messagebar" class="messagebar"></div>
+                <div id="messagebar-container">
+                    <!--<div id="messagebar" class="messagebar"></div>-->
+                </div>
             </div>
         </div>
     </body>

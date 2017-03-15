@@ -39,9 +39,13 @@ require.config({
         'utils': 'utils/utils',
         'exists': 'utils/exists',
         'defaultsensors': 'utils/defaultsensors',
-        'mapprojection': 'utils/mapprojection',
-        'mapunits': 'utils/mapunits',
+        'mouseprojection': 'utils/mouseprojection',
+        'mouseunits': 'utils/mouseunits',
+        'map': 'map',
+        'messagebar': 'messagebar',
         'layertree': 'layertree',
+        // 'layertree': 'layertree_old',
+        'layertoolbar': 'layertoolbar',
         'toolbar': 'toolbar',
         'layerinteractor': 'layerinteractor',
         'featureeditor': 'featureeditor',
@@ -50,8 +54,7 @@ require.config({
         'tstylefunction': 'tobjects/stylefunction',
         'stemplate': 'sensors/template',
         'sstylefunction': 'sensors/stylefunction',
-        'bingKey': ['bingkey', 'bingkey-sample'],
-        'mainapp': 'mainapp'
+        'bingKey': ['bingkey', 'bingkey-sample']
     },
     shim: {
         'layerswitcher': {
