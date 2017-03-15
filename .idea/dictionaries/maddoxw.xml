@@ -58,13 +58,18 @@
       <w>layerswitcher</w>
       <w>layertag</w>
       <w>layertitle</w>
+      <w>layertoolbar</w>
+      <w>layertree</w>
       <w>layertype</w>
       <w>loadingstrategy</w>
       <w>mainwindow</w>
+      <w>messagebar</w>
       <w>modifyend</w>
       <w>modifystart</w>
       <w>mousedown</w>
       <w>mouseleave</w>
+      <w>mouseprojection</w>
+      <w>mouseunits</w>
       <w>mouseup</w>
       <w>newvector</w>
       <w>onreadystatechange</w>
@@ -80,6 +85,7 @@
       <w>shapefile</w>
       <w>smil</w>
       <w>splitbutton</w>
+      <w>stylefunction</w>
       <w>stylelayer</w>
       <w>textstyle</w>
       <w>thunderforest</w>
