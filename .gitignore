@@ -16,15 +16,6 @@ node_modules/
 .idea/dbnavigator.xml
 .idea/encodings.xml
 .idea/misc_old.xml
-app/data/TowersJNU15741ZCY397562.csv
-app/data/TransmittersHSQ704900QLI225294.csv
-app/data/connecticut-latest.osm
-app/data/delaware-latest.osm
-app/data/delaware-latest.shp.zip
-app/data/maldives-latest.osm
-app/data/maldives-latest.shp.zip
-app/data/maldives-latest.shp/
-app/main/layertree_orig.js
 app/scratch/controlgroup.html
 app/scratch/pb_background.html
 app/scratch/slider.html
