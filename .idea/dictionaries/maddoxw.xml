@@ -8,6 +8,7 @@
       <w>addwms</w>
       <w>allowableoptions</w>
       <w>bingkey</w>
+      <w>cameraeditor</w>
       <w>checkboxradio</w>
       <w>checkwfslayer</w>
       <w>checkwmslayer</w>
@@ -52,6 +53,7 @@
       <w>layereditor</w>
       <w>layerid</w>
       <w>layerinteractor</w>
+      <w>layeropacity</w>
       <w>layerrow</w>
       <w>layerswitcher</w>
       <w>layertag</w>
@@ -62,6 +64,7 @@
       <w>modifyend</w>
       <w>modifystart</w>
       <w>mousedown</w>
+      <w>mouseleave</w>
       <w>mouseup</w>
       <w>newvector</w>
       <w>onreadystatechange</w>
@@ -72,6 +75,7 @@
       <w>selectcontrol</w>
       <w>selectevent</w>
       <w>selectmenu</w>
+      <w>selectmenuchange</w>
       <w>serversettings</w>
       <w>shapefile</w>
       <w>smil</w>
@@ -86,6 +90,7 @@
       <w>topojson</w>
       <w>tstylefunction</w>
       <w>unmarshaller</w>
+      <w>unregister</w>
       <w>unselectable</w>
       <w>wfsurl</w>
       <w>wmsurl</w>

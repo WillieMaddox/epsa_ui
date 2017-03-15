@@ -13,12 +13,13 @@ define(["jquery", "stemplate"], function ($, sensorTemplates) {
         var setStyle = function (icon_src) {
             var style = new ol.style.Style({
                 image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-                    // size: [20, 20],
-                    anchor: [0.5, 0.5],
-                    anchorXUnits: 'fraction',
-                    anchorYUnits: 'fraction',
-                    color: [255, 0, 0],
+                    // anchor: [0.5, 0.5],
+                    // anchorXUnits: 'fraction',
+                    // anchorYUnits: 'fraction',
+                    color: [0, 0, 0],
+                    opacity: 1,
                     scale: 0.05,
+                    snapToPixel: false,
                     src: icon_src
                 }))
             });

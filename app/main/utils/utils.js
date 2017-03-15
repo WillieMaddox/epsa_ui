@@ -1,9 +1,12 @@
 /**
- * Created by maddoxw on 7/23/16.
+ * Created by maddoxw on 1/3/17.
  */
 
 define([], function () {
-    var FID = (function () {
+
+    var utils = {};
+
+    utils.FID = (function () {
         /**
          * Feature Id Generator based on
          * Linear Congruential Generator
@@ -44,6 +47,46 @@ define([], function () {
         }
     })();
 
-    return FID;
+    utils.log10Slider = function (pval) {
+        var lval = 0;
+        if (pval > 0.1) {
+            lval = 25.0 * (Math.log10(pval) + 1.0);
+        }
+        return lval;
+    };
+    utils.pow10Slider = function (lval) {
+        var pval = 0;
+        if (lval > 0) {
+            pval = Math.pow(10, (lval / 25 - 1));
+        }
+        return String(pval);
+    };
 
+    utils.createLabel = function (label) {
+        var $label = $('<label>');
+        $label.attr('for', label);
+        return $label;
+    };
+    utils.createInput = function (name, type) {
+        var $input = $('<input>');
+        $input.name = name;
+        $input.type = type;
+        $input.required = true;
+        return $input;
+    };
+    utils.createMenu = function (name, id) {
+        var $menu = $('<select>');
+        $menu.name = name;
+        $menu.type = "text";
+        $menu.id = id;
+        return $menu;
+    };
+    utils.createMenuOption = function (value, text) {
+        var $option = $('<option>');
+        $option.val(value);
+        $option.text(text || value);
+        return $option;
+    };
+
+    return utils
 });

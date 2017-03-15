@@ -47,232 +47,212 @@
         </div>
         <br>
         <div id="map" class="map"></div>
-        <canvas id="rangefanpan" class="rangefan" style="width: 100%; height: 500px; border: 2px solid #9933cc; box-sizing: border-box">
+        <canvas id="rangefan" class="rangefan">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
-        <canvas id="rangefantilt" class="rangefan" style="width: 100%; height: 300px; border: 2px solid #9933cc; box-sizing: border-box">
-            Your browser does not support the HTML5 canvas tag.
-        </canvas>
+        <!--<canvas id="rangefantilt" class="rangefan" style="width: 100%; height: 300px; border: 2px solid #9933cc; box-sizing: border-box">-->
+            <!--Your browser does not support the HTML5 canvas tag.-->
+        <!--</canvas>-->
     </div>
 
 <script>
 
-//    var featurePoint = new ol.Feature(new ol.geom.Point([0, 0]));
-//    var vectorSource = new ol.source.Vector({
-//        features: [featurePoint]
-//    });
-//    var vectorLayer = new ol.layer.Vector({
-//        source: vectorSource
-//    });
-//    var view = new ol.View({
+    var featurePoint = new ol.Feature(new ol.geom.Point(ol.proj.transform([-105.51112, 39.79774], 'EPSG:4326', 'EPSG:3857')));
+    var vectorSource = new ol.source.Vector({
+        features: [featurePoint]
+    });
+    var vectorLayer = new ol.layer.Vector({
+        source: vectorSource
+    });
+    var view = new ol.View({
+        center: ol.proj.transform([-105.51112, 39.79774], 'EPSG:4326', 'EPSG:3857'),
 //        center: [0, 0],
-//        zoom: 15
-//    });
-//    var map = new ol.Map({
-//        target: 'map',
-//        layers: [
-//            new ol.layer.Tile({source: new ol.source.OSM()}),
-//            vectorLayer
-//        ],
-//        view: view
-//    });
-//    var resolution = map.getView().getResolution();
-//    view.on('change:resolution', function (evt) {
-//        resolution = evt.target.getResolution();
-//    });
-//    var rangefan = new ol.Overlay({
-//        element: document.getElementById('rangefan'),
-//        position: featurePoint.getGeometry().getCoordinates(),
-//        positioning: 'center-center',
-//        stopEvent: false,
-//        insertFirst: false
-//    });
-//    map.addOverlay(rangefan);
+        zoom: 16
+    });
+    var map = new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({source: new ol.source.OSM()}),
+            vectorLayer
+        ],
+        view: view
+    });
+
+
+    var resolution = map.getView().getResolution();
+    view.on('change:resolution', function (evt) {
+        resolution = evt.target.getResolution();
+        calculateRadii()
+    });
+    var canvas = document.getElementById('rangefan');
+    var rangefan = new ol.Overlay({
+        element: canvas,
+        position: featurePoint.getGeometry().getCoordinates(),
+        positioning: 'center-center',
+        stopEvent: false,
+        insertFirst: false
+    });
+    map.addOverlay(rangefan);
 
     function deg2rad(deg) {
         return deg * Math.PI / 180.0;
     }
-    function rad2deg(rad) {
-        return rad * 180.0 / Math.PI;
-    }
 
-    var innerRadius = 50;
+    var innerRadius = 1000;
     $('#irad').html(innerRadius);
-    var outerRadius = 90;
+    var outerRadius = 1500;
     $('#orad').html(outerRadius);
     var pan = 0;
     $('#pan').html(pan);
     var hfov = 60;
     $('#hfov').html(hfov);
 
-    var sourceHeight = 125;
+    var sourceHeight = 6;
     $('#sheight').html(sourceHeight);
-    var targetHeight = 75;
+    var targetHeight = 3;
     $('#theight').html(targetHeight);
     var tilt = 0;
     $('#tilt').html(tilt);
     var vfov = 120;
     $('#vfov').html(vfov);
 
-    var r1, r2;
+    var rm1, rm2, r1, r2;
 
     var calculateRadii = function () {
 
-        var ground = 20;
         var height = targetHeight - sourceHeight;
         var phiMin = Math.max(tilt - vfov / 2, -90);
         var phiMax = Math.min(tilt + vfov / 2, 90);
-        var r1count = 0;
-        var r2count = 0;
-        var r1array = [];
-        var r2array = [];
 
-        var h11, h12, h21, h22, x11, x12, x21, x22;
+        var h11, h12, h21, h22//, x11, x12, x21, x22;
 
-        var cosPmin = Math.cos(deg2rad(phiMin));
-        var cosPmax = Math.cos(deg2rad(phiMax));
+//        var cosPmin = Math.cos(deg2rad(phiMin));
+//        var cosPmax = Math.cos(deg2rad(phiMax));
         var sinPmin = Math.sin(deg2rad(phiMin));
         var sinPmax = Math.sin(deg2rad(phiMax));
 
-        x11 = innerRadius * cosPmin;
-        x12 = innerRadius * cosPmax;
-        x21 = outerRadius * cosPmin;
-        x22 = outerRadius * cosPmax;
+        rm1 = innerRadius/resolution;
+        rm2 = outerRadius/resolution;
 
-        h11 = innerRadius * sinPmin;
-        h12 = innerRadius * sinPmax;
-        h21 = outerRadius * sinPmin;
-        h22 = outerRadius * sinPmax;
+//        x11 = rm1 * cosPmin;
+//        x12 = rm1 * cosPmax;
+//        x21 = rm2 * cosPmin;
+//        x22 = rm2 * cosPmax;
 
-        if (innerRadius <= 0) {
+        h11 = rm1 * sinPmin;
+        h12 = rm1 * sinPmax;
+        h21 = rm2 * sinPmin;
+        h22 = rm2 * sinPmax;
+
+        if (rm1 <= 0) {
             if (h21 < height && height < h11) {
                 r1 = Math.abs(height * Math.tan(deg2rad(90 - phiMin)));
-                r1count = r1array.push('h21 < height < h11');
             }
             if (h12 < height && height < h22) {
                 r1 = Math.abs(height * Math.tan(deg2rad(90 - phiMax)));
-                r1count = r1array.push('h12 < height < h22');
             }
         } else if (h11 < height && height < h12) {
-            r1 = Math.sqrt(innerRadius**2 - height**2);
-            r1count = r1array.push('h11 < height < h12');
+            r1 = Math.sqrt(rm1**2 - height**2);
         } else if (h21 < height && height <= h11) {
-//            r1 = (height / h11) * Math.sqrt(innerRadius**2 - h11**2);
-            r1 = (height / h21) * Math.sqrt(outerRadius**2 - h21**2);
-            r1count = r1array.push('h21 < height < h11');
+            r1 = (height / h21) * Math.sqrt(rm2**2 - h21**2);
         } else if (h12 < height && height < h22) {
-            r1 = (height / h22) * Math.sqrt(outerRadius**2 - h22**2);
-            r1count = r1array.push('h12 < height < h22');
+            r1 = (height / h22) * Math.sqrt(rm2**2 - h22**2);
         } else {
             r1 = null;
         }
         if (h11 < height && height < h21) {
-//            r2 = (height / h11) * Math.sqrt(innerRadius**2 - h11**2);
-            r2 = (height / h21) * Math.sqrt(outerRadius**2 - h21**2);
-            r2count = r2array.push('h11 < height < h21');
+            r2 = (height / h21) * Math.sqrt(rm2**2 - h21**2);
         } else if (h22 < height && height < h12) {
-            r2 = (height / h22) * Math.sqrt(outerRadius**2 - h22**2);
-            r2count = r2array.push('h22 < height < h12');
+            r2 = (height / h22) * Math.sqrt(rm2**2 - h22**2);
         } else if (h21 < height && height < h22) {
-            r2 = Math.sqrt(outerRadius**2 - height**2);
-            r2count = r2array.push('h21 < height < h22');
+            r2 = Math.sqrt(rm2**2 - height**2);
         } else {
             r2 = null;
         }
 
-        if (r1count > 0) {
-            console.log('r1:', r1array)
-        }
-        if (r2count > 0) {
-            console.log('r2:', r2array)
-        }
-        console.log('r1:', r1, 'r2:', r2, 'phiMin:', phiMin, 'phiMax:', phiMax);
-        console.log('h11:', h11, 'h21:', h21, 'h12:', h12, 'h22:', h22, 'height:', height);
+//        var ground = 20;
+//        var sx = 0;
+//        var sy = sourceHeight;
+//        var c = document.getElementById("rangefantilt");
+//        var ctx = c.getContext("2d");
+//        var cheight = c.getBoundingClientRect().height;
+//        var cwidth = c.getBoundingClientRect().width;
+//        c.height = cheight;
+//        c.width = cwidth;
+//        ctx.clearRect(0, 0, cwidth, cheight);
+//        ctx.translate(cwidth/2, cheight/2);
+//        ctx.transform(1, 0, 0, -1, 0, 0);
+//        ctx.translate(0, ground - cheight/2);
 
-        var sx = 0;
-        var sy = sourceHeight;
+//        ctx.beginPath();
+//        // ground
+//        ctx.moveTo(-cwidth/2, 0); ctx.lineTo(cwidth/2, 0);
+//        // sensor
+//        ctx.moveTo(sx, 0); ctx.lineTo(sx, sy);
+//        ctx.lineWidth=5;
+//        ctx.strokeStyle='black';
+//        ctx.stroke();
+//
+//        ctx.beginPath();
+//        // top ray
+//        ctx.moveTo(sx, sy); ctx.lineTo(cwidth*cosPmin, cwidth*sinPmin+sy);
+//        // bottom ray
+//        ctx.moveTo(sx, sy); ctx.lineTo(cwidth*cosPmax, cwidth*sinPmax+sy);
+//        ctx.lineWidth=1;
+//        ctx.strokeStyle='black';
+//        ctx.stroke();
+//
+//        ctx.beginPath();
+//        // inner ring
+//        ctx.moveTo(sx + rm1, sy); ctx.arc(sx, sy, rm1, 0, 2.0*Math.PI);
+//        // outer ring
+//        ctx.moveTo(sx + rm2, sy); ctx.arc(sx, sy, rm2, 0, 2.0*Math.PI);
+//        ctx.lineWidth=1;
+//        ctx.strokeStyle='black';
+//        ctx.stroke();
+//
+//        ctx.beginPath();
+//        // target height line
+//        ctx.moveTo(-cwidth/2, targetHeight); ctx.lineTo(cwidth/2, targetHeight);
+//        ctx.lineWidth=1;
+//        ctx.strokeStyle='black';
+//        ctx.stroke();
+//
+//        if (r1 !== null && r2 !== null) {
+//            ctx.beginPath();
+//            // target height line
+//            ctx.moveTo(r1, targetHeight); ctx.lineTo(r2, targetHeight);
+//            ctx.lineWidth = 5;
+//            ctx.strokeStyle = 'black';
+//            ctx.stroke();
+//        }
+//
+//        // wedge
+//        ctx.beginPath();
+//        ctx.moveTo(x11, h11 + sy); ctx.lineTo(x21, h21 + sy);
+//        ctx.lineWidth=5;
+//        ctx.strokeStyle='green';
+//        ctx.stroke();
+//
+//        ctx.beginPath();
+//        ctx.moveTo(x11, h11 + sy); ctx.arc(sx, sy, rm1, deg2rad(phiMin), deg2rad(phiMax));
+//        ctx.lineWidth=5;
+//        ctx.strokeStyle='orange';
+//        ctx.stroke();
+//
+//        ctx.beginPath();
+//        ctx.moveTo(x12, h12 + sy); ctx.lineTo(x22, h22 + sy);
+//        ctx.lineWidth=5;
+//        ctx.strokeStyle='red';
+//        ctx.stroke();
+//
+//        ctx.beginPath();
+//        ctx.moveTo(x21, h21 + sy); ctx.arc(sx, sy, rm2, deg2rad(phiMin), deg2rad(phiMax));
+//        ctx.lineWidth=5;
+//        ctx.strokeStyle='blue';
+//        ctx.stroke();
 
-        var c = document.getElementById("rangefantilt");
-        var ctx = c.getContext("2d");
-        c.width = c.getBoundingClientRect().width;
-        c.height = c.getBoundingClientRect().height;
-        var cwidth = c.width;
-        var cheight = c.height;
-//        console.log('rangefantilt:', cwidth, cheight);
-        ctx.clearRect(0, 0, cwidth, cheight);
-
-        ctx.translate(cwidth/2, cheight/2);
-        ctx.transform(1, 0, 0, -1, 0, 0);
-        ctx.translate(0, ground - cheight/2);
-
-        ctx.beginPath();
-        // ground
-        ctx.moveTo(-cwidth/2, 0); ctx.lineTo(cwidth/2, 0);
-        // sensor
-        ctx.moveTo(sx, 0); ctx.lineTo(sx, sy);
-        ctx.lineWidth=5;
-        ctx.strokeStyle='black';
-        ctx.stroke();
-
-        ctx.beginPath();
-        // top ray
-        ctx.moveTo(sx, sy); ctx.lineTo(cwidth*cosPmin, cwidth*sinPmin+sy);
-        // bottom ray
-        ctx.moveTo(sx, sy); ctx.lineTo(cwidth*cosPmax, cwidth*sinPmax+sy);
-        ctx.lineWidth=1;
-        ctx.strokeStyle='black';
-        ctx.stroke();
-
-        ctx.beginPath();
-        // inner ring
-        ctx.moveTo(sx + innerRadius, sy); ctx.arc(sx, sy, innerRadius, 0, 2.0*Math.PI);
-        // outer ring
-        ctx.moveTo(sx + outerRadius, sy); ctx.arc(sx, sy, outerRadius, 0, 2.0*Math.PI);
-        ctx.lineWidth=1;
-        ctx.strokeStyle='black';
-        ctx.stroke();
-
-        ctx.beginPath();
-        // target height line
-        ctx.moveTo(-cwidth/2, targetHeight); ctx.lineTo(cwidth/2, targetHeight);
-        ctx.lineWidth=1;
-        ctx.strokeStyle='black';
-        ctx.stroke();
-
-        if (r1 !== null && r2 !== null) {
-            ctx.beginPath();
-            // target height line
-            ctx.moveTo(r1, targetHeight); ctx.lineTo(r2, targetHeight);
-            ctx.lineWidth = 5;
-            ctx.strokeStyle = 'black';
-            ctx.stroke();
-        }
-
-        // wedge
-        ctx.beginPath();
-        ctx.moveTo(x11, h11 + sy); ctx.lineTo(x21, h21 + sy);
-        ctx.lineWidth=5;
-        ctx.strokeStyle='green';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(x11, h11 + sy); ctx.arc(sx, sy, innerRadius, deg2rad(phiMin), deg2rad(phiMax));
-        ctx.lineWidth=5;
-        ctx.strokeStyle='orange';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(x12, h12 + sy); ctx.lineTo(x22, h22 + sy);
-        ctx.lineWidth=5;
-        ctx.strokeStyle='red';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(x21, h21 + sy); ctx.arc(sx, sy, outerRadius, deg2rad(phiMin), deg2rad(phiMax));
-        ctx.lineWidth=5;
-        ctx.strokeStyle='blue';
-        ctx.stroke();
-
+        drawRangeFan();
     };
 
     var drawRangeFan = function () {
@@ -296,58 +276,32 @@
         var farLx = r2 * cosL;
         var farLy = r2 * sinL;
 
-        var c = document.getElementById("rangefanpan");
+        var c = document.getElementById("rangefan");
         var ctx = c.getContext("2d");
-//        c.width = 2*r2;
-//        c.height = 2*r2;
-        c.width = c.getBoundingClientRect().width;
-        c.height = c.getBoundingClientRect().height;
-        var cwidth = c.width;
-        var cheight = c.height;
-//        console.log('rangefanpan:', cwidth, cheight);
+        var cwidth = 2*r2+50;
+        var cheight = 2*r2+50;
+        c.width = cwidth;
+        c.height = cheight;
+
         ctx.clearRect(0, 0, cwidth, cheight);
-
-//        ctx.translate(r2, r2);
-        ctx.translate(cwidth/2, cheight/2);
+        ctx.translate(r2+25, r2+25);
         ctx.transform(1, 0, 0, -1, 0, 0);
-
-        ctx.beginPath();
-        // left ray
-        ctx.moveTo(0, 0); ctx.lineTo(cwidth*cosL, cwidth*sinL);
-        // right ray
-        ctx.moveTo(0, 0); ctx.lineTo(cwidth*cosR, cwidth*sinR);
-        ctx.lineWidth=1;
-        ctx.strokeStyle='black';
-        ctx.stroke();
-
-        ctx.beginPath();
-        // inner ring
-        ctx.moveTo(innerRadius, 0); ctx.arc(0, 0, innerRadius, 0, 2.0*Math.PI);
-        // outer ring
-        ctx.moveTo(outerRadius, 0); ctx.arc(0, 0, outerRadius, 0, 2.0*Math.PI);
-        ctx.lineWidth=1;
-        ctx.strokeStyle='black';
-        ctx.stroke();
-
 
         if (r1 !== null && r2 !== null) {
             ctx.beginPath();
             ctx.moveTo(nearRx, nearRy); ctx.lineTo(farRx, farRy);
             ctx.moveTo(nearLx, nearLy); ctx.lineTo(farLx, farLy);
-            ctx.lineWidth=5;
-            ctx.strokeStyle='black';
+            ctx.lineWidth=2;
             ctx.stroke();
 
             ctx.beginPath();
             ctx.moveTo(nearRx, nearRy); ctx.arc(0, 0, r1, thetaRight, thetaLeft);
-            ctx.lineWidth=5;
-            ctx.strokeStyle='orange';
+            ctx.lineWidth=2;
             ctx.stroke();
 
             ctx.beginPath();
             ctx.moveTo(farRx, farRy); ctx.arc(0, 0, r2, thetaRight, thetaLeft);
-            ctx.lineWidth=5;
-            ctx.strokeStyle='blue';
+            ctx.lineWidth=2;
             ctx.stroke();
         }
 
@@ -369,15 +323,15 @@
 //        ctx.arc(r2, r2, r2, thetaStart, thetaStop);
 //        ctx.stroke();
 
-//        rangefan.setPosition(featurePoint.getGeometry().getCoordinates())
+        rangefan.setPosition(featurePoint.getGeometry().getCoordinates())
     };
 
     $("#radius").slider({
         range: true,
         min: 0,
-        max: 350,
+        max: 3000,
         step: 1,
-        values: [50, 90],
+        values: [1000, 1500],
         animate: true,
         slide: function (event, ui) {
             innerRadius = ui.values[0];
@@ -385,7 +339,6 @@
             $('#irad').html(innerRadius);
             $('#orad').html(outerRadius);
             calculateRadii();
-            drawRangeFan();
         }
     });
     $("#panangle").slider({
@@ -399,7 +352,6 @@
             pan = ui.value;
             $('#pan').html(pan);
             calculateRadii();
-            drawRangeFan();
         }
     });
     $("#horizfov").slider({
@@ -413,7 +365,6 @@
             hfov = ui.value;
             $('#hfov').html(hfov);
             calculateRadii();
-            drawRangeFan();
         }
     });
     $("#source-height").slider({
@@ -427,7 +378,6 @@
             sourceHeight = ui.value;
             $('#sheight').html(sourceHeight);
             calculateRadii();
-            drawRangeFan();
         }
     });
     $("#target-height").slider({
@@ -441,7 +391,6 @@
             targetHeight = ui.value;
             $('#theight').html(targetHeight);
             calculateRadii();
-            drawRangeFan();
         }
     });
     $("#tiltangle").slider({
@@ -455,7 +404,6 @@
             tilt = ui.value;
             $('#tilt').html(tilt);
             calculateRadii();
-            drawRangeFan();
         }
     });
     $("#vertfov").slider({
@@ -469,12 +417,11 @@
             vfov = ui.value;
             $('#vfov').html(vfov);
             calculateRadii();
-            drawRangeFan();
         }
     });
 
     calculateRadii();
-    drawRangeFan();
+
 </script>
 
 

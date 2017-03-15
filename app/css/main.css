@@ -1,5 +1,5 @@
-@import url("../js/ol3-3.19.1/ol.css");
-@import url("../js/ol3-layerswitcher/ol3-layerswitcher.css");
+@import url("../js/libs/ol3-3.19.1/ol.css");
+@import url("../js/libs/ol3-layerswitcher/ol3-layerswitcher.css");
 @import url("../bower_components/jquery-ui/themes/base/jquery-ui.min.css");
 
 body {
@@ -8,19 +8,19 @@ body {
 /** {
 	border: 1px solid red !important;
 }*/
-.map-container {
+.app-container {
     display: flex;
     width: 100%;
     height: 100%; /*Fallback*/
     height: 100vh;
 }
-.sidebar {
+.sidebar-container {
     box-sizing: border-box;
     border: 1px solid grey;
     width: 400px;
     height: 100%;
 }
-.sidebar .toolbar {
+.sidebar-container .toolbar {
     box-sizing: border-box;
     display: table;
     padding-left: .2em;
@@ -137,7 +137,7 @@ body {
 .toolbar .draw-radio button {
     background-image: url(../img/radio-normal.png);
 }
-.sidebar .layereditor {
+.sidebar-container .layereditor {
     position: relative;
     box-sizing: border-box;
     padding: 4px;
@@ -148,7 +148,7 @@ body {
     display: flex;
 }
 .form-row .form-elem {
-    margin-top: 0.5em;
+    margin-top: 0.25em;
     padding: 0.25em;
     width: 100%;
 }
@@ -226,14 +226,16 @@ body {
     opacity: 0.35;
 }
 
-.sidebar .layertree {
+.sidebar-container .layertree {
     box-sizing: border-box;
     float: left;
     border-top: 1px solid grey;
     width: 100%;
     height: 30%;
 }
-.layertree .ol-unselectable, .toolbar .ol-unselectable {
+.layertoolbar-container .ol-unselectable,
+.layertree .ol-unselectable,
+.toolbar .ol-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -242,11 +244,20 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
+
+.layertoolbar-container.layertree-buttons {
+    box-sizing: border-box;
+    border: 1px solid grey;
+    height: 2em;
+}
+
 .layertree .layertree-buttons {
     box-sizing: border-box;
     border-bottom: 1px solid grey;
     height: 2em;
 }
+
+.layertoolbar-container.layertree-buttons button,
 .layertree .layertree-buttons button {
     display: inline-block;
     /*top: 50%;*/
@@ -261,32 +272,44 @@ body {
     margin: 0 2px 0 2px;
     border: none;
     padding: 0;
-    height: 2em;
+    height: 100%;
     width: 2em;
 }
+
+.layertoolbar-container.layertree-buttons button:hover,
 .layertree .layertree-buttons button:hover {
     background-color: rgba(0,0,0,1);
 }
-.layertree-buttons .addwms {
+
+.layertree-buttons .add-wms {
     background-image: url(../img/button_wms.png);
 }
-.layertree-buttons .addwfs {
+.layertree-buttons .add-wfs {
     background-image: url(../img/button_wfs.png);
 }
-.layertree-buttons .addvector {
+.layertree-buttons .add-vector {
     background-image: url(../img/button_vector.png);
 }
-.layertree-buttons .newvector {
+.layertree-buttons .new-vector {
     background-image: url(../img/button_newvector.png);
 }
-.layertree-buttons .deletelayer {
+.layertree-buttons .delete-layer {
     background-image: url(../img/button_delete.png);
 }
+
+.layertree-container {
+    position: relative;
+    height: calc(30% - 2em);
+    overflow-y: auto;
+}
+
 .layertree .layercontainer {
     position: relative;
     height: calc(100% - 2em);
     overflow-y: auto;
 }
+
+.layertree-container .layer,
 .layercontainer .layer {
     box-sizing: border-box;
     position: relative;
@@ -295,11 +318,13 @@ body {
     /*padding: 0.25em;*/
     padding: 4px;
 }
+.layertree-container .layer.active,
 .layercontainer .layer.active {
     border-color: #003eff;
     min-height: 2em;
     height: auto;
 }
+
 .layerrow {
     display: flex;
     align-items: center;
@@ -367,7 +392,7 @@ body {
 .error {
     border-color: red;
 }
-.opacity {
+.layeropacity {
     box-sizing: border-box;
     margin: 0 1em;
     height: 0.9em;
@@ -380,6 +405,12 @@ body {
     box-sizing: border-box;
     margin: 0.25em;
 }
+.hovercontrol {
+    width: calc(50% - 4.875em/2);
+}
+.colorcontrol {
+    width: calc(50% + 2.875em/2);
+}
 .menuselect {
     box-sizing: border-box;
     overflow-x: hidden;
@@ -387,12 +418,6 @@ body {
 }
 .menuselect.ui-selectmenu-button.ui-button {
     text-align: center;
-}
-.hovercontrol {
-    width: calc(50% - 4.875em/2);
-}
-.colorcontrol {
-    width: calc(50% + 2.875em/2);
 }
 .resetbutton {
     width: 3.875em;
@@ -492,23 +517,40 @@ fieldset label {
     /*width: 100%;*/
     /*height: 100vh;*/
 /*}*/
-.mainwindow {
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+table .summary-attribute-tag {
+    width: 40%
+}
+table .summary-attribute-value {
+    width: 60%
+}
+th, td {
+    padding: 5px;
+}
+.main-container {
     width: calc(100% - 400px);
     height: 100%;
 }
-.mainwindow .map {
+.main-container .map-container {
+    height: calc(100% - 3em);
+    overflow: hidden;
+
+}
+.map-container .map {
     background: url(../img/map-background.jpg) repeat;
     position: relative;
     width: 100%;
-	height: calc(100% - 3em);
-    overflow: hidden;
+    height: 100%;
 }
-.mainwindow .notification-bar {
+.main-container .notificationbar {
     display: table;
     width: 100%;
 	height: 1.5em;
 }
-.notification-bar > div {
+.notificationbar > div {
     display: table-cell;
     vertical-align: middle;
     text-align: center;
@@ -517,16 +559,13 @@ fieldset label {
     width: 100px;
     height: 100%;
 }
-.notification-bar .coordinates {
-    width: calc(50% - 200px);
+.notificationbar .coordinates {
+    width: calc(100% - 200px);
 }
-.notification-bar .ol-mouse-position {
+.notificationbar .ol-mouse-position {
     position: static;
 }
-.notification-bar .tile {
-    width: calc(50% - 200px);
-}
-.mainwindow .message-bar {
+.main-container #messagebar-container {
     width: 100%;
     height: 1.5em;
 }
