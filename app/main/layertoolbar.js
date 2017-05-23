@@ -711,7 +711,7 @@ define(['jquery', 'ol',
                 autoOpen: false,
                 modal: true,
                 buttons: {
-                    "Add Layer": function () {
+                    "OK": function () {
                         callback($(this).children());
                         $(this).dialog("close")
                     },
