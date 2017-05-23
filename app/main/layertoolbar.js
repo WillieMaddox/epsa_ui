@@ -40,6 +40,7 @@ define(['jquery', 'ol',
             $controlDiv.append(this.createButton('add-wfs', 'Add WFS Layer', 'addlayer'));
             $controlDiv.append(this.createButton('add-vector', 'Add Vector Layer', 'addlayer'));
             $controlDiv.append(this.createButton('new-vector', 'New Vector Layer', 'addlayer'));
+            $controlDiv.append(this.createButton('save-vector', 'Save Vector Layer', 'savelayer'));
             $controlDiv.append(this.createButton('delete-layer', 'Remove Layer', 'deletelayer'));
         },
 
@@ -50,6 +51,21 @@ define(['jquery', 'ol',
                 case 'addlayer':
                     $button.on("click", function () {
                         _this.openDialog(elemName, elemTitle);
+                    });
+                    return $button;
+                case 'savelayer':
+                    $button.on("click", function () {
+                        let layernode = layertree.selectedLayer;
+                        if (layernode === null) {
+                            return false
+                        }
+                        let layer = layertree.getLayerById(layernode.id);
+                        if (layer.get('is_dirty') === false) {
+                            return false
+                        }
+                        if (layer.get('is_dirty') === true) {
+                            _this.saveDialog(elemName, elemTitle);
+                        }
                     });
                     return $button;
                 case 'deletelayer':
