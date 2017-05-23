@@ -293,6 +293,9 @@ body {
 .layertree-buttons .new-vector {
     background-image: url(../img/button_newvector.png);
 }
+.layertree-buttons .save-vector {
+    background-image: url(../img/button_save.png);
+}
 .layertree-buttons .delete-layer {
     background-image: url(../img/button_delete.png);
 }
