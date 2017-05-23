@@ -608,7 +608,22 @@ define(['jquery', 'ol',
             });
             return $dialog
         },
-        createSaveVectorDialog: function () {},
+        createSaveVectorDialog: function ($fieldset, elemName, elemTitle) {
+            this.createDisplayNameNodes($fieldset);
+            this.createFileTypeNodes($fieldset);
+            this.createFileSaveNodes($fieldset);
+            var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.saveVectorLayer);
+            $('.filetype').selectmenu({
+                classes: {
+                    "ui-selectmenu-button": "menuselect"
+                }
+            }).on('selectmenuchange', function () {
+                $(this).parent().find(".file").val("");
+                $(this).parent().find(".file")[0].accept = '.' + $(this).val();
+                $(this).parent().find(".displayname").val("");
+            });
+            return $dialog
+        },
 
         createDisplayNameNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-displayname">Display Name</label>'));
