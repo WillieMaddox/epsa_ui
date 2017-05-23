@@ -461,6 +461,30 @@ define(['jquery', 'ol',
             message('New vector layer created successfully.');
             return this;
         },
+        saveVectorLayer: function ($form) {
+            // get the format the user has chosen
+            var data_type = $data_type.val(),
+                // define a format the data shall be converted to
+                format = new ol.format[data_type](),
+                // this will be the data in the chosen format
+                data;
+            try {
+                // convert the data of the vector_layer into the chosen format
+                data = format.writeFeatures(vector_layer.getSource().getFeatures());
+            } catch (e) {
+                // at time of creation there is an error in the GPX format (18.7.2014)
+                $('#data').val(e.name + ": " + e.message);
+                return;
+            }
+            if ($data_type.val() === 'GeoJSON') {
+                // format is JSON
+                $('#data').val(JSON.stringify(data, null, 4));
+            } else {
+                // format is XML (GPX or KML)
+                var serializer = new XMLSerializer();
+                $('#data').val(serializer.serializeToString(data));
+            }
+        },
 
         // getDefaultSensors = function () {
         //     var _this = this;
@@ -584,6 +608,7 @@ define(['jquery', 'ol',
             });
             return $dialog
         },
+        createSaveVectorDialog: function () {},
 
         createDisplayNameNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-displayname">Display Name</label>'));
