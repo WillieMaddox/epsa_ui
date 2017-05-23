@@ -151,6 +151,7 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         view.setCenter(center);
     };
     self.initialize = function() {
+
         ol.Map
         ol.Attribution
         ol.View
@@ -168,28 +169,6 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         ol.style.Circle
         ol.style.RegularShape
         ol.style.Icon
-
-        // ol.layer.Group
-        // ol.layer.Vector
-        // ol.layer.Image
-        // ol.layer.Tile
-
-        // ol.source.TileWMS
-        // ol.source.ImageWMS
-        // ol.source.ImageVector
-        // ol.source.ImageStatic
-        // ol.source.BingMaps
-        // ol.source.OSM
-        // ol.source.OSM.ATTRIBUTION
-        // ol.source.Vector
-
-        // ol.format.GeoJSON
-        // ol.format.TopoJSON
-        // ol.format.OSMXML
-        // ol.format.WMSCapabilities
-        // ol.format.WFS
-        // ol.format.KML
-        // ol.format.GML
 
         ol.control.call
         ol.control.Control
@@ -225,6 +204,30 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         ol.proj.transformExtent
         ol.proj.transform
         ol.proj.get
+
+        // Done
+        // ol.layer
+        // ol.layer.Group
+        // ol.layer.Vector
+        // ol.layer.Image
+        // ol.layer.Tile
+        // ol.source
+        // ol.source.TileWMS
+        // ol.source.ImageWMS
+        // ol.source.ImageVector
+        // ol.source.ImageStatic
+        // ol.source.BingMaps
+        // ol.source.OSM
+        // ol.source.OSM.ATTRIBUTION
+        // ol.source.Vector
+        // ol.format
+        // ol.format.GeoJSON
+        // ol.format.TopoJSON
+        // ol.format.OSMXML
+        // ol.format.WMSCapabilities
+        // ol.format.WFS
+        // ol.format.KML
+        // ol.format.GML
 
         map = new ol.Map({
             interactions: ol.interaction.defaults({doubleClickZoom: false}),
