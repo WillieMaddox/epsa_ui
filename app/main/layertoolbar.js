@@ -550,6 +550,24 @@ define(['jquery', 'ol',
             });
             $dialog.dialog("open");
         },
+        saveDialog: function (elemName, elemTitle) {
+
+            var $dialog;
+            var $fieldset = $('<fieldset>');
+
+            switch (elemName) {
+                case 'save-vector':
+                    $dialog = this.createSaveVectorDialog($fieldset, elemName, elemTitle);
+                    break;
+                default:
+                    return false;
+            }
+
+            $(".addlayer select").each(function () {
+                $(this).selectmenu().selectmenu('menuWidget').addClass("overflow");
+            });
+            $dialog.dialog("open");
+        },
 
         createAddWmsDialog: function ($fieldset, elemName, elemTitle) {
             this.createDisplayNameNodes($fieldset);
@@ -689,6 +707,17 @@ define(['jquery', 'ol',
         createFileOpenNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-file">Vector file</label>'));
             var $file = $('<input type="file" id="open-file" name="file" class="file ui-widget-content ui-button" accept=".geojson" required>');
+            $fieldset.append($file);
+            $file.on("change", function () {
+                var startPos = this.value.lastIndexOf("\\") + 1;
+                var stopPos = this.value.lastIndexOf(".");
+                var name = this.value.slice(startPos, stopPos);
+                $(this).parent().find(".displayname").val(name);
+            });
+        },
+        createFileSaveNodes: function ($fieldset) {
+            $fieldset.append($('<label for="save-file">Vector file</label>'));
+            var $file = $('<input type="file" id="save-file" name="file" class="file ui-widget-content ui-button" accept=".geojson" required>');
             $fieldset.append($file);
             $file.on("change", function () {
                 var startPos = this.value.lastIndexOf("\\") + 1;
