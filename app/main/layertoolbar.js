@@ -462,28 +462,48 @@ define(['jquery', 'ol',
             return this;
         },
         saveVectorLayer: function ($form) {
-            // get the format the user has chosen
-            var data_type = $data_type.val(),
+            var file_format_map = {
+                'zip': 'GeoJSON',
+                'geojson': 'GeoJSON',
+                'topojson': 'TopoJSON',
+                'kml': 'KML',
+                'osm': 'OSMXML'
+            };
+            let vector_layer = layertree.getLayerById(layertree.selectedLayer.id);
+
+            var file_type = $form.find(".filetype").val(),
+                // get the format the user has chosen
+                data_type = file_format_map[file_type],
+                // var data_type = $data_type.val(),
                 // define a format the data shall be converted to
                 format = new ol.format[data_type](),
                 // this will be the data in the chosen format
+                features,
                 data;
             try {
                 // convert the data of the vector_layer into the chosen format
-                data = format.writeFeatures(vector_layer.getSource().getFeatures());
+                features = format.writeFeatures(vector_layer.getSource().getSource().getFeatures());
             } catch (e) {
                 // at time of creation there is an error in the GPX format (18.7.2014)
-                $('#data').val(e.name + ": " + e.message);
+                message('Some unexpected error occurred in addVectorLayer: (' + e.message + ').');
                 return;
             }
-            if ($data_type.val() === 'GeoJSON') {
+            if (data_type === 'GeoJSON') {
                 // format is JSON
-                $('#data').val(JSON.stringify(data, null, 4));
+                data = JSON.stringify(features, null, 4);
             } else {
+                //TODO: apply data_type to KML, OSMXML, TopoJSON, and shapefiles.
                 // format is XML (GPX or KML)
                 var serializer = new XMLSerializer();
-                $('#data').val(serializer.serializeToString(data));
+                data = serializer.serializeToString(features);
             }
+            var fs = require('fs');
+            fs.writeFile("/home/maddoxw/temp2/test.geojson", data, 'utf-8', function (err) {
+                if (err) {
+                    return message(err);
+                }
+                message("The file was saved!");
+            });
         },
 
         // getDefaultSensors = function () {
