@@ -110,6 +110,8 @@ define(['jquery', 'ol',
             this.createRegistry = function (layer) {
                 var mouseDownFired = false;
                 var lid = 'layer_' + idCounter;
+                //TODO: Hard code this for now.
+                layer.set('is_dirty', true);
                 layer.set('id', lid);
                 idCounter += 1;
 
