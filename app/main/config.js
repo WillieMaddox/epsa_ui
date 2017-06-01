@@ -2,10 +2,11 @@
  * Created by maddoxw on 7/18/16.
  */
 
-require.config({
+requirejs.config({
     // baseUrl: '../app',  // development
     // baseUrl: '/',  // production
     // urlArgs: 'bust=' + (new Date()).getTime(),
+    nodeRequire: require,
     deps: ['main'],
     // waitSeconds: 10,
     paths: {
@@ -43,7 +44,6 @@ require.config({
         'map': 'map',
         'messagebar': 'messagebar',
         'layertree': 'layertree',
-        // 'layertree': 'layertree_old',
         'layertoolbar': 'layertoolbar',
         'toolbar': 'toolbar',
         'layerinteractor': 'layerinteractor',
