@@ -2,7 +2,11 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["jquery", "defaultsensors"], function ($, defaultSensors) {
+define(function (require) {
+    'use strict';
+
+    var $ = require('jquery'),
+        defaultSensors = require('defaultsensors');
 
     var sensorProperties = {
         source_height: {

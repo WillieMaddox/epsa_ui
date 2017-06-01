@@ -2,31 +2,22 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol',
-    'messagebar',
-    'map',
-    'exists',
-    'utils',
-    'shp',
-    'wfs110context',
-    'ttemplate',
-    'tstylefunction',
-    'stemplate',
-    'sstylefunction',
-    'jquery-ui'
-], function ($, ol,
-             message,
-             map,
-             exists,
-             utils,
-             shp,
-             WFSContext,
-             tobjectTemplates,
-             tobjectStyleFunction,
-             sensorTemplates,
-             sensorStyleFunction) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        utils = require('utils'),
+        map = require('map'),
+        exists = require('exists'),
+        message = require('messagebar'),
+        shp = require('shp'),
+        tobjectTemplates = require('ttemplate'),
+        tobjectStyleFunction = require('tstylefunction'),
+        sensorTemplates = require('stemplate'),
+        sensorStyleFunction = require('sstylefunction');
+
+    require('jquery-ui');
 
     var idCounter = 0;
 

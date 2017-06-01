@@ -2,17 +2,15 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol',
-    'utils',
-    'map',
-    'layertree',
-    'ispolyvalid'], function ($, ol,
-                              utils,
-                              map,
-                              layertree,
-                              isPolyValid) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        utils = require('utils'),
+        map = require('map'),
+        layertree = require('layertree'),
+        isPolyValid = require('ispolyvalid');
 
     var bitA = 0;
     var bitB = 0;

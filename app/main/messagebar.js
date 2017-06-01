@@ -2,9 +2,10 @@
  * Created by maddoxw on 1/3/17.
  */
 
-define(['jquery'], function ($) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery');
 
     var messages = $('<div id="messagebar">')[0];
     $('#messagebar-container').append(messages);

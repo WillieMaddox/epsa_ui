@@ -2,7 +2,10 @@
  * Created by maddoxw on 1/3/17.
  */
 
-define(['utils'], function (utils) {
+define(function (require) {
+    'use strict';
+
+    var utils = require('utils');
 
     var $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">');
     $selectNode.append(utils.createMenuOption("EPSG:4326"));

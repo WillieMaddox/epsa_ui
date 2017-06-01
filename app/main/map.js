@@ -2,16 +2,17 @@
  * Created by maddoxw on 1/3/17.
  */
 
-define(['jquery', 'ol', 'deg2tile',
-    'mouseunits',
-    'mouseprojection',
-    'bingKey',
-    'layerswitcher'], function ($, ol, deg2tile,
-                                mouseunits,
-                                mouseprojection,
-                                bingKey) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        deg2tile = require('deg2tile'),
+        mouseunits = require('mouseunits'),
+        mouseprojection = require('mouseprojection'),
+        bingKey = require('bingKey');
+
+    require('layerswitcher');
 
     $('#mouse-units-container').append(mouseunits);
     $('#mouse-projection-container').append(mouseprojection);

@@ -2,7 +2,11 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(["jquery", "stemplate"], function ($, sensorTemplates) {
+define(function (require) {
+    'use strict';
+
+    var $ = require('jquery'),
+        sensorTemplates = require('stemplate');
 
     return (function () {
 
