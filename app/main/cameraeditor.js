@@ -2,20 +2,16 @@
  * Created by maddoxw on 10/14/16.
  */
 
-define(['jquery', 'ol',
-    'exists',
-    'utils',
-    'map',
-    'stemplate',
-    'jsts'
-], function ($, ol,
-             exists,
-             utils,
-             map,
-             sensorTemplates,
-             jsts) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        utils = require('utils'),
+        map = require('map'),
+        sensorTemplates = require('stemplate'),
+        exists = require('exists'),
+        jsts = require('jsts');
 
     var formElements = {};
     var wgs84Sphere = new ol.Sphere(6378137);

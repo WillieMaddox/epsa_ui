@@ -2,26 +2,18 @@
  * Created by maddoxw on 10/14/16.
  */
 
-define(['jquery', 'ol',
-    'exists',
-    'utils',
-    'map',
-    'layerinteractor',
-    'ttemplate',
-    'ispolyvalid',
-    'ispointinpoly',
-    'doespolycoverhole'
-], function ($, ol,
-             exists,
-             utils,
-             map,
-             layerinteractor,
-             tobjectTemplates,
-             isPolyValid,
-             isPointInPoly,
-             doesPolyCoverHole) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        utils = require('utils'),
+        map = require('map'),
+        tobjectTemplates = require('ttemplate'),
+        layerinteractor = require('layerinteractor'),
+        isPolyValid = require('ispolyvalid'),
+        isPointInPoly = require('ispointinpoly'),
+        doesPolyCoverHole = require('doespolycoverhole');
 
     var formElements = {};
     var wgs84Sphere = new ol.Sphere(6378137);

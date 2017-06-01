@@ -2,19 +2,17 @@
  * Created by maddoxw on 9/6/16.
  */
 
-define(['jquery', 'ol',
-    'exists',
-    'map',
-    'layertree',
-    'toolbar',
-    'ispolyvalid'], function ($, ol,
-                              exists,
-                              map,
-                              layertree,
-                              toolbar,
-                              isPolyValid) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        utils = require('utils'),
+        map = require('map'),
+        layertree = require('layertree'),
+        exists = require('exists'),
+        toolbar = require('toolbar'),
+        isPolyValid = require('ispolyvalid');
 
     // addFormRow = function (labels) {
     //     var $formRow = $("<div class='form-row'>");

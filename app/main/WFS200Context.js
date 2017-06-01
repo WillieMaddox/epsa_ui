@@ -2,10 +2,14 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jsonix', 'XLink_1_0', 'Filter_2_0', 'OWS_1_1_0', 'WFS_2_0'], function(
-    JsonixModule, xlink10Module, filter20Module, ows110Module, wfs20Module) {
+define(function (require) {
+    'use strict';
 
-    "use strict";
+    var JsonixModule = require('jsonix'),
+        xlink10Module = require('XLink_1_0'),
+        filter20Module = require('Filter_2_0'),
+        ows110Module = require('OWS_1_1_0'),
+        wfs20Module = require('WFS_2_0');
 
     var Jsonix = JsonixModule.Jsonix;
 

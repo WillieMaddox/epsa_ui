@@ -2,33 +2,24 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol',
-    'messagebar',
-    'map',
-    'layertree',
-    'utils',
-    'shp',
-    'wfs110context',
-    'ttemplate',
-    'tstylefunction',
-    'stemplate',
-    'sstylefunction',
-    'serversettings',
-    'jquery-ui'
-], function ($, ol,
-             message,
-             map,
-             layertree,
-             utils,
-             shp,
-             WFSContext,
-             tobjectTemplates,
-             tobjectStyleFunction,
-             sensorTemplates,
-             sensorStyleFunction,
-             settings) {
-
+define(function (require) {
     'use strict';
+
+    var $ = require('jquery'),
+        ol = require('ol'),
+        utils = require('utils'),
+        map = require('map'),
+        layertree = require('layertree'),
+        message = require('messagebar'),
+        shp = require('shp'),
+        WFSContext = require('wfs110context'),
+        tobjectTemplates = require('ttemplate'),
+        tobjectStyleFunction = require('tstylefunction'),
+        sensorTemplates = require('stemplate'),
+        sensorStyleFunction = require('sstylefunction'),
+        settings = require('serversettings');
+
+    require('jquery-ui');
 
     var wfsProjections = null;
 

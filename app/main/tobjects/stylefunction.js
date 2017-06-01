@@ -2,11 +2,12 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['ol',
-    'ttemplate',
-    'exists'], function (ol,
-                         tobjectTemplates,
-                         exists) {
+define(function (require) {
+    'use strict';
+
+    var ol = require('ol'),
+        tobjectTemplates = require('ttemplate'),
+        exists = require('exists');
 
     var tobjectColor = {
         'aor': [0, 0, 0],
