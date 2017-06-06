@@ -490,6 +490,7 @@ define(function (require) {
                 data;
 
             var vector_data = vector_layer.getSource().getSource().getFeatures();
+            //TODO: read projection from dialog.
             // var data_projection = $form.find(".projection").val() || format.readProjection(vector_data) || current_proj;
             var data_projection = ol.proj.get('EPSG:4326');
             try {
@@ -607,7 +608,7 @@ define(function (require) {
                 default:
                     return false;
             }
-
+            //TODO: set default output projection
             $(".addlayer select").each(function () {
                 $(this).selectmenu().selectmenu('menuWidget').addClass("overflow");
             });
