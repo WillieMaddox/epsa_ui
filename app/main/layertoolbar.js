@@ -761,17 +761,6 @@ define(function (require) {
                 $(this).parent().find(".displayname").val(name);
             });
         },
-        createFileSaveNodes: function ($fieldset) {
-            $fieldset.append($('<label for="save-file">Vector file</label>'));
-            var $file = $('<input type="file" id="save-file" name="file" class="file ui-widget-content ui-button" accept=".geojson" required>');
-            $fieldset.append($file);
-            $file.on("change", function () {
-                var startPos = this.value.lastIndexOf("\\") + 1;
-                var stopPos = this.value.lastIndexOf(".");
-                var name = this.value.slice(startPos, stopPos);
-                $(this).parent().find(".displayname").val(name);
-            });
-        },
         createProjectionNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-projection">Projection</label>'));
             $fieldset.append($('<input type="text" id="open-projection" name="projection" class="projection">'));
