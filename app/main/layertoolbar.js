@@ -476,20 +476,28 @@ define(function (require) {
                 'kml': 'KML',
                 'osm': 'OSMXML'
             };
+            var current_proj = map.getView().getProjection();
             let vector_layer = layertree.getLayerById(layertree.selectedLayer.id);
-
             var file_type = $form.find(".filetype").val(),
                 // get the format the user has chosen
                 data_type = file_format_map[file_type],
                 // var data_type = $data_type.val(),
                 // define a format the data shall be converted to
                 format = new ol.format[data_type](),
-                // this will be the data in the chosen format
+
+            // this will be the data in the chosen format
                 features,
                 data;
+
+            var vector_data = vector_layer.getSource().getSource().getFeatures();
+            // var data_projection = $form.find(".projection").val() || format.readProjection(vector_data) || current_proj;
+            var data_projection = ol.proj.get('EPSG:4326');
             try {
                 // convert the data of the vector_layer into the chosen format
-                features = format.writeFeatures(vector_layer.getSource().getSource().getFeatures());
+                features = format.writeFeatures(vector_data, {
+                    dataProjection: data_projection,
+                    featureProjection: current_proj
+                });
             } catch (e) {
                 // at time of creation there is an error in the GPX format (18.7.2014)
                 message('Some unexpected error occurred in addVectorLayer: (' + e.message + ').');
@@ -497,20 +505,30 @@ define(function (require) {
             }
             if (data_type === 'GeoJSON') {
                 // format is JSON
-                data = JSON.stringify(features, null, 4);
+                // data = JSON.stringify(features, null, 4);
+                // data = JSON.stringify(features);
+                data = features;
             } else {
                 //TODO: apply data_type to KML, OSMXML, TopoJSON, and shapefiles.
                 // format is XML (GPX or KML)
                 var serializer = new XMLSerializer();
                 data = serializer.serializeToString(features);
             }
-            var fs = require('fs');
-            fs.writeFile("/home/maddoxw/temp2/test.geojson", data, 'utf-8', function (err) {
-                if (err) {
-                    return message(err);
-                }
-                message("The file was saved!");
-            });
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+            // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + data);
+            element.setAttribute('download', vector_layer.get('name') + '.' + file_type);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+            // var fs = require('fs');
+            // fs.writeFile("/home/maddoxw/temp2/test.geojson", data, 'utf-8', function (err) {
+            //     if (err) {
+            //         return message(err);
+            //     }
+            //     message("The file was saved!");
+            // });
         },
 
         // getDefaultSensors = function () {
@@ -656,16 +674,16 @@ define(function (require) {
         createSaveVectorDialog: function ($fieldset, elemName, elemTitle) {
             this.createDisplayNameNodes($fieldset);
             this.createFileTypeNodes($fieldset);
-            this.createFileSaveNodes($fieldset);
+            this.createProjectionNodes($fieldset);
             var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.saveVectorLayer);
             $('.filetype').selectmenu({
                 classes: {
                     "ui-selectmenu-button": "menuselect"
                 }
-            }).on('selectmenuchange', function () {
-                $(this).parent().find(".file").val("");
-                $(this).parent().find(".file")[0].accept = '.' + $(this).val();
-                $(this).parent().find(".displayname").val("");
+            // }).on('selectmenuchange', function () {
+            //     $(this).parent().find(".file").val("");
+            //     $(this).parent().find(".file")[0].accept = '.' + $(this).val();
+            //     $(this).parent().find(".displayname").val("");
             });
             return $dialog
         },
