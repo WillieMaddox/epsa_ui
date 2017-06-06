@@ -673,7 +673,6 @@ define(function (require) {
             return $dialog
         },
         createSaveVectorDialog: function ($fieldset, elemName, elemTitle) {
-            this.createDisplayNameNodes($fieldset);
             this.createFileTypeNodes($fieldset);
             this.createProjectionNodes($fieldset);
             var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.saveVectorLayer);
