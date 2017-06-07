@@ -290,24 +290,18 @@ define(function (require) {
             var currentProj = map.getView().getProjection();
             var $progressbar;
             var sourceFormat;
-            switch (fileType) {
-                case 'zip':
-                    sourceFormat = new ol.format.GeoJSON();
-                    break;
-                case 'geojson':
-                    sourceFormat = new ol.format.GeoJSON();
-                    break;
-                case 'topojson':
-                    sourceFormat = new ol.format.TopoJSON();
-                    break;
-                case 'kml':
-                    sourceFormat = new ol.format.KML();
-                    break;
-                case 'osm':
-                    sourceFormat = new ol.format.OSMXML();
-                    break;
-                default:
-                    return false;
+            if (fileType === 'zip') {
+                sourceFormat = new ol.format.GeoJSON();
+            } else if (fileType === 'geojson') {
+                sourceFormat = new ol.format.GeoJSON();
+            } else if (fileType === 'topojson') {
+                sourceFormat = new ol.format.TopoJSON();
+            } else if (fileType === 'kml') {
+                sourceFormat = new ol.format.KML();
+            } else if (fileType === 'osm') {
+                sourceFormat = new ol.format.OSMXML();
+            } else {
+                return false;
             }
 
             function loadStart(evt) {
@@ -516,20 +510,14 @@ define(function (require) {
                 data = serializer.serializeToString(features);
             }
             var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
-            // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + data);
+            // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + data);
             element.setAttribute('download', vector_layer.get('name') + '.' + file_type);
             element.style.display = 'none';
             document.body.appendChild(element);
             element.click();
             document.body.removeChild(element);
-            // var fs = require('fs');
-            // fs.writeFile("/home/maddoxw/temp2/test.geojson", data, 'utf-8', function (err) {
-            //     if (err) {
-            //         return message(err);
-            //     }
-            //     message("The file was saved!");
-            // });
+            message("The file was saved!");
         },
 
         // getDefaultSensors = function () {
