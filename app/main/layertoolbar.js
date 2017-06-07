@@ -7,11 +7,11 @@ define(function (require) {
 
     var $ = require('jquery'),
         ol = require('ol'),
-        utils = require('utils'),
         map = require('map'),
-        layertree = require('layertree'),
-        message = require('messagebar'),
         shp = require('shp'),
+        utils = require('utils'),
+        message = require('messagebar'),
+        layertree = require('layertree'),
         WFSContext = require('wfs110context'),
         tobjectTemplates = require('ttemplate'),
         tobjectStyleFunction = require('tstylefunction'),
@@ -463,53 +463,37 @@ define(function (require) {
             return this;
         },
         saveVectorLayer: function ($form) {
-            var file_format_map = {
+            let data;
+            let file_format_map = {
                 'zip': 'GeoJSON',
                 'geojson': 'GeoJSON',
                 'topojson': 'TopoJSON',
                 'kml': 'KML',
                 'osm': 'OSMXML'
             };
-            var current_proj = map.getView().getProjection();
+            let current_proj = map.getView().getProjection();
             let vector_layer = layertree.getLayerById(layertree.selectedLayer.id);
-            var file_type = $form.find(".filetype").val(),
-                // get the format the user has chosen
-                data_type = file_format_map[file_type],
-                // var data_type = $data_type.val(),
-                // define a format the data shall be converted to
-                format = new ol.format[data_type](),
+            let vector_data = vector_layer.getSource().getSource().getFeatures();
+            let file_type = $form.find(".filetype").val();
+            let data_type = file_format_map[file_type];
+            let targetFormat = new ol.format[data_type]();
+            let data_projection = $form.find(".projection").val() || targetFormat.readProjection(vector_data);
 
-            // this will be the data in the chosen format
-                features,
-                data;
-
-            var vector_data = vector_layer.getSource().getSource().getFeatures();
-            //TODO: read projection from dialog.
-            // var data_projection = $form.find(".projection").val() || format.readProjection(vector_data) || current_proj;
-            var data_projection = ol.proj.get('EPSG:4326');
-            try {
-                // convert the data of the vector_layer into the chosen format
-                features = format.writeFeatures(vector_data, {
+            if (data_type === 'GeoJSON' || data_type === 'KML') {
+                // Use OpenLayers built-in formatter
+                data = format.writeFeatures(vector_data, {
                     dataProjection: data_projection,
                     featureProjection: current_proj
                 });
-            } catch (e) {
-                // at time of creation there is an error in the GPX format (18.7.2014)
-                message('Some unexpected error occurred in addVectorLayer: (' + e.message + ').');
+            } else {
+                //TODO: apply data_type to OSMXML, TopoJSON, and shapefiles.
+                // format is XML (GPX or KML)
+                // var serializer = new XMLSerializer();
+                // data = serializer.serializeToString(vector_data);
+                message('Only GeoJSON and KML formats have been implemented.  Exit Save...');
                 return;
             }
-            if (data_type === 'GeoJSON') {
-                // format is JSON
-                // data = JSON.stringify(features, null, 4);
-                // data = JSON.stringify(features);
-                data = features;
-            } else {
-                //TODO: apply data_type to KML, OSMXML, TopoJSON, and shapefiles.
-                // format is XML (GPX or KML)
-                var serializer = new XMLSerializer();
-                data = serializer.serializeToString(features);
-            }
-            var element = document.createElement('a');
+            let element = document.createElement('a');
             // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' + data);
             element.setAttribute('download', vector_layer.get('name') + '.' + file_type);
@@ -517,7 +501,7 @@ define(function (require) {
             document.body.appendChild(element);
             element.click();
             document.body.removeChild(element);
-            message("The file was saved!");
+            message("Save Successful.");
         },
 
         // getDefaultSensors = function () {
@@ -668,11 +652,8 @@ define(function (require) {
                 classes: {
                     "ui-selectmenu-button": "menuselect"
                 }
-            // }).on('selectmenuchange', function () {
-            //     $(this).parent().find(".file").val("");
-            //     $(this).parent().find(".file")[0].accept = '.' + $(this).val();
-            //     $(this).parent().find(".displayname").val("");
             });
+            $('.projection').val('EPSG:4326');
             return $dialog
         },
 
