@@ -5,7 +5,7 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
         map = require('map'),
         utils = require('utils'),
@@ -15,8 +15,8 @@ define(function (require) {
         tobjectTemplates = require('ttemplate'),
         doesPolyCoverHole = require('doespolycoverhole');
 
-    var formElements = {};
-    var wgs84Sphere = new ol.Sphere(6378137);
+    const formElements = {};
+    const wgs84Sphere = new ol.Sphere(6378137);
 
     return {
         init: function () {
@@ -31,7 +31,7 @@ define(function (require) {
             formElements.hole = this.createHoleNodes();
             formElements.height = this.createHeightNodes();
             formElements.thickness = this.createThicknessNodes();
-            var $form = $("<form id='featureproperties' class='form'>");
+            const $form = $("<form id='featureproperties' class='form'>");
             $form.append(this.addFormRow(['featurename']));
             $form.append(this.addFormRow(['geometrytype', 'measure']));
             $form.append(this.addFormRow(['featuretype', 'hole']));
@@ -41,7 +41,7 @@ define(function (require) {
         },
         styleForm: function () {
 
-            var _this = this;
+            const _this = this;
             $('#measure-units').selectmenu({
                 classes: {
                     "ui-selectmenu-button": "menuselect"
@@ -149,34 +149,34 @@ define(function (require) {
             this.isStyled = true;
         },
         addFormRow: function (labels) {
-            var $formRow = $("<div class='form-row'>");
+            const $formRow = $("<div class='form-row'>");
             for (let label of labels) {
                 $formRow.append(formElements[label])
             }
             return $formRow
         },
         createNameNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='feature-name-label' class='form-label'>Feature Name</div>"));
             $formValue.append($("<input type='text' id='feature-name' class='ui-widget'>"));
             $formElem.append($formValue);
             return $formElem
         },
         createGeometryTypeNodes: function () {
-            var $formElem = $("<div class='form-elem' style='width:12em'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem' style='width:12em'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='geometry-type-label' class='form-label'>Geometry Type</div>"));
             $formValue.append($("<input type='text' id='geometry-type' readonly>"));
             $formElem.append($formValue);
             return $formElem
         },
         createMeasureNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='measure-label' class='form-label'>Measure</div>"));
             $formValue.append($("<div id='measure' readonly>"));
-            var $selectNode = $("<select id='measure-units'>");
+            const $selectNode = $("<select id='measure-units'>");
             $selectNode.append(utils.createMenuOption("metric", "Metric"));
             $selectNode.append(utils.createMenuOption("english", "English"));
             $formValue.append($selectNode);
@@ -186,16 +186,17 @@ define(function (require) {
             return $formElem
         },
         createFeatureTypeNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"));
+            //TODO: Consider using <datalist> instead of <select>. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
             $formValue.append($("<select id='feature-type'>"));
             $formElem.append($formValue);
             return $formElem
         },
         createHoleNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='hole-label' class='form-label'>Hole</div>"));
             $formValue.append(this.createHoleButton('draw', 'Draw a hole in the selected feature'));
             $formValue.append(this.createHoleButton('delete', 'Delete a hole from the selected feature'));
@@ -205,8 +206,8 @@ define(function (require) {
             return $formElem
         },
         createHeightNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='height-label' class='form-label'>Height</div>"));
             $formValue.append($("<div id='height-slider'>"));
             $formValue.append($("<input id='height-spinner'>"));
@@ -214,8 +215,8 @@ define(function (require) {
             return $formElem
         },
         createThicknessNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='thickness-label' class='form-label'>Thickness</div>"));
             $formValue.append($("<div id='thickness-slider'>"));
             $formValue.append($("<input id='thickness-spinner'>"));
@@ -224,14 +225,14 @@ define(function (require) {
         },
 
         createHoleButton: function (label, title) {
-            var $buttonElem = $('<button id="' + label + '-hole">');
+            const $buttonElem = $('<button id="' + label + '-hole">');
             $buttonElem.addClass("ol-unselectable ol-control hole-buttons");
             $buttonElem.val(label.capitalizeFirstLetter());
             $buttonElem.attr('title', title);
             return $buttonElem;
         },
         drawHole: function () {
-            var holeStyle = [
+            const holeStyle = [
                 new ol.style.Style({
                     stroke: new ol.style.Stroke({
                         color: 'rgba(0, 0, 0, 0.8)',
@@ -258,24 +259,24 @@ define(function (require) {
                 })
             ];
 
-            var currFeat = layerinteractor.select.getFeatures().getArray()[0];
-            var geomTypeSelected = currFeat.getGeometry().getType();
-            var isMultiPolygon = geomTypeSelected === 'MultiPolygon';
+            let currFeat = layerinteractor.select.getFeatures().getArray()[0];
+            const geomTypeSelected = currFeat.getGeometry().getType();
+            const isMultiPolygon = geomTypeSelected === 'MultiPolygon';
             if (!(geomTypeSelected.endsWith("Polygon"))) {
                 alert("Only Polygon and MultiPolygon geometries can have holes. Not " + geomTypeSelected);
                 return;
             }
             // Clone and original selected geometry so we can test new vertex points against it in the geometryFunction.
-            var origGeom = currFeat.getGeometry().clone();
-            var currGeom;
-            var polyindex = 0;
-            var refGeom;
+            const origGeom = currFeat.getGeometry().clone();
+            let currGeom;
+            let polyindex = 0;
+            let refGeom;
             if (isMultiPolygon) {
-                var pickPoly = function (feature) {
-                    var points = feature.getGeometry().getCoordinates(false)[0];
-                    var polygons = origGeom.getPolygons();
-                    var nPolygons = polygons.length;
-                    for (var i = 0; i < nPolygons; i++) {
+                let pickPoly = function (feature) {
+                    const points = feature.getGeometry().getCoordinates(false)[0];
+                    const polygons = origGeom.getPolygons();
+                    const nPolygons = polygons.length;
+                    for (let i = 0; i < nPolygons; i++) {
                         if (isPointInPoly(polygons[i], points[0])) {
                             polyindex = i;
                         }
@@ -283,11 +284,11 @@ define(function (require) {
                 }
             }
 
-            var vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
+            let vertsCouter = 0; //this is the number of vertices drawn on the ol.interaction.Draw(used in the geometryFunction)
 
             //create a hole draw interaction
-            var source = new ol.source.Vector();
-            var holeDraw = new ol.interaction.Draw({
+            const source = new ol.source.Vector();
+            const holeDraw = new ol.interaction.Draw({
                 source: source,
                 type: 'Polygon',
                 style: holeStyle,
@@ -310,11 +311,11 @@ define(function (require) {
             // this.translate.setActive(true);
             map.addInteraction(holeDraw);
 
-            var _this = this;
+            const _this = this;
 
-            var getPolyHoles = function (poly) {
-                var skip = true;
-                var holes = [];
+            const getPolyHoles = function (poly) {
+                let skip = true;
+                const holes = [];
                 poly.getLinearRings().forEach(function (ring) {
                     if (skip) { // assume the first ring is the exterior ring.
                         skip = false;
@@ -325,9 +326,9 @@ define(function (require) {
                 return holes;
             };
 
-            var getHoles = function (currGeom) {
-                var holefeats = new ol.Collection();
-                var polyholes;
+            const getHoles = function (currGeom) {
+                const holefeats = new ol.Collection();
+                let polyholes;
                 if (currGeom.getType() === 'MultiPolygon') {
                     currGeom.getPolygons().forEach(function (poly) {
                         polyholes = getPolyHoles(poly);
@@ -340,7 +341,7 @@ define(function (require) {
                 return holefeats;
             };
 
-            var finishHole = function () {
+            const finishHole = function () {
                 map.removeInteraction(holeDraw);
                 layerinteractor.modify.setActive(true);
                 layerinteractor.select.setActive(true);
@@ -348,7 +349,7 @@ define(function (require) {
                 map.on('pointermove', layerinteractor.hoverDisplay);
                 $('#draw-hole').button('enable');
                 // $('#delete-hole').button('enable');
-                var holeFeats = getHoles(currGeom);
+                const holeFeats = getHoles(currGeom);
                 $('#delete-hole').button('option', 'disabled', holeFeats.getArray().length === 0);
                 $(document).off('keyup')
             };
@@ -368,10 +369,10 @@ define(function (require) {
             });
 
             holeDraw.on('drawstart', function (evt) {
-                var feature = evt.feature; // the hole feature
-                var ringAdded = false; //init boolean var to clarify whether drawn hole has already been added or not
-                var setCoords;
-                var polyCoords;
+                const feature = evt.feature; // the hole feature
+                let ringAdded = false; //init boolean var to clarify whether drawn hole has already been added or not
+                let setCoords;
+                let polyCoords;
 
                 currGeom = currFeat.getGeometry();
                 if (isMultiPolygon) {
@@ -384,7 +385,7 @@ define(function (require) {
                 //set the change feature listener so we get the hole like visual effect
                 feature.on('change', function (e) {
                     //get draw hole feature geometry
-                    var currCoords = feature.getGeometry().getCoordinates(false)[0];
+                    const currCoords = feature.getGeometry().getCoordinates(false)[0];
                     vertsCouter = currCoords.length;
 
                     if (isMultiPolygon) {
@@ -441,18 +442,18 @@ define(function (require) {
             holeDraw.on('drawend', function (evt) {
 
                 if (isMultiPolygon) {
-                    var rings = currGeom.getCoordinates()[polyindex];
-                    var holecoords = rings.pop();
+                    let rings = currGeom.getCoordinates()[polyindex];
+                    let holecoords = rings.pop();
                 } else {
-                    var rings = currGeom.getCoordinates();
-                    var holecoords = rings.pop();
+                    let rings = currGeom.getCoordinates();
+                    let holecoords = rings.pop();
                 }
 
-                var isValid = isPolyValid(new ol.geom.Polygon([holecoords]));
-                var isInside = doesPolyCoverHole(origGeom, holecoords);
+                const isValid = isPolyValid(new ol.geom.Polygon([holecoords]));
+                const isInside = doesPolyCoverHole(origGeom, holecoords);
                 if (isValid && isInside) {
                     source.once('addfeature', function (e) {
-                        var featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
+                        const featuresGeoJSON = new ol.format.GeoJSON().writeFeatures(
                             [currFeat], {featureProjection: 'EPSG:3857'}
                         );
                         // console.log(featuresGeoJSON)
@@ -467,7 +468,7 @@ define(function (require) {
             }, this);
         },
         deleteHole: function () {
-            var holeStyle = [
+            const holeStyle = [
                 new ol.style.Style({
                     stroke: new ol.style.Stroke({
                         color: 'rgba(0, 0, 0, 0.8)',
@@ -480,9 +481,9 @@ define(function (require) {
                 })
             ];
 
-            var getPolyHoles = function (poly) {
-                var skip = true;
-                var holes = [];
+            const getPolyHoles = function (poly) {
+                let skip = true;
+                const holes = [];
                 poly.getLinearRings().forEach(function (ring) {
                     if (skip) { // assume the first ring is the exterior ring.
                         skip = false;
@@ -494,9 +495,9 @@ define(function (require) {
                 return holes;
             };
 
-            var getHoles = function (currGeom) {
-                var holefeats = new ol.Collection();
-                var polyholes;
+            const getHoles = function (currGeom) {
+                const holefeats = new ol.Collection();
+                let polyholes;
                 if (currGeom.getType() === 'MultiPolygon') {
                     currGeom.getPolygons().forEach(function (poly) {
                         polyholes = getPolyHoles(poly);
@@ -509,16 +510,16 @@ define(function (require) {
                 return holefeats;
             };
 
-            var testCoords = function (poly, coord) {
-                var newPoly = null;
-                var skip = true;
-                var found = false;
+            const testCoords = function (poly, coord) {
+                let newPoly = null;
+                let skip = true;
+                let found = false;
                 poly.getLinearRings().forEach(function (ring) {
                     if (skip) { // assume the first ring is the exterior ring.
                         newPoly = new ol.geom.Polygon([ring.getCoordinates()]);
                         skip = false;
                     } else {
-                        var rcoord = ring.getFirstCoordinate();
+                        const rcoord = ring.getFirstCoordinate();
                         if (rcoord[0] !== coord[0] || rcoord[1] !== coord[1]) {
                             newPoly.appendLinearRing(ring);
                         } else {
@@ -529,12 +530,12 @@ define(function (require) {
                 return found ? newPoly : poly;
             };
 
-            var removeHole = function (feature) {
-                var geom = feature.getGeometry();
-                var newGeom = new ol.geom.MultiPolygon(null);
+            const removeHole = function (feature) {
+                const geom = feature.getGeometry();
+                let newGeom = new ol.geom.MultiPolygon(null);
                 if (currGeom.getType() === 'MultiPolygon') {
                     currGeom.getPolygons().forEach(function (poly) {
-                        var newPoly = testCoords(poly, geom.getFirstCoordinate());
+                        const newPoly = testCoords(poly, geom.getFirstCoordinate());
                         newGeom.appendPolygon(newPoly);
                     });
                 } else {
@@ -543,8 +544,8 @@ define(function (require) {
                 currGeom.setCoordinates(newGeom.getCoordinates());
             };
 
-            var _this = this;
-            var finishHole = function () {
+            const _this = this;
+            const finishHole = function () {
                 layerinteractor.autoselect = true;
                 map.removeInteraction(chooseHole);
                 map.removeLayer(holeOverlay);
@@ -570,15 +571,15 @@ define(function (require) {
             layerinteractor.select.setActive(false);
             layerinteractor.modify.setActive(false);
 
-            var feature = null;
-            var currFeat = layerinteractor.select.getFeatures().getArray()[0];
-            var currGeom = currFeat.getGeometry();
-            var holeFeats = getHoles(currGeom);
+            let feature = null;
+            const currFeat = layerinteractor.select.getFeatures().getArray()[0];
+            let currGeom = currFeat.getGeometry();
+            let holeFeats = getHoles(currGeom);
 
-            var source = new ol.source.Vector({
+            const source = new ol.source.Vector({
                 features: holeFeats
             });
-            var holeOverlay = new ol.layer.Vector({
+            let holeOverlay = new ol.layer.Vector({
                 source: source,
                 type: 'overlay',
                 style: holeStyle,
@@ -587,7 +588,7 @@ define(function (require) {
             // holeOverlay.getSource().addFeatures(holeFeats);
             map.addLayer(holeOverlay);
 
-            var chooseHole = new ol.interaction.ChooseHole({
+            let chooseHole = new ol.interaction.ChooseHole({
                 holes: holeFeats
             });
             map.addInteraction(chooseHole);
@@ -603,9 +604,9 @@ define(function (require) {
 
         formatArea: function (geom, sourceProj) {
 
-            //  var getGeodesicArea = function (poly) {
-            //     var area = 0;
-            //     var isExterior = true;
+            //  let getGeodesicArea = function (poly) {
+            //     let area = 0;
+            //     let isExterior = true;
             //     poly.getLinearRings().forEach( function (ring) {
             //         if (isExterior) { // assume the first ring is the exterior ring.
             //             area += Math.abs(wgs84Sphere.geodesicArea(ring.getCoordinates()));
@@ -617,10 +618,10 @@ define(function (require) {
             //     return area;
             // };
             //
-            // var area;
+            // let area;
             // if (document.getElementById('geodesic').checked) {
-            //     var geom = polygon.clone().transform(sourceProj, 'EPSG:4326');
-            //     // var coordinates = geom.getLinearRing(0).getCoordinates();
+            //     let geom = polygon.clone().transform(sourceProj, 'EPSG:4326');
+            //     // let coordinates = geom.getLinearRing(0).getCoordinates();
             //     // area = Math.abs(wgs84Sphere.geodesicArea(coordinates));
             //     area = 0;
             //     if (geom.getType() === 'MultiPolygon') {
@@ -635,12 +636,12 @@ define(function (require) {
             // }
 
 
-            var getPolygonArea = function (polygon) {
-                var area = 0;
-                var area0 = 0;
-                var isExterior = true;
+            const getPolygonArea = function (polygon) {
+                let area = 0;
+                const area0 = 0;
+                let isExterior = true;
                 if ($("#geodesic").is(":checked")) {
-                    var poly = polygon.clone().transform(sourceProj, 'EPSG:4326');
+                    const poly = polygon.clone().transform(sourceProj, 'EPSG:4326');
                     poly.getLinearRings().forEach(function (ring) {
                         if (isExterior) { // assume the first ring is the exterior ring.
                             area += Math.abs(wgs84Sphere.geodesicArea(ring.getCoordinates()));
@@ -655,7 +656,7 @@ define(function (require) {
                 return area;
             };
 
-            var area = 0;
+            let area = 0;
             if (geom.getType() === 'MultiPolygon') {
                 geom.getPolygons().forEach(function (poly) {
                     area += getPolygonArea(poly)
@@ -663,8 +664,8 @@ define(function (require) {
             } else {
                 area = getPolygonArea(geom)
             }
-            var output;
-            var squared = "2";
+            let output;
+            const squared = "2";
             if (area > 100000) {
                 output = (Math.round(area / 1000000 * 100) / 100) + " km" + squared.sup();
             } else {
@@ -674,12 +675,12 @@ define(function (require) {
         },
         formatLength: function (geom, sourceProj) {
 
-            var getLineStringLength = function (line) {
-                var length = 0;
+            const getLineStringLength = function (line) {
+                let length = 0;
                 if ($("#geodesic").is(":checked")) {
-                    var coordinates = line.clone().transform(sourceProj, 'EPSG:4326').getCoordinates();
-                    var nCoords = coordinates.length;
-                    for (var i = 0; i < nCoords - 1; i++) {
+                    const coordinates = line.clone().transform(sourceProj, 'EPSG:4326').getCoordinates();
+                    const nCoords = coordinates.length;
+                    for (let i = 0; i < nCoords - 1; i++) {
                         length += wgs84Sphere.haversineDistance(coordinates[i], coordinates[i + 1]);
                     }
                 } else {
@@ -688,7 +689,7 @@ define(function (require) {
                 return length;
             };
 
-            var length = 0;
+            let length = 0;
             if (geom.getType() === 'MultiLineString') {
                 geom.getLineStrings().forEach(function (line) {
                     length += getLineStringLength(line)
@@ -696,7 +697,7 @@ define(function (require) {
             } else {
                 length = getLineStringLength(geom)
             }
-            var output;
+            let output;
             if (length > 1000) {
                 output = (Math.round(length / 1000 * 100) / 100) + ' km';
             } else {
@@ -705,29 +706,29 @@ define(function (require) {
             $('#measure').html(output);
         },
         formatPosition: function (point, sourceProj) {
-            var geom = point.clone().transform(sourceProj, 'EPSG:4326');
-            var coords = geom.getCoordinates();
-            var coord_x = coords[0].toFixed(6);
-            var coord_y = coords[1].toFixed(6);
+            const geom = point.clone().transform(sourceProj, 'EPSG:4326');
+            const coords = geom.getCoordinates();
+            const coord_x = coords[0].toFixed(6);
+            const coord_y = coords[1].toFixed(6);
             return coord_x + ', ' + coord_y;
         },
 
         activateForm: function (feature) {
 
-            var _this = this;
-            var $featureName = $('#feature-name');
-            var $geometryType = $('#geometry-type');
-            var $measureLabel = $('#measure-label');
-            var $measureUnits = $('#measure-units');
-            var $geodesic = $('#geodesic');
-            var measure;
-            var $deleteHole = $('#delete-hole');
-            var $featureType = $('#feature-type');
-            var feature_type = feature.get('type');
-            var $heightSpinner = $('#height-spinner');
-            var $heightSlider = $('#height-slider');
-            var $thicknessSpinner = $('#thickness-spinner');
-            var $thicknessSlider = $('#thickness-slider');
+            const _this = this;
+            const $featureName = $('#feature-name');
+            const $geometryType = $('#geometry-type');
+            const $measureLabel = $('#measure-label');
+            const $measureUnits = $('#measure-units');
+            const $geodesic = $('#geodesic');
+            let measure;
+            const $deleteHole = $('#delete-hole');
+            const $featureType = $('#feature-type');
+            let feature_type = feature.get('type');
+            const $heightSpinner = $('#height-spinner');
+            const $heightSlider = $('#height-slider');
+            const $thicknessSpinner = $('#thickness-spinner');
+            const $thicknessSlider = $('#thickness-slider');
 
             $('#featureproperties').show();
 
@@ -765,8 +766,8 @@ define(function (require) {
                 $('#hole-label').removeClass('disabled');
                 $('#draw-hole').button('enable');
                 if (feature.getGeometry().getType() === 'MultiPolygon') {
-                    var nPolygons = feature.getGeometry().getPolygons().length;
-                    for (var i = 0; i < nPolygons; i++)
+                    const nPolygons = feature.getGeometry().getPolygons().length;
+                    for (let i = 0; i < nPolygons; i++)
                         if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
                             $deleteHole.button('enable');
                         }
@@ -777,7 +778,7 @@ define(function (require) {
 
             $('#feature-type-label').removeClass('disabled');
             $featureType.selectmenu('enable');
-            for (var key in tobjectTemplates) {
+            for (let key in tobjectTemplates) {
                 if (feature.getGeometry().getType().endsWith(tobjectTemplates[key]["geometry_type"])) {
                     $featureType.append(utils.createMenuOption(key));
                 }
@@ -790,7 +791,7 @@ define(function (require) {
             $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type);
             $featureType.val(feature_type);
 
-            var feature_properties = tobjectTemplates[feature_type];
+            const feature_properties = tobjectTemplates[feature_type];
 
             if (feature_properties['height']) {
                 $('#height-label').removeClass('disabled');
@@ -807,10 +808,10 @@ define(function (require) {
             }
         },
         changeFeatureType: function (feature_type) {
-            var feature_properties = tobjectTemplates[feature_type];
+            const feature_properties = tobjectTemplates[feature_type];
 
-            var $featureName = $('#feature-name');
-            for (var key in tobjectTemplates) {
+            const $featureName = $('#feature-name');
+            for (let key in tobjectTemplates) {
                 if (tobjectTemplates[key]["geometry_type"]) {
                     if ($('#geometry-type').val().startsWith(tobjectTemplates[key]["geometry_type"])) {
                         if ($featureName.val().startsWith(key.capitalizeFirstLetter())) {
@@ -826,8 +827,8 @@ define(function (require) {
 
             $('#feature-type').val(feature_type);
 
-            var $heightSpinner = $('#height-spinner');
-            var $heightSlider = $('#height-slider');
+            const $heightSpinner = $('#height-spinner');
+            const $heightSlider = $('#height-slider');
             if (!($heightSpinner.spinner('option', 'disabled') || feature_properties['height'])) {
                 $heightSpinner.spinner("value", 0);
                 $heightSlider.slider("value", 0);
@@ -842,8 +843,8 @@ define(function (require) {
                 $('#height-label').removeClass('disabled');
             }
 
-            var $thicknessSpinner = $('#thickness-spinner');
-            var $thicknessSlider = $('#thickness-slider');
+            const $thicknessSpinner = $('#thickness-spinner');
+            const $thicknessSlider = $('#thickness-slider');
             if (!($thicknessSpinner.spinner('option', 'disabled') || feature_properties['thickness'])) {
                 $thicknessSpinner.spinner("value", 0);
                 $thicknessSlider.slider("value", 0);
@@ -868,26 +869,26 @@ define(function (require) {
             }
 
             // feature.set('height', $('#height-spinner').spinner("value"));
-            var $heightSpinner = $('#height-spinner');
+            const $heightSpinner = $('#height-spinner');
             if ($heightSpinner.spinner("value")) {
                 feature.set('height', $heightSpinner.spinner("value"));
             }
 
             // feature.set('thickness', $('#thickness-spinner').spinner("value"));
-            var $thicknessSpinner = $('#thickness-spinner');
+            const $thicknessSpinner = $('#thickness-spinner');
             if ($thicknessSpinner.spinner("value")) {
                 feature.set('thickness', $thicknessSpinner.spinner("value"));
             }
         },
         deactivateForm: function () {
 
-            var $featureName = $('#feature-name');
-            var $featureType = $('#feature-type');
-            var $heightSpinner = $('#height-spinner');
-            var $heightSlider = $('#height-slider');
-            var $thicknessSpinner = $('#thickness-spinner');
-            var $thicknessSlider = $('#thickness-slider');
-            var $geodesic = $('#geodesic');
+            const $featureName = $('#feature-name');
+            const $featureType = $('#feature-type');
+            const $heightSpinner = $('#height-spinner');
+            const $heightSlider = $('#height-slider');
+            const $thicknessSpinner = $('#thickness-spinner');
+            const $thicknessSlider = $('#thickness-slider');
+            const $geodesic = $('#geodesic');
 
             $featureName.val(null);
             $featureName.addClass('ui-state-disabled');

@@ -4,7 +4,7 @@ define(['MainCore', 'Utilities'], function(OSMFire_Core) {
         if (!key) {
             throw new Error("no key passed in!");
         }
-        var valueForKey = localStorage[key];
+        let valueForKey = localStorage[key];
         if (valueForKey) {
             if (decode) {
                 try {
@@ -22,7 +22,7 @@ define(['MainCore', 'Utilities'], function(OSMFire_Core) {
     }
 
     function getValueForKeyAsObject(key, decode) {
-        var valueForKey = localStorage[key];
+        let valueForKey = localStorage[key];
         if (valueForKey) {
             if (decode) {
                 valueForKey = decodeURI(valueForKey);
@@ -39,7 +39,7 @@ define(['MainCore', 'Utilities'], function(OSMFire_Core) {
         if (!key) {
             return false;
         }
-        var value = localStorage[key];
+        let value = localStorage[key];
         // if the tile objects are not in the local storage, then return false
         return !!value;
     }
@@ -86,12 +86,12 @@ define(['MainCore', 'Utilities'], function(OSMFire_Core) {
     // if the key does not exist, then create the key with the value passed in either as an object or as an array of objects
 
     function appendObjectToLocalStorageArray(key, objToSave, encode) {
-        var valueToStore = null;
+        let valueToStore = null;
         if (typeof objToSave !== 'object') {
             OSMFire_Core.log(3, 'DataMismatch, from appendObjectToLocalStorageArray', 'orange');
             return false;
         }
-        var storedValue = getValueForKeyAsObject(key, true);
+        let storedValue = getValueForKeyAsObject(key, true);
         //if there was a previously stored value for the key
         if (storedValue) {
             if (OSMFire_Core.checkIfArray(storedValue)) {
@@ -113,7 +113,7 @@ define(['MainCore', 'Utilities'], function(OSMFire_Core) {
     // if the key has no value, just add the string as the value of the key in storage
 
     function appendStringToLocalStorage(key, value, encode) {
-        var storedValue = getValueForKeyAsString(key, encode),
+        let storedValue = getValueForKeyAsString(key, encode),
             valueToStore;
         if (storedValue) {
             valueToStore = storedValue + value;

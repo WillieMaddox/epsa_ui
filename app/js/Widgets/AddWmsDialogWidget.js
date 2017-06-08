@@ -18,9 +18,9 @@ define(['jquery', 'MainCore',
 
     'use strict';
 
-    var callback = function(sandBox) {
+    let callback = function(sandBox) {
 
-        var $dialog,
+        let $dialog,
             $form,
             $fieldset,
             config;
@@ -52,42 +52,42 @@ define(['jquery', 'MainCore',
 
             checkWmsLayer: function ($button) {
 
-                var $form = $button.form();
+                let $form = $button.form();
                 $button.button("disable");
                 $form.find(".layername").empty();
                 $form.find(".format").empty();
-                var serverUrl = $form.find(".url").val();
+                let serverUrl = $form.find(".url").val();
                 serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
                 $form.find(".url").val(serverUrl);
                 serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-                var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
-                var url = settings.proxyUrl + serverUrl + query;
+                let query = 'SERVICE=WMS&REQUEST=GetCapabilities';
+                let url = settings.proxyUrl + serverUrl + query;
                 console.log(url);
 
                 $.ajax({
                     type: 'GET',
                     url: url
                 }).done(function (response) {
-                    // var parser = new ol.format.WMSCapabilities();
-                    var currentProj = sandBox.getView().getProjection().getCode();
-                    var parser = sandBox.getFormat('wmscapabilities');
-                    var capabilities = parser.read(response);
-                    var crs, i;
-                    var messageText = 'Layers read successfully.';
+                    // let parser = new ol.format.WMSCapabilities();
+                    let currentProj = sandBox.getView().getProjection().getCode();
+                    let parser = sandBox.getFormat('wmscapabilities');
+                    let capabilities = parser.read(response);
+                    let crs, i;
+                    let messageText = 'Layers read successfully.';
                     if (capabilities.version === '1.3.0') {
                         crs = capabilities.Capability.Layer.CRS;
                     } else {
                         crs = [currentProj];
                         messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
                     }
-                    var layers = capabilities.Capability.Layer.Layer;
+                    let layers = capabilities.Capability.Layer.Layer;
                     if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
-                        var nLayers = layers.length;
+                        let nLayers = layers.length;
                         for (i = 0; i < nLayers; i += 1) {
                             $form.find(".layername").append(utils.createMenuOption(layers[i].Name));
                         }
-                        var formats = capabilities.Capability.Request.GetMap.Format;
-                        var nFormats = formats.length;
+                        let formats = capabilities.Capability.Request.GetMap.Format;
+                        let nFormats = formats.length;
                         for (i = 0; i < nFormats; i += 1) {
                             $form.find(".format").append(utils.createMenuOption(formats[i]));
                         }
@@ -102,15 +102,15 @@ define(['jquery', 'MainCore',
                 });
             },
             addWmsLayer: function ($form) {
-                var sourceParams = {
+                let sourceParams = {
                     url: $form.find(".url").val(),
                     params: {
                         layers: $form.find(".layername").val(),
                         format: $form.find(".format").val()
                     }
                 };
-                var source;
-                var layer;
+                let source;
+                let layer;
                 if ($form.find(".tiled").is(":checked")) {
                     source = sandBox.getSource('TileWMS', sourceParams);
                     layer = sandBox.getLayer('Tile', {
@@ -216,11 +216,11 @@ define(['jquery', 'MainCore',
                 });
 
                 $('#open-url').on("change", function () {
-                    var $layername = $(this).parent().find(".layername");
+                    let $layername = $(this).parent().find(".layername");
                     $layername.empty();
                     $layername.selectmenu("refresh");
                     $(this).parent().find(".displayname").val("");
-                    var $format = $(this).parent().find(".format");
+                    let $format = $(this).parent().find(".format");
                     $format.empty();
                     $format.selectmenu("refresh");
                 });

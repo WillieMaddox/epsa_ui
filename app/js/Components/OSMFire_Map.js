@@ -9,8 +9,8 @@ define(['jquery', 'ol', 'MainCore', 'bingKey',
 
     "use strict";
 
-    var callback = function(sandBox) {
-        var innerHTMLStr = '<div id="map" class="map"></div>';
+    let callback = function(sandBox) {
+        let innerHTMLStr = '<div id="map" class="map"></div>';
 
         return {
             layerSwitcher: new ol.control.LayerSwitcher(),
@@ -21,13 +21,13 @@ define(['jquery', 'ol', 'MainCore', 'bingKey',
                     sandBox.contextObj = this;
                     this.registerForCustomEvents();
 
-                    var thunderforestAttributions = [
+                    let thunderforestAttributions = [
                         new ol.Attribution({
                             html: 'Tiles &copy; <a href="http://www.thunderforest.com/">Thunderforest</a>'
                         }),
                         ol.source.OSM.ATTRIBUTION
                     ];
-                    var defaultLayers = [
+                    let defaultLayers = [
                         new ol.layer.Group({
                             title: 'Bing',
                             layers: [
@@ -133,8 +133,8 @@ define(['jquery', 'ol', 'MainCore', 'bingKey',
                             ]
                         })
                     ];
-                    var map = sandBox.getMap();
-                    var view = sandBox.getView();
+                    let map = sandBox.getMap();
+                    let view = sandBox.getView();
                     view.setCenter(ol.proj.transform(
                         // [-86.711, 34.636],
                         // [-86.677945, 34.723185],
@@ -151,11 +151,11 @@ define(['jquery', 'ol', 'MainCore', 'bingKey',
                     // map.addInteraction(ol.interaction.defaults({doubleClickZoom: false}));
                     map.addControl(new ol.control.Attribution());
                     map.addControl(new ol.control.Zoom());
-                    for (var layer in defaultLayers) {
+                    for (let layer in defaultLayers) {
                         map.addLayer(defaultLayers[layer]);
                     }
 
-                    // var view = new ol.View({
+                    // let view = new ol.View({
                     //     center: ol.proj.transform(
                     //         // [-86.711, 34.636],
                     //         // [-86.677945, 34.723185],
@@ -169,7 +169,7 @@ define(['jquery', 'ol', 'MainCore', 'bingKey',
                     //     // center: [0, 0],
                     //     zoom: 15
                     // });
-                    // var map = new ol.Map({
+                    // let map = new ol.Map({
                     //     interactions: ol.interaction.defaults({doubleClickZoom: false}),
                     //     target: document.getElementById('map'),
                     //     view: view,

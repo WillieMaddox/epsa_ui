@@ -18,9 +18,9 @@ define(['jquery', 'MainCore',
 
     'use strict';
 
-    var callback = function(sandBox) {
+    let callback = function(sandBox) {
 
-        var $dialog,
+        let $dialog,
             $form,
             $fieldset,
             config;
@@ -52,11 +52,11 @@ define(['jquery', 'MainCore',
 
             addVectorLayer: function ($form) {
 
-                var file = $form.find(".file")[0].files[0];
-                var fileType = $form.find(".filetype").val();
-                var currentProj = sandBox.getView().getProjection();
-                var sourceFormat = sandBox.getFormat(fileType);
-                var $progressbar;
+                let file = $form.find(".file")[0].files[0];
+                let fileType = $form.find(".filetype").val();
+                let currentProj = sandBox.getView().getProjection();
+                let sourceFormat = sandBox.getFormat(fileType);
+                let $progressbar;
 
                 function loadStart(evt) {
                     $progressbar = $("<div class='buffering'>");
@@ -80,8 +80,8 @@ define(['jquery', 'MainCore',
                 }
                 function loaded(evt) {
                     $progressbar.progressbar("value", false);
-                    var vectorData = evt.target.result;
-                    var dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
+                    let vectorData = evt.target.result;
+                    let dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
                     if (fileType === 'zip') {
                         shp(vectorData).then(function (geojson) {
                             source.addFeatures(sourceFormat.readFeatures(geojson, {
@@ -105,7 +105,7 @@ define(['jquery', 'MainCore',
                     }
                     // // Convert MultiPolygon to Polygons if there is only one exterior ring.
                     // // Convert MultiLineString to LineString if there is only one linestring.
-                    // var newgeom;
+                    // let newgeom;
                     // source.getFeatures().forEach(function (feature) {
                     //     if (feature.getGeometry().getType() === 'MultiPolygon') {
                     //         if (feature.getGeometry().getCoordinates().length === 1) {
@@ -136,7 +136,7 @@ define(['jquery', 'MainCore',
                 }
 
                 try {
-                    var fr = new FileReader();
+                    let fr = new FileReader();
                     fr.onloadstart = loadStart;
                     fr.onprogress = updateProgress;
                     fr.onload = loaded;
@@ -149,9 +149,9 @@ define(['jquery', 'MainCore',
                         fr.readAsText(file);
                     }
 
-                    var source0;
-                    var source;
-                    var layer;
+                    let source0;
+                    let source;
+                    let layer;
                     source0 = sandBox.getSource('Vector', {
                         strategy: ol.loadingstrategy.bbox,
                         format: sourceFormat
@@ -166,12 +166,12 @@ define(['jquery', 'MainCore',
                         opacity: 0.7
                     });
 
-                    // var source = new ol.source.Vector({
+                    // let source = new ol.source.Vector({
                     //     strategy: ol.loadingstrategy.bbox,
                     //     format: sourceFormat
                     // });
                     // source.set('pendingRequests', 1);
-                    // var layer = new ol.layer.Image({
+                    // let layer = new ol.layer.Image({
                     //     source: new ol.source.ImageVector({
                     //         source: source
                     //     }),
@@ -209,7 +209,7 @@ define(['jquery', 'MainCore',
             },
             createFileTypeNodes: function ($fieldset) {
                 $fieldset.append($('<label for="open-filetype">File Type</label>'));
-                var $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
+                let $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
                 $selectNode.append(utils.createMenuOption("geojson", "GeoJSON"));
                 $selectNode.append(utils.createMenuOption("topojson", "TopoJSON"));
                 $selectNode.append(utils.createMenuOption("zip", "Shapefile (zipped)"));
@@ -259,9 +259,9 @@ define(['jquery', 'MainCore',
                     $(this).parent().dialog("close");
                 });
                 $('#open-file').on("change", function () {
-                    var startPos = this.value.lastIndexOf("\\") + 1;
-                    var stopPos = this.value.lastIndexOf(".");
-                    var name = this.value.slice(startPos, stopPos);
+                    let startPos = this.value.lastIndexOf("\\") + 1;
+                    let stopPos = this.value.lastIndexOf(".");
+                    let name = this.value.slice(startPos, stopPos);
                     $(this).parent().find(".displayname").val(name);
                 });
                 $('.filetype').selectmenu({

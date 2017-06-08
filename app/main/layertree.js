@@ -19,7 +19,7 @@ define(function (require) {
 
     require('jquery-ui');
 
-    var idCounter = 0;
+    let idCounter = 0;
 
     return {
         init: function () {
@@ -44,11 +44,11 @@ define(function (require) {
                     // so trigger focusout handlers to remove .ui-state-focus
                     ui.item.children(".layer").triggerHandler("focusout");
 
-                    var htmlArray = [].slice.call(_this.$layerContainer[0].children);
-                    var index = htmlArray.length - htmlArray.indexOf(ui.item[0]) - 1;
-                    var sourceLayer = _this.getLayerById(ui.item[0].id);
-                    var layers = map.getLayers().getArray();
-                    var group_shift = layers.length - htmlArray.length;
+                    let htmlArray = [].slice.call(_this.$layerContainer[0].children);
+                    let index = htmlArray.length - htmlArray.indexOf(ui.item[0]) - 1;
+                    let sourceLayer = _this.getLayerById(ui.item[0].id);
+                    let layers = map.getLayers().getArray();
+                    let group_shift = layers.length - htmlArray.length;
                     layers.splice(layers.indexOf(sourceLayer), 1);
                     layers.splice(group_shift + index, 0, sourceLayer);
                     map.render();
@@ -61,13 +61,13 @@ define(function (require) {
             this.selectEventEmitter = new ol.Observable();
             this.deselectEventEmitter = new ol.Observable();
 
-            var _this = this;
-            var handler = function (event, data) {
+            let _this = this;
+            let handler = function (event, data) {
                 if (data) {
                     event.data = data;
                 }
                 if (event.data.selectevent) {
-                    var targetNode = event.target;
+                    let targetNode = event.target;
                     if (targetNode.classList.contains("layertitle")) {
                         targetNode = targetNode.parentNode;
                     }
@@ -99,21 +99,21 @@ define(function (require) {
                 }
             };
             this.createRegistry = function (layer) {
-                var mouseDownFired = false;
-                var lid = 'layer_' + idCounter;
+                let mouseDownFired = false;
+                let lid = 'layer_' + idCounter;
                 //TODO: Hard code this for now.
                 layer.set('is_dirty', true);
                 layer.set('id', lid);
                 idCounter += 1;
 
-                var $layerDiv = $("<div id='" + lid + "' class='layer ol-unselectable'>");
+                let $layerDiv = $("<div id='" + lid + "' class='layer ol-unselectable'>");
 
-                var $layerRow1 = $("<div class='layerrow layerrow1'>");
+                let $layerRow1 = $("<div class='layerrow layerrow1'>");
 
-                // var $layerVisibleLabel = $("<label for='"+lid+"-layervisible' class='visible layervisible'>");
-                // var $layerVisible = $("<input type='checkbox' id='"+lid+"-layervisible' class='checkboxradio' checked>");
-                // var $layerTitle = $("<div id='"+lid+"-layertitle' class='layertitle'>" + layer.get('name') + "</div>");
-                // var $layerOpacity = $("<div id='"+lid+"-layeropacity' class='layeropacity'>");
+                // let $layerVisibleLabel = $("<label for='"+lid+"-layervisible' class='visible layervisible'>");
+                // let $layerVisible = $("<input type='checkbox' id='"+lid+"-layervisible' class='checkboxradio' checked>");
+                // let $layerTitle = $("<div id='"+lid+"-layertitle' class='layertitle'>" + layer.get('name') + "</div>");
+                // let $layerOpacity = $("<div id='"+lid+"-layeropacity' class='layeropacity'>");
                 $layerRow1.append($("<label for='" + lid + "-layervisible' class='visible layervisible'>"));
                 $layerRow1.append($("<input type='checkbox' id='" + lid + "-layervisible' class='checkboxradio' checked>"));
                 $layerRow1.append($("<div id='" + lid + "-layertitle' class='layertitle'>" + layer.get('name') + "</div>"));
@@ -123,24 +123,24 @@ define(function (require) {
 
                 if (layer instanceof ol.layer.Image) {
 
-                    var $layerRow2 = $("<div class='layerrow layerrow2'>");
+                    let $layerRow2 = $("<div class='layerrow layerrow2'>");
 
-                    var $hoverControl = $("<div class='controlgroup hovercontrol'>");
+                    let $hoverControl = $("<div class='controlgroup hovercontrol'>");
 
-                    // var $hoverVisibleLabel = $("<label for='"+lid+"-hovervisible' class='visible hovervisible'>");
-                    // var $hoverVisible = $("<input type='checkbox' id='"+lid+"-hovervisible' class='checkboxradio' checked>");
-                    // var $hoverSelect = $("<select id='"+lid+"-hoverselect' class='hoverselect'>");
+                    // let $hoverVisibleLabel = $("<label for='"+lid+"-hovervisible' class='visible hovervisible'>");
+                    // let $hoverVisible = $("<input type='checkbox' id='"+lid+"-hovervisible' class='checkboxradio' checked>");
+                    // let $hoverSelect = $("<select id='"+lid+"-hoverselect' class='hoverselect'>");
                     $hoverControl.append($("<label for='" + lid + "-hovervisible' class='visible hovervisible'>"));
                     $hoverControl.append($("<input type='checkbox' id='" + lid + "-hovervisible' class='checkboxradio' checked>"));
                     $hoverControl.append($("<select id='" + lid + "-hoverselect' class='hoverselect'>"));
 
                     $layerRow2.append($hoverControl);
 
-                    var $colorControl = $("<div class='controlgroup colorcontrol'>");
+                    let $colorControl = $("<div class='controlgroup colorcontrol'>");
 
-                    // var $resetButton = $("<button id='"+lid+"-resetbutton' class='mybutton resetbutton'>Reset</button>");
-                    // var $colorButton = $("<button id='"+lid+"-colorbutton' class='mybutton colorbutton colorwheel-icon'></button>");
-                    // var $colorSelect = $("<select id='"+lid+"-colorselect' class='colorselect'>");
+                    // let $resetButton = $("<button id='"+lid+"-resetbutton' class='mybutton resetbutton'>Reset</button>");
+                    // let $colorButton = $("<button id='"+lid+"-colorbutton' class='mybutton colorbutton colorwheel-icon'></button>");
+                    // let $colorSelect = $("<select id='"+lid+"-colorselect' class='colorselect'>");
                     $colorControl.append($("<button id='" + lid + "-resetbutton' class='mybutton resetbutton'>Reset</button>"));
                     $colorControl.append($("<button id='" + lid + "-colorbutton' class='mybutton colorbutton colorwheel-icon'></button>"));
                     $colorControl.append($("<select id='" + lid + "-colorselect' class='colorselect'>"));
@@ -251,7 +251,7 @@ define(function (require) {
                         })
                     });
                     $('#' + lid + '-colorbutton').button().on('click', function (event) {
-                        var attribute = $('#' + lid + '-colorselect').val();
+                        let attribute = $('#' + lid + '-colorselect').val();
                         if (layer.get('headers')[attribute] === 'string') {
                             _this.styleCategorized(layer, attribute);
                         } else if (layer.get('headers')[attribute] === 'number') {
@@ -387,6 +387,7 @@ define(function (require) {
             // 2. unwrap progressbar when pending requests hits 0.
             // 3. call buildHeaders()
             // 4. refreshes hover and color controls in layer. (after buildHeaders success)
+            let hasFeatures;
             console.log('addBufferIcon init()');
             layer.getSource().getSource().on('change', function (evt) {
                 // layer.getSource().getSource() === evt.target === this
@@ -404,7 +405,7 @@ define(function (require) {
                         layer.buildHeaders();
                     }
                     if (evt.target.getFeatures().length === 0) {
-                        var hasFeatures = [false, 'disable']
+                        hasFeatures = [false, 'disable']
                     } else {
                         hasFeatures = [true, 'enable']
                     }
@@ -418,7 +419,7 @@ define(function (require) {
         },
         removeLayer: function () {
             if (this.selectedLayer) {
-                var layer = this.getLayerById(this.selectedLayer.id);
+                let layer = this.getLayerById(this.selectedLayer.id);
                 map.removeLayer(layer);
                 this.selectedLayer.classList.remove('active');
                 this.selectedLayer = null;
@@ -429,9 +430,9 @@ define(function (require) {
         },
 
         getLayerById: function (id) {
-            var layers = map.getLayers().getArray();
-            var len = layers.length;
-            for (var i = 0; i < len; i += 1) {
+            const layers = map.getLayers().getArray();
+            const len = layers.length;
+            for (let i = 0; i < len; i += 1) {
                 if (layers[i].get('id') === id) {
                     return layers[i];
                 }
@@ -440,29 +441,29 @@ define(function (require) {
         },
         identifyLayer: function (layer) {
 
-            var geomType = null;
-            var geomTypes = [];
-            var geomTypesDefault = ['point', 'line', 'polygon', 'geomcollection'];
-            var geomTypeIsVerified = false;
+            let geomType = null;
+            let geomTypes = [];
+            let geomTypesDefault = ['point', 'line', 'polygon', 'geomcollection'];
+            let geomTypeIsVerified = false;
 
-            var layerType;
-            var layerTypes = [];
-            var layerTypesDefault = {
+            let layerType;
+            let layerTypes = [];
+            let layerTypesDefault = {
                 'feature': Object.keys(tobjectTemplates),
                 'sensor': Object.keys(sensorTemplates)
             };
-            var layerTypeIsVerified = false;
+            let layerTypeIsVerified = false;
 
-            var getLayerType = function (featureType) {
-                for (var ltype in layerTypesDefault) {
-                    for (var ftype in layerTypesDefault[ltype]) {
+            let getLayerType = function (featureType) {
+                for (let ltype in layerTypesDefault) {
+                    for (let ftype in layerTypesDefault[ltype]) {
                         if (featureType === layerTypesDefault[ltype][ftype]) {
                             return ltype;
                         }
                     }
                 }
             };
-            var getGeometryType = function (geomType) {
+            let getGeometryType = function (geomType) {
                 if (geomType.endsWith('Point')) {
                     return 'point';
                 } else if (geomType.endsWith('LineString')) {
@@ -530,22 +531,22 @@ define(function (require) {
             }
         },
         styleGraduated: function (layer, attribute) {
-            var attributeArray = [];
+            const attributeArray = [];
             layer.getSource().getSource().forEachFeature(function (feat) {
                 attributeArray.push(feat.get(attribute) || 0);
             });
-            var max = Math.max.apply(null, attributeArray);
-            var min = Math.min.apply(null, attributeArray);
-            var step = (max - min) / 5;
-            var colors = this.graduatedColorFactory(5, [254, 240, 217], [179, 0, 0]);
+            let max = Math.max.apply(null, attributeArray);
+            let min = Math.min.apply(null, attributeArray);
+            let step = (max - min) / 5;
+            let colors = this.graduatedColorFactory(5, [254, 240, 217], [179, 0, 0]);
             layer.getSource().setStyle(function (feature, res) {
-                var property = feature.get(attribute) || 0;
-                // var opacity = feature.get('type') === 'aor' ? 0.0 : 0.9;
-                var color = property < min + step ? colors[0] :
+                let property = feature.get(attribute) || 0;
+                // let opacity = feature.get('type') === 'aor' ? 0.0 : 0.9;
+                let color = property < min + step ? colors[0] :
                     property < min + step * 2 ? colors[1] :
                         property < min + step * 3 ? colors[2] :
                             property < min + step * 4 ? colors[3] : colors[4];
-                var style;
+                let style;
                 if (feature.getGeometry().getType().endsWith('Point')) {
                     if (feature.get('type') === 'camera' || feature.get('type') === 'radio') {
                         style = [
@@ -610,30 +611,30 @@ define(function (require) {
             });
         },
         graduatedColorFactory: function (intervals, rgb1, rgb2) {
-            var colors = [];
-            var step = intervals - 1;
-            var redStep = (rgb2[0] - rgb1[0]) / step;
-            var greenStep = (rgb2[1] - rgb1[1]) / step;
-            var blueStep = (rgb2[2] - rgb1[2]) / step;
-            for (var i = 0; i < step; i += 1) {
-                var red = Math.ceil(rgb1[0] + redStep * i);
-                var green = Math.ceil(rgb1[1] + greenStep * i);
-                var blue = Math.ceil(rgb1[2] + blueStep * i);
+            const colors = [];
+            const step = intervals - 1;
+            const redStep = (rgb2[0] - rgb1[0]) / step;
+            const greenStep = (rgb2[1] - rgb1[1]) / step;
+            const blueStep = (rgb2[2] - rgb1[2]) / step;
+            for (let i = 0; i < step; i += 1) {
+                let red = Math.ceil(rgb1[0] + redStep * i);
+                let green = Math.ceil(rgb1[1] + greenStep * i);
+                let blue = Math.ceil(rgb1[2] + blueStep * i);
                 colors.push([red, green, blue]);
             }
             colors.push([rgb2[0], rgb2[1], rgb2[2]]);
             return colors;
         },
         styleCategorized: function (layer, attribute) {
-            var attributeArray = [];
-            var colorArray = [];
-            var randomColor;
+            const attributeArray = [];
+            const colorArray = [];
+            let randomColor;
 
             function convertHex(hex, opacity) {
                 hex = hex.replace('#', '');
-                var r = parseInt(hex.substring(0, 2), 16);
-                var g = parseInt(hex.substring(2, 4), 16);
-                var b = parseInt(hex.substring(4, 6), 16);
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
                 if (opacity) {
                     return [r, g, b, opacity];
                 } else {
@@ -642,7 +643,7 @@ define(function (require) {
             }
 
             layer.getSource().getSource().forEachFeature(function (feature) {
-                var property = feature.get(attribute) ? feature.get(attribute).toString() : '';
+                let property = feature.get(attribute) ? feature.get(attribute).toString() : '';
                 if (attributeArray.indexOf(property) === -1) {
                     attributeArray.push(property);
                     do {
@@ -652,8 +653,8 @@ define(function (require) {
                 }
             }, this);
             layer.getSource().setStyle(function (feature, res) {
-                var index = feature.get(attribute) ? attributeArray.indexOf(feature.get(attribute).toString()) : attributeArray.indexOf('');
-                var style;
+                const index = feature.get(attribute) ? attributeArray.indexOf(feature.get(attribute).toString()) : attributeArray.indexOf('');
+                let style;
                 if (feature.getGeometry().getType().endsWith('Point')) {
                     if (feature.get('type') === 'camera' || feature.get('type') === 'radio') {
                         style = [
@@ -718,7 +719,7 @@ define(function (require) {
             });
         },
         randomHexColor: function () {
-            var num = Math.floor(Math.random() * 16777215).toString(16);
+            const num = Math.floor(Math.random() * 16777215).toString(16);
             return '#' + String.prototype.repeat.call('0', 6 - num.length) + num;
         }
     }

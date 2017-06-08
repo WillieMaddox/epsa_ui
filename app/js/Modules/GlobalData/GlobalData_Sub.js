@@ -1,7 +1,7 @@
-var OSMFire_GlobalData = OSMFire_GlobalData || null;
-var OSMFire_PageSections = (function(mainModule, subModule) {
+let OSMFire_GlobalData = OSMFire_GlobalData || null;
+let OSMFire_PageSections = (function(mainModule, subModule) {
     // assigning the subModule if it is passed in and also augmenting sub-module
-    var pageSections = mainModule.pageSections = mainModule.pageSections || subModule;
+    let pageSections = mainModule.pageSections = mainModule.pageSections || subModule;
 
     // pageSections.mapContainerDefObj = {
     //     sectionHTML: '<div id="map" class="map"></div>'

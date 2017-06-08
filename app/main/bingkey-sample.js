@@ -8,6 +8,6 @@
  */
 
 define([], function () {
-    var bingKey="DONTEVERPUTKEYSINSOURCECONTROL";
+    const bingKey="DONTEVERPUTKEYSINSOURCECONTROL";
     return bingKey;
 });

@@ -1,4 +1,4 @@
-var OSMFire_Base = (function() {
+let OSMFire_Base = (function() {
     function getBaseModule() {
         if (typeof jQuery !== 'undefined') {
             return jQuery;

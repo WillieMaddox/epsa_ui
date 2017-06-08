@@ -5,11 +5,11 @@
 define(function (require) {
     'use strict';
 
-    var jsts = require('jsts');
+    const jsts = require('jsts');
 
-    var parser = new jsts.io.OL3Parser();
+    const parser = new jsts.io.OL3Parser();
     return function isPolyValid(poly) {
-        var geom = parser.read(poly);
+        const geom = parser.read(poly);
         return geom.isValid();
     };
 });

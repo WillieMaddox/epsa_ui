@@ -6,20 +6,20 @@ define(['MainCore'], function (OSMFire_Core) {
 
     'use strict';
 
-    var callback = function(sandBox) {
-        var innerHTMLStr = '<div id="messagebar" class="messagebar"></div>'
+    let callback = function(sandBox) {
+        let innerHTMLStr = '<div id="messagebar" class="messagebar"></div>'
         return {
             init: function () {
                 try {
-                    // var messages = document.getElementById('messagebar') || document.createElement('span');
+                    // let messages = document.getElementById('messagebar') || document.createElement('span');
                     sandBox.updateElement("messagebar-container", innerHTMLStr);
-                    var messages = $('<div id="messagebar">')[0];
+                    let messages = $('<div id="messagebar">')[0];
                     // $('#messagebar-container').append(messages);
 
-                    var observer = new MutationObserver(function (mutations) {
+                    let observer = new MutationObserver(function (mutations) {
                         if (mutations[0].target.textContent) {
-                            var oldText = mutations[0].target.textContent;
-                            var timeoutFunction = function () {
+                            let oldText = mutations[0].target.textContent;
+                            let timeoutFunction = function () {
                                 if (oldText !== mutations[0].target.textContent) {
                                     oldText = mutations[0].target.textContent;
                                     setTimeout(timeoutFunction, 20000);

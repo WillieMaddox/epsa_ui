@@ -17,17 +17,17 @@ define(function (require) {
     $('#mouse-units-container').append(mouseunits);
     $('#mouse-projection-container').append(mouseprojection);
 
-    var $unitsSelect = $('#mouse-units');
-    var $projectionSelect = $('#mouse-projection');
-    var mouseProjection = ol.proj.get('EPSG:4326');
-    var mousePrecision = 4;
+    let $unitsSelect = $('#mouse-units');
+    let $projectionSelect = $('#mouse-projection');
+    let mouseProjection = ol.proj.get('EPSG:4326');
+    let mousePrecision = 4;
 
     function updateMousePrecision(view) {
-        var res = view.getResolution();
-        var currentProj = map.getView().getProjection();//.getCode();
+        let res = view.getResolution();
+        let currentProj = map.getView().getProjection();//.getCode();
         if (mouseProjection !== currentProj) {
-            var coord0 = view.getCenter();
-            var coord1 = [coord0[0] + res, coord0[1] + res];
+            let coord0 = view.getCenter();
+            let coord1 = [coord0[0] + res, coord0[1] + res];
             coord0 = ol.proj.transform(coord0, currentProj, mouseProjection);
             coord1 = ol.proj.transform(coord1, currentProj, mouseProjection);
             res = Math.max(Math.abs(coord1[0] - coord0[0]), Math.abs(coord1[1] - coord0[1]));
@@ -36,35 +36,35 @@ define(function (require) {
     }
 
     function coordinateFormat(coordinates) {
-        var zoom = view.getZoom();
-        var lonlatstr = ol.coordinate.createStringXY(mousePrecision);
-        var lonlat = lonlatstr(coordinates).split(',');
-        var coord0 = ol.proj.transform(coordinates, mouseProjection, 'EPSG:4326');
-        var xytile = deg2tile(coord0[0], coord0[1], zoom);
-        var lon = "Lon: " + lonlat[0];
-        var lat = "Lat: " + lonlat[1];
-        var x = "X: " + xytile[0];
-        var y = "Y: " + xytile[1];
-        var z = "Z: " + zoom;
+        let zoom = view.getZoom();
+        let lonlatstr = ol.coordinate.createStringXY(mousePrecision);
+        let lonlat = lonlatstr(coordinates).split(',');
+        let coord0 = ol.proj.transform(coordinates, mouseProjection, 'EPSG:4326');
+        let xytile = deg2tile(coord0[0], coord0[1], zoom);
+        let lon = "Lon: " + lonlat[0];
+        let lat = "Lat: " + lonlat[1];
+        let x = "X: " + xytile[0];
+        let y = "Y: " + xytile[1];
+        let z = "Z: " + zoom;
         return [lon, lat, x, y, z].join('  ')
     }
 
-    var layerSwitcher = new ol.control.LayerSwitcher();
-    var scaleLineControl = new ol.control.ScaleLine();
-    var mousePositionControl = new ol.control.MousePosition({
+    let layerSwitcher = new ol.control.LayerSwitcher();
+    let scaleLineControl = new ol.control.ScaleLine();
+    let mousePositionControl = new ol.control.MousePosition({
         coordinateFormat: coordinateFormat,
         projection: mouseProjection,
         target: 'coordinates'
     });
 
-    var thunderforestAttributions = [
+    let thunderforestAttributions = [
         new ol.Attribution({
             html: 'Tiles &copy; <a href="http://www.thunderforest.com/">Thunderforest</a>'
         }),
         ol.source.OSM.ATTRIBUTION
     ];
 
-    var view = new ol.View({
+    let view = new ol.View({
         center: ol.proj.transform(
             // [-86.711, 34.636],
             // [-86.677945, 34.723185],
@@ -81,7 +81,7 @@ define(function (require) {
         // center: [0, 0],
         zoom: 19
     });
-    var map = new ol.Map({
+    let map = new ol.Map({
         interactions: ol.interaction.defaults({doubleClickZoom: false}),
         target: document.getElementById('map'),
         view: view,

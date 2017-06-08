@@ -1,12 +1,12 @@
 // using simple sub-module augmentation
 define(['MainCore'], function(OSMFire_Core) {
-    var self = {},
+    const self = {},
         dynamicallyLoadedFiles = [];
     self.clone = function clone(deep) {
         // create an instance of the object
-        var newClonedObj = new this.constructor();
+        let newClonedObj = new this.constructor();
         //copy all properties from the original object
-        for (var property in this) {
+        for (let property in this) {
             // if deep flag is not set, just do a shallow copy of properties
             if (!deep) {
                 if (this.hasOwnProperty(property)) {
@@ -24,7 +24,7 @@ define(['MainCore'], function(OSMFire_Core) {
     };
     // not used?
     self.getFileNameFromPath = function(filePath) {
-        var slashIndex, theLastIndex, fileName;
+        let slashIndex, theLastIndex, fileName;
         slashIndex = filePath.indexOf("/");
         if (slashIndex > -1) {
             theLastIndex = filePath.lastIndexOf("/");
@@ -36,7 +36,7 @@ define(['MainCore'], function(OSMFire_Core) {
         }
     };
     self.Load_JS_CSS = function(filename, filetype, filePath) {
-        var fileElem;
+        let fileElem;
         if (filetype === "js") { //if filename is a external JavaScript file
             fileElem = document.createElement('script');
             fileElem.setAttribute("type", "text/javascript");
@@ -53,14 +53,14 @@ define(['MainCore'], function(OSMFire_Core) {
         }
     };
     self.getFileInHead = function(filename, filetype) {
-        var theElem, theAttr, possibleFiles;
+        let theElem, theAttr, possibleFiles;
         //determine element type to create nodelist from
         theElem = (filetype === "js") ? "script" : (filetype === "css") ? "link" : "none";
         //determine corresponding attribute to test for
         theAttr = (filetype === "js") ? "src" : (filetype === "css") ? "href" : "none";
         possibleFiles = document.getElementsByTagName(theElem);
         //search backwards within nodelist for matching elements to remove        
-        for (var i = possibleFiles.length; i >= 0; i--) {
+        for (let i = possibleFiles.length; i >= 0; i--) {
             if (possibleFiles[i] && possibleFiles[i].getAttribute(theAttr) != null &&
                 possibleFiles[i].getAttribute(theAttr).indexOf(filename) != -1) {
                 return possibleFiles[i]; //return file
@@ -68,7 +68,7 @@ define(['MainCore'], function(OSMFire_Core) {
         }
     };
     self.Remove_JS_CSS = function(fileName, fileType) {
-        var foundedFile;
+        let foundedFile;
         foundedFile = this.getFileInHead(fileName, fileType);
         if (foundedFile) {
             foundedFile.parentNode.removeChild(foundedFile); //remove element 
@@ -84,7 +84,7 @@ define(['MainCore'], function(OSMFire_Core) {
         return Array.isArray(objToCheck);
     };
     self.testLocalStorage = function() {
-        var test = 'testing local storage';
+        let test = 'testing local storage';
         try {
             localStorage.setItem(test, 'some Value');
             localStorage.removeItem(test);
@@ -96,7 +96,7 @@ define(['MainCore'], function(OSMFire_Core) {
     // add localstorage check to all methods
     // based on anti-pattern by Nicholas C. Zakas
     self.addLocalStorageCheck = function(object) {
-        var name,
+        let name,
             method;
         for (name in object) {
             method = object[name];
@@ -116,7 +116,7 @@ define(['MainCore'], function(OSMFire_Core) {
     };
     // not used?
     self.mergePropertiesOfObjects = function(obj1, obj2) {
-        var tempObj = {},
+        let tempObj = {},
             propName;
         for (propName in obj1) {
             tempObj[propName] = obj1[propName];

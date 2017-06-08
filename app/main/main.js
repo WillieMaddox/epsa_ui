@@ -21,17 +21,17 @@ require(['jquery', 'ol',
         }
     };
     ol.layer.Image.prototype.buildHeaders = function () {
-        var features = this.getSource().getSource().getFeatures();
-        var len = features.length;
+        let features = this.getSource().getSource().getFeatures();
+        let len = features.length;
         if (len === 0) {
             return this;
         }
-        var hasNew = false;
-        var oldHeaders = this.get('headers') || {};
-        var headers = {};
-        for (var i = 0; i < len; i += 1) {
-            var attributes = features[i].getProperties();
-            for (var j in attributes) {
+        let hasNew = false;
+        let oldHeaders = this.get('headers') || {};
+        let headers = {};
+        for (let i = 0; i < len; i += 1) {
+            let attributes = features[i].getProperties();
+            for (let j in attributes) {
                 if (typeof attributes[j] !== 'object' && attributes[j].length > 0 && !(j in oldHeaders)) {
                     headers[j] = typeof attributes[j];
                     hasNew = true;
@@ -82,15 +82,15 @@ require(['jquery', 'ol',
     };
     ol.inherits(ol.interaction.ChooseHole, ol.interaction.Pointer);
     ol.control.Interaction = function (opt_options) {
-        var options = opt_options || {};
-        var controlDiv = document.createElement('div');
+        let options = opt_options || {};
+        let controlDiv = document.createElement('div');
         controlDiv.className = options.className || 'ol-unselectable ol-control';
-        var controlButton = document.createElement('button');
+        let controlButton = document.createElement('button');
         controlButton.textContent = options.label || 'I';
         controlButton.title = 'Add ' + options.feature_type || 'Custom interaction';
         controlDiv.appendChild(controlButton);
 
-        var _this = this;
+        let _this = this;
         controlButton.addEventListener('click', function () {
             if (_this.get('interaction').getActive()) {
                 _this.set('active', false);
@@ -141,7 +141,7 @@ require(['jquery', 'ol',
     ol.inherits(ol.control.Interaction, ol.control.Control);
     ol.control.Interaction.prototype.setMap = function (map) {
         ol.control.Control.prototype.setMap.call(this, map);
-        var interaction = this.get('interaction');
+        let interaction = this.get('interaction');
         if (map === null) {
             ol.Observable.unByKey(this.get('eventId'));
         } else if (map.getInteractions().getArray().indexOf(interaction) === -1) {
@@ -162,13 +162,13 @@ require(['jquery', 'ol',
     layertree.layerEditors['sensor'] = cameraeditor;
 
     /*********** WFS-T *************/
-    // var dirty = {};
-    // var formatGML = new ol.format.GML({
+    // let dirty = {};
+    // let formatGML = new ol.format.GML({
     //     featureNS: 'http://argeomatica.com',
     //     featureType: 'cite:nyc_buildings',
     //     srsName: 'EPSG:3857'
     // });
-    // var transactWFS = function (p, f) {
+    // let transactWFS = function (p, f) {
     //     switch (p) {
     //         case 'insert':
     //             node = formatWFS.writeTransaction([f], null, null, formatGML);
@@ -192,12 +192,12 @@ require(['jquery', 'ol',
     // };
 
     /********* ADD PROJECT *********/
-    // var loadProject = document.getElementById('loadProject');
+    // let loadProject = document.getElementById('loadProject');
     // loadProject.onclick = function (e) {
     //     map.removeLayer(featureOverlay);
     //     map.removeLayer(projectGroup);
-    //     var bounds = [-105.54833333333333, 39.76361111111111, -105.52694444444444, 39.778055555555554];
-    //     var image = new ol.layer.Image({
+    //     let bounds = [-105.54833333333333, 39.76361111111111, -105.52694444444444, 39.778055555555554];
+    //     let image = new ol.layer.Image({
     //         title: 'camera',
     //         type: 'overlay',
     //         source: new ol.source.ImageStatic({
@@ -207,7 +207,7 @@ require(['jquery', 'ol',
     //         // Replace with an opacity slider-bar.
     //         opacity: 0.2
     //     });
-    //     var vector_aor = new ol.layer.Vector({
+    //     let vector_aor = new ol.layer.Vector({
     //         title: 'AOR',
     //         type: 'overlay',
     //         source: new ol.source.Vector({
@@ -216,7 +216,7 @@ require(['jquery', 'ol',
     //         }),
     //         style: tobjectStyleFunction
     //     });
-    //     var vector = new ol.layer.Vector({
+    //     let vector = new ol.layer.Vector({
     //         title: 'tobjects',
     //         type: 'overlay',
     //         source: new ol.source.Vector({
@@ -225,7 +225,7 @@ require(['jquery', 'ol',
     //         }),
     //         style: tobjectStyleFunction
     //     });
-    //     var projectGroup = new ol.layer.Group({
+    //     let projectGroup = new ol.layer.Group({
     //         title: 'Project',
     //         layers: [
     //             image,
@@ -237,7 +237,7 @@ require(['jquery', 'ol',
     //     map.addLayer(featureOverlay);
     //     // Need to add in auto-zoom-in functionality here.
     //     vector_aor.getSource().on('change', function (evt) {
-    //         var source = evt.target;
+    //         let source = evt.target;
     //         if (source.getState() === 'ready') {
     //             view.setCenter(ol.extent.getCenter(source.getExtent()));
     //         }
@@ -245,19 +245,19 @@ require(['jquery', 'ol',
     // };
 
     // map.on('click', function (evt) {
-    //     var pixel = evt.pixel;
-    //     var coord = evt.coordinate;
-    //     var attributeForm = document.createElement('form');
+    //     let pixel = evt.pixel;
+    //     let coord = evt.coordinate;
+    //     let attributeForm = document.createElement('form');
     //     attributeForm.className = 'popup';
     //     this.getOverlays().clear();
-    //     var firstFeature = true;
+    //     let firstFeature = true;
     //
     //     function createRow(attributeName, attributeValue, type) {
-    //         var rowElem = document.createElement('div');
-    //         var attributeSpan = document.createElement('span');
+    //         let rowElem = document.createElement('div');
+    //         let attributeSpan = document.createElement('span');
     //         attributeSpan.textContent = attributeName + ': ';
     //         rowElem.appendChild(attributeSpan);
-    //         var attributeInput = document.createElement('input');
+    //         let attributeInput = document.createElement('input');
     //         attributeInput.name = attributeName;
     //         attributeInput.type = 'text';
     //         if (type !== 'string') {
@@ -271,24 +271,24 @@ require(['jquery', 'ol',
     //
     //     this.forEachFeatureAtPixel(pixel, function (feature, layer) {
     //         if (firstFeature) {
-    //             var attributes = feature.getProperties();
-    //             var headers = layer.get('headers');
-    //             for (var i in attributes) {
+    //             let attributes = feature.getProperties();
+    //             let headers = layer.get('headers');
+    //             for (let i in attributes) {
     //                 if (typeof attributes[i] !== 'object' && i in headers) {
     //                     attributeForm.appendChild(createRow(i, attributes[i], headers[i]));
     //                 }
     //             }
     //             if (attributeForm.children.length > 0) {
-    //                 var saveAttributes = document.createElement('input');
+    //                 let saveAttributes = document.createElement('input');
     //                 saveAttributes.type = 'submit';
     //                 saveAttributes.className = 'save';
     //                 saveAttributes.value = '';
     //                 attributeForm.addEventListener('submit', function (evt) {
     //                     evt.preventDefault();
-    //                     var attributeList = {};
-    //                     var inputList = [].slice.call(this.querySelectorAll('input[type=text], input[type=number]'));
-    //                     var len = inputList.length;
-    //                     for (var i = 0; i < len; i += 1) {
+    //                     let attributeList = {};
+    //                     let inputList = [].slice.call(this.querySelectorAll('input[type=text], input[type=number]'));
+    //                     let len = inputList.length;
+    //                     for (let i = 0; i < len; i += 1) {
     //                         switch (headers[inputList[i].name]) {
     //                             case 'string':
     //                                 attributeList[inputList[i].name] = inputList[i].value.toString();
@@ -325,13 +325,13 @@ require(['jquery', 'ol',
      * See http://openlayers.org/en/v3.13.0/examples/layer-group.html?q=mapquest
 
      function bindInputs(layerid, layer) {
-        var visibilityInput = $(layerid + ' input.visible');
+        let visibilityInput = $(layerid + ' input.visible');
         visibilityInput.on('change', function () {
             layer.setVisible(this.checked);
         });
         visibilityInput.prop('checked', layer.getVisible());
 
-        var opacityInput = $(layerid + ' input.opacity');
+        let opacityInput = $(layerid + ' input.opacity');
         opacityInput.on('input change', function () {
             layer.setOpacity(parseFloat(this.value));
         });

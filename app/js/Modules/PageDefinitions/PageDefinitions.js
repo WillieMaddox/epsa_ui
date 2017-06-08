@@ -1,39 +1,39 @@
 (function() {
-    var FavouritesPageDefinition = {
+    const FavouritesPageDefinition = {
         pageID: "Favourites",
         htmlStr: "<div id='favouritedHeader'><h3>Your Favorite Images</h3></div>",
         cssFile: "FavoritesView.css",
         cssPath: "css/"
     };
-    var NotificationWidgetDefinition = {
+    const NotificationWidgetDefinition = {
         componentID: "notificationWidget",
         scriptFile: "NotificationWidget.js",
         scriptPath: "/js/Widgets/",
         cssFile: "NotificationWidget.css",
         cssPath: "css/"
     };
-    var AddWmsWidgetDefinition = {
+    const AddWmsWidgetDefinition = {
         componentID: "addWmsWidget",
         scriptFile: "AddWmsDialogWidget.js",
         scriptPath: "/app/js/Widgets/"
         // cssFile: "NotificationWidget.css",
         // cssPath: "css/"
     };
-    var AddWfsWidgetDefinition = {
+    const AddWfsWidgetDefinition = {
         componentID: "addWfsWidget",
         scriptFile: "AddWfsDialogWidget.js",
         scriptPath: "/app/js/Widgets/"
         // cssFile: "NotificationWidget.css",
         // cssPath: "css/"
     };
-    var AddVectorWidgetDefinition = {
+    const AddVectorWidgetDefinition = {
         componentID: "addVectorWidget",
         scriptFile: "AddVectorDialogWidget.js",
         scriptPath: "/app/js/Widgets/"
         // cssFile: "NotificationWidget.css",
         // cssPath: "css/"
     };
-    var NewVectorWidgetDefinition = {
+    const NewVectorWidgetDefinition = {
         componentID: "newVectorWidget",
         scriptFile: "NewVectorDialogWidget.js",
         scriptPath: "/app/js/Widgets/"

@@ -5,13 +5,13 @@
 define(function (require) {
     'use strict';
 
-    var ol = require('ol'),
+    const ol = require('ol'),
         jsts = require('jsts');
 
-    var parser = new jsts.io.OL3Parser();
+    const parser = new jsts.io.OL3Parser();
     return function doesPolyCoverHole(geom, holecoords) {
-        var geomA = parser.read(geom);
-        var geomB = parser.read(new ol.geom.Polygon([holecoords]));
+        const geomA = parser.read(geom);
+        const geomB = parser.read(new ol.geom.Polygon([holecoords]));
         return geomA.covers(geomB);
     }
 });

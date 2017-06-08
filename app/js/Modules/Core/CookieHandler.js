@@ -1,6 +1,6 @@
 // using simple sub-module augmentation
 define(['MainCore'], function(OSMFire_Core) {
-    var self = {},
+    let self = {},
         cookieLifeSpan = "90",
         cookieDelimiter = "~",
         pathValue = "/",
@@ -56,7 +56,7 @@ define(['MainCore'], function(OSMFire_Core) {
     };
     // creates the cookie if it doesn't exist, if it does, then adds the value to the cookie
     self.populateCookie = function(cookieName, value, duration, Opt_encodeFlag) {
-        var cookieLife = null,
+        let cookieLife = null,
             encode_decodeFlag;
         if (!cookieName || !value) {
             OSMFire_Core.log(3, 'Missing parameters for populateCookie method.');
@@ -86,7 +86,7 @@ define(['MainCore'], function(OSMFire_Core) {
             OSMFire_Core.log(3, 'Missing parameters for addValueToCookie method.');
             return false;
         }
-        var valueInCookie = null,
+        let valueInCookie = null,
             cookieValueStr, encode_decodeFlag;
         encode_decodeFlag = self.getEncode_Decode(Opt_encodeFlag);
         valueInCookie = self.findValueInCookie(cookieName, value, encode_decodeFlag);
@@ -107,14 +107,14 @@ define(['MainCore'], function(OSMFire_Core) {
             OSMFire_Core.log(3, 'Missing parameters for findValueInCookie method.');
             return false;
         }
-        var valueArray = null,
+        let valueArray = null,
             indexValue, encode_decodeFlag;
         encode_decodeFlag = self.getEncode_Decode(Opt_decodeFlag);
         //if the cookie exists, then get all the values from the string
         valueArray = self.getCookieValueAsArray(cookieName, encode_decodeFlag);
         cookieValueArray = null;
         if (valueArray) {
-            for (var i = 0; i < valueArray.length; i++) {
+            for (let i = 0; i < valueArray.length; i++) {
                 indexValue = valueArray[i];
                 if (indexValue.substring(0, indexValue.length) === value) {
                     cookieValueArray = valueArray;
@@ -129,7 +129,7 @@ define(['MainCore'], function(OSMFire_Core) {
     };
     // adds a cookie to the browser with the specified name, value and expiry date
     self.createCookie = function(cookieName, value, Opt_days, Opt_path, Opt_domain, Opt_secureFlag, Opt_encodeFlag) {
-        var expires = null,
+        let expires = null,
             secure = null,
             domainName = null,
             domainPath = null,
@@ -147,7 +147,7 @@ define(['MainCore'], function(OSMFire_Core) {
             value = value + "; ";
         }
         if (Opt_days) {
-            var date = new Date();
+            let date = new Date();
             date.setTime(date.getTime() + (Opt_days * 24 * 60 * 60 * 1000));
             expires = "expires=" + date.toGMTString() + "; ";
         } else {
@@ -178,7 +178,7 @@ define(['MainCore'], function(OSMFire_Core) {
             OSMFire_Core.log(3, 'No cookie name provided to getCookieValueAsString, exiting with error');
             return false;
         }
-        var passedCookieName = cookieName,
+        let passedCookieName = cookieName,
             theDecodedCookieName = null,
             theStoredCookie = null,
             theStroedCookieValue = null,
@@ -188,7 +188,7 @@ define(['MainCore'], function(OSMFire_Core) {
             return false;
         }
         encode_decodeFlag = self.getEncode_Decode(Opt_decodeFlag);
-        for (var i = 0; i < cookiesList.length; i++) {
+        for (let i = 0; i < cookiesList.length; i++) {
             if (encode_decodeFlag) {
                 theStoredCookie = decodeURIComponent(cookiesList[i]);
             } else {
@@ -217,7 +217,7 @@ define(['MainCore'], function(OSMFire_Core) {
             OSMFire_Core.log(3, 'No cookie name provided to deleteCookie, exiting with error');
             return false;
         }
-        var cookieValueStr = null,
+        let cookieValueStr = null,
             cookieArray = null,
             value, returnVal = [],
             encode_decodeFlag;
@@ -231,7 +231,7 @@ define(['MainCore'], function(OSMFire_Core) {
         // if the cookie is found, create an array from the values
         if (cookieValueStr) {
             cookieArray = cookieValueStr.split(self.getCookieDelimiter());
-            for (var i = 0; i < cookieArray.length; i++) {
+            for (let i = 0; i < cookieArray.length; i++) {
                 value = cookieArray[i];
                 while (value.charAt(0) == ' ') {
                     value = value.substring(1, value.length);
@@ -247,7 +247,7 @@ define(['MainCore'], function(OSMFire_Core) {
     };
     // removes a specified value from the cookie. If the last value in the cookie, removes the cookie all together
     self.removeValueByValue = function(cookieName, value, Opt_decodeFlag) {
-        var newValueString = "",
+        let newValueString = "",
             valueInCookie = null,
             encode_decodeFlag;
         if (!cookieName || !value) {
@@ -270,7 +270,7 @@ define(['MainCore'], function(OSMFire_Core) {
                 if (cookieValueArray.length === 1) {
                     self.deleteCookie(cookieName, encode_decodeFlag);
                 } else {
-                    for (var i = 0; i < cookieValueArray.length; i++) {
+                    for (let i = 0; i < cookieValueArray.length; i++) {
                         if (cookieValueArray[i] === value) {
                             cookieValueArray.splice(i, 1);
                             cookieValueArray = cookieValueArray.join(cookieDelimiter);
@@ -291,7 +291,7 @@ define(['MainCore'], function(OSMFire_Core) {
             OSMFire_Core.log(3, 'No cookie name provided to deleteCookie, exiting with error');
             return false;
         }
-        var encode_decodeFlag;
+        let encode_decodeFlag;
         encode_decodeFlag = self.getEncode_Decode(Opt_decodeFlag);
         if (encode_decodeFlag) {
             cookieName = decodeURIComponent(cookieName);
@@ -300,13 +300,13 @@ define(['MainCore'], function(OSMFire_Core) {
     };
     // this removes all cookies from the browser
     self.deleteAllCookies = function(Opt_decodeFlag) {
-        var cookieList = self.getDomainCookieList(),
+        let cookieList = self.getDomainCookieList(),
             cookie = null,
             equalSignLocation = null,
             cookieName = null,
             encode_decodeFlag;
         //find all cookie files and then send them to the deleteCookie function
-        for (var i = 0; i < cookieList.length; i++) {
+        for (let i = 0; i < cookieList.length; i++) {
             cookie = cookieList[i];
             while (cookie.charAt(0) == ' ') {
                 cookie = cookie.substring(1, cookie.length);

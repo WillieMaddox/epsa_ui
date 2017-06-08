@@ -5,7 +5,7 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
         utils = require('utils'),
         map = require('map'),
@@ -13,8 +13,8 @@ define(function (require) {
         exists = require('exists'),
         jsts = require('jsts');
 
-    var formElements = {};
-    var wgs84Sphere = new ol.Sphere(6378137);
+    const formElements = {};
+    const wgs84Sphere = new ol.Sphere(6378137);
 
     return {
         init: function () {
@@ -35,7 +35,7 @@ define(function (require) {
             formElements.cameraOption = this.createCameraOptionNodes();
             formElements.cameraFOV = this.createCameraFOVNodes();
             formElements.summary = this.createSummaryTableNodes();
-            var $form = $("<form id='cameraproperties' class='form'>");
+            const $form = $("<form id='cameraproperties' class='form'>");
             $form.append(this.addFormRow(['cameraName']));
             $form.append(this.addFormRow(['range']));
             $form.append(this.addFormRow(['sourceHeight']));
@@ -49,7 +49,7 @@ define(function (require) {
         },
         styleForm: function () {
 
-            var _this = this;
+            const _this = this;
 
             $('#camera-type').selectmenu({
                 classes: {
@@ -299,23 +299,23 @@ define(function (require) {
             this.isStyled = true;
         },
         addFormRow: function (labels) {
-            var $formRow = $("<div class='form-row'>");
+            const $formRow = $("<div class='form-row'>");
             for (let label of labels) {
                 $formRow.append(formElements[label])
             }
             return $formRow
         },
         createNameNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='feature-name-label' class='form-label'>Camera Name</div>"));
             $formValue.append($("<input type='text' id='feature-name' class='ui-widget'>"));
             $formElem.append($formValue);
             return $formElem
         },
         createRangeNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='range-label' class='form-label'>Range</div>"));
             $formValue.append($("<input id='range-spinner-min'>"));
             $formValue.append($("<div id='range-slider'>"));
@@ -324,8 +324,8 @@ define(function (require) {
             return $formElem
         },
         createSourceHeightNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='source-height-label' class='form-label'>Source Height</div>"));
             $formValue.append($("<div id='source-height-slider'>"));
             $formValue.append($("<input id='source-height-spinner'>"));
@@ -333,8 +333,8 @@ define(function (require) {
             return $formElem
         },
         createTargetHeightNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='target-height-label' class='form-label'>Target Height</div>"));
             $formValue.append($("<div id='target-height-slider'>"));
             $formValue.append($("<input id='target-height-spinner'>"));
@@ -342,8 +342,8 @@ define(function (require) {
             return $formElem
         },
         createIsotropicNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='isotropic-label' class='form-label'>Isotropic</div>"));
             $formValue.append($("<label for='isotropic' class='visible' title='Force spherical field of view'>"));
             $formValue.append($("<input type='checkbox' id='isotropic' class='checkboxradio'>"));
@@ -351,11 +351,11 @@ define(function (require) {
             return $formElem
         },
         createMeasureNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='measure-label' class='form-label'>Max Visible Area</div>"));
             $formValue.append($("<div id='measure' readonly>"));
-            var $selectNode = $("<select id='measure-units'>");
+            const $selectNode = $("<select id='measure-units'>");
             $selectNode.append(utils.createMenuOption("metric", "Metric"));
             $selectNode.append(utils.createMenuOption("english", "English"));
             $formValue.append($selectNode);
@@ -365,8 +365,8 @@ define(function (require) {
             return $formElem
         },
         createPanNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='pan-label' class='form-label'>Pan</div>"));
             $formValue.append($("<div id='pan-slider'>"));
             $formValue.append($("<input id='pan-spinner'>"));
@@ -374,8 +374,8 @@ define(function (require) {
             return $formElem
         },
         createTiltNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='tilt-label' class='form-label'>Tilt</div>"));
             $formValue.append($("<div id='tilt-slider'>"));
             $formValue.append($("<input id='tilt-spinner'>"));
@@ -383,39 +383,39 @@ define(function (require) {
             return $formElem
         },
         createCameraTypeNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='camera-type-label' class='form-label'>Camera Type</div>"));
             $formValue.append($("<select id='camera-type'>"));
             $formElem.append($formValue);
             return $formElem
         },
         createCameraOptionNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='camera-option-label' class='form-label'>Camera Option</div>"));
             $formValue.append($("<select id='camera-option'>"));
             $formElem.append($formValue);
             return $formElem
         },
         createCameraFOVNodes: function () {
-            var $formElem = $("<div class='form-elem'>");
-            var $formValue = $("<div class='form-value'>");
+            const $formElem = $("<div class='form-elem'>");
+            const $formValue = $("<div class='form-value'>");
             $formElem.append($("<div id='camera-fov-label' class='form-label'>Camera FOV</div>"));
             $formValue.append($("<select id='camera-fov'>"));
             $formElem.append($formValue);
             return $formElem
         },
         createSummaryTableNodes: function () {
-            var createTableRow = function (opts) {
-                var $trow = $("<tr>");
+            const createTableRow = function (opts) {
+                const $trow = $("<tr>");
                 $trow.append($("<td class='summary-attribute-tag " + opts['label'] + "'>" + opts['tag'] + "</td>"));
                 $trow.append($("<td class='summary-attribute-value " + opts['label'] + "' id='" + opts['label'] + "'>" + opts['value'] + "</td>"));
                 return $trow
             };
-            var $formElem = $("<div class='form-elem'>");
-            var $table = $("<table class='summary-table' style='width:100%'>");
-            var $tbody = $("<tbody>");
+            const $formElem = $("<div class='form-elem'>");
+            const $table = $("<table class='summary-table' style='width:100%'>");
+            const $tbody = $("<tbody>");
             $tbody.append(createTableRow({'label': 'camera-position', 'tag': 'Lon, Lat', 'value': ''}));
             $tbody.append(createTableRow({'label': 'camera-manufacturer', 'tag': 'Manufacturer', 'value': ''}));
             $tbody.append(createTableRow({'label': 'camera-model', 'tag': 'Model', 'value': ''}));
@@ -429,11 +429,11 @@ define(function (require) {
 
         formatArea: function (geom, sourceProj) {
 
-            var getPolygonArea = function (polygon) {
-                var area = 0;
-                var isExterior = true;
+            const getPolygonArea = function (polygon) {
+                let area = 0;
+                let isExterior = true;
                 if ($("#geodesic2").is(":checked")) {
-                    var poly = polygon.clone().transform(sourceProj, 'EPSG:4326');
+                    const poly = polygon.clone().transform(sourceProj, 'EPSG:4326');
                     poly.getLinearRings().forEach(function (ring) {
                         if (isExterior) { // assume the first ring is the exterior ring.
                             area += Math.abs(wgs84Sphere.geodesicArea(ring.getCoordinates()));
@@ -456,8 +456,8 @@ define(function (require) {
             } else {
                 area = getPolygonArea(geom)
             }
-            var output;
-            var squared = "2";
+            let output;
+            const squared = "2";
             if (area > 100000) {
                 output = (Math.round(area / 1000000 * 100) / 100) + " km" + squared.sup();
             } else {
@@ -466,40 +466,40 @@ define(function (require) {
             $('#measure').html(output);
         },
         formatPosition: function (point, sourceProj) {
-            var geom = point.clone().transform(sourceProj, 'EPSG:4326');
-            var coords = geom.getCoordinates();
-            var coord_x = coords[0].toFixed(6);
-            var coord_y = coords[1].toFixed(6);
+            const geom = point.clone().transform(sourceProj, 'EPSG:4326');
+            const coords = geom.getCoordinates();
+            const coord_x = coords[0].toFixed(6);
+            const coord_y = coords[1].toFixed(6);
             $('#camera-position').html(coord_x + ', ' + coord_y);
         },
 
         activateForm: function (feature) {
 
-            var _this = this;
+            const _this = this;
             $('#cameraproperties').show();
 
-            var cameraTemplates = sensorTemplates['camera'].defaultSensors;
-            var sensorProperties = sensorTemplates['camera'].properties;
-            var key;
+            const cameraTemplates = sensorTemplates['camera'].defaultSensors;
+            const sensorProperties = sensorTemplates['camera'].properties;
+            let key;
 
-            var $featureName = $('#feature-name');
-            var $rangeSpinnerMin = $('#range-spinner-min');
-            var $rangeSpinnerMax = $('#range-spinner-max');
-            var $sourceHeightSpinner = $('#source-height-spinner');
-            var $targetHeightSpinner = $('#target-height-spinner');
-            var $isotropic = $('#isotropic');
-            var $geodesic = $('#geodesic2');
-            var $panSpinner = $('#pan-spinner');
-            var $tiltSpinner = $('#tilt-spinner');
-            var $cameraType = $('#camera-type');
-            var $cameraOption = $('#camera-option');
-            var $cameraFOV = $('#camera-fov');
+            const $featureName = $('#feature-name');
+            const $rangeSpinnerMin = $('#range-spinner-min');
+            const $rangeSpinnerMax = $('#range-spinner-max');
+            const $sourceHeightSpinner = $('#source-height-spinner');
+            const $targetHeightSpinner = $('#target-height-spinner');
+            const $isotropic = $('#isotropic');
+            const $geodesic = $('#geodesic2');
+            const $panSpinner = $('#pan-spinner');
+            const $tiltSpinner = $('#tilt-spinner');
+            const $cameraType = $('#camera-type');
+            const $cameraOption = $('#camera-option');
+            const $cameraFOV = $('#camera-fov');
 
-            var camera_type = feature.get('defaultsensor') || sensorProperties['defaultsensor'];
-            var camera_option = feature.get('option') || sensorProperties['option'];
-            var camera_fov = feature.get('fov') || sensorProperties['fov'];
-            var isotropic = exists(feature.get("isotropic")) ? feature.get("isotropic") : sensorProperties['isotropic'];
-            var source_height, target_height, min_range, max_range, pan, tilt;
+            const camera_type = feature.get('defaultsensor') || sensorProperties['defaultsensor'];
+            const camera_option = feature.get('option') || sensorProperties['option'];
+            const camera_fov = feature.get('fov') || sensorProperties['fov'];
+            const isotropic = exists(feature.get("isotropic")) ? feature.get("isotropic") : sensorProperties['isotropic'];
+            let source_height, target_height, min_range, max_range, pan, tilt;
             if (feature.get('source_height')) {
                 source_height = feature.get('source_height').value
             } else {
@@ -547,7 +547,7 @@ define(function (require) {
             // the rangefan will replace this
             this.innerCircle = this.parser.read(feature.getGeometry()).buffer($rangeSpinnerMin.val());
             this.outerCircle = this.parser.read(feature.getGeometry()).buffer($rangeSpinnerMax.val());
-            var jstshoop = this.outerCircle.difference(this.innerCircle);
+            let jstshoop = this.outerCircle.difference(this.innerCircle);
             this.rangePolygon = this.parser.write(jstshoop);
 
             $rangeSpinnerMin.on("spinchange", function () {
@@ -644,30 +644,30 @@ define(function (require) {
 
         },
         changeCameraType: function (camera_type) {
-            var $cameraOption = $('#camera-option');
-            var defaultSensor = sensorTemplates['camera']['defaultSensors'][camera_type];
+            const $cameraOption = $('#camera-option');
+            const defaultSensor = sensorTemplates['camera']['defaultSensors'][camera_type];
             $('#camera-manufacturer').html(defaultSensor['manufacturer']);
             $('#camera-model').html(defaultSensor['model']);
             $('#camera-cost').html(defaultSensor['cost']['value']);
             $cameraOption.empty();
-            for (var key in defaultSensor['options']) {
+            for (let key in defaultSensor['options']) {
                 $cameraOption.append(utils.createMenuOption(key));
             }
             $cameraOption.val($cameraOption[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
         },
         changeCameraOption: function (camera_option) {
-            var camera_type = $('#camera-type').val();
-            var $cameraFOV = $('#camera-fov');
+            const camera_type = $('#camera-type').val();
+            const $cameraFOV = $('#camera-fov');
             $cameraFOV.empty();
-            for (var key in sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov']) {
+            for (let key in sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov']) {
                 $cameraFOV.append(utils.createMenuOption(key));
             }
             $cameraFOV.val($cameraFOV[0].options[0].value).selectmenu('refresh').trigger('selectmenuchange');
         },
         changeCameraFOV: function (camera_fov) {
-            var camera_type = $('#camera-type').val();
-            var camera_option = $('#camera-option').val();
-            var fovs = sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov'][camera_fov];
+            const camera_type = $('#camera-type').val();
+            const camera_option = $('#camera-option').val();
+            const fovs = sensorTemplates['camera']['defaultSensors'][camera_type]['options'][camera_option]['fov'][camera_fov];
             $('#camera-hfov').html(fovs['horizontal']);
             $('#camera-vfov').html(fovs['vertical']);
         },
@@ -701,23 +701,23 @@ define(function (require) {
         },
         deactivateForm: function () {
 
-            var $cameraName = $('#feature-name');
-            var $rangeSpinnerMin = $('#range-spinner-min');
-            var $rangeSpinnerMax = $('#range-spinner-max');
-            var $rangeSlider = $('#range-slider');
-            var $sourceHeightSpinner = $('#source-height-spinner');
-            var $sourceHeightSlider = $('#source-height-slider');
-            var $targetHeightSpinner = $('#target-height-spinner');
-            var $targetHeightSlider = $('#target-height-slider');
-            var $isotropic = $('#isotropic');
-            var $geodesic = $('#geodesic2');
-            var $panSpinner = $('#pan-spinner');
-            var $panSlider = $('#pan-slider');
-            var $tiltSpinner = $('#tilt-spinner');
-            var $tiltSlider = $('#tilt-slider');
-            var $cameraType = $('#camera-type');
-            var $cameraOption = $('#camera-option');
-            var $cameraFOV = $('#camera-fov');
+            const $cameraName = $('#feature-name');
+            const $rangeSpinnerMin = $('#range-spinner-min');
+            const $rangeSpinnerMax = $('#range-spinner-max');
+            const $rangeSlider = $('#range-slider');
+            const $sourceHeightSpinner = $('#source-height-spinner');
+            const $sourceHeightSlider = $('#source-height-slider');
+            const $targetHeightSpinner = $('#target-height-spinner');
+            const $targetHeightSlider = $('#target-height-slider');
+            const $isotropic = $('#isotropic');
+            const $geodesic = $('#geodesic2');
+            const $panSpinner = $('#pan-spinner');
+            const $panSlider = $('#pan-slider');
+            const $tiltSpinner = $('#tilt-spinner');
+            const $tiltSlider = $('#tilt-slider');
+            const $cameraType = $('#camera-type');
+            const $cameraOption = $('#camera-option');
+            const $cameraFOV = $('#camera-fov');
 
             $cameraName.val(null);
             $cameraName.addClass('ui-state-disabled');

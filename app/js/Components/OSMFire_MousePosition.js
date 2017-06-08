@@ -5,7 +5,7 @@ define(['jquery', 'ol', 'deg2tile', 'MainCore', 'OSMFire_Map'], function ($, ol,
 
     "use strict";
 
-    var callback = function(sandBox) {
+    let callback = function(sandBox) {
         return {
             tileProj: ol.proj.get('EPSG:4326'),
             init: function () {
@@ -38,13 +38,13 @@ define(['jquery', 'ol', 'deg2tile', 'MainCore', 'OSMFire_Map'], function ($, ol,
                 sandBox.log(1, 'Mouse Coordinates component has been destroyed...', "blue");
             },
             coordinateFormat: function (coordinates) {
-                // var zoom = sandBox.getMap().getView().getZoom();
-                var zoom = sandBox.getView().getZoom();
-                var lonlatstr = ol.coordinate.createStringXY(sandBox.getMousePrecision());
-                var lonlat = "Lon, Lat: " + lonlatstr(coordinates);
-                var coord0 = ol.proj.transform(coordinates, sandBox.getMouseProjection(), sandBox.contextObj.tileProj);
-                var xytile = deg2tile(coord0[0], coord0[1], zoom);
-                var xyz = "X, Y, Z: " + [xytile[0], xytile[1], zoom].join(',  ');
+                // let zoom = sandBox.getMap().getView().getZoom();
+                let zoom = sandBox.getView().getZoom();
+                let lonlatstr = ol.coordinate.createStringXY(sandBox.getMousePrecision());
+                let lonlat = "Lon, Lat: " + lonlatstr(coordinates);
+                let coord0 = ol.proj.transform(coordinates, sandBox.getMouseProjection(), sandBox.contextObj.tileProj);
+                let xytile = deg2tile(coord0[0], coord0[1], zoom);
+                let xyz = "X, Y, Z: " + [xytile[0], xytile[1], zoom].join(',  ');
                 return [lonlat, xyz].join('    ')
             },
             registerForCustomEvents: function () {

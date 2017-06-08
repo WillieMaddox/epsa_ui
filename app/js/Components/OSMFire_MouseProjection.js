@@ -5,8 +5,8 @@ define(['jquery', 'MainCore'], function ($, OSMFire_Core) {
 
     "use strict";
 
-    var callback = function(sandBox) {
-        var innerHTMLStr = '<select id="mouse-projection" title="Units of the cursor coordinates.">' +
+    let callback = function(sandBox) {
+        let innerHTMLStr = '<select id="mouse-projection" title="Units of the cursor coordinates.">' +
         '<option value="EPSG:4326">EPSG:4326</option>' +
         '<option value="EPSG:3857">EPSG:3857</option>' +
         '</select>';

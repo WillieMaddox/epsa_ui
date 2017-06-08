@@ -2,7 +2,7 @@
 //Responsible for making AJAX calls to server API
 //******************************************************
 define(['MainCore'], function(OSMFire_Core) {
-    var self = {},
+    let self = {},
         response, callbackFunc, page;
     self.makeAjaxCall = function(apiURL, QueryStr, callBackFunction, method) {
         callbackFunc = callBackFunction;
@@ -62,7 +62,7 @@ define(['MainCore'], function(OSMFire_Core) {
                 }
             },
             error: function(request, type, errorThrown) {
-                var errorMsg;
+                let errorMsg;
                 switch (type) {
                     case 'abort':
                         errorMsg = 'AJAX call has been aborted';
@@ -92,7 +92,7 @@ define(['MainCore'], function(OSMFire_Core) {
         });
     };
     self.showErrorMessage = function(message, color) {
-        var msgColor = color || "red";
+        let msgColor = color || "red";
         if (OSMFire_Core.log) {
             OSMFire_Core.log(3, message, msgColor);
         } else {
@@ -100,7 +100,7 @@ define(['MainCore'], function(OSMFire_Core) {
         }
     };
     self.showInfoMessage = function(message, color) {
-        var msgColor = color || "blue";
+        const msgColor = color || "blue";
         if (OSMFire_Core.log) {
             OSMFire_Core.log(1, message, msgColor);
         } else {

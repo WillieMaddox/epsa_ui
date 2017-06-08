@@ -5,9 +5,9 @@
 define(function (require) {
     'use strict';
 
-    var utils = require('utils');
+    const utils = require('utils');
 
-    var $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">');
+    let $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">');
     $selectNode.append(utils.createMenuOption("EPSG:4326"));
     $selectNode.append(utils.createMenuOption("EPSG:3857"));
     $selectNode.append(utils.createMenuOption("EPSG:31467"));

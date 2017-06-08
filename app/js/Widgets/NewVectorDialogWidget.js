@@ -26,9 +26,9 @@ define(['jquery', 'MainCore',
 
     'use strict';
 
-    var callback = function(sandBox) {
+    let callback = function(sandBox) {
 
-        var $dialog,
+        let $dialog,
             $form,
             $fieldset,
             config;
@@ -68,12 +68,12 @@ define(['jquery', 'MainCore',
             },
 
             newVectorLayer: function ($form) {
-                var geomType = $form.find(".geomtype").val();
-                var layerType = $form.find(".layertype").val();
-                var geomTypes = [];
-                var sourceTypes = {};
-                var layerName;
-                var styleFunction;
+                let geomType = $form.find(".geomtype").val();
+                let layerType = $form.find(".layertype").val();
+                let geomTypes = [];
+                let sourceTypes = {};
+                let layerName;
+                let styleFunction;
                 if (layerType === 'feature') {
                     geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
                     sourceTypes = Object.keys(tobjectTemplates);
@@ -90,9 +90,9 @@ define(['jquery', 'MainCore',
                     return false;
                 }
 
-                var source0;
-                var source;
-                var layer;
+                let source0;
+                let source;
+                let layer;
                 source0 = sandBox.getSource('Vector', {
                     wrapX: false
                 });
@@ -109,11 +109,11 @@ define(['jquery', 'MainCore',
                     opacity: 0.7
                 });
 
-                // var source = new ol.source.Vector({
+                // let source = new ol.source.Vector({
                 //     wrapX: false
                 // });
                 // source.set('pendingRequests', 0);
-                // var layer = new ol.layer.Image({
+                // let layer = new ol.layer.Image({
                 //     source: new ol.source.ImageVector({
                 //         source: source,
                 //         style: styleFunction
@@ -149,14 +149,14 @@ define(['jquery', 'MainCore',
             },
             createLayerTypeNodes: function ($fieldset) {
                 $fieldset.append($('<label for="open-layertype">Layer Type</label>'));
-                var $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">');
+                let $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">');
                 $selectNode.append(utils.createMenuOption("feature", "Feature"));
                 $selectNode.append(utils.createMenuOption("sensor", "Sensor"));
                 $fieldset.append($selectNode);
             },
             createGeomTypeNodes: function ($fieldset) {
                 $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
-                var $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
+                let $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
                 $selectNode.append(utils.createMenuOption("geomcollection", "Geometry Collection"));
                 $selectNode.append(utils.createMenuOption("polygon", "Polygon"));
                 $selectNode.append(utils.createMenuOption("line", "Line"));
@@ -198,7 +198,7 @@ define(['jquery', 'MainCore',
                     $(this).parent().dialog("close");
                 });
                 $('#open-layertype').selectmenu().on('selectmenuchange', function () {
-                    var $geomType = $(this).parent().find(".geomtype");
+                    let $geomType = $(this).parent().find(".geomtype");
                     if ($(this).val() === 'sensor') {
                         $geomType.val('point');
                         $geomType.selectmenu('refresh');

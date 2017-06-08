@@ -5,8 +5,8 @@ define(['jquery', 'MainCore'], function ($, OSMFire_Core) {
 
     "use strict";
 
-    var callback = function(sandBox) {
-        var innerHTMLStr =
+    let callback = function(sandBox) {
+        let innerHTMLStr =
             '<select id="mouse-units" title="Units of the scale line.">' +
             '<option value="nautical">nautical mile</option>' +
             '<option value="imperial">imperial inch</option>' +

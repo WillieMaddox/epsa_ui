@@ -1,5 +1,5 @@
 // Application bootstrap file
-var modulesToLoad = ['MainCore',
+const modulesToLoad = ['MainCore',
     'Logger',
     'AjaxEngine',
     'CookieHandler',
@@ -68,17 +68,17 @@ require(modulesToLoad, function(OSMFire_Core,
         }
     };
     ol.layer.Image.prototype.buildHeaders = function () {
-        var features = this.getSource().getSource().getFeatures();
-        var len = features.length;
+        const features = this.getSource().getSource().getFeatures();
+        const len = features.length;
         if (len === 0) {
             return this;
         }
-        var hasNew = false;
-        var oldHeaders = this.get('headers') || {};
-        var headers = {};
-        for (var i = 0; i < len; i += 1) {
-            var attributes = features[i].getProperties();
-            for (var j in attributes) {
+        let hasNew = false;
+        const oldHeaders = this.get('headers') || {};
+        const headers = {};
+        for (let i = 0; i < len; i += 1) {
+            const attributes = features[i].getProperties();
+            for (let j in attributes) {
                 if (typeof attributes[j] !== 'object' && !(j in oldHeaders)) {
                     headers[j] = typeof attributes[j];
                     hasNew = true;
@@ -129,15 +129,15 @@ require(modulesToLoad, function(OSMFire_Core,
     };
     ol.inherits(ol.interaction.ChooseHole, ol.interaction.Pointer);
     ol.control.Interaction = function (opt_options) {
-        var options = opt_options || {};
-        var controlDiv = document.createElement('div');
+        const options = opt_options || {};
+        const controlDiv = document.createElement('div');
         controlDiv.className = options.className || 'ol-unselectable ol-control';
-        var controlButton = document.createElement('button');
+        const controlButton = document.createElement('button');
         controlButton.textContent = options.label || 'I';
         controlButton.title = 'Add ' + options.feature_type || 'Custom interaction';
         controlDiv.appendChild(controlButton);
 
-        var _this = this;
+        const _this = this;
         controlButton.addEventListener('click', function () {
             if (_this.get('interaction').getActive()) {
                 _this.set('active', false);
@@ -188,7 +188,7 @@ require(modulesToLoad, function(OSMFire_Core,
     ol.inherits(ol.control.Interaction, ol.control.Control);
     ol.control.Interaction.prototype.setMap = function (map) {
         ol.control.Control.prototype.setMap.call(this, map);
-        var interaction = this.get('interaction');
+        const interaction = this.get('interaction');
         if (map === null) {
             ol.Observable.unByKey(this.get('eventId'));
         } else if (map.getInteractions().getArray().indexOf(interaction) === -1) {

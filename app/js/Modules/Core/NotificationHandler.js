@@ -1,6 +1,6 @@
 // using simple sub-module augmentation
 define(['MainCore'], function(OSMFire_Core) {
-    var self = {},
+    let self = {},
         NotificationWidgetDef, NotificationWidgetObj;
     // initialize as a core sub-modules
     self.initialize = function() {

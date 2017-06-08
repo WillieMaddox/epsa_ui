@@ -1,6 +1,6 @@
-var SandBox = function(Core, contextElem, componentSelector) {
+let SandBox = function(Core, contextElem, componentSelector) {
     "use strict";
-    var containerElemContext = contextElem,
+    let containerElemContext = contextElem,
         componentID = componentSelector, // the component that this SandBox instance belongs to.
         errStr0 = "incorrect parameters passed in; from ";
     return {
@@ -175,7 +175,7 @@ var SandBox = function(Core, contextElem, componentSelector) {
         addEventHandlerToElement: function(elementID, event, func) {
             if (elementID && typeof elementID === "string" && event && typeof event === "string" && func && typeof func === "function") {
                 // we do this so we don't traverse the whole DOM, thus increasing performance
-                var childElem = Core.getChildOfParentByID(containerElemContext, elementID);
+                let childElem = Core.getChildOfParentByID(containerElemContext, elementID);
                 Core.addEventHandlerToElement(childElem, event, func);
             } else {
                 Core.log(3, errStr0 + "SandBox.addEventHandlerToElement");
@@ -184,7 +184,7 @@ var SandBox = function(Core, contextElem, componentSelector) {
         removeEventHandlerFromElem: function(elementID, event, func) {
             if (elementID && typeof elementID === "string" && event && typeof event === "string" && func && typeof func === "function") {
                 // we do this so we don't traverse the whole DOM, thus increasing performance
-                var childElem = Core.getChildOfParentByID(containerElemContext, elementID);
+                let childElem = Core.getChildOfParentByID(containerElemContext, elementID);
                 Core.removeEventHandlerFromElem(childElem, event, func);
             } else {
                 Core.log(3, errStr0 + "SandBox.removeEventHandlerFromElem");

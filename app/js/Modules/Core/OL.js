@@ -48,7 +48,7 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         mousePrecision = Number(Math.abs(Math.min(0, Math.floor(Math.log10(res)))).toFixed());
     };
     self.getFormat = function (formatString) {
-        var Formats = {
+        const Formats = {
             'zip': function () {
                 return new ol.format.GeoJSON();
             },
@@ -78,7 +78,7 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         return Formats[formatString]();
     };
     self.getLoadingStrategy = function(strategy) {
-        var Strategies = {
+        const Strategies = {
             'tile': function () {
                 return ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
             },
@@ -89,7 +89,7 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         return Strategies[strategy]();
     };
     self.getSource = function(source, opt) {
-        var Sources = {
+        const Sources = {
             'TileWMS': function () {
                 return new ol.source.TileWMS(opt)
             },
@@ -115,7 +115,7 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
         return Sources[source]();
     };
     self.getLayer = function(layer, opt) {
-        var Layers = {
+        const Layers = {
             'Group': function () {
                 return new ol.layer.Group(opt)
             },
@@ -147,7 +147,7 @@ define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
     };
 
     self.recenterView = function(x, y) {
-        var center = ol.proj.transform([x, y], 'EPSG:4326', 'EPSG:3857');
+        const center = ol.proj.transform([x, y], 'EPSG:4326', 'EPSG:3857');
         view.setCenter(center);
     };
     self.initialize = function() {

@@ -2,8 +2,8 @@ const express = require('express');
 const path = require('path');
 const errorHandler = require('express-error-handler');
 
-var app = express();
-var port = +process.env.PORT || 8050;
+let app = express();
+let port = +process.env.PORT || 8050;
 app.use(express.static(__dirname));
 app.use(errorHandler());
 

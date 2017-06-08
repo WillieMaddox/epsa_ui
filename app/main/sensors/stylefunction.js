@@ -5,17 +5,17 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         sensorTemplates = require('stemplate');
 
     return (function () {
 
-        var icons = {
+        const icons = {
             "camera": './img/camera-normal.png',
             "radio": './img/radio-normal.png'
         };
-        var setStyle = function (icon_src) {
-            var style = new ol.style.Style({
+        let setStyle = function (icon_src) {
+            let style = new ol.style.Style({
                 image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
                     // anchor: [0.5, 0.5],
                     // anchorXUnits: 'fraction',
@@ -30,7 +30,7 @@ define(function (require) {
             return [style]
         };
         return function (feature, resolution) {
-            var icon_src;
+            let icon_src;
             if (feature.get('type') && sensorTemplates.hasOwnProperty(feature.get('type'))) {
                 icon_src = icons[feature.get('type')];
             } else {

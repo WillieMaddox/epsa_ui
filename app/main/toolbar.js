@@ -5,17 +5,17 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
-        utils = require('utils'),
         map = require('map'),
+        utils = require('utils'),
         layertree = require('layertree'),
         isPolyValid = require('ispolyvalid');
 
-    var bitA = 0;
-    var bitB = 0;
-    var activeControl = null;
-    var drawControls = new ol.Collection();
+    let bitA = 0;
+    let bitB = 0;
+    let activeControl = null;
+    let drawControls = new ol.Collection();
 
     return {
         init: function () {
@@ -67,7 +67,7 @@ define(function (require) {
         },
         addDrawToolBar: function () {
 
-            var drawPoint = new ol.control.Interaction({
+            let drawPoint = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'point',
                 geometry_type: 'Point',
@@ -75,7 +75,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'point')
             }).setDisabled(true);
             drawControls.push(drawPoint);
-            var drawLineString = new ol.control.Interaction({
+            let drawLineString = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'line',
                 geometry_type: 'LineString',
@@ -83,7 +83,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'line')
             }).setDisabled(true);
             drawControls.push(drawLineString);
-            var drawPolygon = new ol.control.Interaction({
+            let drawPolygon = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'polygon',
                 geometry_type: 'Polygon',
@@ -92,7 +92,7 @@ define(function (require) {
             }).setDisabled(true);
             drawControls.push(drawPolygon);
 
-            var drawAOR = new ol.control.Interaction({
+            let drawAOR = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'aor',
                 geometry_type: 'Polygon',
@@ -100,7 +100,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'aor')
             }).setDisabled(true);
             drawControls.push(drawAOR);
-            var drawBuilding = new ol.control.Interaction({
+            let drawBuilding = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'building',
                 geometry_type: 'Polygon',
@@ -108,7 +108,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'building')
             }).setDisabled(true);
             drawControls.push(drawBuilding);
-            var drawHerbage = new ol.control.Interaction({
+            let drawHerbage = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'herbage',
                 geometry_type: 'Polygon',
@@ -116,7 +116,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'herbage')
             }).setDisabled(true);
             drawControls.push(drawHerbage);
-            var drawWater = new ol.control.Interaction({
+            let drawWater = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'water',
                 geometry_type: 'Polygon',
@@ -124,7 +124,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'water')
             }).setDisabled(true);
             drawControls.push(drawWater);
-            var drawWall = new ol.control.Interaction({
+            let drawWall = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'wall',
                 geometry_type: 'LineString',
@@ -132,7 +132,7 @@ define(function (require) {
                 interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'wall')
             }).setDisabled(true);
             drawControls.push(drawWall);
-            var drawRoad = new ol.control.Interaction({
+            let drawRoad = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'road',
                 geometry_type: 'LineString',
@@ -141,7 +141,7 @@ define(function (require) {
             }).setDisabled(true);
             drawControls.push(drawRoad);
 
-            var drawCamera = new ol.control.Interaction({
+            let drawCamera = new ol.control.Interaction({
                 label: ' ',
                 feature_type: 'camera',
                 geometry_type: 'Point',
@@ -175,13 +175,13 @@ define(function (require) {
 
             layertree.selectEventEmitter.on('change', function () {
 
-                var layer = layertree.getLayerById(layertree.selectedLayer.id);
+                let layer = layertree.getLayerById(layertree.selectedLayer.id);
 
                 if (layer instanceof ol.layer.Image) { // feature layer.
 
                     // layertree.identifyLayer(layer);
-                    var layerGeomType = layer.get('geomtype');
-                    var layerType = layer.get('type');
+                    let layerGeomType = layer.get('geomtype');
+                    let layerType = layer.get('type');
 
                     if (layerType === 'sensor') {
                         drawCamera.setDisabled(false);
@@ -202,7 +202,7 @@ define(function (require) {
                             drawBuilding.setDisabled(false);
                         }
                     }
-                    // var _this = this;
+                    // let _this = this;
                     // setTimeout(function () {
                     //     _this.activeFeatures.extend(layer.getSource().getFeatures());
                     // }, 0);
@@ -218,11 +218,11 @@ define(function (require) {
         handleEvents: function (interaction, feature_type) {
 
             interaction.on('drawend', function (evt) {
-                var geom = evt.feature.getGeometry();
+                let geom = evt.feature.getGeometry();
                 if (geom.getType().endsWith('Polygon') && !(isPolyValid(geom))) {
                     return;
                 }
-                var id = utils.FID.gen();
+                let id = utils.FID.gen();
 
                 evt.feature.setId(id);
                 evt.feature.set('type', feature_type);
@@ -231,7 +231,7 @@ define(function (require) {
                 //TODO: The feature shouldn't be added to the layer yet.
                 //TODO: Only after deselect should the layer be updated.
                 //TODO: Need to Check.
-                // var selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
+                // let selectedLayer = this.layertree.getLayerById(this.layertree.selectedLayer.id);
                 // selectedLayer.getSource().addFeature(evt.feature);
                 // this.activeFeatures.push(evt.feature);
 

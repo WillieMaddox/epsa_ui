@@ -5,7 +5,7 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery');
+    const $ = require('jquery');
     return function (callback) {
         $.getJSON({
             url: "data/default_sensors.json"

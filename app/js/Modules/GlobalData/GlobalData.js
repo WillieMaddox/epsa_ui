@@ -1,6 +1,6 @@
 var OSMFire_GlobalData = (function(module) {
     "use strict";
-    var favCookieName = "OSM_Fire",
+    const favCookieName = "OSM_Fire",
         pageDefintionsFile = "PageDefinitions.js",
         pageDefinitionsFilePath = "js/Modules/PageDefinitions/",
         FavouritesPageObjDefID = "FavouritesPageDef",

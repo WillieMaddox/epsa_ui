@@ -5,7 +5,7 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
         utils = require('utils'),
         map = require('map'),
@@ -31,16 +31,16 @@ define(function (require) {
     //
     // };
 
-    var highlight = null;
-    var highlightTextStyleCache = {};
-    var highlightGeomStyleCache = {};
-    var textStyleKey = 'name';
-    var geomStyleKey = 'type';
+    let highlight = null;
+    let highlightTextStyleCache = {};
+    let highlightGeomStyleCache = {};
+    let textStyleKey = 'name';
+    let geomStyleKey = 'type';
 
     return {
         init: function () {
 
-            var _this = this;
+            const _this = this;
 
             // this.highlight = null;
             // this.highlightTextStyleCache = {};
@@ -83,7 +83,7 @@ define(function (require) {
                 } else {
                     console.log('layerinteractor: deselected layer NO');
                 }
-                var selectedFeatures = this.select.getFeatures();
+                const selectedFeatures = this.select.getFeatures();
                 if (selectedFeatures.getLength() === 1) {
                     this.layer.getSource().getSource().addFeature(selectedFeatures.getArray()[0]);
                     selectedFeatures.clear();
@@ -145,12 +145,12 @@ define(function (require) {
             });
         },
         createFeatureOverlay: function () {
-            var _this = this;
-            var overlayStyleFunction = (function () {
+            const _this = this;
+            const overlayStyleFunction = (function () {
                 return function (feature, resolution) {
-                    var retval;
-                    var textkey = feature.get(textStyleKey) ? feature.get(textStyleKey).toString() : '';
-                    var geomkey = feature.get(geomStyleKey);
+                    let retval;
+                    const textkey = feature.get(textStyleKey) ? feature.get(textStyleKey).toString() : '';
+                    const geomkey = feature.get(geomStyleKey);
 
                     if (!highlightTextStyleCache[textkey]) {
                         highlightTextStyleCache[textkey] = _this.textStyle(textkey);
@@ -174,13 +174,13 @@ define(function (require) {
             });
         },
         getFeatureAtPixel: function (evt) {
-            var feature;
-            var smallestArea = 5.1e14; // approximate surface area of the earth
-            var smallestFeature = null;
-            var smallestFeatureLayer = null;
-            var pixel = map.getEventPixel(evt.originalEvent);
-            var featureAndLayer = map.forEachFeatureAtPixel(pixel, function (feat, layer) {
-                var geom = feat.getGeometry();
+            let feature;
+            let smallestArea = 5.1e14; // approximate surface area of the earth
+            let smallestFeature = null;
+            let smallestFeatureLayer = null;
+            const pixel = map.getEventPixel(evt.originalEvent);
+            let featureAndLayer = map.forEachFeatureAtPixel(pixel, function (feat, layer) {
+                const geom = feat.getGeometry();
                 if (geom.getType().endsWith('Point')) {
                     return {feature: feat, layer: layer};
                 }
@@ -189,14 +189,14 @@ define(function (require) {
                 }
                 if (geom.getType().endsWith('Polygon')) {
                     if (feat.get('type') === 'aor') {
-                        var coord = map.getCoordinateFromPixel(pixel);
-                        var point = geom.getClosestPoint(coord);
-                        var pixel1 = map.getPixelFromCoordinate(point);
+                        const coord = map.getCoordinateFromPixel(pixel);
+                        const point = geom.getClosestPoint(coord);
+                        const pixel1 = map.getPixelFromCoordinate(point);
                         if (Math.abs(pixel[0] - pixel1[0]) < 8 && Math.abs(pixel[1] - pixel1[1]) < 8) {
                             return {feature: feat, layer: layer};
                         }
                     } else {
-                        var area = geom.getArea();
+                        const area = geom.getArea();
                         if (area < smallestArea) {
                             smallestArea = area;
                             smallestFeature = feat;
@@ -216,11 +216,11 @@ define(function (require) {
             }
             if (exists(featureAndLayer.feature)) {
                 feature = featureAndLayer.feature;
-                var text = feature.get(geomStyleKey);
+                const text = feature.get(geomStyleKey);
                 if (!highlightGeomStyleCache[text]) {
-                    var sf = featureAndLayer.layer.getSource().getStyleFunction();
-                    var styles = sf(feature);
-                    var style = styles[styles.length - 1].clone();
+                    const sf = featureAndLayer.layer.getSource().getStyleFunction();
+                    const styles = sf(feature);
+                    const style = styles[styles.length - 1].clone();
                     if (text === 'camera') {
                         highlightGeomStyleCache[text] = this.setSensorStyle(style);
                     } else {
@@ -236,7 +236,7 @@ define(function (require) {
         },
         setSensorStyle: function (style) {
             if (style) {
-                var image = style.getImage();
+                const image = style.getImage();
                 if (exists(image)) {
                     image.setOpacity(1);
                     image.setScale(0.3);
@@ -249,12 +249,12 @@ define(function (require) {
         },
         setFeatureStyle: function (style) {
             if (style) {
-                var image;
-                var fill;
-                var radius;
-                var stroke;
-                var width;
-                var color;
+                let image;
+                let fill;
+                let radius;
+                let stroke;
+                let width;
+                let color;
 
                 image = style.getImage();
                 if (exists(image)) {
@@ -310,7 +310,7 @@ define(function (require) {
             }
         },
         addInteractions: function () {
-            var _this = this;
+            const _this = this;
 
             this.select = new ol.interaction.Select({
                 layers: [this.featureOverlay],
@@ -345,7 +345,7 @@ define(function (require) {
                 }
             });
             this.select.on('select', function (evt) {
-                var feature;
+                let feature;
                 // Handle the deselect first so we can move the feature back to the selected layer.
                 if (evt.deselected.length === 1) {
                     feature = evt.deselected[0];
@@ -386,7 +386,7 @@ define(function (require) {
                 }
             });
 
-            var origGeom;
+            let origGeom;
             this.modify = new ol.interaction.Modify({
                 features: this.select.getFeatures()
             });
@@ -411,7 +411,7 @@ define(function (require) {
             // map.addInteraction(translate);
             // translate.setActive(false);
 
-            var remove = function (evt) {
+            const remove = function (evt) {
                 // console.log(evt.keyCode);
                 if (exists(highlight) && evt.keyCode === 46) { //delete key pressed
                     _this.layer.getSource().getSource().removeFeature(highlight);
@@ -422,8 +422,8 @@ define(function (require) {
             $(document).on('keydown', remove);
 
             toolbar.drawEventEmitter.on('change', function () {
-                var selectedFeatures = _this.select.getFeatures();
-                var selectedFeature;
+                const selectedFeatures = _this.select.getFeatures();
+                let selectedFeature;
                 if (toolbar.active === true) {
                     map.un('pointermove', _this.hoverDisplay);
 

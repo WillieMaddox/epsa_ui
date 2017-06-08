@@ -1,5 +1,5 @@
 OSMFire_Core.registerComponent("mainPageContainer", "notificationWidget", function(sandBox) {
-    var widgetInnerHTMLStr = '<div id="notificationMainContainer">' +
+    let widgetInnerHTMLStr = '<div id="notificationMainContainer">' +
         '<h1 class="centerElem header">Thank you for visiting us.</h1>' +
         '<h3 class="centerElem header">All the images on this site are provided by <a href="https://stocksnap.io">stocksnap.io</a>.</h3>' +
         '<h3 class="centerElem header">We thank them and encourage you to visit their site.</h3>' +
@@ -7,7 +7,7 @@ OSMFire_Core.registerComponent("mainPageContainer", "notificationWidget", functi
         '<div class="button button-left" id="notification_visit">Visit stocksnap.io</div>' +
         '<div class="button button-right" id="notification_close">Close</div>' +
         '</div>' + '</div>';
-    var widgetMainContainer, stockSnapURL = "https://stocksnap.io";
+    let widgetMainContainer, stockSnapURL = "https://stocksnap.io";
     return {
         init: function() {
             try {
@@ -25,7 +25,7 @@ OSMFire_Core.registerComponent("mainPageContainer", "notificationWidget", functi
             sandBox.log(1, 'Notification Widget has been destroyed...', "blue");
         },
         renderWidget: function() {
-            var generatedWidget;
+            let generatedWidget;
             generatedWidget = sandBox.createDocumentLevelComponent(widgetInnerHTMLStr);
             generatedWidget.id = "widgetContainer";
             sandBox.setElementContext(generatedWidget.id);

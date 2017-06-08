@@ -21,11 +21,11 @@ define(function (require) {
 
     require('jquery-ui');
 
-    var wfsProjections = null;
+    let wfsProjections = null;
 
     return {
         init: function () {
-            var $controlDiv = $('#layertoolbar-container');
+            let $controlDiv = $('#layertoolbar-container');
             $controlDiv.addClass('layertree-buttons');
             $controlDiv.append(this.createButton('add-wms', 'Add WMS Layer', 'addlayer'));
             $controlDiv.append(this.createButton('add-wfs', 'Add WFS Layer', 'addlayer'));
@@ -36,8 +36,8 @@ define(function (require) {
         },
 
         createButton: function (elemName, elemTitle, elemType) {
-            var _this = this;
-            var $button = $('<button class="' + elemName + '" title="' + elemTitle + '">').button();
+            let _this = this;
+            let $button = $('<button class="' + elemName + '" title="' + elemTitle + '">').button();
             switch (elemType) {
                 case 'addlayer':
                     $button.on("click", function () {
@@ -71,41 +71,41 @@ define(function (require) {
 
         checkWmsLayer: function ($button) {
 
-            var $form = $button.form();
+            let $form = $button.form();
             $button.button("disable");
             $form.find(".layername").empty();
             $form.find(".format").empty();
-            var serverUrl = $form.find(".url").val();
+            let serverUrl = $form.find(".url").val();
             serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
             $form.find(".url").val(serverUrl);
             serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-            var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
-            var url = settings.proxyUrl + serverUrl + query;
+            let query = 'SERVICE=WMS&REQUEST=GetCapabilities';
+            let url = settings.proxyUrl + serverUrl + query;
             console.log(url);
 
             $.ajax({
                 type: 'GET',
                 url: url
             }).done(function (response) {
-                var parser = new ol.format.WMSCapabilities();
-                var capabilities = parser.read(response);
-                var currentProj = map.getView().getProjection().getCode();
-                var crs, i;
-                var messageText = 'Layers read successfully.';
+                let parser = new ol.format.WMSCapabilities();
+                let capabilities = parser.read(response);
+                let currentProj = map.getView().getProjection().getCode();
+                let crs, i;
+                let messageText = 'Layers read successfully.';
                 if (capabilities.version === '1.3.0') {
                     crs = capabilities.Capability.Layer.CRS;
                 } else {
                     crs = [currentProj];
                     messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
                 }
-                var layers = capabilities.Capability.Layer.Layer;
+                let layers = capabilities.Capability.Layer.Layer;
                 if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
-                    var nLayers = layers.length;
+                    let nLayers = layers.length;
                     for (i = 0; i < nLayers; i += 1) {
                         $form.find(".layername").append(utils.createMenuOption(layers[i].Name));
                     }
-                    var formats = capabilities.Capability.Request.GetMap.Format;
-                    var nFormats = formats.length;
+                    let formats = capabilities.Capability.Request.GetMap.Format;
+                    let nFormats = formats.length;
                     for (i = 0; i < nFormats; i += 1) {
                         $form.find(".format").append(utils.createMenuOption(formats[i]));
                     }
@@ -120,14 +120,14 @@ define(function (require) {
             });
         },
         addWmsLayer: function ($form) {
-            var params = {
+            let params = {
                 url: $form.find(".url").val(),
                 params: {
                     layers: $form.find(".layername").val(),
                     format: $form.find(".format").val()
                 }
             };
-            var layer;
+            let layer;
             if ($form.find(".tiled").is(":checked")) {
                 layer = new ol.layer.Tile({
                     source: new ol.source.TileWMS(params),
@@ -147,33 +147,33 @@ define(function (require) {
         },
         checkWfsLayer: function ($button) {
 
-            var $form = $button.form();
+            let $form = $button.form();
             $button.button("disable");
             $form.find(".layername").empty();
             wfsProjections = {};
-            var serverUrl = $form.find(".url").val();
+            let serverUrl = $form.find(".url").val();
             serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
             $form.find(".url").val(serverUrl);
             serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-            var query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
-            var url = settings.proxyUrl + serverUrl + query;
+            let query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
+            let url = settings.proxyUrl + serverUrl + query;
 
             $.ajax({
                 type: 'GET',
                 url: url
             }).done(function (response) {
-                var unmarshaller = WFSContext.createUnmarshaller();
-                var capabilities = unmarshaller.unmarshalDocument(response).value;
-                var messageText = 'Layers read successfully.';
+                let unmarshaller = WFSContext.createUnmarshaller();
+                let capabilities = unmarshaller.unmarshalDocument(response).value;
+                let messageText = 'Layers read successfully.';
                 if (capabilities.version !== '1.1.0') {
                     messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
                 }
-                var layers = capabilities.featureTypeList.featureType;
-                var nLayers = layers.length;
+                let layers = capabilities.featureTypeList.featureType;
+                let nLayers = layers.length;
                 if (nLayers > 0) {
-                    var re = /}(.*)/;
-                    for (var i = 0; i < nLayers; i += 1) {
-                        var name = re.exec(layers[i].name)[1];
+                    const re = /}(.*)/;
+                    for (let i = 0; i < nLayers; i += 1) {
+                        let name = re.exec(layers[i].name)[1];
                         $form.find(".layername").append(utils.createMenuOption(name));
                         wfsProjections[name] = layers[i].defaultSRS;
                     }
@@ -190,8 +190,8 @@ define(function (require) {
 
             let t0, t1, nAdd, nBefore, nAfter;
             let source, strategy, layer;
-            var buildQueryString = function (options) {
-                var queryArray = [];
+            let buildQueryString = function (options) {
+                let queryArray = [];
                 queryArray.push('SERVICE=WFS');
                 queryArray.push('VERSION=1.1.0');
                 queryArray.push('REQUEST=GetFeature');
@@ -206,11 +206,11 @@ define(function (require) {
                 }
                 return queryArray.join('&')
             };
-            var typeName = $form.find(".layername").val();
-            var proj = wfsProjections[typeName];
-            var featureProjection;
-            var formatWFS = new ol.format.WFS();
-            var serverUrl = $form.find(".url").val();
+            let typeName = $form.find(".layername").val();
+            let proj = wfsProjections[typeName];
+            let featureProjection;
+            let formatWFS = new ol.format.WFS();
+            let serverUrl = $form.find(".url").val();
             serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
             serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
 
@@ -232,14 +232,14 @@ define(function (require) {
                 console.log('Remaining', source.get('pendingRequests'), 't=', t1 - t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1 - t0));
             }
             function loader(extent, res, mapProj) {
-                var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
+                let query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
                 featureProjection = mapProj.getCode();
                 $.ajax({
                     type: 'GET',
                     url: settings.proxyUrl + serverUrl + query,
                     beforeSend: function (evt) {
                         if (source.get('pendingRequests') == 0) {
-                            var $progressbar = $("<div class='buffering'></div>");
+                            let $progressbar = $("<div class='buffering'></div>");
                             $progressbar.append($('#' + layer.get('id') + ' .layertitle'));
                             $progressbar.progressbar({value: false});
                             $progressbar.insertBefore($('#' + layer.get('id') + ' .layeropacity'));
@@ -281,15 +281,15 @@ define(function (require) {
         },
         addVectorLayer: function ($form) {
 
-            var fr;
-            var source;
-            var layer;
-            var file = $form.find(".file")[0].files[0];
-            var fileType = $form.find(".filetype").val();
-            var displayname = $form.find(".displayname").val();
-            var currentProj = map.getView().getProjection();
-            var $progressbar;
-            var sourceFormat;
+            let fr;
+            let source;
+            let layer;
+            let file = $form.find(".file")[0].files[0];
+            let fileType = $form.find(".filetype").val();
+            let displayname = $form.find(".displayname").val();
+            let currentProj = map.getView().getProjection();
+            let $progressbar;
+            let sourceFormat;
             if (fileType === 'zip') {
                 sourceFormat = new ol.format.GeoJSON();
             } else if (fileType === 'geojson') {
@@ -328,9 +328,9 @@ define(function (require) {
 
             function loaded(evt) {
                 $progressbar.progressbar("value", false);
-                var vectorData = evt.target.result;
-                var dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
-                // var dfd = makeAsyncCall()
+                let vectorData = evt.target.result;
+                let dataProjection = $form.find(".projection").val() || sourceFormat.readProjection(vectorData) || currentProj;
+                // let dfd = makeAsyncCall()
                 if (fileType === 'zip') {
                     shp(vectorData).then(function (geojson) {
                         if (typeof geojson === "object" && geojson.length > 1) {
@@ -352,7 +352,7 @@ define(function (require) {
                 }
                 // // Convert MultiPolygon to Polygons if there is only one exterior ring.
                 // // Convert MultiLineString to LineString if there is only one linestring.
-                // var newgeom;
+                // let newgeom;
                 // source.getFeatures().forEach(function (feature) {
                 //     if (feature.getGeometry().getType() === 'MultiPolygon') {
                 //         if (feature.getGeometry().getCoordinates().length === 1) {
@@ -421,12 +421,12 @@ define(function (require) {
             }
         },
         newVectorLayer: function ($form) {
-            var geomType = $form.find(".geomtype").val();
-            var layerType = $form.find(".layertype").val();
-            var geomTypes = [];
-            var sourceTypes = {};
-            var layerName;
-            var styleFunction;
+            let geomType = $form.find(".geomtype").val();
+            let layerType = $form.find(".layertype").val();
+            let geomTypes = [];
+            let sourceTypes = {};
+            let layerName;
+            let styleFunction;
             if (layerType === 'feature') {
                 geomTypes = ['point', 'line', 'polygon', 'geomcollection'];
                 sourceTypes = Object.keys(tobjectTemplates);
@@ -442,11 +442,11 @@ define(function (require) {
                 message('Unrecognized layer type.');
                 return false;
             }
-            var source = new ol.source.Vector({
+            let source = new ol.source.Vector({
                 wrapX: false
             });
             source.set('pendingRequests', 0);
-            var layer = new ol.layer.Image({
+            let layer = new ol.layer.Image({
                 source: new ol.source.ImageVector({
                     source: source,
                     style: styleFunction
@@ -488,7 +488,7 @@ define(function (require) {
             } else {
                 //TODO: apply data_type to OSMXML, TopoJSON, and shapefiles.
                 // format is XML (GPX or KML)
-                // var serializer = new XMLSerializer();
+                // let serializer = new XMLSerializer();
                 // data = serializer.serializeToString(vector_data);
                 message('Only GeoJSON and KML formats have been implemented.  Exit Save...');
                 return;
@@ -505,20 +505,20 @@ define(function (require) {
         },
 
         // getDefaultSensors = function () {
-        //     var _this = this;
-        //     var $form = $button.form();
+        //     let _this = this;
+        //     let $form = $button.form();
         //     $button.button("disable");
         //     $form.find(".layername").empty();
         //     $form.find(".format").empty();
-        //     var serverUrl = $form.find(".url").val();
+        //     let serverUrl = $form.find(".url").val();
         //     serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
         //     $form.find(".url").val(serverUrl);
         //     serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-        //     var query = 'SERVICE=WMS&REQUEST=GetCapabilities';
-        //     var url = settings.proxyUrl + serverUrl + query;
+        //     let query = 'SERVICE=WMS&REQUEST=GetCapabilities';
+        //     let url = settings.proxyUrl + serverUrl + query;
         //     console.log(url);
 
-        // var defsens = null;
+        // let defsens = null;
         // $.getJSON('data/default_sensors.json', function (data) {
         //     defsens = data;
         // });
@@ -526,11 +526,11 @@ define(function (require) {
 
         openDialog: function (elemName, elemTitle) {
 
-            var $dialog;
-            var $fieldset = $('<fieldset>');
+            let $dialog;
+            let $fieldset = $('<fieldset>');
 
-            // var _this = this;
-            // var dialogCreators = {
+            // let _this = this;
+            // let dialogCreators = {
             //     'add-wms': function () {
             //         return _this.createAddWmsDialog($fieldset, elemName, elemTitle);
             //     },
@@ -570,8 +570,8 @@ define(function (require) {
         },
         saveDialog: function (elemName, elemTitle) {
 
-            var $dialog;
-            var $fieldset = $('<fieldset>');
+            let $dialog;
+            let $fieldset = $('<fieldset>');
 
             switch (elemName) {
                 case 'save-vector':
@@ -593,7 +593,7 @@ define(function (require) {
             this.createLayerNameNodes($fieldset);
             this.createFormatNodes($fieldset);
             this.createTiledNodes($fieldset);
-            var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.addWmsLayer);
+            let $dialog = this.createDialog($fieldset, elemName, elemTitle, this.addWmsLayer);
             $('.layername').selectmenu().on('selectmenuchange', function () {
                 $(this).parent().find(".displayname").val($(this).val());
             });
@@ -604,7 +604,7 @@ define(function (require) {
             this.createServerUrlNodes($fieldset, 'wfs');
             this.createLayerNameNodes($fieldset);
             this.createTiledNodes($fieldset);
-            var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.addWfsLayer);
+            let $dialog = this.createDialog($fieldset, elemName, elemTitle, this.addWfsLayer);
             $('.layername').selectmenu().on('selectmenuchange', function () {
                 $(this).parent().find(".displayname").val($(this).val());
             });
@@ -615,7 +615,7 @@ define(function (require) {
             this.createFileTypeNodes($fieldset);
             this.createFileOpenNodes($fieldset);
             this.createProjectionNodes($fieldset);
-            var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.addVectorLayer);
+            let $dialog = this.createDialog($fieldset, elemName, elemTitle, this.addVectorLayer);
             $('.filetype').selectmenu({
                 classes: {
                     "ui-selectmenu-button": "menuselect"
@@ -631,9 +631,9 @@ define(function (require) {
             this.createDisplayNameNodes($fieldset);
             this.createLayerTypeNodes($fieldset);
             this.createGeomTypeNodes($fieldset);
-            var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.newVectorLayer);
+            let $dialog = this.createDialog($fieldset, elemName, elemTitle, this.newVectorLayer);
             $('.layertype').selectmenu().on('selectmenuchange', function () {
-                var $geomType = $(this).parent().find(".geomtype");
+                let $geomType = $(this).parent().find(".geomtype");
                 if ($(this).val() === 'sensor') {
                     $geomType.val('point');
                     $geomType.selectmenu('refresh');
@@ -647,7 +647,7 @@ define(function (require) {
         createSaveVectorDialog: function ($fieldset, elemName, elemTitle) {
             this.createFileTypeNodes($fieldset);
             this.createProjectionNodes($fieldset);
-            var $dialog = this.createDialog($fieldset, elemName, elemTitle, this.saveVectorLayer);
+            let $dialog = this.createDialog($fieldset, elemName, elemTitle, this.saveVectorLayer);
             $('.filetype').selectmenu({
                 classes: {
                     "ui-selectmenu-button": "menuselect"
@@ -663,14 +663,14 @@ define(function (require) {
         },
         createLayerTypeNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-layertype">Layer Type</label>'));
-            var $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">');
+            let $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">');
             $selectNode.append(utils.createMenuOption("feature", "Feature"));
             $selectNode.append(utils.createMenuOption("sensor", "Sensor"));
             $fieldset.append($selectNode);
         },
         createGeomTypeNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'));
-            var $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
+            let $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">');
             $selectNode.append(utils.createMenuOption("geomcollection", "Geometry Collection"));
             $selectNode.append(utils.createMenuOption("polygon", "Polygon"));
             $selectNode.append(utils.createMenuOption("line", "Line"));
@@ -678,20 +678,20 @@ define(function (require) {
             $fieldset.append($selectNode);
         },
         createServerUrlNodes: function ($fieldset, id) {
-            var _this = this;
+            let _this = this;
             $fieldset.append($('<label for="open-url">Server URL</label>'));
-            var $url = $('<input type="text" id="open-url" name="url" class="url" value="http://demo.opengeo.org/geoserver/' + id + '">');
+            let $url = $('<input type="text" id="open-url" name="url" class="url" value="http://demo.opengeo.org/geoserver/' + id + '">');
             $fieldset.append($url);
-            var $check = $('<input type="button" name="check" value="Check for layers">');
+            let $check = $('<input type="button" name="check" value="Check for layers">');
             $fieldset.append($check);
             $url.on("change", function () {
                 // for both addwms and addwfs.
-                var $layername = $(this).parent().find(".layername");
+                let $layername = $(this).parent().find(".layername");
                 $layername.empty();
                 $layername.selectmenu("refresh");
                 $(this).parent().find(".displayname").val("");
                 if (id == 'wms') {
-                    var $format = $(this).parent().find(".format");
+                    let $format = $(this).parent().find(".format");
                     $format.empty();
                     $format.selectmenu("refresh");
                 }
@@ -710,7 +710,7 @@ define(function (require) {
         },
         createFileTypeNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-filetype">File Type</label>'));
-            var $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
+            let $selectNode = $('<select id="open-filetype" name="filetype" class="filetype ui-selectmenu">');
             $selectNode.append(utils.createMenuOption("geojson", "GeoJSON"));
             $selectNode.append(utils.createMenuOption("topojson", "TopoJSON"));
             $selectNode.append(utils.createMenuOption("zip", "Shapefile (zipped)"));
@@ -720,12 +720,12 @@ define(function (require) {
         },
         createFileOpenNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-file">Vector file</label>'));
-            var $file = $('<input type="file" id="open-file" name="file" class="file ui-widget-content ui-button" accept=".geojson" required>');
+            let $file = $('<input type="file" id="open-file" name="file" class="file ui-widget-content ui-button" accept=".geojson" required>');
             $fieldset.append($file);
             $file.on("change", function () {
-                var startPos = this.value.lastIndexOf("\\") + 1;
-                var stopPos = this.value.lastIndexOf(".");
-                var name = this.value.slice(startPos, stopPos);
+                let startPos = this.value.lastIndexOf("\\") + 1;
+                let stopPos = this.value.lastIndexOf(".");
+                let name = this.value.slice(startPos, stopPos);
                 $(this).parent().find(".displayname").val(name);
             });
         },
@@ -739,15 +739,15 @@ define(function (require) {
         },
         createTiledNodes: function ($fieldset) {
             $fieldset.append($('<label for="open-tiled">Tiled</label>'));
-            var $tiled = $('<input type="checkbox" id="open-tiled" name="tiled" class="tiled">');
+            let $tiled = $('<input type="checkbox" id="open-tiled" name="tiled" class="tiled">');
             $fieldset.append($tiled);
             $tiled.checkboxradio();
         },
 
         createDialog: function ($fieldset, elemName, title, callback) {
 
-            var $dialog = $('<div id="dialog-widget">');
-            var $form = $('<form class="addlayer">');
+            let $dialog = $('<div id="dialog-widget">');
+            let $form = $('<form class="addlayer">');
             $fieldset.append($('<input type="submit" tabindex="-1" style="position:absolute; top:-1000px"/>'));
             $form.append($fieldset);
             $dialog.append($form);
@@ -800,22 +800,22 @@ define(function (require) {
 // function handleError() {
 // }
 //
-// var pobj = makeSomeAsyc();
+// let pobj = makeSomeAsyc();
 // //Attaching success handler to promise
 // pobj.then(handleSuccess, handleError);
 //
 //
 // function makeAjaxCall(url, methodType) {
 //     return new Promise(function (resolve, reject) {
-//         var xhr = new XMLHttpRequest();
+//         let xhr = new XMLHttpRequest();
 //         xhr.open(methodType, url, true);
 //         xhr.send();
 //         xhr.onreadystatechange = function () {
 //             if (xhr.readyState === 4) {
 //                 if (xhr.status === 200) {
 //                     console.log("xhr done successfully");
-//                     var resp = xhr.responseText;
-//                     var respJson = JSON.parse(resp);
+//                     let resp = xhr.responseText;
+//                     let respJson = JSON.parse(resp);
 //                     resolve(respJson);
 //                 } else {
 //                     reject(xhr.status);
@@ -839,13 +839,13 @@ define(function (require) {
 //     console.log("failed with status", statusCode);
 // }
 // document.getElementById("userDetails").addEventListener("click", function () {
-//     var userId = document.getElementById("userId").value;
-//     var URL = "https://api.github.com/users/" + userId;
+//     let userId = document.getElementById("userId").value;
+//     let URL = "https://api.github.com/users/" + userId;
 //     makeAjaxCall(URL, "GET").then(processUserDetailsResponse, errorHandler);
 // });
 // document.getElementById("repoList").addEventListener("click", function () {
-//     var userId = document.getElementById("userId").value;
-//     var URL = "https://api.github.com/users/" + userId + "/repos";
+//     let userId = document.getElementById("userId").value;
+//     let URL = "https://api.github.com/users/" + userId + "/repos";
 //     makeAjaxCall(URL, "GET").then(processRepoListResponse, errorHandler);
 // });
 //
@@ -857,7 +857,7 @@ define(function (require) {
 //     })
 // }
 // // git hub url to get btford details
-// var URL = "https://api.github.com/users/btford";
+// let URL = "https://api.github.com/users/btford";
 // makeAjaxCall(URL, "GET").then(function (respJson) {
 //     document.getElementById("userid").innerHTML = respJson.login;
 //     document.getElementById("name").innerHTML = respJson.name;
@@ -868,14 +868,14 @@ define(function (require) {
 //     console.log("error in processing your request", reason);
 // });
 
-// var dialog_create = $('#dialog_create').dialog();
+// let dialog_create = $('#dialog_create').dialog();
 // dialog_create.dialog(options, {
 //     buttons: {
 //         Add: function () {
 //             function getAjaxDeffered() {
-//                 var promises = [];
+//                 let promises = [];
 //                 layer.eachLayer(function (layer) {
-//                     var def = new $.Deferred();
+//                     let def = new $.Deferred();
 //                     latGPS = layer.getLatLng().lat;
 //                     lngGPS = layer.getLatLng().lng;
 //                     $('#latitudeEP').val(latGPS);
@@ -915,7 +915,7 @@ define(function (require) {
 // dialog_create_EP.dialog("open");
 //
 // function maybeAsync(num) {
-//     var dfd = $.Deferred();
+//     let dfd = $.Deferred();
 //     if (num === 1) {
 //         setTimeout(function () {
 //             dfd.resolve(num);
@@ -936,7 +936,7 @@ define(function (require) {
 // });
 //
 // $.when(maybeAsync(0), maybeAsync(1)).then(function (resp1, resp2) {
-//     var target = $('#target');
+//     let target = $('#target');
 //     target.append('<p>' + resp1 + '</p>');
 //     target.append('<p>' + resp2 + '</p>');
 // });

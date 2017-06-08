@@ -5,8 +5,8 @@ define(['jquery', 'MainCore', 'jquery-ui'], function ($, OSMFire_Core) {
 
     'use strict';
 
-    var callback = function(sandBox) {
-        var ButtonWidgetObjID, ButtonWidgetObj,
+    let callback = function(sandBox) {
+        let ButtonWidgetObjID, ButtonWidgetObj,
             DialogWidget,
             _i,
             _len,
@@ -75,7 +75,7 @@ define(['jquery', 'MainCore', 'jquery-ui'], function ($, OSMFire_Core) {
                 // sandBox.registerForCustomEvents("Notification", {'support-Clicked': this.handleSupportClick});
                 sandBox.contextObj = this;
                 sandBox.applyElementCSSClass('layertoolbar-container', 'layertree-buttons');
-                var $controlDiv = $('#layertoolbar-container');
+                let $controlDiv = $('#layertoolbar-container');
                 for (_i = 0, _len = componentConfigArray.length; _i < _len; _i++) {
                     $controlDiv.append(this.createButton(componentConfigArray[_i]));
                 }
@@ -91,7 +91,7 @@ define(['jquery', 'MainCore', 'jquery-ui'], function ($, OSMFire_Core) {
                 sandBox.log(1, 'LayerToolbar has been destroyed...', 'purple');
             },
             onDemandLoadingClickHandlerFactory: function(config) {
-                var state = states.unloaded;
+                let state = states.unloaded;
                 return function(event) {
                     if (state === states.loaded) {
                         sandBox.contextObj.render(config.moduleId);
@@ -118,9 +118,9 @@ define(['jquery', 'MainCore', 'jquery-ui'], function ($, OSMFire_Core) {
                 }
             },
             createButton: function (config) {
-                // var _this = this;
-                // var $button = $('<button id="' + elemName + '" class="' + elemName + '" title="' + elemTitle + '">').button();
-                var $button = $('<button>', {id: config.buttonId, class: config.buttonId, title: config.title}).button();
+                // let _this = this;
+                // let $button = $('<button id="' + elemName + '" class="' + elemName + '" title="' + elemTitle + '">').button();
+                let $button = $('<button>', {id: config.buttonId, class: config.buttonId, title: config.title}).button();
                 // switch (elemType) {
                 //     case 'addlayer':
                 //         $button.on("click", function () {
@@ -175,7 +175,7 @@ define(['jquery', 'MainCore', 'jquery-ui'], function ($, OSMFire_Core) {
             // loadAndRender: function() {
             //     ButtonWidgetObj = OSMFire_Core.getComponentByID("newVectorWidget");
             //     if (!ButtonWidgetObj) {
-            //         // var temp = OSMFire_GlobalData.getButtonWidgetDefID("NewVectorDefID");
+            //         // let temp = OSMFire_GlobalData.getButtonWidgetDefID("NewVectorDefID");
             //         sandBox.loadComponent(OSMFire_GlobalData.getNewVectorDefID(), this.render);
             //     } else {
             //         this.render();

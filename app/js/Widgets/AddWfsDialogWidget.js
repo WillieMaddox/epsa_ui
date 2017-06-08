@@ -20,10 +20,10 @@ define(['jquery', 'MainCore',
 
     'use strict';
 
-    var callback = function(sandBox) {
+    let callback = function(sandBox) {
 
-        var wfsProjections = null;
-        var $dialog,
+        let wfsProjections = null;
+        let $dialog,
             $form,
             $fieldset,
             config;
@@ -55,33 +55,33 @@ define(['jquery', 'MainCore',
 
             checkWfsLayer: function ($button) {
 
-                var $form = $button.form();
+                let $form = $button.form();
                 $button.button("disable");
                 $form.find(".layername").empty();
                 wfsProjections = {};
-                var serverUrl = $form.find(".url").val();
+                let serverUrl = $form.find(".url").val();
                 serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
                 $form.find(".url").val(serverUrl);
                 serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-                var query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
-                var url = settings.proxyUrl + serverUrl + query;
+                let query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
+                let url = settings.proxyUrl + serverUrl + query;
 
                 $.ajax({
                     type: 'GET',
                     url: url
                 }).done(function (response) {
-                    var unmarshaller = WFSContext.createUnmarshaller();
-                    var capabilities = unmarshaller.unmarshalDocument(response).value;
-                    var messageText = 'Layers read successfully.';
+                    let unmarshaller = WFSContext.createUnmarshaller();
+                    let capabilities = unmarshaller.unmarshalDocument(response).value;
+                    let messageText = 'Layers read successfully.';
                     if (capabilities.version !== '1.1.0') {
                         messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').';
                     }
-                    var layers = capabilities.featureTypeList.featureType;
-                    var nLayers = layers.length;
+                    let layers = capabilities.featureTypeList.featureType;
+                    let nLayers = layers.length;
                     if (nLayers > 0) {
-                        var re = /}(.*)/;
-                        for (var i = 0; i < nLayers; i += 1) {
-                            var name = re.exec(layers[i].name)[1];
+                        let re = /}(.*)/;
+                        for (let i = 0; i < nLayers; i += 1) {
+                            let name = re.exec(layers[i].name)[1];
                             $form.find(".layername").append(utils.createMenuOption(name));
                             wfsProjections[name] = layers[i].defaultSRS;
                         }
@@ -96,8 +96,8 @@ define(['jquery', 'MainCore',
             },
             addWfsLayer: function ($form) {
 
-                var buildQueryString = function (options) {
-                    var queryArray = [];
+                let buildQueryString = function (options) {
+                    let queryArray = [];
                     queryArray.push('SERVICE=WFS');
                     queryArray.push('VERSION=1.1.0');
                     queryArray.push('REQUEST=GetFeature');
@@ -113,8 +113,8 @@ define(['jquery', 'MainCore',
                     return queryArray.join('&')
                 };
 
-                var loader = function (extent, res, mapProj) {
-                    var query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
+                let loader = function (extent, res, mapProj) {
+                    let query = buildQueryString({typeName: typeName, proj: proj, extent: extent});
                     $.ajax({
                         type: 'GET',
                         url: settings.proxyUrl + serverUrl + query,
@@ -130,38 +130,38 @@ define(['jquery', 'MainCore',
                         }
                     }).done(function (response) {
                         console.log('*******************************************');
-                        var t0 = new Date().getTime();
-                        var features = formatWFS.readFeatures(response, {
+                        let t0 = new Date().getTime();
+                        let features = formatWFS.readFeatures(response, {
                             dataProjection: proj,
                             featureProjection: mapProj.getCode()
                         });
-                        var t1 = new Date().getTime();
-                        var nAdd = features.length;
+                        let t1 = new Date().getTime();
+                        let nAdd = features.length;
                         console.log('Remaining', source.get('pendingRequests'), 't=', t1 - t0, 'ms n=', nAdd, 'n/t=', nAdd / (t1 - t0));
-                        var nBefore = source.getFeatures().length;
-                        var t0 = new Date().getTime();
+                        let nBefore = source.getFeatures().length;
+                        let t0 = new Date().getTime();
                         source.addFeatures(features);
-                        var t1 = new Date().getTime();
-                        var nAfter = source.getFeatures().length;
+                        let t1 = new Date().getTime();
+                        let nAfter = source.getFeatures().length;
                         console.log('Remaining', source.get('pendingRequests'), 't=', t1 - t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1 - t0));
                     }).fail(function (response) {
                         sandBox.message('Some unexpected error occurred in addWfsLayer: (' + response.message + ').');
                     });
                 };
 
-                var $progressbar;
-                var typeName = $form.find(".layername").val();
-                var proj = wfsProjections[typeName];
-                // var formatWFS = new ol.format.WFS();
-                var formatWFS = sandBox.getFormat('wfs');
-                var serverUrl = $form.find(".url").val();
+                let $progressbar;
+                let typeName = $form.find(".layername").val();
+                let proj = wfsProjections[typeName];
+                // let formatWFS = new ol.format.WFS();
+                let formatWFS = sandBox.getFormat('wfs');
+                let serverUrl = $form.find(".url").val();
                 serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
                 serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
 
-                var source;
-                var source2;
-                var layer;
-                var strategy;
+                let source;
+                let source2;
+                let layer;
+                let strategy;
 
                 // if ($form.find(".tiled").is(":checked")) {
                 //     strategy = ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
@@ -310,7 +310,7 @@ define(['jquery', 'MainCore',
                 });
                 $('#open-url').on("change", function () {
                     // for both addwms and addwfs.
-                    var $layername = $(this).parent().find(".layername");
+                    let $layername = $(this).parent().find(".layername");
                     $layername.empty();
                     $layername.selectmenu("refresh");
                     $(this).parent().find(".displayname").val("");

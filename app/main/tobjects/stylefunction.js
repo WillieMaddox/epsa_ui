@@ -5,11 +5,11 @@
 define(function (require) {
     'use strict';
 
-    var ol = require('ol'),
-        tobjectTemplates = require('ttemplate'),
-        exists = require('exists');
+    const ol = require('ol'),
+        exists = require('exists'),
+        tobjectTemplates = require('ttemplate');
 
-    var tobjectColor = {
+    const tobjectColor = {
         'aor': [0, 0, 0],
         'building': [128, 128, 128],
         'herbage': [0, 200, 0],
@@ -19,7 +19,7 @@ define(function (require) {
         'generic': [218, 188, 163]
     };
 
-    var tobjectFillOpacity = {
+    const tobjectFillOpacity = {
         'Polygon': 0.5,
         'LineString': 0,
         'Point': 0,
@@ -29,8 +29,8 @@ define(function (require) {
     };
 
     return (function () {
-        var setStyle = function (color, opacity) {
-            var style = new ol.style.Style({
+        let setStyle = function (color, opacity) {
+            let style = new ol.style.Style({
                 image: new ol.style.Circle({
                     radius: 5,
                     stroke: new ol.style.Stroke({
@@ -52,7 +52,7 @@ define(function (require) {
             return [style]
         };
         return function (feature, resolution) {
-            var color, fillopacity;
+            let color, fillopacity;
             if (exists(feature.get('type')) && tobjectTemplates.hasOwnProperty(feature.get('type'))) {
                 color = tobjectColor[feature.get('type')];
                 fillopacity = feature.get('type') === 'aor' ? 0 : tobjectFillOpacity[feature.getGeometry().getType()];

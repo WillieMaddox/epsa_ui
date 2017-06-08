@@ -5,10 +5,10 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         defaultSensors = require('defaultsensors');
 
-    var sensorProperties = {
+    const sensorProperties = {
         source_height: {
             units: 'meter',
             value: 3
@@ -36,20 +36,20 @@ define(function (require) {
             value: 0
         }
     };
-    var cameraProperties = {
+    const cameraProperties = {
         type: 'camera',
         defaultsensor: 'TC1',
         option: 'A1',
         fov: 'wide'
     };
-    var radioProperties = {
+    const radioProperties = {
         type: 'radio',
         defaultsensor: 'TR1',
         option: 'A1',
         pattern: 'pattern'
     };
 
-    var sensorTemplates = {
+    const sensorTemplates = {
         camera: {
             geometry_type: 'Point',
             properties: $.extend({}, sensorProperties, cameraProperties),

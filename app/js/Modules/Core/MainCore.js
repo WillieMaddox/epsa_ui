@@ -1,6 +1,6 @@
 "use strict";
-var OSMFire_Core = (function(mainCore) {
-    var $ = null,
+let OSMFire_Core = (function(mainCore) {
+    let $ = null,
         registeredModules = [],
         registeredComponents = [],
         fileLoadDelayTime = 300,
@@ -63,7 +63,7 @@ var OSMFire_Core = (function(mainCore) {
         return registeredModules.length;
     };
     mainCore.initializeAllModules = function() {
-        for (var module in registeredModules) {
+        for (let module in registeredModules) {
             registeredModules[module].initialize();
         }
     };
@@ -72,7 +72,7 @@ var OSMFire_Core = (function(mainCore) {
     };
     // components
     mainCore.registerComponent = function(containerID, componentID, createFunc) {
-        var containerElem, componentObj;
+        let containerElem, componentObj;
         //setting context for the sandbox
         if ($) {
             containerElem = $("#" + containerID)[0];
@@ -93,7 +93,7 @@ var OSMFire_Core = (function(mainCore) {
         }
     };
     mainCore.unregisterComponentByName = function(name) {
-        for (var component in registeredComponents) {
+        for (let component in registeredComponents) {
             if (component.name === name) {
                 component = null;
             }
@@ -105,9 +105,9 @@ var OSMFire_Core = (function(mainCore) {
     };
     mainCore.destroyAllComponents = function(removeFromDom) {
         this.log(1, "Destroying all components...", "orange");
-        var lastIndex = registeredComponents.length - 1;
+        let lastIndex = registeredComponents.length - 1;
         try {
-            for (var i = lastIndex; i >= 0; i--) {
+            for (let i = lastIndex; i >= 0; i--) {
                 registeredComponents[i].destroy(removeFromDom);
             }
         } catch (e) {
@@ -116,7 +116,7 @@ var OSMFire_Core = (function(mainCore) {
         this.log(1, "All components have been destroyed...", "orange");
     };
     mainCore.getComponentByID = function(componentID) {
-        for (var i = 0; i < this.registeredComponents.length; i++) {
+        for (let i = 0; i < this.registeredComponents.length; i++) {
             if (this.registeredComponents[i].id === componentID) {
                 return this.registeredComponents[i];
             }
@@ -132,7 +132,7 @@ var OSMFire_Core = (function(mainCore) {
         }
     };
     mainCore.initializeComponent = function(componentID, callbackFunc) {
-        var args = arguments;
+        let args = arguments;
         try {
             timerCounter++;
             // see if the Component has been loaded
@@ -153,7 +153,7 @@ var OSMFire_Core = (function(mainCore) {
     mainCore.initializeAllComponents = function() {
         this.log(1, "Initializing all components...", "orange");
         try {
-            for (var i = 0; i < registeredComponents.length; i++) {
+            for (let i = 0; i < registeredComponents.length; i++) {
                 registeredComponents[i].init();
             }
         } catch (e) {
@@ -163,7 +163,7 @@ var OSMFire_Core = (function(mainCore) {
     };
     mainCore.loadComponentAndCallback = function(ComponentDefID, callbackFunc) {
         // get the value of Component object definition from storage
-        var ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID);
+        let ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID);
         loadedComponentcallbackFunc = callbackFunc;
         if (!ComponentDef) {
             // if Component definition is not in the storage then the page object definitions probably needs to be loaded
@@ -201,7 +201,7 @@ var OSMFire_Core = (function(mainCore) {
     };
     mainCore.loadComponent = function(ComponentDefID) {
         // get the value of Component object definition from storage
-        var ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID);
+        let ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID);
         if (!ComponentDef) {
             // if Component definition is not in the storage then the page object definitions probably needs to be loaded
             mainCore.loadPageDefinitionsFileAndCallBack(function() {
@@ -253,7 +253,7 @@ var OSMFire_Core = (function(mainCore) {
         }
     };
     mainCore.confirmFileLoad = function(fileName, fileType) {
-        var fileLoaded;
+        let fileLoaded;
         if (mainCore.Utilitizes && mainCore.Utilitizes.getFileInHead) {
             fileLoaded = mainCore.Utilitizes.getFileInHead(fileName, fileType);
             if (!fileLoaded && timerCounter < recursiveMaxCounter) {
@@ -295,7 +295,7 @@ var OSMFire_Core = (function(mainCore) {
         }
     };
     mainCore.loadPageDefinitions = function() {
-        var pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
+        let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
             pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath();
         if (pageDefinitionsFileName && pageDefinitionsFilePath) {
             mainCore.loadFile(pageDefinitionsFileName, "js", pageDefinitionsFilePath);
@@ -305,7 +305,7 @@ var OSMFire_Core = (function(mainCore) {
         }
     };
     mainCore.loadPageDefinitionsFileAndCallBack = function(callbackFunc) {
-        var pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
+        let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
             pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath();
         if (pageDefinitionsFileName && pageDefinitionsFilePath) {
             mainCore.loadFile(pageDefinitionsFileName, "js", pageDefinitionsFilePath);
@@ -320,7 +320,7 @@ var OSMFire_Core = (function(mainCore) {
         }
     };
     mainCore.loadPageDefinitionFromStorageAndCallBack = function(pageObjDefName, callbackFunc) {
-        var pageDefinitionObj, args = arguments;
+        let pageDefinitionObj, args = arguments;
         pageDefinitionObj = mainCore.getValueForKeyAsObjectFromStorage(pageObjDefName);
         if (!pageDefinitionObj && timerCounter < recursiveMaxCounter) {
             timerCounter++;
@@ -393,10 +393,10 @@ var OSMFire_Core = (function(mainCore) {
 })(OSMFire_Core || {}); // using loose augmentation of OSMFire_Core
 
 // DOM related functionality
-var OSMFire_Core = (function(Core) {
-    var $ = Core.jQuery;
-    var insertHTMLTxt = function(containerID, newStructure) {
-        var containerElem;
+let OSMFire_Core = (function(Core) {
+    let $ = Core.jQuery;
+    let insertHTMLTxt = function(containerID, newStructure) {
+        let containerElem;
         if (typeof containerID === 'string') {
             containerElem = Core.getElement(containerID);
         } else if (typeof containerID === 'object') {
@@ -408,8 +408,8 @@ var OSMFire_Core = (function(Core) {
             Core.log(3, 'Cannot set the innerHTML of an unfound element; insertHTMLTxt');
         }
     };
-    var applyElementCSSClass = function(elementID, className) {
-        var elem;
+    let applyElementCSSClass = function(elementID, className) {
+        let elem;
         if (!className) {
             Core.log(3, 'No class name has been provided, exiting module!');
             return false;
@@ -417,28 +417,28 @@ var OSMFire_Core = (function(Core) {
         elem = Core.getElement(elementID);
         Core.setClassName(elem, className);
     };
-    var getParentNode = function(elem) {
+    let getParentNode = function(elem) {
         if ($) {
             return $(elem).parent()[0];
         } else {
             return elem.parentNode;
         }
     };
-    var setElement = function(containerID, elem) {
+    let setElement = function(containerID, elem) {
         if ($) {
             $(containerID).append(elem);
         } else {
             containerID.appendChild(elem);
         }
     };
-    var getElement = function(elemID) {
+    let getElement = function(elemID) {
         if ($) {
             return $("#" + elemID)[0];
         } else {
             return document.getElementById(elemID);
         }
     };
-    var setInnerHTML = function(container, newStructure) {
+    let setInnerHTML = function(container, newStructure) {
         if ($) {
             try { // to deal with jQuery 1.8 error when component is generated dynamically
                 $(container).html(newStructure);
@@ -449,14 +449,14 @@ var OSMFire_Core = (function(Core) {
             container.innerHTML = newStructure;
         }
     };
-    var setClassName = function(elem, className) {
+    let setClassName = function(elem, className) {
         if ($) {
             $(elem).addClass(className);
         } else {
             elem.className = className;
         }
     };
-    var getChildOfParentByID = function(parentElem, childID) {
+    let getChildOfParentByID = function(parentElem, childID) {
         childID = "#" + childID;
         if ($) {
             try {
@@ -469,8 +469,8 @@ var OSMFire_Core = (function(Core) {
         }
     };
     // graceful degradation and progressive enhancement
-    var removeComponentFromDom = function(elementID) {
-        var childElem;
+    let removeComponentFromDom = function(elementID) {
+        let childElem;
         elementID = "#" + elementID;
         if ($) {
             $(elementID).detach();
@@ -479,8 +479,8 @@ var OSMFire_Core = (function(Core) {
             childElem.parentNode.removeChild(childElem);
         }
     };
-    var createDocumentLevelComponent = function(componentViewStr) {
-        var mainComponentContainer;
+    let createDocumentLevelComponent = function(componentViewStr) {
+        let mainComponentContainer;
         mainComponentContainer = document.createElement("DIV");
         mainComponentContainer.innerHTML = componentViewStr;
         document.body.appendChild(mainComponentContainer);
@@ -501,53 +501,53 @@ var OSMFire_Core = (function(Core) {
 })(OSMFire_Core); // using tight augmentation
 
 // Openlayers related functionality
-var OSMFire_Core = (function(Core) {
-    var getMap = function() {
+let OSMFire_Core = (function(Core) {
+    let getMap = function() {
         return Core.OL.getMap()
     };
-    var setMap = function(map) {
+    let setMap = function(map) {
         Core.OL.setMap(map)
     };
-    var getView = function() {
+    let getView = function() {
         return Core.OL.getView()
     };
-    var addControl = function(control) {
+    let addControl = function(control) {
         Core.OL.addControl(control)
     };
-    var getMouseProjection = function () {
+    let getMouseProjection = function () {
         return Core.OL.getMouseProjection()
     };
-    var setMouseProjection = function (value) {
+    let setMouseProjection = function (value) {
         Core.OL.setMouseProjection(value)
     };
-    var getMousePrecision = function () {
+    let getMousePrecision = function () {
         return Core.OL.getMousePrecision()
     };
-    var setMousePrecision = function () {
+    let setMousePrecision = function () {
         Core.OL.setMousePrecision()
     };
-    var getLoadingStrategy = function (strategy) {
+    let getLoadingStrategy = function (strategy) {
         return Core.OL.getLoadingStrategy(strategy)
     };
-    var getFormat = function (format) {
+    let getFormat = function (format) {
         return Core.OL.getFormat(format)
     };
-    var getSource = function (source, opt) {
+    let getSource = function (source, opt) {
         return Core.OL.getSource(source, opt)
     };
-    var getLayer = function (layer, opt) {
+    let getLayer = function (layer, opt) {
         return Core.OL.getLayer(layer, opt)
     };
-    var addLayer = function (layer) {
+    let addLayer = function (layer) {
         Core.OL.addLayer(layer)
     };
-    var selectLayer = function () {
+    let selectLayer = function () {
         return Core.OL.selectLayer()
     };
-    var getSelectedLayer = function () {
+    let getSelectedLayer = function () {
         return Core.OL.getSelectedLayer()
     };
-    var deselectLayer = function () {
+    let deselectLayer = function () {
         Core.OL.deselectLayer()
     };
     Core.getMap = getMap;
@@ -570,9 +570,9 @@ var OSMFire_Core = (function(Core) {
 })(OSMFire_Core); // using tight augmentation
 
 // event related functionality augmentation
-var OSMFire_Core = (function(Core) {
-    var $ = Core.jQuery;
-    var addEventHandlerToElem = function(elem, event, callbackFunc) {
+let OSMFire_Core = (function(Core) {
+    let $ = Core.jQuery;
+    let addEventHandlerToElem = function(elem, event, callbackFunc) {
         if (!elem) {
             Core.log(3, 'Element is not passed in, from addEventHandlerToElem');
             throw new Error('Element not found');
@@ -587,7 +587,7 @@ var OSMFire_Core = (function(Core) {
             }
         }
     };
-    var removeEventHandlerFromElem = function(elem, event, callbackFunc) {
+    let removeEventHandlerFromElem = function(elem, event, callbackFunc) {
         if (!elem) {
             Core.log(3, 'Element is not found, from removeEventHandlerFromElem');
             throw new Error('Element not found');
@@ -603,9 +603,9 @@ var OSMFire_Core = (function(Core) {
         }
     };
     //registering and publishing events
-    var registerForCustomEvents = function(componentID, eventsObj) {
+    let registerForCustomEvents = function(componentID, eventsObj) {
         if (typeof componentID === 'string' && typeof eventsObj === 'object') {
-            for (var i = 0; i < Core.registeredComponents.length; i++) {
+            for (let i = 0; i < Core.registeredComponents.length; i++) {
                 if (Core.registeredComponents[i].id === componentID) {
                     Core.registeredComponents[i].events = eventsObj;
                 }
@@ -614,9 +614,9 @@ var OSMFire_Core = (function(Core) {
             Core.log(3, 'Incorrect parameters passed in, from registerForCustomEvents');
         }
     };
-    var unregisterCustomEvent = function(componentID, eventType) {
+    let unregisterCustomEvent = function(componentID, eventType) {
         if (typeof componentID === 'string' && typeof eventType === 'string') {
-            for (var i = 0; i < Core.registeredComponents.length; i++) {
+            for (let i = 0; i < Core.registeredComponents.length; i++) {
                 if (Core.registeredComponents[i].id === componentID) {
                     if (Core.registeredComponents[i].events[eventType]) {
                         delete Core.registeredComponents[i].events[eventType];
@@ -634,9 +634,9 @@ var OSMFire_Core = (function(Core) {
             Core.log(3, " incorrect pareameters have been passed in, from unregisterCustomEvent");
         }
     };
-    var unregisterAllCustomEvents = function(componentID) {
+    let unregisterAllCustomEvents = function(componentID) {
         if (typeof componentID === 'string') {
-            for (var i = 0; i < Core.registeredComponents.length; i++) {
+            for (let i = 0; i < Core.registeredComponents.length; i++) {
                 if (Core.registeredComponents[i] && Core.registeredComponents[i].id) {
                     if (Core.registeredComponents[i].id === componentID && Core.registeredComponents[i].events) {
                         delete Core.registeredComponents[i].events;
@@ -648,14 +648,14 @@ var OSMFire_Core = (function(Core) {
             Core.log(3, 'Incorrect parameters passed in, from unregisterCustomEvent');
         }
     };
-    var publishCustomEvent = function(eventObj) {
-        for (var i = 0; i < Core.registeredComponents.length; i++) {
+    let publishCustomEvent = function(eventObj) {
+        for (let i = 0; i < Core.registeredComponents.length; i++) {
             if (Core.registeredComponents[i].events && Core.registeredComponents[i].events[eventObj.type]) {
                 Core.registeredComponents[i].events[eventObj.type](eventObj.data);
             }
         }
     };
-    var addToHistory = function(dataObj) {
+    let addToHistory = function(dataObj) {
         // if history object is supported
         if (!!(window.history && history.pushState)) {
             history.pushState(dataObj, dataObj.url, dataObj.url);
@@ -664,7 +664,7 @@ var OSMFire_Core = (function(Core) {
             Core.log(3, "History API is not supported; from addToHistory");
         }
     };
-    var getFromHistory = function(e) {
+    let getFromHistory = function(e) {
         // if history object is supported
         if (!!(window.history && history.pushState)) {
             if (e.state) {
@@ -679,10 +679,10 @@ var OSMFire_Core = (function(Core) {
             Core.log(3, "History API is not supported; from getFromHistory");
         }
     };
-    var loadPage = function(url) {
+    let loadPage = function(url) {
         location.href = url;
     };
-    var message = function(msg) {
+    let message = function(msg) {
         // TODO: Make this work as a component.
         // OSMFire_MessageBar(msg)
     };
@@ -703,8 +703,8 @@ var OSMFire_Core = (function(Core) {
 
 //we separate sub-modules in core based on functionality for easy maintenance
 // AJAX functionality related augmentation
-var OSMFire_Core = (function(Core) {
-    var $ = Core.jQuery;
+let OSMFire_Core = (function(Core) {
+    let $ = Core.jQuery;
     Core.makeAjaxCall = function(url, theQuery, method, handler) {
         if ($ && Core.jQueryAjaxEngine && Core.jQueryAjaxEngine.makeAjaxCall) {
             Core.jQueryAjaxEngine.makeAjaxCall(url, theQuery, method, handler);
@@ -730,7 +730,7 @@ var OSMFire_Core = (function(Core) {
 })(OSMFire_Core); // using tight augmentation
 
 // custom event handlers in core, core registering for events
-var OSMFire_Core = (function(Core) {
+let OSMFire_Core = (function(Core) {
     Core.handleImageClick = function(data) {
         Core.log(1, "  we Got click from image", "green");
     };
@@ -744,7 +744,7 @@ var OSMFire_Core = (function(Core) {
             data: pageURL
         });
     };
-    var events = {
+    let events = {
         "FavLink-Clicked": Core.handleFavlinkClick,
         "FavImg-Clicked": Core.handleImageClick
     };

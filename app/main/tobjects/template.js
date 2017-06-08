@@ -4,7 +4,7 @@
 
 define([], function () {
 
-    var tobjectTemplates = {
+    const tobjectTemplates = {
         aor: {
             geometry_type: 'Polygon',
             // properties: {}
@@ -48,7 +48,7 @@ define([], function () {
         }
     };
 
-    var tobjectColor = {
+    const tobjectColor = {
         'aor': [0, 0, 0],
         'building': [128, 128, 128],
         'herbage': [0, 200, 0],
@@ -59,7 +59,7 @@ define([], function () {
     };
 
 
-    for (var template in tobjectTemplates) {
+    for (let template in tobjectTemplates) {
         if (tobjectTemplates.hasOwnProperty(template)) {
             tobjectTemplates[template].color = tobjectColor[template];
             tobjectTemplates[template].fillopacity = template === 'aor' ? 0 : 0.5;

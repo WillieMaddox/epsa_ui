@@ -5,15 +5,15 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery');
+    const $ = require('jquery');
 
-    var messages = $('<div id="messagebar">')[0];
+    let messages = $('<div id="messagebar">')[0];
     $('#messagebar-container').append(messages);
-    // var messages = document.getElementById('messagebar') || document.createElement('span');
-    var observer = new MutationObserver(function (mutations) {
+    // let messages = document.getElementById('messagebar') || document.createElement('span');
+    let observer = new MutationObserver(function (mutations) {
         if (mutations[0].target.textContent) {
-            var oldText = mutations[0].target.textContent;
-            var timeoutFunction = function () {
+            let oldText = mutations[0].target.textContent;
+            let timeoutFunction = function () {
                 if (oldText !== mutations[0].target.textContent) {
                     oldText = mutations[0].target.textContent;
                     setTimeout(timeoutFunction, 20000);
