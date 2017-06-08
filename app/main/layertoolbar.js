@@ -5,7 +5,7 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
         map = require('map'),
         shp = require('shp'),

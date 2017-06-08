@@ -7,12 +7,12 @@ define(function (require) {
 
     var $ = require('jquery'),
         ol = require('ol'),
-        utils = require('utils'),
         map = require('map'),
-        tobjectTemplates = require('ttemplate'),
-        layerinteractor = require('layerinteractor'),
+        utils = require('utils'),
         isPolyValid = require('ispolyvalid'),
         isPointInPoly = require('ispointinpoly'),
+        layerinteractor = require('layerinteractor'),
+        tobjectTemplates = require('ttemplate'),
         doesPolyCoverHole = require('doespolycoverhole');
 
     var formElements = {};

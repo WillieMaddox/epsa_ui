@@ -5,7 +5,7 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
         deg2tile = require('deg2tile'),
         mouseunits = require('mouseunits'),

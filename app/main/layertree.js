@@ -5,13 +5,13 @@
 define(function (require) {
     'use strict';
 
-    var $ = require('jquery'),
+    const $ = require('jquery'),
         ol = require('ol'),
-        utils = require('utils'),
         map = require('map'),
+        shp = require('shp'),
+        utils = require('utils'),
         exists = require('exists'),
         message = require('messagebar'),
-        shp = require('shp'),
         tobjectTemplates = require('ttemplate'),
         tobjectStyleFunction = require('tstylefunction'),
         sensorTemplates = require('stemplate'),
