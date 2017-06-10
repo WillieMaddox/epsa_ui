@@ -38,34 +38,34 @@ define(function (require) {
         createButton: function (elemName, elemTitle, elemType) {
             let _this = this;
             let $button = $('<button class="' + elemName + '" title="' + elemTitle + '">').button();
-            switch (elemType) {
-                case 'addlayer':
-                    $button.on("click", function () {
+            if (elemType === 'addlayer') {
+                $button.on("click", function () {
+                    _this.openDialog(elemName, elemTitle);
+                });
+                return $button;
+            } else if (elemType === 'savelayer') {
+                $button.on("click", function () {
+                    let layernode = layertree.selectedLayer;
+                    if (layernode === null) {
+                        return false
+                    }
+                    let layer = layertree.getLayerById(layernode.id);
+                    if (layer.get('is_dirty') === false) {
+                        return false
+                    }
+                    if (layer.get('is_dirty') === true) {
                         _this.openDialog(elemName, elemTitle);
-                    });
-                    return $button;
-                case 'savelayer':
-                    $button.on("click", function () {
-                        let layernode = layertree.selectedLayer;
-                        if (layernode === null) {
-                            return false
-                        }
-                        let layer = layertree.getLayerById(layernode.id);
-                        if (layer.get('is_dirty') === false) {
-                            return false
-                        }
-                        if (layer.get('is_dirty') === true) {
-                            _this.saveDialog(elemName, elemTitle);
-                        }
-                    });
-                    return $button;
-                case 'deletelayer':
-                    $button.on("click", function () {
-                        layertree.removeLayer()
-                    });
-                    return $button;
-                default:
-                    return false;
+                    }
+                });
+                return $button;
+            } else if (elemType === 'deletelayer') {
+                elemType.capitalizeFirstLetter.prototype.
+                $button.on("click", function () {
+                    layertree.removeLayer()
+                });
+                return $button;
+            } else {
+                return false;
             }
         },
 
@@ -529,58 +529,20 @@ define(function (require) {
             let $dialog;
             let $fieldset = $('<fieldset>');
 
-            // let _this = this;
-            // let dialogCreators = {
-            //     'add-wms': function () {
-            //         return _this.createAddWmsDialog($fieldset, elemName, elemTitle);
-            //     },
-            //     'add-wfs': function () {
-            //         return _this.createAddWfsDialog($fieldset, elemName, elemTitle);
-            //     },
-            //     'add-vector': function () {
-            //         return _this.createAddVectorDialog($fieldset, elemName, elemTitle);
-            //     },
-            //     'new-vector': function () {
-            //         return _this.createNewVectorDialog($fieldset, elemName, elemTitle);
-            //     }
-            // };
-            // $dialog = dialogCreators[elemName];
-
-            switch (elemName) {
-                case 'add-wms':
-                    $dialog = this.createAddWmsDialog($fieldset, elemName, elemTitle);
-                    break;
-                case 'add-wfs':
-                    $dialog = this.createAddWfsDialog($fieldset, elemName, elemTitle);
-                    break;
-                case 'add-vector':
-                    $dialog = this.createAddVectorDialog($fieldset, elemName, elemTitle);
-                    break;
-                case 'new-vector':
-                    $dialog = this.createNewVectorDialog($fieldset, elemName, elemTitle);
-                    break;
-                default:
-                    return false;
+            if (elemName === 'add-wms') {
+                $dialog = this.createAddWmsDialog($fieldset, elemName, elemTitle);
+            } else if (elemName === 'add-wfs') {
+                $dialog = this.createAddWfsDialog($fieldset, elemName, elemTitle);
+            } else if (elemName === 'add-vector') {
+                $dialog = this.createAddVectorDialog($fieldset, elemName, elemTitle);
+            } else if (elemName === 'new-vector') {
+                $dialog = this.createNewVectorDialog($fieldset, elemName, elemTitle);
+            } else if (elemName === 'save-vector') {
+                $dialog = this.createSaveVectorDialog($fieldset, elemName, elemTitle);
+            } else {
+                return false;
             }
 
-            $(".addlayer select").each(function () {
-                $(this).selectmenu().selectmenu('menuWidget').addClass("overflow");
-            });
-            $dialog.dialog("open");
-        },
-        saveDialog: function (elemName, elemTitle) {
-
-            let $dialog;
-            let $fieldset = $('<fieldset>');
-
-            switch (elemName) {
-                case 'save-vector':
-                    $dialog = this.createSaveVectorDialog($fieldset, elemName, elemTitle);
-                    break;
-                default:
-                    return false;
-            }
-            //TODO: set default output projection
             $(".addlayer select").each(function () {
                 $(this).selectmenu().selectmenu('menuWidget').addClass("overflow");
             });
