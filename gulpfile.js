@@ -1,26 +1,26 @@
 /*eslint-env node */
 
-var gulp = require('gulp')
-var sass = require('gulp-sass')
-var autoprefixer = require('gulp-autoprefixer')
-var browserSync = require('browser-sync').create()
-var eslint = require('gulp-eslint')
-var jasmine = require('gulp-jasmine-phantom')
-var concat = require('gulp-concat')
-var uglify = require('gulp-uglify')
-var babel = require('gulp-babel')
-var sourcemaps = require('gulp-sourcemaps')
-var imagemin = require('gulp-imagemin')
-var pngquant = require('imagemin-pngquant')
+const gulp = require('gulp')
+const sass = require('gulp-sass')
+const autoprefixer = require('gulp-autoprefixer')
+const browserSync = require('browser-sync').create()
+const eslint = require('gulp-eslint')
+const jasmine = require('gulp-jasmine-phantom')
+const concat = require('gulp-concat')
+const uglify = require('gulp-uglify')
+const babel = require('gulp-babel')
+const sourcemaps = require('gulp-sourcemaps')
+const requirejsOptimize = require('gulp-requirejs-optimize')
+const imagemin = require('gulp-imagemin');
+const pngquant = require('imagemin-pngquant');
 
 gulp.task('default', ['copy-html', 'copy-images', 'styles', 'lint', 'scripts'], function() {
   gulp.watch('sass/**/*.scss', ['styles'])
-  gulp.watch('app/main/**/*.js', ['lint'])
-  gulp.watch('app/index.html', ['copy-html'])
-  gulp.watch('./dist/index.html').on('change', browserSync.reload)
-
+  gulp.watch('app/**/*.js', ['lint'])
+  gulp.watch('app/main/index.html', ['copy-html'])
+  gulp.watch('./dist/main/index.html').on('change', browserSync.reload)
   browserSync.init({
-    server: './dist'
+    server: './dist/main'
   })
 })
 
@@ -32,11 +32,22 @@ gulp.task('dist', [
   'scripts-dist'
 ])
 
+gulp.task('requireqsoptimize', function () {
+  return gulp.src('app/main/**/*.js')
+    .pipe(requirejsOptimize({
+      mainConfigFile: 'app/main/config.js'
+    }))
+    .pipe(gulp.dest('dist/main/js'))
+})
+
 gulp.task('scripts', function() {
   gulp.src('app/main/**/*.js')
+    .pipe(requirejsOptimize({
+      mainConfigFile: 'app/main/config.js'
+    }))
     .pipe(babel())
     .pipe(concat('all.js'))
-    .pipe(gulp.dest('dist/js'))
+    .pipe(gulp.dest('dist/main/js'))
 })
 
 gulp.task('scripts-dist', function() {
@@ -46,12 +57,12 @@ gulp.task('scripts-dist', function() {
     .pipe(concat('all.js'))
     .pipe(uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('dist/js'))
+    .pipe(gulp.dest('dist/main/js'))
 })
 
 gulp.task('copy-html', function() {
   gulp.src('app/index.html')
-    .pipe(gulp.dest('./dist'))
+    .pipe(gulp.dest('./dist/main'))
 })
 
 gulp.task('copy-images', function() {
@@ -60,7 +71,7 @@ gulp.task('copy-images', function() {
       progressive: true,
       use: [pngquant()]
     }))
-    .pipe(gulp.dest('dist/img'))
+    .pipe(gulp.dest('dist/main/img'))
 })
 
 gulp.task('styles', function() {
@@ -71,7 +82,7 @@ gulp.task('styles', function() {
     .pipe(autoprefixer({
       browsers: ['last 2 versions']
     }))
-    .pipe(gulp.dest('dist/css'))
+    .pipe(gulp.dest('dist/main/css'))
     .pipe(browserSync.stream())
 })
 
