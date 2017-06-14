@@ -10,15 +10,15 @@
  */
 
 define(function (require) {
-    'use strict';
+  'use strict'
 
-    const ol = require('ol'),
-        jsts = require('jsts');
+  const ol = require('ol'),
+    jsts = require('jsts')
 
-    const parser = new jsts.io.OL3Parser();
-    return function isPointInPoly(geom, pointcoords) {
-        const geomA = parser.read(geom);
-        const geomB = parser.read(new ol.geom.Point(pointcoords));
-        return geomB.within(geomA);
-    };
-});
+  const parser = new jsts.io.OL3Parser()
+  return function isPointInPoly(geom, pointcoords) {
+    const geomA = parser.read(geom)
+    const geomB = parser.read(new ol.geom.Point(pointcoords))
+    return geomB.within(geomA)
+  }
+})

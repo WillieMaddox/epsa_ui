@@ -3,7 +3,7 @@
  */
 
 define([], function () {
-    return function exists(x) {
-        return (x !== undefined && x !== null);
-    }
-});
+  return function exists(x) {
+    return (x !== undefined && x !== null)
+  }
+})

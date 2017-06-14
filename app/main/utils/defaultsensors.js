@@ -3,14 +3,14 @@
  */
 
 define(function (require) {
-    'use strict';
+  'use strict'
 
-    const $ = require('jquery');
-    return function (callback) {
-        $.getJSON({
-            url: "data/default_sensors.json"
-        }).done(function (data) {
-            if(callback) callback(data);
-        });
-    }
-});
+  const $ = require('jquery')
+  return function (callback) {
+    $.getJSON({
+      url: 'data/default_sensors.json'
+    }).done(function (data) {
+      if(callback) callback(data)
+    })
+  }
+})

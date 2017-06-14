@@ -3,13 +3,14 @@
  */
 
 define(function (require) {
-    'use strict';
+  'use strict'
 
-    const utils = require('utils');
+  const $ = require('jquery')
+  const utils = require('utilities')
 
-    let $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">');
-    $selectNode.append(utils.createMenuOption("EPSG:4326"));
-    $selectNode.append(utils.createMenuOption("EPSG:3857"));
-    $selectNode.append(utils.createMenuOption("EPSG:31467"));
-    return $selectNode
-});
+  let $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">')
+  $selectNode.append(utils.createMenuOption('EPSG:4326'))
+  $selectNode.append(utils.createMenuOption('EPSG:3857'))
+  $selectNode.append(utils.createMenuOption('EPSG:31467'))
+  return $selectNode
+})
