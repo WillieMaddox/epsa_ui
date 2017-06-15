@@ -16,7 +16,6 @@
 Would skip repository app/gitmodules/
 log/
 dist/
-tests/
 node_modules/
 app/bower_components
 app/scratch/controlgroup.html
