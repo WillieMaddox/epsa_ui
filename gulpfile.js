@@ -141,7 +141,7 @@ const requirejsConfig = {
   normalizeDirDefines: 'all',
   optimize: 'none',
   // paths: {
-  //   requireLib: '../bower_components/requirejs/require'
+  //   requireLib: 'bower_components/requirejs/require'
   // },
   // include: 'requireLib',
   // name: 'requireLib',
