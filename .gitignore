@@ -1,6 +1,6 @@
 *~
 *.log
-.idea/epsa_ui.iml
+.idea/osmfire.iml
 .idea/jsLibraryMappings.xml
 .idea/modules.xml
 .idea/typescript-compiler.xml

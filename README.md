@@ -4,6 +4,6 @@
 
 `git clone`
 
-`cd epsa_ui`
+`cd osmfire`
 
 `git submodule update --init`

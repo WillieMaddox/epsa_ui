@@ -1,5 +1,5 @@
 {
-  "name": "epsa_ui",
+  "name": "osmfire",
   "version": "1.0.0",
   "description": "gis frontend",
   "main": "gulpfile.js",
@@ -54,12 +54,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WillieMaddox/epsa_ui.git"
+    "url": "git+https://github.com/WillieMaddox/osmfire.git"
   },
   "author": "Willie Maddox",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/WillieMaddox/epsa_ui/issues"
+    "url": "https://github.com/WillieMaddox/osmfire/issues"
   },
-  "homepage": "https://github.com/WillieMaddox/epsa_ui#readme"
+  "homepage": "https://github.com/WillieMaddox/osmfire#readme"
 }
