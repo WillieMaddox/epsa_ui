@@ -7,7 +7,7 @@ const plugins = require('gulp-load-plugins')()
 //   overridePattern: true,
 //   replaceString: /^gulp{-|\.}*/
 // })
-// plugins.mainBowerFiles = require('gulp-main-bower-files')
+plugins.mainBowerFiles = require('gulp-main-bower-files')
 const autoprefixer = require('gulp-autoprefixer')
 const cleanDest = require('gulp-clean-dest')
 // plugins.concat = require('gulp-concat')
@@ -136,8 +136,8 @@ const pngquant = require('imagemin-pngquant')
 const dest = 'dist/'
 
 const requirejsConfig = {
-  baseUrl: 'main-js',
-  mainConfigFile: 'app/config.js',
+  baseUrl: 'app',
+  mainConfigFile: 'config.js',
   normalizeDirDefines: 'all',
   optimize: 'none',
   // paths: {
@@ -197,18 +197,15 @@ gulp.task('dist', [
 ])
 
 gulp.task('requirejsoptimize', function () {
-  return gulp.src('app/main-js/main.js', { base: 'app/main-js'})
+  return gulp.src('app/main-js/main.js', { base: '.'})
     .pipe(debugStreams.verbose('debug-1'))
     .pipe(cleanDest(dest + 'main-js'))
-    .pipe(requirejsOptimize(requirejsConfig).on('error', function (error) {
-      'use strict'
-      console.log(error)
-    }))
+    .pipe(requirejsOptimize(requirejsConfig))
     .pipe(gulp.dest(dest + 'main-js'))
 })
 
 gulp.task('scripts', function() {
-  return gulp.src('app/main-js/main.js', { base: 'app/main-js'})
+  return gulp.src('main-js/main.js', { base: './app/main-js'})
     .pipe(requirejsOptimize(requirejsConfig))
     .pipe(babel())
     .pipe(plugins.concat('all.js'))
