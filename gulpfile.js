@@ -1,24 +1,32 @@
 /*eslint-env node */
 
+const gulp = require('gulp')
+const plugins = require('gulp-load-plugins')()
+// const plugins = require('gulp-load-plugins')({
+//   pattern: ['gulp-*', 'gulp.*', '@*/gulp{-,.}*'],
+//   overridePattern: true,
+//   replaceString: /^gulp{-|\.}*/
+// })
+// plugins.mainBowerFiles = require('gulp-main-bower-files')
 const autoprefixer = require('gulp-autoprefixer')
-const browserSync = require('browser-sync').create()
 const cleanDest = require('gulp-clean-dest')
-const concat = require('gulp-concat')
+// plugins.concat = require('gulp-concat')
+// plugins.order = require('gulp-order')
+// plugins.filter = require('gulp-filter')
 // const debug = require('gulp-debug')
 const debugStreams = require('gulp-debug-streams')
 const eslint = require('gulp-eslint')
-const gulp = require('gulp')
 // const gutil = require('gulp-util')
 const jasmine = require('gulp-jasmine-phantom')
-const uglify = require('gulp-uglify')
+// plugins.uglify = require('gulp-uglify')
 const babel = require('gulp-babel')
 const sass = require('gulp-sass')
-// const bowerFiles = require('gulp-main-bower-files')
 const sourcemaps = require('gulp-sourcemaps')
-// const requireDir = require('require-dir')
 const requirejsOptimize = require('gulp-requirejs-optimize')
 const imagemin = require('gulp-imagemin')
 // const ginject = require('gulp-inject')
+// const requireDir = require('require-dir')
+const browserSync = require('browser-sync').create()
 const pngquant = require('imagemin-pngquant')
 
 // let env = gutil.env.env || 'development'
@@ -125,24 +133,58 @@ const pngquant = require('imagemin-pngquant')
 // module.exports.run = runOpts
 // module.exports.plugin = pluginOpts
 
+const dest = 'dist/main/'
+
 const requirejsConfig = {
-  mainConfigFile: 'app/main/main.js',
+  baseUrl: 'main',
+  mainConfigFile: 'app/config.js',
   normalizeDirDefines: 'all',
   optimize: 'none',
-  paths: {
-    requireLib: '../bower_components/requirejs/require'
-  },
-  name: 'requireLib',
-  include: ['main']
+  // paths: {
+  //   requireLib: '../bower_components/requirejs/require'
+  // },
+  // include: 'requireLib',
+  // name: 'requireLib',
+  // include: ['main'],
+  // deps: ['main']
 }
+
+
+gulp.task('js', function() {
+
+  const jsFiles = ['app/main/**/*.js']
+
+  gulp.src(plugins.mainBowerFiles().concat(jsFiles))
+    .pipe(plugins.filter('*.js'))
+    .pipe(plugins.concat('main.js'))
+    .pipe(plugins.uglify())
+    .pipe(gulp.dest(dest + 'js'))
+
+})
+
+gulp.task('css', function() {
+
+  var cssFiles = ['src/css/*']
+
+  gulp.src(plugins.mainBowerFiles().concat(cssFiles))
+    .pipe(plugins.filter('*.css'))
+    .pipe(plugins.order([
+      'normalize.css',
+      '*'
+    ]))
+    .pipe(plugins.concat('main.css'))
+    .pipe(plugins.uglify())
+    .pipe(gulp.dest(dest + 'css'))
+
+})
 
 gulp.task('default', ['copy-html', 'copy-images', 'styles', 'lint', 'scripts'], function() {
   gulp.watch('sass/**/*.scss', ['styles'])
   gulp.watch('app/**/*.js', ['lint'])
   gulp.watch('app/index.html', ['copy-html'])
-  gulp.watch('./dist/main/index.html').on('change', browserSync.reload)
+  gulp.watch(dest + 'index.html').on('change', browserSync.reload)
   browserSync.init({
-    server: './dist/main'
+    server: dest
   })
 })
 
@@ -155,19 +197,22 @@ gulp.task('dist', [
 ])
 
 gulp.task('requirejsoptimize', function () {
-  return gulp.src('app/main/**/*.js')
+  return gulp.src('app/main/main.js', { base: 'app/main'})
     .pipe(debugStreams.verbose('debug-1'))
-    .pipe(cleanDest('dist/main/js'))
-    .pipe(requirejsOptimize(requirejsConfig))
-    .pipe(gulp.dest('dist/main/js'))
+    .pipe(cleanDest(dest + 'js'))
+    .pipe(requirejsOptimize(requirejsConfig).on('error', function (error) {
+      'use strict'
+      console.log(error)
+    }))
+    .pipe(gulp.dest(dest + 'js'))
 })
 
 gulp.task('scripts', function() {
-  return gulp.src('app/main/**/*.js')
+  return gulp.src('app/main/main.js', { base: 'app/main'})
     .pipe(requirejsOptimize(requirejsConfig))
     .pipe(babel())
-    .pipe(concat('all.js'))
-    .pipe(gulp.dest('dist/main/js'))
+    .pipe(plugins.concat('all.js'))
+    .pipe(gulp.dest(dest + 'js'))
 })
 
 gulp.task('scripts-dist', function() {
@@ -175,10 +220,10 @@ gulp.task('scripts-dist', function() {
     .pipe(sourcemaps.init())
     .pipe(requirejsOptimize(requirejsConfig))
     .pipe(babel())
-    .pipe(concat('all.js'))
-    .pipe(uglify())
+    .pipe(plugins.concat('all.js'))
+    .pipe(plugins.uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('dist/main/js'))
+    .pipe(gulp.dest(dest + 'js'))
 })
 
 // function browserSyncInit(baseDir, files) {

@@ -3,15 +3,16 @@
  */
 
 require.config({
-  // baseUrl: '../app',  // development
+  // appDir: '../app',
+  // baseUrl: 'main',  // development
   // baseUrl: '/',  // production
-  // urlArgs: 'bust=' + (new Date()).getTime(),
-  // nodeRequire: require,
   // deps: ['main'],
+  // nodeRequire: require,
+  // urlArgs: 'bust=' + (new Date()).getTime(),
   // waitSeconds: 10,
   paths: {
-    'serversettings': 'settings.dev',  // development
-    // serversettings': 'settings.prod',  // production
+    'serversettings': './settings.dev',  // development
+    // serversettings': './settings.prod',  // production
     'jquery': '../bower_components/jquery/dist/jquery',
     'jquery-ui': '../bower_components/jquery-ui/jquery-ui',
     // 'jsonix': '../bower_components/jsonix/dist/Jsonix-min',
@@ -28,34 +29,34 @@ require.config({
     'SMIL_2_0_Language': '../bower_components/ogc-schemas/scripts/lib/SMIL_2_0_Language',
     'ol': '../js/libs/ol3-3.19.1/ol-debug',
     'jsts': '../js/libs/jsts-1.2.1/jsts.min',
-    'layerswitcher': '../js/libs/ol3-layerswitcher/ol3-layerswitcher',
     'shp': '../js/libs/gitmodules/shapefile-js/dist/shp',
+    'layerswitcher': '../js/libs/ol3-layerswitcher/ol3-layerswitcher',
     'domReady': '../js/libs/domReady',
-    'wfs110context': 'WFS110Context',
-    'wfs200context': 'WFS200Context',
-    'ispointinpoly': 'geometry/ispointinpoly',
-    'ispolyvalid': 'geometry/ispolyvalid',
-    'doespolycoverhole': 'geometry/doespolycoverhole',
-    'deg2tile': 'tools/deg2tile',
-    'exists': 'utils/exists',
-    'defaultsensors': 'utils/defaultsensors',
-    'mouseprojection': 'utils/mouseprojection',
-    'mouseunits': 'utils/mouseunits',
-    'utilities': 'utils/utils',
-    'map': 'map',
-    'messagebar': 'messagebar',
-    'layertree': 'layertree',
-    'layertoolbar': 'layertoolbar',
-    'toolbar': 'toolbar',
-    'layerinteractor': 'layerinteractor',
-    'featureeditor': 'featureeditor',
-    'cameraeditor': 'cameraeditor',
-    'ttemplate': 'tobjects/template',
-    'tstylefunction': 'tobjects/stylefunction',
-    'stemplate': 'sensors/template',
-    'sstylefunction': 'sensors/stylefunction',
+    'wfs110context': './WFS110Context',
+    'wfs200context': './WFS200Context',
+    'ispointinpoly': './geometry/ispointinpoly',
+    'ispolyvalid': './geometry/ispolyvalid',
+    'doespolycoverhole': './geometry/doespolycoverhole',
+    'deg2tile': './tools/deg2tile',
+    'exists': './utils/exists',
+    'defaultsensors': './utils/defaultsensors',
+    'mouseprojection': './utils/mouseprojection',
+    'mouseunits': './utils/mouseunits',
+    'utilities': './utils/utils',
+    'map': './map',
+    'messagebar': './messagebar',
+    'layertree': './layertree',
+    'layertoolbar': './layertoolbar',
+    'toolbar': './toolbar',
+    'layerinteractor': './layerinteractor',
+    'featureeditor': './featureeditor',
+    'cameraeditor': './cameraeditor',
+    'ttemplate': './tobjects/template',
+    'tstylefunction': './tobjects/stylefunction',
+    'stemplate': './sensors/template',
+    'sstylefunction': './sensors/stylefunction',
     // 'bingKey': ['bingkey', 'bingkey-sample'],
-    'bingKey': 'bingkey'
+    'bingKey': './bingkey'
   },
   shim: {
     'layerswitcher': {
