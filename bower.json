@@ -6,7 +6,7 @@
     "WillieMaddox <willie.maddox@gmail.com>"
   ],
   "description": "gis frontend",
-  "main": "app/main/main.js",
+  "main": "app/main-js/main.js",
   "license": "MIT",
   "ignore": [
     "**/.*",

@@ -133,10 +133,10 @@ const pngquant = require('imagemin-pngquant')
 // module.exports.run = runOpts
 // module.exports.plugin = pluginOpts
 
-const dest = 'dist/main/'
+const dest = 'dist/'
 
 const requirejsConfig = {
-  baseUrl: 'main',
+  baseUrl: 'main-js',
   mainConfigFile: 'app/config.js',
   normalizeDirDefines: 'all',
   optimize: 'none',
@@ -145,20 +145,20 @@ const requirejsConfig = {
   // },
   // include: 'requireLib',
   // name: 'requireLib',
-  // include: ['main'],
-  // deps: ['main']
+  // include: ['main-js'],
+  // deps: ['main-js']
 }
 
 
-gulp.task('js', function() {
+gulp.task('main-js', function() {
 
-  const jsFiles = ['app/main/**/*.js']
+  const jsFiles = ['app/main-js/**/*.js']
 
   gulp.src(plugins.mainBowerFiles().concat(jsFiles))
     .pipe(plugins.filter('*.js'))
     .pipe(plugins.concat('main.js'))
     .pipe(plugins.uglify())
-    .pipe(gulp.dest(dest + 'js'))
+    .pipe(gulp.dest(dest + 'main-js'))
 
 })
 
@@ -197,33 +197,33 @@ gulp.task('dist', [
 ])
 
 gulp.task('requirejsoptimize', function () {
-  return gulp.src('app/main/main.js', { base: 'app/main'})
+  return gulp.src('app/main-js/main.js', { base: 'app/main-js'})
     .pipe(debugStreams.verbose('debug-1'))
-    .pipe(cleanDest(dest + 'js'))
+    .pipe(cleanDest(dest + 'main-js'))
     .pipe(requirejsOptimize(requirejsConfig).on('error', function (error) {
       'use strict'
       console.log(error)
     }))
-    .pipe(gulp.dest(dest + 'js'))
+    .pipe(gulp.dest(dest + 'main-js'))
 })
 
 gulp.task('scripts', function() {
-  return gulp.src('app/main/main.js', { base: 'app/main'})
+  return gulp.src('app/main-js/main.js', { base: 'app/main-js'})
     .pipe(requirejsOptimize(requirejsConfig))
     .pipe(babel())
     .pipe(plugins.concat('all.js'))
-    .pipe(gulp.dest(dest + 'js'))
+    .pipe(gulp.dest(dest + 'main-js'))
 })
 
 gulp.task('scripts-dist', function() {
-  return gulp.src('app/main/**/*.js')
+  return gulp.src('app/main-js/**/*.js')
     .pipe(sourcemaps.init())
     .pipe(requirejsOptimize(requirejsConfig))
     .pipe(babel())
     .pipe(plugins.concat('all.js'))
     .pipe(plugins.uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest(dest + 'js'))
+    .pipe(gulp.dest(dest + 'main-js'))
 })
 
 // function browserSyncInit(baseDir, files) {
@@ -292,7 +292,7 @@ gulp.task('scripts-dist', function() {
 
 gulp.task('copy-html', function() {
   gulp.src('app/index.html')
-    .pipe(gulp.dest('./dist/main'))
+    .pipe(gulp.dest('./dist/main-js'))
 })
 
 gulp.task('copy-images', function() {
@@ -301,7 +301,7 @@ gulp.task('copy-images', function() {
       progressive: true,
       use: [pngquant()]
     }))
-    .pipe(gulp.dest('dist/main/img'))
+    .pipe(gulp.dest('dist/main-js/img'))
 })
 
 gulp.task('styles', function() {
@@ -312,12 +312,12 @@ gulp.task('styles', function() {
     .pipe(autoprefixer({
       browsers: ['last 2 versions']
     }))
-    .pipe(gulp.dest('dist/main/css'))
+    .pipe(gulp.dest('dist/main-js/css'))
     .pipe(browserSync.stream())
 })
 
 gulp.task('lint', function () {
-  return gulp.src(['app/main/**/*.js'])
+  return gulp.src(['app/main-js/**/*.js'])
   // eslint() attaches the lint output to the eslint property
   // of the file object so it can be used by other modules.
     .pipe(eslint())
@@ -333,6 +333,6 @@ gulp.task('tests', function () {
   gulp.src('tests/spec/extraSpec.js')
     .pipe(jasmine({
       integration: true,
-      vendor: 'app/main/**/*.js'
+      vendor: 'app/main-js/**/*.js'
     }))
 })
