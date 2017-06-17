@@ -1,12 +1,12 @@
 let OSMFire_Base = (function() {
-    function getBaseModule() {
-        if (typeof jQuery !== 'undefined') {
-            return jQuery;
-        } else {
-            return null;
-        }
+  function getBaseModule() {
+    if (typeof jQuery !== 'undefined') {
+      return jQuery
+    } else {
+      return null
     }
-    return {
-        getBaseModule: getBaseModule
-    };
-})();
+  }
+  return {
+    getBaseModule: getBaseModule
+  }
+})()
