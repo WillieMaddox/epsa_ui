@@ -2,9 +2,12 @@
  * Created by maddoxw on 1/3/17.
  */
 
-define(['MainCore'], function (OSMFire_Core) {
+define(function (require) {
 
   'use strict'
+
+  const $ = require('jquery'),
+    OSMFire_Core = require('MainCore')
 
   let callback = function(sandBox) {
     let innerHTMLStr = '<div id="messagebar" class="messagebar"></div>'

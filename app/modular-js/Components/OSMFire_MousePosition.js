@@ -1,9 +1,15 @@
 /**
  * Created by maddoxw on 12/28/16.
  */
-define(['jquery', 'ol', 'deg2tile', 'MainCore', 'OSMFire_Map'], function ($, ol, deg2tile, OSMFire_Core) {
+define(function (require) {
 
   'use strict'
+
+  const ol = require('ol'),
+    deg2tile = require('deg2tile'),
+    OSMFire_Core = require('MainCore')
+
+  require('OSMFire_Map')
 
   let callback = function(sandBox) {
     return {

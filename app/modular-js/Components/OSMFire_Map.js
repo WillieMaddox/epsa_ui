@@ -2,12 +2,18 @@
  * Created by maddoxw on 12/28/16.
  */
 
-define(['jquery', 'ol', 'MainCore', 'bingKey',
-  'OSMFire_MouseUnits',
-  'OSMFire_MouseProjection',
-  'layerswitcher'], function ($, ol, OSMFire_Core, bingKey) {
+define(function (require) {
 
   'use strict'
+
+  const ol = require('ol'),
+    $ = require('jquery'),
+    OSMFire_Core = require('MainCore'),
+    bingKey = require('bingKey')
+
+  require('OSMFire_MouseUnits')
+  require('OSMFire_MouseProjection')
+  require('layerswitcher')
 
   let callback = function(sandBox) {
     let innerHTMLStr = '<div id="map" class="map"></div>'

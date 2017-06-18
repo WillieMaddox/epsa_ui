@@ -1,9 +1,13 @@
 /**
  * Created by maddoxw on 7/23/16.
  */
-define(['jquery', 'MainCore', 'jquery-ui'], function ($, OSMFire_Core) {
+define(function (require) {
 
   'use strict'
+
+  const $ = require('jquery')
+  const OSMFire_Core = require('MainCore')
+  require('jquery-ui')
 
   let callback = function(sandBox) {
     let ButtonWidgetObjID, ButtonWidgetObj,

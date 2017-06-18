@@ -1,7 +1,9 @@
 //****************************************************** 
 //Responsible for making AJAX calls to server API
 //******************************************************
-define(['MainCore'], function(OSMFire_Core) {
+define(function (require) {
+  const $ = require('jquery')
+  const OSMFire_Core = require('MainCore')
   let self = {},
     response, callbackFunc, page
   self.makeAjaxCall = function(apiURL, QueryStr, callBackFunction, method) {

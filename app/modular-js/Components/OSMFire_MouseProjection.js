@@ -1,9 +1,11 @@
 /**
  * Created by maddoxw on 12/28/16.
  */
-define(['jquery', 'MainCore'], function ($, OSMFire_Core) {
+define(function (require) {
 
   'use strict'
+
+  const OSMFire_Core = require('MainCore')
 
   let callback = function(sandBox) {
     let innerHTMLStr = '<select id="mouse-projection" title="Units of the cursor coordinates.">' +
@@ -18,7 +20,6 @@ define(['jquery', 'MainCore'], function ($, OSMFire_Core) {
           this.registerForEvents()
           sandBox.contextObj = this
           sandBox.log(1, 'Mouse Projection component has been initialized...', 'blue')
-          // sandBox.message('Mouse Projection component has been initialized...');
         } catch (e) {
           sandBox.log(3, 'Mouse Projection component has NOT been initialized correctly --> ' + e.message)
         }

@@ -1,5 +1,6 @@
 // using simple sub-module augmentation
-define(['MainCore'], function(OSMFire_Core) {
+define(function(require) {
+  const OSMFire_Core = require('MainCore')
   let self = {},
     messageParam, colorParam
   self.logMessage = function(severity, message, color) {

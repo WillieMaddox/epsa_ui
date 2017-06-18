@@ -2,27 +2,20 @@
  * Created by maddoxw on 7/23/16.
  */
 
-define(['jquery', 'ol',
-  'exists',
-  'utils',
-  'OL',
-  'OSMFire_Map',
-  'ttemplate',
-  'tstylefunction',
-  'stemplate',
-  'sstylefunction',
-  'jquery-ui'
-], function ($, ol,
-    exists,
-    utils,
-    OL,
-    OSMFire_Map,
-    tobjectTemplates,
-    tobjectStyleFunction,
-    sensorTemplates,
-    sensorStyleFunction) {
+define(function (require) {
 
   'use strict'
+
+  const $ = require('jquery'),
+    ol = require('ol'),
+    utils = require('utilities'),
+    tobjectTemplates = require('ttemplate'),
+    tobjectStyleFunction = require('tstylefunction'),
+    sensorTemplates = require('stemplate'),
+    sensorStyleFunction = require('sstylefunction')
+
+  require('jquery-ui')
+
 
   let callback = function(sandBox) {
     let innerHTMLStr = '<div id="layertree" class="layertree"></div>'
@@ -78,13 +71,13 @@ define(['jquery', 'ol',
             items: '> .layer',
             containment: 'parent',
             opacity: 0.5,
-            start: function (event, ui) {
+            start: function () {
               console.log('start')
             },
-            change: function (event, ui) {
+            change: function () {
               console.log('change')
             },
-            beforeStop: function (event, ui) {
+            beforeStop: function () {
               console.log('beforeStop')
             },
             stop: function (event, ui) {

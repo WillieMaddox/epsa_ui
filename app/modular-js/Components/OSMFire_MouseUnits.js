@@ -1,9 +1,11 @@
 /**
  * Created by maddoxw on 12/28/16.
  */
-define(['jquery', 'MainCore'], function ($, OSMFire_Core) {
+define(function (require) {
 
   'use strict'
+
+  const OSMFire_Core = require('MainCore')
 
   let callback = function(sandBox) {
     let innerHTMLStr =

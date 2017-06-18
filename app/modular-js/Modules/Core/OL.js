@@ -1,5 +1,7 @@
 // using simple sub-module augmentation
-define(['MainCore', 'ol'], function(OSMFire_Core, ol) {
+define(function (require) {
+  const OSMFire_Core = require('MainCore')
+  const ol = require('ol')
   'use strict'
   let map = null
   let view = null

@@ -1,5 +1,7 @@
 // using simple sub-module augmentation
-define(['MainCore', 'Utilities'], function(OSMFire_Core) {
+define(function (require) {
+  const OSMFire_Core = require('MainCore')
+  require('Utilities')
   function getValueForKeyAsString(key, decode) {
     if (!key) {
       throw new Error('no key passed in!')

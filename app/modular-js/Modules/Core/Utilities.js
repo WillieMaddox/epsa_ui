@@ -1,5 +1,6 @@
 // using simple sub-module augmentation
-define(['MainCore'], function(OSMFire_Core) {
+define(function (require) {
+  const OSMFire_Core = require('MainCore')
   const self = {}
   // const dynamicallyLoadedFiles = []
   self.clone = function clone(deep) {
