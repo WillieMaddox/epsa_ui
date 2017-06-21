@@ -7,7 +7,5 @@
  *
  */
 
-define([], function () {
-  const bingKey = 'DONTEVERPUTKEYSINSOURCECONTROL'
-  return bingKey
-})
+const bingKey = 'DONTEVERPUTKEYSINSOURCECONTROL'
+module.exports = bingKey
