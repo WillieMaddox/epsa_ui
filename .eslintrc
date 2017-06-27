@@ -8,20 +8,19 @@
     "linebreak-style": ["error", "unix"],
     "semi": ["error", "never"],
     "eqeqeq": ["error", "always"],
-    "no-console": "off",
-    "requirejs/no-invalid-define": 2,
-    "requirejs/no-invalid-require": 2,
-    "requirejs/no-multiple-define": 2,
-    "requirejs/no-named-define": 2,
-    "requirejs/no-object-define": 1
+    "no-console": "off"
+  },
+  "settings": {
+    "import/resolver": "webpack"
   },
   "env": {
     "browser": true,
     "es6": true,
-    "amd": true
+    "commonjs": true,
+    "node": true
   },
   "plugins": [
-    "requirejs"
+    "node"
   ],
   "extends": "eslint:recommended"
 }
