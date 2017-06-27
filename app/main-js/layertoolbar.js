@@ -59,10 +59,9 @@ module.exports = {
       })
       return $button
     } else if (elemType === 'deletelayer') {
-      elemType.capitalizeFirstLetter.prototype.
-        $button.on('click', function () {
-          layertree.removeLayer()
-        })
+      $button.on('click', function () {
+        layertree.removeLayer()
+      })
       return $button
     } else {
       return false
