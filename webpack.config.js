@@ -33,7 +33,7 @@ module.exports = env => {
         'Filter_1_1_0': 'ogc-schemas/lib/Filter_1_1_0',
         'SMIL_2_0': 'ogc-schemas/lib/SMIL_2_0',
         'SMIL_2_0_Language': 'ogc-schemas/lib/SMIL_2_0_Language',
-        // 'ol3': 'ol3-3.19.1/ol-debug',
+        // 'ol': 'openlayers/dist/ol-debug',
         'ol': 'openlayers/dist/ol',
         'jsts': 'jsts/dist/jsts.min',
         'shp': 'shpjs/dist/shp.min',
