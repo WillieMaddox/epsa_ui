@@ -4,7 +4,7 @@
 
 'use strict'
 
-const $ = require('jquery')
+// const $ = require('jquery')
 const utils = require('./utils')
 
 let $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">')

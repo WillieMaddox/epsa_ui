@@ -4,8 +4,8 @@
 
 'use strict'
 
-const ol = require('ol'),
-  sensorTemplates = require('./template')
+const ol = require('openlayers')
+const sensorTemplates = require('./template')
 
 module.exports = (function () {
 

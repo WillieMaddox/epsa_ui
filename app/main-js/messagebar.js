@@ -4,7 +4,7 @@
 
 'use strict'
 
-const $ = require('jquery')
+// const $ = require('jquery')
 
 let messages = $('<div id="messagebar">')[0]
 $('#messagebar-container').append(messages)

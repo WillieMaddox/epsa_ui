@@ -2,7 +2,7 @@
  * Created by maddoxw on 1/3/17.
  */
 
-const $ = require('jquery')
+// const $ = require('jquery')
 const exists = require('exists')
 let utils = {}
 

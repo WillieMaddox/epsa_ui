@@ -4,8 +4,8 @@
 
 'use strict'
 
-const ol = require('ol'),
-  exists = require('../utils/exists'),
+const ol = require('openlayers')
+const exists = require('../utils/exists'),
   tobjectTemplates = require('./template')
 
 const tobjectColor = {

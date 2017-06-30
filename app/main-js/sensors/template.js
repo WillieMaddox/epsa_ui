@@ -4,8 +4,8 @@
 
 'use strict'
 
-const $ = require('jquery'),
-  defaultSensors = require('../utils/defaultsensors')
+// const $ = require('jquery')
+const defaultSensors = require('../utils/defaultsensors')
 
 const sensorProperties = {
   source_height: {

@@ -4,7 +4,7 @@
 
 'use strict'
 
-const $ = require('jquery')
+// const $ = require('jquery')
 module.exports = function (callback) {
   $.getJSON({
     url: 'data/default_sensors.json'

@@ -4,9 +4,9 @@
 
 'use strict'
 
-const $ = require('jquery'),
-  ol = require('ol'),
-  map = require('map'),
+// const $ = require('jquery')
+const ol = require('openlayers')
+const map = require('map'),
   layertree = require('layertree'),
   exists = require('exists'),
   toolbar = require('toolbar'),

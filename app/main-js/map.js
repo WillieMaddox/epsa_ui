@@ -4,8 +4,8 @@
 
 'use strict'
 
-const $ = require('jquery'),
-  ol = require('ol'),
+// const $ = require('jquery')
+const ol = require('openlayers'),
   deg2tile = require('deg2tile'),
   mouseunits = require('mouseunits'),
   mouseprojection = require('mouseprojection'),

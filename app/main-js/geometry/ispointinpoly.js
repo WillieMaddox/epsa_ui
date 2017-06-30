@@ -11,7 +11,7 @@
 
 'use strict'
 
-const ol = require('ol'),
+const ol = require('openlayers'),
   jsts = require('jsts')
 
 const parser = new jsts.io.OL3Parser()

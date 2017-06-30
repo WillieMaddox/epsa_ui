@@ -1,6 +1,6 @@
 
-const $ = require('jquery'),
-  ol = require('ol'),
+// const $ = require('jquery')
+const ol = require('openlayers'),
   layertree = require('layertree'),
   layertoolbar = require('layertoolbar'),
   toolbar = require('toolbar'),

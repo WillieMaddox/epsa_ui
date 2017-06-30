@@ -4,9 +4,9 @@
 
 'use strict'
 
-const $ = require('jquery'),
-  ol = require('ol'),
-  utils = require('utilities'),
+// const $ = require('jquery')
+const ol = require('openlayers')
+const utils = require('utilities'),
   map = require('map'),
   sensorTemplates = require('stemplate'),
   exists = require('exists'),

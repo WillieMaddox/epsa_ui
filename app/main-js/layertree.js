@@ -4,8 +4,8 @@
 
 'use strict'
 
-const $ = require('jquery'),
-  ol = require('ol'),
+// const $ = require('jquery')
+const ol = require('openlayers'),
   map = require('map'),
   utils = require('utilities'),
   message = require('messagebar'),

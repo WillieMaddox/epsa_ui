@@ -1,9 +1,11 @@
 {
   "parserOptions": {
+    "sourceType": "module",
     "ecmaVersion": 6
   },
   "rules": {
     "indent": ["error", 2],
+    "space-before-function-paren": ["error", "always"],
     "quotes": ["error", "single", {"avoidEscape": true}],
     "linebreak-style": ["error", "unix"],
     "semi": ["error", "never"],
@@ -17,10 +19,14 @@
     "browser": true,
     "es6": true,
     "commonjs": true,
+    "jquery": true,
     "node": true
   },
   "plugins": [
     "node"
   ],
-  "extends": "eslint:recommended"
+  "extends": [
+    "eslint:recommended",
+    "openlayers"
+  ]
 }

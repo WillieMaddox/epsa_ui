@@ -4,7 +4,7 @@
 
 'use strict'
 
-const $ = require('jquery')
+// const $ = require('jquery')
 const utils = require('./utils')
 
 let $selectNode = $('<select id="map-units" title="Units of the scale line.">')

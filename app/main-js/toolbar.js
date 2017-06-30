@@ -4,18 +4,21 @@
 
 'use strict'
 
-const ol = require('ol'),
-  map = require('map'),
-  utils = require('utilities'),
-  layertree = require('layertree'),
-  isPolyValid = require('ispolyvalid')
+// const ol = require('openlayers')
+import ol from 'openlayers'
+import map from 'map'
+import utils from 'utilities'
+import layertree from 'layertree'
+import isPolyValid from 'ispolyvalid'
+import Collection from 'openlayers/src/ol/collection'
 
 let bitA = 0
 let bitB = 0
 let activeControl = null
-let drawControls = new ol.Collection()
+// let drawControls = new ol.Collection()
+let drawControls = new Collection()
 
-module.exports = {
+const result = {
   init: function () {
     this.toolbar = document.getElementById('toolbar')
     this.controls = new ol.Collection()
@@ -237,3 +240,5 @@ module.exports = {
     return interaction
   }
 }
+
+export default result
