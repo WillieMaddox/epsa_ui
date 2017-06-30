@@ -16,7 +16,7 @@ module.exports = {
     modules: [
       'node_modules',
       'bower_components',
-      path.resolve(__dirname, 'app', 'libs'),
+      path.resolve(__dirname, 'libs'),
       path.resolve(__dirname, 'app', 'main-js'),
     ],
     alias: {

@@ -1,5 +1,5 @@
 @import url("../../node_modules/openlayers/dist/ol-debug.css");
-@import url("../libs/ol3-layerswitcher/src/ol3-layerswitcher.css");
+@import url("../../libs/ol3-layerswitcher/src/ol3-layerswitcher.css");
 @import url("../../bower_components/jquery-ui/themes/base/jquery-ui.min.css");
 
 body {
