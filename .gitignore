@@ -16,7 +16,7 @@ Would skip repository app/gitmodules/
 log/
 dist/
 node_modules/
-bower_components
+bower_components/
 app/scratch/controlgroup.html
 app/scratch/pb_background.html
 app/scratch/slider.html
