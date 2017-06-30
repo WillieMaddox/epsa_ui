@@ -1,3 +1,7 @@
-[submodule "app/libs/gitmodules/shapefile-js"]
-	path = app/libs/gitmodules/shapefile-js
-	url = https://github.com/calvinmetcalf/shapefile-js.git
+[submodule "libs/jsonix"]
+	path = libs/jsonix
+	url = https://github.com/boundlessgeo/jsonix.git
+
+[submodule "libs/ol3-layerswitcher"]
+	path = libs/ol3-layerswitcher
+	url = https://github.com/walkermatt/ol3-layerswitcher.git
