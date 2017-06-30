@@ -15,7 +15,7 @@ const utils = require('utilities'),
 const formElements = {}
 const wgs84Sphere = new ol.Sphere(6378137)
 
-module.exports ={
+module.exports = {
   init: function () {
     this.isStyled = false
     this.parser = new jsts.io.OL3Parser()

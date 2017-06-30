@@ -3,15 +3,15 @@
  */
 
 
-function toRad(x) {
+function toRad (x) {
   return x * Math.PI / 180.0
 }
 
-function toInt(x) {
+function toInt (x) {
   return ~~x
 }
 
-function mod(n, m) {
+function mod (n, m) {
   return ((n % m) + m) % m
 }
 

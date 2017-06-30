@@ -73,7 +73,7 @@ module.exports = {
       range: 'min',
       min: 0,
       max: 100,
-      step: 0.01,
+      step: 0.01
     }).on('slide', function (event, ui) {
       $('#height-spinner').spinner('value', utils.pow10Slider(ui.value))
     }).on('slidechange', function (event, ui) {
@@ -470,6 +470,8 @@ module.exports = {
     }, this)
   },
   deleteHole: function () {
+
+    let feature = null
     const holeStyle = [
       new ol.style.Style({
         stroke: new ol.style.Stroke({
@@ -532,47 +534,12 @@ module.exports = {
       return found ? newPoly : poly
     }
 
-    const removeHole = function (feature) {
-      const geom = feature.getGeometry()
-      let newGeom = new ol.geom.MultiPolygon(null)
-      if (currGeom.getType() === 'MultiPolygon') {
-        currGeom.getPolygons().forEach(function (poly) {
-          const newPoly = testCoords(poly, geom.getFirstCoordinate())
-          newGeom.appendPolygon(newPoly)
-        })
-      } else {
-        newGeom = testCoords(currGeom, geom.getFirstCoordinate())
-      }
-      currGeom.setCoordinates(newGeom.getCoordinates())
-    }
-
-    const finishHole = function () {
-      layerinteractor.autoselect = true
-      map.removeInteraction(chooseHole)
-      map.removeLayer(holeOverlay)
-      layerinteractor.modify.setActive(true)
-      layerinteractor.select.setActive(true)
-      // layerinteractor.translate.setActive(true);
-      map.on('pointermove', layerinteractor.hoverDisplay)
-      $('#draw-hole').button('enable')
-      if (holeFeats.getArray().length > 0) {
-        $('#delete-hole').button('enable')
-      }
-      $(document).off('keyup')
-    }
-    $(document).on('keyup', function (evt) {
-      if (evt.keyCode === 27) {
-        finishHole()
-      }
-    })
-
     $('#draw-hole').button('disable')
     $('#delete-hole').button('disable')
     map.un('pointermove', layerinteractor.hoverDisplay)
     layerinteractor.select.setActive(false)
     layerinteractor.modify.setActive(false)
 
-    let feature = null
     const currFeat = layerinteractor.select.getFeatures().getArray()[0]
     let currGeom = currFeat.getGeometry()
     let holeFeats = getHoles(currGeom)
@@ -589,10 +556,39 @@ module.exports = {
     // holeOverlay.getSource().addFeatures(holeFeats);
     map.addLayer(holeOverlay)
 
+    const removeHole = function (feature) {
+      const geom = feature.getGeometry()
+      let newGeom = new ol.geom.MultiPolygon(null)
+      if (currGeom.getType() === 'MultiPolygon') {
+        currGeom.getPolygons().forEach(function (poly) {
+          const newPoly = testCoords(poly, geom.getFirstCoordinate())
+          newGeom.appendPolygon(newPoly)
+        })
+      } else {
+        newGeom = testCoords(currGeom, geom.getFirstCoordinate())
+      }
+      currGeom.setCoordinates(newGeom.getCoordinates())
+    }
+
     let chooseHole = new ol.interaction.ChooseHole({
       holes: holeFeats
     })
     map.addInteraction(chooseHole)
+
+    const finishHole = function () {
+      layerinteractor.autoselect = true
+      map.removeInteraction(chooseHole)
+      map.removeLayer(holeOverlay)
+      layerinteractor.modify.setActive(true)
+      layerinteractor.select.setActive(true)
+      // layerinteractor.translate.setActive(true);
+      map.on('pointermove', layerinteractor.hoverDisplay)
+      $('#draw-hole').button('enable')
+      if (holeFeats.getArray().length > 0) {
+        $('#delete-hole').button('enable')
+      }
+      $(document).off('keyup')
+    }
 
     chooseHole.emitter.on('change', function () {
       feature = chooseHole.get('hole')
@@ -600,6 +596,12 @@ module.exports = {
         removeHole(feature)
       }
       finishHole()
+    })
+
+    $(document).on('keyup', function (evt) {
+      if (evt.keyCode === 27) {
+        finishHole()
+      }
     })
   },
 
@@ -767,10 +769,11 @@ module.exports = {
       $('#draw-hole').button('enable')
       if (feature.getGeometry().getType() === 'MultiPolygon') {
         const nPolygons = feature.getGeometry().getPolygons().length
-        for (let i = 0; i < nPolygons; i++)
+        for (let i = 0; i < nPolygons; i++) {
           if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
             $deleteHole.button('enable')
           }
+        }
       } else if (feature.getGeometry().getLinearRingCount() > 1) {
         $deleteHole.button('enable')
       }

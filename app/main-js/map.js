@@ -21,33 +21,6 @@ let $projectionSelect = $('#mouse-projection')
 let mouseProjection = ol.proj.get('EPSG:4326')
 let mousePrecision = 4
 
-function updateMousePrecision(view) {
-  let res = view.getResolution()
-  let currentProj = map.getView().getProjection()//.getCode();
-  if (mouseProjection !== currentProj) {
-    let coord0 = view.getCenter()
-    let coord1 = [coord0[0] + res, coord0[1] + res]
-    coord0 = ol.proj.transform(coord0, currentProj, mouseProjection)
-    coord1 = ol.proj.transform(coord1, currentProj, mouseProjection)
-    res = Math.max(Math.abs(coord1[0] - coord0[0]), Math.abs(coord1[1] - coord0[1]))
-  }
-  mousePrecision = Number(Math.abs(Math.min(0, Math.floor(Math.log10(res)))).toFixed())
-}
-
-function coordinateFormat(coordinates) {
-  let zoom = view.getZoom()
-  let lonlatstr = ol.coordinate.createStringXY(mousePrecision)
-  let lonlat = lonlatstr(coordinates).split(',')
-  let coord0 = ol.proj.transform(coordinates, mouseProjection, 'EPSG:4326')
-  let xytile = deg2tile(coord0[0], coord0[1], zoom)
-  let lon = 'Lon: ' + lonlat[0]
-  let lat = 'Lat: ' + lonlat[1]
-  let x = 'X: ' + xytile[0]
-  let y = 'Y: ' + xytile[1]
-  let z = 'Z: ' + zoom
-  return [lon, lat, x, y, z].join('  ')
-}
-
 let layerSwitcher = new ol.control.LayerSwitcher()
 let scaleLineControl = new ol.control.ScaleLine()
 let mousePositionControl = new ol.control.MousePosition({
@@ -187,6 +160,33 @@ let map = new ol.Map({
   loadTilesWhileInteracting: true,
   loadTilesWhileAnimating: true
 })
+
+function coordinateFormat (coordinates) {
+  let zoom = view.getZoom()
+  let lonlatstr = ol.coordinate.createStringXY(mousePrecision)
+  let lonlat = lonlatstr(coordinates).split(',')
+  let coord0 = ol.proj.transform(coordinates, mouseProjection, 'EPSG:4326')
+  let xytile = deg2tile(coord0[0], coord0[1], zoom)
+  let lon = 'Lon: ' + lonlat[0]
+  let lat = 'Lat: ' + lonlat[1]
+  let x = 'X: ' + xytile[0]
+  let y = 'Y: ' + xytile[1]
+  let z = 'Z: ' + zoom
+  return [lon, lat, x, y, z].join('  ')
+}
+
+function updateMousePrecision (view) {
+  let res = view.getResolution()
+  let currentProj = map.getView().getProjection()//.getCode();
+  if (mouseProjection !== currentProj) {
+    let coord0 = view.getCenter()
+    let coord1 = [coord0[0] + res, coord0[1] + res]
+    coord0 = ol.proj.transform(coord0, currentProj, mouseProjection)
+    coord1 = ol.proj.transform(coord1, currentProj, mouseProjection)
+    res = Math.max(Math.abs(coord1[0] - coord0[0]), Math.abs(coord1[1] - coord0[1]))
+  }
+  mousePrecision = Number(Math.abs(Math.min(0, Math.floor(Math.log10(res)))).toFixed())
+}
 
 map.addControl(layerSwitcher)
 map.addControl(scaleLineControl)

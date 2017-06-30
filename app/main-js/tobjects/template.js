@@ -5,7 +5,7 @@
 
 const tobjectTemplates = {
   aor: {
-    geometry_type: 'Polygon',
+    geometry_type: 'Polygon'
     // properties: {}
   },
   building: {
@@ -23,7 +23,7 @@ const tobjectTemplates = {
     // }
   },
   water: {
-    geometry_type: 'Polygon',
+    geometry_type: 'Polygon'
     // properties: {}
   },
   wall: {

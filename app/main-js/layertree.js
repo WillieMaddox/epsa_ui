@@ -21,6 +21,7 @@ let idCounter = 0
 let result = {
   init: function () {
 
+    let _this = this
     this.$layerContainer = $('#layertree-container')
     this.$layerContainer.sortable({
       axis: 'y',
@@ -58,7 +59,6 @@ let result = {
     this.selectEventEmitter = new ol.Observable()
     this.deselectEventEmitter = new ol.Observable()
 
-    let _this = this
     let handler = function (event, data) {
       if (data) {
         event.data = data
@@ -627,7 +627,7 @@ let result = {
     const colorArray = []
     let randomColor
 
-    function convertHex(hex, opacity) {
+    function convertHex (hex, opacity) {
       hex = hex.replace('#', '')
       const r = parseInt(hex.substring(0, 2), 16)
       const g = parseInt(hex.substring(2, 4), 16)

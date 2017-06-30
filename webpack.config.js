@@ -17,7 +17,7 @@ module.exports = {
       'node_modules',
       'bower_components',
       path.resolve(__dirname, 'libs'),
-      path.resolve(__dirname, 'app', 'main-js'),
+      path.resolve(__dirname, 'app', 'main-js')
     ],
     alias: {
       'serversettings': 'settings.dev',  // development
@@ -36,7 +36,6 @@ module.exports = {
       'SMIL_2_0': 'ogc-schemas/lib/SMIL_2_0',
       'SMIL_2_0_Language': 'ogc-schemas/lib/SMIL_2_0_Language',
       'openlayers': 'openlayers/dist/ol-debug',
-      'ol3': 'openlayers/src/ol',
       'jsts': 'jsts/dist/jsts',
       'shp': 'shpjs/dist/shp',
       'layerswitcher': 'ol3-layerswitcher/src/ol3-layerswitcher',
@@ -93,7 +92,7 @@ module.exports = {
         test: /\.jsx?$/, // both .js and .jsx
         include: path.resolve(__dirname, 'app', 'main-js'),
         loader: 'eslint-loader',
-        enforce: 'pre',
+        enforce: 'pre'
         // exclude: [
         //   'node_modules', 'bower_components'
         // ],
@@ -149,14 +148,14 @@ module.exports = {
         test: /\.(json|geojson)$/,
         include: path.resolve(__dirname, 'app', 'data'),
         loader: 'json-loader',
-        options: {name: 'data/[name].[ext]'}
+        query: {name: 'data/[name].[ext]'}
       }
     ]
   },
   plugins: [
     new webpack.ProvidePlugin({
       $: 'jquery',
-      jQuery: 'jquery',
+      jQuery: 'jquery'
       // ol: 'ol'
     }),
     new ExtractTextPlugin({
@@ -183,7 +182,7 @@ module.exports = {
     //   filename: 'commonlazy.js'
     // }),
     new BundleAnalyzerPlugin({
-      analyzerMode: 'static'
+      analyzerMode: 'server'
     }),
     new webpack.HotModuleReplacementPlugin(),
     // new UglifyJsPlugin({
@@ -198,7 +197,7 @@ module.exports = {
       inject: 'body'
     })
   ],
-  devtool: env === 'production' ? 'source-map': 'inline-source-map',
+  devtool: env === 'production' ? 'source-map' : 'inline-source-map',
   devServer: {
     hot: true,
     contentBase: path.resolve(__dirname, 'dist'),

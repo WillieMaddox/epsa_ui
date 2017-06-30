@@ -5,18 +5,22 @@
 'use strict'
 
 // const ol = require('openlayers')
-import ol from 'openlayers'
-import map from 'map'
-import utils from 'utilities'
-import layertree from 'layertree'
-import isPolyValid from 'ispolyvalid'
-import Collection from 'openlayers/src/ol/collection'
+const ol = require('openlayers')
+const map = require('map')
+const utils = require('utilities')
+const layertree = require('layertree')
+const isPolyValid = require('ispolyvalid')
+// import ol from 'openlayers'
+// import map from 'map'
+// import utils from 'utilities'
+// import layertree from 'layertree'
+// import isPolyValid from 'ispolyvalid'
+// import Collection from 'openlayers/src/ol/collection'
 
 let bitA = 0
 let bitB = 0
 let activeControl = null
-// let drawControls = new ol.Collection()
-let drawControls = new Collection()
+let drawControls = new ol.Collection()
 
 const result = {
   init: function () {
@@ -241,4 +245,5 @@ const result = {
   }
 }
 
-export default result
+module.exports = result
+// export default result

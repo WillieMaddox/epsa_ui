@@ -25,6 +25,6 @@ let observer = new MutationObserver(function (mutations) {
   }
 })
 observer.observe(messages, {childList: true})
-module.exports = function message(msg) {
+module.exports = function message (msg) {
   messages.textContent = msg
 }

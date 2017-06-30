@@ -65,4 +65,5 @@ defaultSensors(function (data) {
   sensorTemplates.camera.defaultSensors = data.camera
   sensorTemplates.radio.defaultSensors = data.radio
 })
+
 module.exports = sensorTemplates

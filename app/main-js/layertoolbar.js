@@ -218,7 +218,7 @@ module.exports = {
     serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
     serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
 
-    function loadend(response) {
+    function loadend (response) {
       console.log('*******************************************')
       t0 = new Date().getTime()
       let features = formatWFS.readFeatures(response, {
@@ -235,7 +235,7 @@ module.exports = {
       nAfter = source.getFeatures().length
       console.log('Remaining', source.get('pendingRequests'), 't=', t1 - t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1 - t0))
     }
-    function loader(extent, res, mapProj) {
+    function loader (extent, res, mapProj) {
       let query = buildQueryString({typeName: typeName, proj: proj, extent: extent})
       featureProjection = mapProj.getCode()
       $.ajax({
@@ -308,7 +308,7 @@ module.exports = {
       return false
     }
 
-    function loadStart(evt) {
+    function loadStart (evt) {
       $progressbar = $("<div class='buffering'>")
       $progressbar.append($('#' + layer.get('id') + ' .layertitle'))
       if (evt.lengthComputable) {
@@ -324,13 +324,13 @@ module.exports = {
       $progressbar.insertBefore($('#' + layer.get('id') + ' .layeropacity'))
     }
 
-    function updateProgress(evt) {
+    function updateProgress (evt) {
       if (evt.lengthComputable) {
         $progressbar.progressbar('value', evt.loaded)
       }
     }
 
-    function loaded(evt) {
+    function loaded (evt) {
       $progressbar.progressbar('value', false)
       let vectorData = evt.target.result
       let dataProjection = $form.find('.projection').val() || sourceFormat.readProjection(vectorData) || currentProj
@@ -372,7 +372,7 @@ module.exports = {
       // });
     }
 
-    function loadEnd() {
+    function loadEnd () {
       // $('#' + layer.get('id') + ' .layertitle').unwrap();
       // layer.buildHeaders();
       layer.set('name', displayname)
@@ -381,7 +381,7 @@ module.exports = {
       // _this.styleDefault(layer);
     }
 
-    function errorHandler(evt) {
+    function errorHandler (evt) {
       if (evt.target.error.name === 'NotReadableError') {
         message('The file could not be read.')
       } else {

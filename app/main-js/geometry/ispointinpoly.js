@@ -15,7 +15,7 @@ const ol = require('openlayers'),
   jsts = require('jsts')
 
 const parser = new jsts.io.OL3Parser()
-const isPointInPoly = function(geom, pointcoords) {
+const isPointInPoly = function (geom, pointcoords) {
   const geomA = parser.read(geom)
   const geomB = parser.read(new ol.geom.Point(pointcoords))
   return geomB.within(geomA)
