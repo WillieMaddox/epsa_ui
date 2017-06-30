@@ -12,10 +12,10 @@
 .idea/dbnavigator.xml
 .idea/encodings.xml
 .idea/misc_old.xml
-Would skip repository app/gitmodules/
+babelwrapConfig.json
+package-lock.json
 log/
 dist/
-libs/
 node_modules/
 bower_components/
 app/scratch/controlgroup.html
