@@ -345,7 +345,7 @@ module.exports = {
         feature = evt.deselected[0]
         _this.modify.setActive(false)
         // translate.setActive(false);
-        console.log('auto deselect:', feature.get('name'), feature.getRevision())
+        console.log('manual deselect:', feature.get('name'), feature.getRevision())
         _this.editor.loadFeature(feature)
         _this.editor.deactivateForm()
         _this.layer.getSource().getSource().addFeature(feature)
@@ -372,7 +372,7 @@ module.exports = {
         feature = evt.selected[0]
         _this.modify.setActive(true)
         //translate.setActive(true);
-        console.log('auto select:  ', feature.get('name'), feature.getRevision())
+        console.log('manual select:  ', feature.get('name'), feature.getRevision())
         _this.editor.activateForm(feature)
         _this.layer.getSource().getSource().removeFeature(feature)
         // _this.activeFeatures.push(feature);
@@ -416,7 +416,7 @@ module.exports = {
     $(document).on('keydown', remove)
 
     toolbar.drawEventEmitter.on('change', function () {
-      const selectedFeatures = _this.select.getFeatures()
+      let selectedFeatures = _this.select.getFeatures()
       let selectedFeature
       if (toolbar.active === true) {
         map.un('pointermove', _this.hoverDisplay)
@@ -425,13 +425,13 @@ module.exports = {
           selectedFeature = selectedFeatures.getArray()[0]
           _this.editor.loadFeature(selectedFeature)
           _this.editor.deactivateForm()
-          console.log('manual deselect:', selectedFeature.get('name'), selectedFeature.getRevision())
+          console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())
 
           // var selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
           // selectedLayer.getSource().getSource().addFeature(feature);
           // _this.activeFeatures.push(feature);
 
-          selectedFeatures.clear()
+          // selectedFeatures.clear()
         } else {
           console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
         }
@@ -449,12 +449,13 @@ module.exports = {
           selectedFeature = toolbar.addedFeature
 
           _this.editor.activateForm(selectedFeature)
-          console.log('manual select:  ', selectedFeature.get('name'), selectedFeature.getRevision())
+          console.log('auto select:  ', selectedFeature.get('name'), selectedFeature.getRevision())
         } else {
           console.log('HHHHHHHERREE!!!')
         }
 
         map.on('pointermove', _this.hoverDisplay)
+        console.log(selectedFeature)
       }
     })
   }
