@@ -3,7 +3,7 @@
  *
  * Step 1: Replace "DONTEVERPUTKEYSINSOURCECONTROL" with a valid bing key.
  * Step 2: Rename this file to bingkey.js
- * Step 3: Verify app/main/bingkey.js is in the .gitignore at the root of this project.
+ * Step 3: Verify src/main/bingkey.js is in the .gitignore at the root of this project.
  *
  */
 

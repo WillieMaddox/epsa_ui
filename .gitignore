@@ -18,9 +18,9 @@ log/
 dist/
 node_modules/
 bower_components/
-app/scratch/controlgroup.html
-app/scratch/pb_background.html
-app/scratch/slider.html
-app/scratch/sortable_accordian.html
-app/scratch/sortable_portlets.html
-app/main-js/bingkey.js
+src/scratch/controlgroup.html
+src/scratch/pb_background.html
+src/scratch/slider.html
+src/scratch/sortable_accordian.html
+src/scratch/sortable_portlets.html
+src/main-js/bingkey.js

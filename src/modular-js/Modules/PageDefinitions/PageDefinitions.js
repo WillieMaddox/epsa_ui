@@ -15,28 +15,28 @@
   const AddWmsWidgetDefinition = {
     componentID: 'addWmsWidget',
     scriptFile: 'AddWmsDialogWidget.js',
-    scriptPath: '/app/js/Widgets/'
+    scriptPath: '/src/js/Widgets/'
     // cssFile: "NotificationWidget.css",
     // cssPath: "css/"
   }
   const AddWfsWidgetDefinition = {
     componentID: 'addWfsWidget',
     scriptFile: 'AddWfsDialogWidget.js',
-    scriptPath: '/app/js/Widgets/'
+    scriptPath: '/src/js/Widgets/'
     // cssFile: "NotificationWidget.css",
     // cssPath: "css/"
   }
   const AddVectorWidgetDefinition = {
     componentID: 'addVectorWidget',
     scriptFile: 'AddVectorDialogWidget.js',
-    scriptPath: '/app/js/Widgets/'
+    scriptPath: '/src/js/Widgets/'
     // cssFile: "NotificationWidget.css",
     // cssPath: "css/"
   }
   const NewVectorWidgetDefinition = {
     componentID: 'newVectorWidget',
     scriptFile: 'NewVectorDialogWidget.js',
-    scriptPath: '/app/js/Widgets/'
+    scriptPath: '/src/js/Widgets/'
     // cssFile: "NotificationWidget.css",
     // cssPath: "css/"
   }

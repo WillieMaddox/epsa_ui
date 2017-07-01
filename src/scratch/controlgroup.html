@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery UI Controlgroup - Default Functionality</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <style>
+        .ui-controlgroup > button.ui-button,
+        .ui-controlgroup > .ui-controlgroup-label {
+            text-align: center;
+        }
+        #attr-type-button {
+            width: 120px;
+        }
+        .ui-controlgroup-horizontal .ui-spinner-input {
+            width: 20px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $(".controlgroup").controlgroup()
+        });
+    </script>
+</head>
+<body>
+<div class="widget">
+    <h1>Controlgroup</h1>
+    <fieldset>
+        <legend>Rental Car</legend>
+        <div class="controlgroup">
+            <label for="visible"></label>
+            <input type="checkbox" name="visible" id="visible">
+            <button>Default</button>
+            <button>Attribute</button>
+            <select id="attr-type">
+                <option>osm-id</option>
+                <option>featuretype</option>
+                <option>name</option>
+                <option>height</option>
+            </select>
+            <label for="transmission-standard">Standard</label>
+            <input type="radio" name="transmission" id="transmission-standard">
+            <label for="transmission-automatic">Automatic</label>
+            <input type="radio" name="transmission" id="transmission-automatic">
+            <label for="insurance">Insurance</label>
+            <input type="checkbox" name="insurance" id="insurance">
+            <label for="horizontal-spinner" class="ui-controlgroup-label"># of cars</label>
+            <input id="horizontal-spinner" class="ui-spinner-input">
+
+        </div>
+    </fieldset>
+</div>
+
+</body>
+</html>

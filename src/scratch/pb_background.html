@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery UI Progressbar in the background</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            var toggleState = false;
+            $("#colorButton").on("click", function (event) {
+                var $progressbarValue = $('#progressbar').find(".ui-progressbar-value");
+                $progressbarValue.css({
+                    "background": '#' + Math.floor(Math.random() * 16777215).toString(16)
+                });
+            });
+            $("#toggleButton").on("click", function (event) {
+                if (toggleState) {
+                    var $layertitle = $("<div class='layertitle'></div>");
+                    $layertitle.append($("#layertitle"));
+                    $(".progressbar").replaceWith($layertitle);
+                    toggleState = false;
+                } else {
+                    var $progressbar = $("<div class='progressbar'></div>");
+                    $progressbar.append($("#layertitle"));
+                    $progressbar.progressbar({value: false});
+                    $(".layertitle").replaceWith($progressbar);
+                    toggleState = true;
+                }
+            });
+        });
+    </script>
+    <style>
+        .widget {
+            width: 400px;
+            border: 2px solid;
+        }
+        .layer {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+        .ui-progressbar {
+            position: relative;
+            width: calc(60% - 1em);
+        }
+        .progressbar .ui-progressbar-value {
+            background-color: #bbb;
+            opacity: 0.2;
+        }
+        #layertitle {
+            font-family: Arial,Helvetica,sans-serif;
+            font-size: 1em;
+            font-weight: bold;
+            padding: .4em;
+            position: relative;
+            float: left;
+            width: calc(60% - 1em);
+            max-width: calc(60% - 1em);
+            white-space: pre;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+        .progressbar #layertitle {
+            width: calc(100% - 1em);
+            max-width: calc(100% - 1em);
+        }
+    </style>
+</head>
+<body>
+
+<button id="colorButton">Color</button>
+<button id="toggleButton">Toggle</button>
+<br>
+<!--<div class="progressbar">-->
+    <!--<div class="layertitle">Unnamed Layer</div>-->
+<!--</div>-->
+<div class="widget">
+    <div class="layer">
+        <div class="visible">vis</div>
+        <div class="controlgroup layertitle">
+            <div id="layertitle">Unnamed Layer</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

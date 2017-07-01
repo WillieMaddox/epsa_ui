@@ -6,7 +6,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const indexHtml = path.join(__dirname, 'app', 'index.html')
+const indexHtml = path.join(__dirname, 'src', 'index.html')
 const env = process.env.NODE_ENV
 
 console.log(env)
@@ -18,7 +18,7 @@ module.exports = {
       'node_modules',
       'bower_components',
       path.resolve(__dirname, 'libs'),
-      path.resolve(__dirname, 'app', 'main-js')
+      path.resolve(__dirname, 'src', 'main-js')
     ],
     alias: {
       'serversettings': 'settings.dev',  // development
@@ -61,8 +61,8 @@ module.exports = {
   },
   entry: {
     main: [
-      path.join(__dirname, 'app', 'main-js', 'main.js'),
-      path.join(__dirname, 'app', 'css', 'main.css')
+      path.join(__dirname, 'src', 'main-js', 'main.js'),
+      path.join(__dirname, 'src', 'css', 'main.css')
     ],
     vendor: ['jquery', 'jquery-ui', 'openlayers', 'layerswitcher', 'jsts'],
     wfscontext: ['wfs110context', 'jsonix', 'XLink_1_0', 'shp']
@@ -91,7 +91,7 @@ module.exports = {
         use: ['raw-loader']
       }, {
         test: /\.jsx?$/, // both .js and .jsx
-        include: path.resolve(__dirname, 'app', 'main-js'),
+        include: path.resolve(__dirname, 'src', 'main-js'),
         loader: 'eslint-loader',
         enforce: 'pre'
         // exclude: [
@@ -147,7 +147,7 @@ module.exports = {
         options: {name: 'img/[name].[ext]'}
       }, {
         test: /\.(json|geojson)$/,
-        include: path.resolve(__dirname, 'app', 'data'),
+        include: path.resolve(__dirname, 'src', 'data'),
         loader: 'json-loader',
         query: {name: 'data/[name].[ext]'}
       }
@@ -185,7 +185,7 @@ module.exports = {
     new BundleAnalyzerPlugin({
       analyzerMode: 'server'
     }),
-    new CopyWebpackPlugin([{from: 'app/data', to: 'data'}]),
+    new CopyWebpackPlugin([{from: 'src/data', to: 'data'}]),
     new DuplicatePackageCheckerPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     // new UglifyJsPlugin({

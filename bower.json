@@ -6,13 +6,13 @@
     "WillieMaddox <willie.maddox@gmail.com>"
   ],
   "description": "gis frontend",
-  "main": "app/main-js/main.js",
+  "main": "src/main-js/main.js",
   "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
-    "app/libs",
+    "libs",
     "test",
     "tests"
   ],
@@ -23,6 +23,6 @@
     "ogc-schemas": "^2.6.1"
   },
   "install": {
-    "path": "app/libs"
+    "path": "libs"
   }
 }

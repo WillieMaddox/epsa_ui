@@ -54,9 +54,9 @@
     "webpack-merge": "^4.1.0"
   },
   "scripts": {
-    "pretest": "eslint app",
+    "pretest": "eslint src",
     "test": "gulp tests",
-    "build": "babel app -d dist",
+    "build": "babel src -d dist",
     "start-express": "node server.js",
     "start-dev": "cross-env NODE_ENV=development webpack-dev-server --progress",
     "start-prod": "cross-env NODE_ENV=production webpack -p --progress --profile --colors",

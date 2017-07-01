@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sortable Portlets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery UI Sortable - Portlets</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <style>
+        body {
+            min-width: 520px;
+        }
+        .column {
+            width: 170px;
+            float: left;
+            padding-bottom: 100px;
+        }
+        .portlet {
+            /*margin: 5px;*/
+            margin: 0 1em 1em 0;
+            /*padding: 0.5em;*/
+            padding: 1px;
+            font-size: 1.2em;
+        }
+        .portlet-header {
+            padding: 0.2em 0.3em;
+            margin-bottom: 0.5em;
+            position: relative;
+        }
+        .portlet-content {
+            padding: 0.4em;
+        }
+        .portlet-placeholder {
+            border: 1px dotted black;
+            margin: 0 1em 1em 0;
+            /*height: 50px;*/
+        }
+        /*.column {*/
+            /*list-style-type: none;*/
+            /*margin: 0;*/
+            /*float: left;*/
+            /*margin-right: 10px;*/
+            /*background: #eee;*/
+            /*padding: 5px;*/
+            /*width: 143px;*/
+        /*}*/
+        /*.portlet {*/
+            /*margin: 5px;*/
+            /*padding: 5px;*/
+            /*font-size: 1.2em;*/
+            /*width: 120px;*/
+        /*}*/
+
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            $(".column").sortable({
+                axis: "y",
+                connectWith: ".column",
+                handle: ".portlet-header"
+//                cancel: ".portlet-toggle",
+//                placeholder: "portlet-placeholder ui-corner-all"
+            });
+
+            $(".portlet")
+                    .addClass("ui-widget ui-widget-content ui-helper-clearfix")
+                    .find(".portlet-header")
+                    .addClass("ui-widget-header");
+
+            $(".portlet-header").on("click", function () {
+                $(this).closest(".portlet").find(".portlet-content").toggle();
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div class="column">
+
+    <div class="portlet">
+        <div class="portlet-header">Feeds</div>
+        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
+    </div>
+
+    <div class="portlet">
+        <div class="portlet-header">News</div>
+        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
+    </div>
+
+    <div class="portlet">
+        <div class="portlet-header">Shopping</div>
+        <div class="portlet-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit</div>
+    </div>
+
+</div>
+</head>
+
+</body>
+</html>
