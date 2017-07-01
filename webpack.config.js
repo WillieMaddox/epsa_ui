@@ -187,6 +187,7 @@ module.exports = {
     }),
     new CopyWebpackPlugin([{from: 'src/data', to: 'data'}]),
     new DuplicatePackageCheckerPlugin(),
+    new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     // new UglifyJsPlugin({
     //   sourceMap: true,
