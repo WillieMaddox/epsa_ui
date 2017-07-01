@@ -4,6 +4,7 @@ const webpack = require('webpack') //to access built-in plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin') //installed via npm
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 
 const indexHtml = path.join(__dirname, 'app', 'index.html')
 const env = process.env.NODE_ENV
@@ -184,6 +185,7 @@ module.exports = {
     new BundleAnalyzerPlugin({
       analyzerMode: 'server'
     }),
+    new DuplicatePackageCheckerPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     // new UglifyJsPlugin({
     //   sourceMap: true,
