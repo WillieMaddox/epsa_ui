@@ -171,7 +171,7 @@ module.exports = {
     let smallestFeature = null
     let smallestFeatureLayer = null
     const pixel = map.getEventPixel(evt.originalEvent)
-    let featureAndLayer = map.forEachFeatureAtPixel(pixel, function (feat, layer) {
+    let featureAndLayer = map.forEachFeatureAtPixel(pixel, (function (feat, layer) {
       const geom = feat.getGeometry()
       if (geom.getType().endsWith('Point')) {
         return {feature: feat, layer: layer}
@@ -196,11 +196,13 @@ module.exports = {
           }
         }
       }
-    }, this, function (layer) {
-      if (this.layer) {
-        return layer === this.layer
-      }
-    }, this)
+    }).bind(this), {
+      layerFilter: (function (layer) {
+        if (this.layer) {
+          return layer === this.layer
+        }
+      }).bind(this)
+    })
     if (!(exists(featureAndLayer))) {
       featureAndLayer = {}
       featureAndLayer.feature = smallestFeature

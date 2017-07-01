@@ -48,23 +48,23 @@ ol.interaction.ChooseHole = function (opt_options) {
   ol.interaction.Pointer.call(this, {
     handleDownEvent: function (evt) {
       this.set('deleteCandidate', evt.map.forEachFeatureAtPixel(evt.pixel,
-        function (feature) {
+        (function (feature) {
           if (this.get('holes').getArray().indexOf(feature) !== -1) {
             return feature
           }
-        }, this
+        }).bind(this)
       ))
       return !!this.get('deleteCandidate')
     },
     handleUpEvent: function (evt) {
       evt.map.forEachFeatureAtPixel(evt.pixel,
-        function (feature, layer) {
+        (function (feature, layer) {
           if (feature === this.get('deleteCandidate')) {
             layer.getSource().removeFeature(feature)
             this.get('holes').remove(feature)
             this.set('hole', feature)
           }
-        }, this
+        }).bind(this)
       )
       this.set('deleteCandidate', null)
       this.emitter.changed()
