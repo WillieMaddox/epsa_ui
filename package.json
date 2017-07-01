@@ -11,7 +11,7 @@
     "express-error-handler": "^1.1.0",
     "jsts": "^1.4.0",
     "ogc-schemas": "^2.6.1",
-    "openlayers": "^3.20.1",
+    "openlayers": "^4.2.0",
     "shpjs": "^3.4.0",
     "w3c-schemas": "^1.4.0"
   },
