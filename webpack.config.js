@@ -1,15 +1,24 @@
 const path = require('path')
 const webpack = require('webpack') //to access built-in plugins
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const ManifestPlugin = require('webpack-manifest-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin') //installed via npm
+// const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const ChunkManifestPlugin = require('chunk-manifest-webpack-plugin')
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const indexHtml = path.join(__dirname, 'src', 'index.html')
-const env = process.env.NODE_ENV
 
-console.log(env)
+
+const isProd = process.env.NODE_ENV === 'production'
+console.log(isProd ? 'production' : 'development')
+const cssDev = ['style-loader', 'css-loader']
+const cssProd = ExtractTextPlugin.extract({
+  fallback: 'style-loader',
+  use: ['css-loader'],
+  publicPath: '../'
+})
+const cssConfig = isProd ? cssProd : cssDev
 
 module.exports = {
   resolve: {
@@ -59,6 +68,11 @@ module.exports = {
       'bingKey': 'bingkey'
     }
   },
+  stats: {
+    colors: true,
+    reasons: true,
+    chunks: true
+  },
   entry: {
     main: [
       path.join(__dirname, 'src', 'main-js', 'main.js'),
@@ -69,9 +83,10 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    pathinfo: env === 'development',
+    pathinfo: isProd === false,
     filename: 'main-js/[name]-bundle.js',
-    chunkFilename: 'main-js/[name]-chunk.js',
+    publicPath: '/',
+    chunkFilename: 'main-js/[name]-[chunkhash].js',
     crossOriginLoading: false
   },
   module: {
@@ -92,64 +107,56 @@ module.exports = {
       }, {
         test: /\.jsx?$/, // both .js and .jsx
         include: path.resolve(__dirname, 'src', 'main-js'),
-        loader: 'eslint-loader',
-        enforce: 'pre'
-        // exclude: [
-        //   'node_modules', 'bower_components'
-        // ],
-        // options: {
-        //   fix: true,
-        // },
-        // }, {
-        //   test: indexHtml,
-        //   use: [
-        //     {
-        //       loader: 'file-loader',
-        //       options: {
-        //         name: '[name].[ext]',
-        //       },
-        //     },
-        //     {
-        //       loader: 'extract-loader',
-        //     },
-        //     {
-        //       loader: 'html-loader',
-        //       options: {
-        //         attrs: ['img:src', 'link:href'],
-        //         interpolate: true,
-        //       },
-        //     },
-        //   ],
-        // }, {
-        //   test: /\.css$/,
-        //   use: [
-        //     'file-loader',
-        //     'extract-loader',
-        //     {
-        //       loader: 'css-loader',
-        //       options: {
-        //         modules: true
-        //       }
-        //     }
-        //   ],
+        enforce: 'pre',
+        use: [
+          {
+            loader: 'eslint-loader',
+            options: {
+              outputPath: '/dist',
+              // publicPath: '/dist',
+              name: '[name].[ext]'
+            }
+          }
+        ]
+      // }, {
+      //   test: /\.jsx?$/,
+      //   exclude: ['node_modules', 'bower_components', 'libs'],
+      //   use: {
+      //     loader: 'babel-loader',
+      //     options: {
+      //       presets: ['env'],
+      //       plugins: [require('babel-plugin-transform-object-rest-spread')]
+      //     }
+      //   }
       }, {
         test: /\.css$/,
-        use: env === 'production'
-          ? ExtractTextPlugin.extract({
-            fallback: 'style-loader',
-            use: ['css-loader'],
-            publicPath: '../'
-          })
-          : ['style-loader', 'css-loader']
+        use: cssConfig
       }, {
         test: /\.(jpe?g|png|gif)$/,
-        loader: 'file-loader',
-        options: {name: 'img/[name].[ext]'}
+        // include: path.resolve(__dirname, 'src', 'img'),
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'img/',
+              // publicPath: 'dist/',
+              name: '[name].[ext]'
+            }
+          }
+        ]
       }, {
         test: /\.(json|geojson)$/,
         include: path.resolve(__dirname, 'src', 'data'),
-        loader: 'json-loader',
-        query: {name: 'data/[name].[ext]'}
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'data/',
+              publicPath: '/dist',
+              name: '[name].[ext]'
+            }
+          }
+        ]
       }
     ]
   },
@@ -160,7 +167,7 @@ module.exports = {
       // ol: 'ol'
     }),
     new ExtractTextPlugin({
-      disable: env === 'development',
+      disable: !isProd,
       filename: 'css/[name].css',
       allChunks: true
     }),
@@ -170,6 +177,14 @@ module.exports = {
     }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'manifest'
+    // }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: ['commons', 'vendor', 'bootstrap']
+    // }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   name: 'commons',
+    //   filename: 'commons-[hash].js',
+    //   chunks: ['main', 'wfscontext', 'vendor', 'bootstrap']
     // }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   async: 'used-twice',
@@ -182,29 +197,37 @@ module.exports = {
     //   children: true,
     //   filename: 'commonlazy.js'
     // }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'server'
+    new ManifestPlugin(),
+    new ChunkManifestPlugin({
+      filename: 'chunk-manifest.json',
+      manifestVariable: 'webpackManifest'
     }),
-    new CopyWebpackPlugin([{from: 'src/data', to: 'data'}]),
+    // new BundleAnalyzerPlugin({
+    //   analyzerMode: 'server'
+    // }),
+    // new CopyWebpackPlugin([{from: 'src/data', to: 'data'}]),
     new DuplicatePackageCheckerPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     // new UglifyJsPlugin({
     //   sourceMap: true,
-    //   compress: env === 'production',
+    //   compress: env === 'production'
     //   // compress: {
     //   //   warnings: true
     //   // }
     // }),
     new HtmlWebpackPlugin({
-      template: indexHtml,
+      template: path.join(__dirname, 'src', 'index.html'),
       inject: 'body'
+      // hash: true
     })
   ],
-  devtool: env === 'production' ? 'source-map' : 'inline-source-map',
+  devtool: isProd ? 'source-map' : 'inline-source-map',
   devServer: {
     hot: true,
+    compress: true,
     contentBase: path.resolve(__dirname, 'dist'),
-    publicPath: '/'
+    publicPath: '/',
+    stats: 'errors-only'
   }
 }
