@@ -2,6 +2,7 @@
  * Created by maddoxw on 1/3/17.
  */
 
+import $ from 'jquery'
 import exists from 'exists'
 
 let utils = {}
