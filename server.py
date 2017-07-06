@@ -3,7 +3,7 @@
 """
 Simple Python script used for development.
 Use apache for production.
-Usage: python ../app/server.py
+Usage: cd dist && python ../server.py
 """
 
 import BaseHTTPServer
