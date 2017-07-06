@@ -133,6 +133,17 @@ ol.control.Interaction = function (opt_options) {
   }, this)
 }
 ol.inherits(ol.control.Interaction, ol.control.Control)
+ol.control.Interaction.prototype.setMap = function (map) {
+  ol.control.Control.prototype.setMap.call(this, map)
+  let interaction = this.get('interaction')
+  if (map === null) {
+    ol.Observable.unByKey(this.get('eventId'))
+  } else if (map.getInteractions().getArray().indexOf(interaction) === -1) {
+    map.addInteraction(interaction)
+    interaction.setActive(false)
+    this.set('eventId', map.getControls().on('remove', this.get('destroyFunction'), map))
+  }
+}
 
 layertree.init()
 layertoolbar.init()
