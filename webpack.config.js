@@ -107,6 +107,7 @@ module.exports = {
       }, {
         test: /\.jsx?$/, // both .js and .jsx
         include: path.resolve(__dirname, 'src', 'main-js'),
+        exclude: /node_modules/,
         enforce: 'pre',
         use: [
           {
