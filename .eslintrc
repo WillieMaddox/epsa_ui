@@ -13,17 +13,21 @@
     "no-console": "off"
   },
   "settings": {
-    "import/resolver": "webpack"
+    "import/resolver": {
+      "webpack": {
+        "config": "webpack.config.js"
+      }
+    }
   },
   "env": {
-    "browser": true,
     "es6": true,
-    "commonjs": true,
+    "node": true,
     "jquery": true,
-    "node": true
+    "browser": true
   },
   "plugins": [
-    "node"
+    "node",
+    "import"
   ],
   "extends": [
     "eslint:recommended",
