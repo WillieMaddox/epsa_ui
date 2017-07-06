@@ -2,7 +2,7 @@
   "name": "osmfire",
   "version": "1.0.0",
   "description": "gis frontend",
-  "main": "gulpfile.js",
+  "main": "src/main-js/main.js",
   "directories": {
     "test": "tests"
   },
