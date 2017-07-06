@@ -174,7 +174,7 @@ module.exports = {
       allChunks: true
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      names: ['wfscontext', 'vendor'],
+      names: ['vendor', 'wfscontext'],
       minChunks: Infinity
     }),
     // new webpack.optimize.CommonsChunkPlugin({
