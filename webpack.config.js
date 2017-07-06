@@ -147,12 +147,13 @@ module.exports = {
       }, {
         test: /\.(json|geojson)$/,
         include: path.resolve(__dirname, 'src', 'data'),
+        enforce: 'pre',
         use: [
           {
-            loader: 'file-loader',
+            loader: 'json-loader',
             options: {
               outputPath: 'data/',
-              publicPath: '/dist',
+              // publicPath: 'data/',
               name: '[name].[ext]'
             }
           }
@@ -205,7 +206,6 @@ module.exports = {
     // new BundleAnalyzerPlugin({
     //   analyzerMode: 'server'
     // }),
-    // new CopyWebpackPlugin([{from: 'src/data', to: 'data'}]),
     new DuplicatePackageCheckerPlugin(),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
