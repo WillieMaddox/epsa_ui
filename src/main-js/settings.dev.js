@@ -11,4 +11,4 @@ const settings = {
   // baseUrl: "../app",
   proxyUrl: 'http://localhost:8050/cgi-bin/proxy.py?'
 }
-module.exports = settings
+export default settings

@@ -3,8 +3,7 @@
  */
 
 'use strict'
-
-// const $ = require('jquery')
+import $ from 'jquery'
 
 let messages = $('<div id="messagebar">')[0]
 $('#messagebar-container').append(messages)
@@ -25,6 +24,7 @@ let observer = new MutationObserver(function (mutations) {
   }
 })
 observer.observe(messages, {childList: true})
-module.exports = function message (msg) {
+const result = function message (msg) {
   messages.textContent = msg
 }
+export default result

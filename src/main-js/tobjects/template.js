@@ -65,5 +65,5 @@ for (let template in tobjectTemplates) {
   }
 }
 
-module.exports = tobjectTemplates
+export default tobjectTemplates
 

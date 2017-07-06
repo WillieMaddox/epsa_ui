@@ -4,14 +4,14 @@
 
 'use strict'
 
-// const $ = require('jquery')
-const ol = require('openlayers'),
-  deg2tile = require('deg2tile'),
-  mouseunits = require('mouseunits'),
-  mouseprojection = require('mouseprojection'),
-  bingKey = require('bingkey')
+import $ from 'jquery'
+import ol from 'openlayers'
+import bingKey from 'bingkey'
+import deg2tile from 'deg2tile'
+import mouseunits from 'mouseunits'
+import mouseprojection from 'mouseprojection'
 
-require('layerswitcher')
+import 'layerswitcher'
 
 $('#mouse-units-container').append(mouseunits)
 $('#mouse-projection-container').append(mouseprojection)
@@ -208,4 +208,4 @@ mousePositionControl.on('change:projection', function () {
 $unitsSelect.val(scaleLineControl.getUnits())
 $projectionSelect.val(mousePositionControl.getProjection().getCode())
 
-module.exports = map
+export default map

@@ -4,21 +4,21 @@
 
 'use strict'
 
-// const $ = require('jquery')
-const ol = require('openlayers'),
-  map = require('map'),
-  utils = require('utilities'),
-  exists = require('exists'),
-  isPolyValid = require('ispolyvalid'),
-  isPointInPoly = require('ispointinpoly'),
-  layerinteractor = require('layerinteractor'),
-  tobjectTemplates = require('ttemplate'),
-  doesPolyCoverHole = require('doespolycoverhole')
+import $ from 'jquery'
+import ol from 'openlayers'
+import map from 'map'
+import utils from 'utilities'
+import exists from 'exists'
+import isPolyValid from 'ispolyvalid'
+import isPointInPoly from 'ispointinpoly'
+import layerinteractor from 'layerinteractor'
+import tobjectTemplates from 'ttemplate'
+import doesPolyCoverHole from 'doespolycoverhole'
 
 const formElements = {}
 const wgs84Sphere = new ol.Sphere(6378137)
 
-module.exports = {
+const result = {
   init: function () {
     this.isStyled = false
     this.$form = this.createForm()
@@ -928,3 +928,5 @@ module.exports = {
     $('.form-label').addClass('disabled')
   }
 }
+
+export default result

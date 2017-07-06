@@ -4,26 +4,26 @@
 
 'use strict'
 
-// const $ = require('jquery')
-const ol = require('openlayers'),
-  map = require('map'),
-  shp = require('shp'),
-  utils = require('utilities'),
-  message = require('messagebar'),
-  layertree = require('layertree'),
-  WFSContext = require('wfs110context'),
-  tobjectTemplates = require('ttemplate'),
-  tobjectStyleFunction = require('tstylefunction'),
-  sensorTemplates = require('stemplate'),
-  sensorStyleFunction = require('sstylefunction'),
-  settings = require('serversettings')
+import $ from 'jquery'
+import ol from 'openlayers'
+import map from 'map'
+import shp from 'shp'
+import utils from 'utilities'
+import message from 'messagebar'
+import settings from 'serversettings'
+import layertree from 'layertree'
+import WFSContext from 'wfs110context'
+import sensorTemplates from 'stemplate'
+import tobjectTemplates from 'ttemplate'
+import sensorStyleFunction from 'sstylefunction'
+import tobjectStyleFunction from 'tstylefunction'
 
-require('jquery-ui')
+import 'jquery-ui'
 
 let wfsProjections = null
 // let WFSContext = null
 
-module.exports = {
+const result = {
   init: function () {
     let $controlDiv = $('#layertoolbar-container')
     $controlDiv.addClass('layertree-buttons')
@@ -909,3 +909,5 @@ module.exports = {
 // $.when(maybeAsync(0), $.get('/data/people.json')).then(function (resp1, resp2) {
 //     console.log("Both operations are done", resp1, resp2);
 // });
+
+export default result

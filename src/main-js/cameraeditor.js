@@ -4,18 +4,18 @@
 
 'use strict'
 
-// const $ = require('jquery')
-const ol = require('openlayers')
-const utils = require('utilities'),
-  map = require('map'),
-  sensorTemplates = require('stemplate'),
-  exists = require('exists'),
-  jsts = require('jsts')
+import $ from 'jquery'
+import ol from 'openlayers'
+import map from 'map'
+import utils from 'utilities'
+import exists from 'exists'
+import * as jsts from 'jsts'
+import sensorTemplates from 'stemplate'
 
 const formElements = {}
 const wgs84Sphere = new ol.Sphere(6378137)
 
-module.exports = {
+const result = {
   init: function () {
     this.isStyled = false
     this.parser = new jsts.io.OL3Parser()
@@ -775,3 +775,5 @@ module.exports = {
     $('.form-label').addClass('disabled')
   }
 }
+
+export default result

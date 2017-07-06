@@ -3,8 +3,7 @@
  */
 
 'use strict'
-
-const jsts = require('jsts')
+import * as jsts from 'jsts'
 
 const parser = new jsts.io.OL3Parser()
 const isPolyValid = function (poly) {
@@ -12,4 +11,4 @@ const isPolyValid = function (poly) {
   return geom.isValid()
 }
 
-module.exports = isPolyValid
+export default isPolyValid

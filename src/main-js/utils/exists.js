@@ -6,4 +6,4 @@ const exists = function (x) {
   return (x !== undefined && x !== null)
 }
 
-module.exports = exists
+export default exists

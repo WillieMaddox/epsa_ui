@@ -1,12 +1,11 @@
-
-// const $ = require('jquery')
-const ol = require('openlayers'),
-  layertree = require('layertree'),
-  layertoolbar = require('layertoolbar'),
-  toolbar = require('toolbar'),
-  layerinteractor = require('layerinteractor'),
-  featureeditor = require('featureeditor'),
-  cameraeditor = require('cameraeditor')
+import $ from 'jquery'
+import ol from 'openlayers'
+import layertree from 'layertree'
+import layertoolbar from 'layertoolbar'
+import toolbar from 'toolbar'
+import layerinteractor from 'layerinteractor'
+import featureeditor from 'featureeditor'
+import cameraeditor from 'cameraeditor'
 
 String.prototype.capitalizeFirstLetter = function (flip) {
   if (flip) {

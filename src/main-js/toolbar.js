@@ -4,17 +4,11 @@
 
 'use strict'
 
-// const ol = require('openlayers')
-const ol = require('openlayers')
-const map = require('map')
-const utils = require('utilities')
-const layertree = require('layertree')
-const isPolyValid = require('ispolyvalid')
-// import ol from 'openlayers'
-// import map from 'map'
-// import utils from 'utilities'
-// import layertree from 'layertree'
-// import isPolyValid from 'ispolyvalid'
+import ol from 'openlayers'
+import map from 'map'
+import utils from 'utilities'
+import layertree from 'layertree'
+import isPolyValid from 'ispolyvalid'
 // import Collection from 'openlayers/src/ol/collection'
 
 let bitA = 0
@@ -246,5 +240,4 @@ const result = {
   }
 }
 
-module.exports = result
-// export default result
+export default result

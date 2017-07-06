@@ -8,4 +8,5 @@
  */
 
 const bingKey = 'DONTEVERPUTKEYSINSOURCECONTROL'
-module.exports = bingKey
+export default bingKey
+

@@ -10,9 +10,8 @@
  */
 
 'use strict'
-
-const ol = require('openlayers'),
-  jsts = require('jsts')
+import ol from 'openlayers'
+import * as jsts from 'jsts'
 
 const parser = new jsts.io.OL3Parser()
 const isPointInPoly = function (geom, pointcoords) {
@@ -21,4 +20,4 @@ const isPointInPoly = function (geom, pointcoords) {
   return geomB.within(geomA)
 }
 
-module.exports = isPointInPoly
+export default isPointInPoly

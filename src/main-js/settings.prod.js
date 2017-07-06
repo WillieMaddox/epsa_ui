@@ -11,4 +11,4 @@ const settings = {
   // baseUrl: "/",
   proxyUrl: 'https://www.osmfire.com/cgi-bin/proxy.py?'
 }
-module.exports = settings
+export default settings

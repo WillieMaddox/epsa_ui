@@ -3,18 +3,17 @@
  */
 
 'use strict'
+import $ from 'jquery'
+import ol from 'openlayers'
+import map from 'map'
+import utils from 'utilities'
+import message from 'messagebar'
+import sensorTemplates from 'stemplate'
+import tobjectTemplates from 'ttemplate'
+import sensorStyleFunction from 'sstylefunction'
+import tobjectStyleFunction from 'tstylefunction'
 
-// const $ = require('jquery')
-const ol = require('openlayers'),
-  map = require('map'),
-  utils = require('utilities'),
-  message = require('messagebar'),
-  tobjectTemplates = require('ttemplate'),
-  tobjectStyleFunction = require('tstylefunction'),
-  sensorTemplates = require('stemplate'),
-  sensorStyleFunction = require('sstylefunction')
-
-require('jquery-ui')
+import 'jquery-ui'
 
 let idCounter = 0
 
@@ -721,4 +720,4 @@ let result = {
   }
 }
 
-module.exports = result
+export default result

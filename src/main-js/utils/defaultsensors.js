@@ -3,9 +3,9 @@
  */
 
 'use strict'
+import $ from 'jquery'
 
-const $ = require('jquery')
-module.exports = function (callback) {
+export default function (callback) {
   $.getJSON({
     url: 'data/default_sensors.json'
   }).done(function (data) {

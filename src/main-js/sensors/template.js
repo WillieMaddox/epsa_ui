@@ -4,8 +4,8 @@
 
 'use strict'
 
-// const $ = require('jquery')
-const defaultSensors = require('../utils/defaultsensors')
+import $ from 'jquery'
+import defaultSensors from '../utils/defaultsensors'
 
 const sensorProperties = {
   source_height: {
@@ -66,4 +66,4 @@ defaultSensors(function (data) {
   sensorTemplates.radio.defaultSensors = data.radio
 })
 
-module.exports = sensorTemplates
+export default sensorTemplates

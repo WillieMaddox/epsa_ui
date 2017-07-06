@@ -3,17 +3,14 @@
  */
 
 'use strict'
-
-const JsonixModule = require('jsonix'),
-  xlink10Module = require('XLink_1_0'),
-  filter110Module = require('Filter_1_1_0'),
-  ows100Module = require('OWS_1_0_0'),
-  wfs110Module = require('WFS_1_1_0'),
-  gml311Module = require('GML_3_1_1'),
-  smil20lang = require('SMIL_2_0_Language'),
-  smil20 = require('SMIL_2_0')
-
-// require('main');
+import JsonixModule from 'jsonix'
+import xlink10Module from 'XLink_1_0'
+import wfs110Module from 'WFS_1_1_0'
+import filter110Module from 'Filter_1_1_0'
+import ows100Module from 'OWS_1_0_0'
+import smil20 from 'SMIL_2_0'
+import smil20lang from 'SMIL_2_0_Language'
+import gml311Module from 'GML_3_1_1'
 
 const Jsonix = JsonixModule.Jsonix
 
@@ -26,4 +23,6 @@ const SMIL_2_0 = smil20.SMIL_2_0
 const GML_3_1_1 = gml311Module.GML_3_1_1
 const mappings = [SMIL_2_0_Language, SMIL_2_0, GML_3_1_1, XLink_1_0, Filter_1_1_0, OWS_1_0_0, WFS_1_1_0]
 
-module.exports = new Jsonix.Context(mappings)
+const result = new Jsonix.Context(mappings)
+
+export default result

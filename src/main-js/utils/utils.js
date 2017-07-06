@@ -2,8 +2,8 @@
  * Created by maddoxw on 1/3/17.
  */
 
-// const $ = require('jquery')
-const exists = require('exists')
+import exists from 'exists'
+
 let utils = {}
 
 utils.FID = (function () {
@@ -89,4 +89,4 @@ utils.createMenuOption = function (value, text) {
   return $option
 }
 
-module.exports = utils
+export default utils

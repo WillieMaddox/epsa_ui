@@ -3,10 +3,9 @@
  */
 
 'use strict'
-
-const ol = require('openlayers')
-const exists = require('../utils/exists'),
-  tobjectTemplates = require('./template')
+import ol from 'openlayers'
+import exists from '../utils/exists'
+import tobjectTemplates from './template'
 
 const tobjectColor = {
   'aor': [0, 0, 0],
@@ -27,7 +26,7 @@ const tobjectFillOpacity = {
   'MultiPoint': 0
 }
 
-module.exports = (function () {
+export default (function () {
   let setStyle = function (color, opacity) {
     let style = new ol.style.Style({
       image: new ol.style.Circle({

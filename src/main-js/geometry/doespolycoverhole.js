@@ -3,9 +3,8 @@
  */
 
 'use strict'
-
-const ol = require('openlayers'),
-  jsts = require('jsts')
+import ol from 'openlayers'
+import * as jsts from 'jsts'
 
 const parser = new jsts.io.OL3Parser()
 const doesPolyCoverHole = function (geom, holecoords) {
@@ -14,4 +13,4 @@ const doesPolyCoverHole = function (geom, holecoords) {
   return geomA.covers(geomB)
 }
 
-module.exports = doesPolyCoverHole
+export default doesPolyCoverHole

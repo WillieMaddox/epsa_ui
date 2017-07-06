@@ -4,13 +4,13 @@
 
 'use strict'
 
-// const $ = require('jquery')
-const ol = require('openlayers')
-const map = require('map'),
-  layertree = require('layertree'),
-  exists = require('exists'),
-  toolbar = require('toolbar'),
-  isPolyValid = require('ispolyvalid')
+import $ from 'jquery'
+import ol from 'openlayers'
+import map from 'map'
+import exists from 'exists'
+import toolbar from 'toolbar'
+import layertree from 'layertree'
+import isPolyValid from 'ispolyvalid'
 
 // addFormRow = function (labels) {
 //   var $formRow = $("<div class='form-row'>")
@@ -29,7 +29,7 @@ let highlightGeomStyleCache = {}
 let textStyleKey = 'name'
 let geomStyleKey = 'type'
 
-module.exports = {
+const result = {
   init: function () {
 
     const _this = this
@@ -460,3 +460,5 @@ module.exports = {
     })
   }
 }
+
+export default result

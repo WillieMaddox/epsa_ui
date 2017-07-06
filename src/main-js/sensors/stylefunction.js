@@ -3,11 +3,10 @@
  */
 
 'use strict'
+import ol from 'openlayers'
+import sensorTemplates from './template'
 
-const ol = require('openlayers')
-const sensorTemplates = require('./template')
-
-module.exports = (function () {
+export default (function () {
 
   const icons = {
     'camera': './img/camera-normal.png',
