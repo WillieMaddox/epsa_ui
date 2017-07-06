@@ -228,6 +228,7 @@ module.exports = {
     compress: true,
     contentBase: path.resolve(__dirname, 'dist'),
     publicPath: '/',
-    stats: 'errors-only'
+    stats: 'errors-only',
+    port: 8050
   }
 }
