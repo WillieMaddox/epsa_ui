@@ -30,6 +30,7 @@ const result = {
     this.active = false
     this.drawEventEmitter = new ol.Observable()
     this.addedFeature = null
+    this.addDrawToolBar()
   },
   addControl: function (control) {
     if (!(control instanceof ol.control.Control)) {
