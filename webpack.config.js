@@ -32,7 +32,7 @@ module.exports = {
     alias: {
       'serversettings': 'settings.dev',  // development
       // serversettings': './settings.prod',  // production
-      'jquery': 'jquery/src/jquery',
+      'jquery': 'jquery/dist/jquery',
       'jquery-ui': 'jquery-ui/jquery-ui',
       'jsonix': 'jsonix/nodejs/scripts/jsonix',
       'WFS_2_0': 'ogc-schemas/lib/WFS_2_0',
