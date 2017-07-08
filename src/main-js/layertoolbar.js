@@ -80,7 +80,6 @@ const result = {
     serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
     let query = 'SERVICE=WMS&REQUEST=GetCapabilities'
     let url = settings.proxyUrl + serverUrl + query
-    console.log(url)
 
     $.ajax({
       type: 'GET',
@@ -110,8 +109,8 @@ const result = {
         }
         message(messageText)
       }
-    }).fail(function (error) {
-      message('Some unexpected error occurred in checkWmsLayer: (' + error.message + ').')
+    }).fail(function (response) {
+      message('Some unexpected error occurred in checkWmsLayer: (' + response.message + ').')
     }).always(function () {
       $form.find('.layername').selectmenu('refresh')
       $form.find('.format').selectmenu('refresh')
@@ -183,8 +182,8 @@ const result = {
         }
         message(messageText)
       }
-    }).fail(function (error) {
-      message('Some unexpected error occurred in checkWfsLayer: (' + error.message + ').')
+    }).fail(function (response) {
+      message('Some unexpected error occurred in checkWfsLayer: (' + response.message + ').')
     }).always(function () {
       $form.find('.layername').selectmenu('refresh')
       $button.button('enable')
@@ -251,8 +250,8 @@ const result = {
           source.set('pendingRequests', source.get('pendingRequests') + 1)
           console.log('Pending', source.get('pendingRequests'), 'res', res)
         }
-      }).done(loadend).fail(function (response) {
-        message('Some unexpected error occurred in addWfsLayer: (' + response.message + ').')
+      }).done(loadend).fail(function (error) {
+        message('Some unexpected error occurred in addWfsLayer: (' + error.message + ').')
       })
     }
     // $.when(maybeAsync(1)).then(function (resp) {
@@ -508,26 +507,6 @@ const result = {
     message('Save Successful.')
   },
 
-  // getDefaultSensors = function () {
-  //     let _this = this;
-  //     let $form = $button.form();
-  //     $button.button("disable");
-  //     $form.find(".layername").empty();
-  //     $form.find(".format").empty();
-  //     let serverUrl = $form.find(".url").val();
-  //     serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl;
-  //     $form.find(".url").val(serverUrl);
-  //     serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?';
-  //     let query = 'SERVICE=WMS&REQUEST=GetCapabilities';
-  //     let url = settings.proxyUrl + serverUrl + query;
-  //     console.log(url);
-
-  // let defsens = null;
-  // $.getJSON('data/default_sensors.json', function (data) {
-  //     defsens = data;
-  // });
-  // return defsens;
-
   openDialog: function (elemName, elemTitle) {
 
     let $dialog
@@ -645,8 +624,10 @@ const result = {
   },
   createServerUrlNodes: function ($fieldset, id) {
     let _this = this
+
     $fieldset.append($('<label for="open-url">Server URL</label>'))
-    let $url = $('<input type="text" id="open-url" name="url" class="url" value="http://demo.opengeo.org/geoserver/' + id + '">')
+    // let $url = $('<input type="text" id="open-url" name="url" class="url" value="http://demo.opengeo.org/geoserver/' + id + '">')
+    let $url = $('<input type="text" id="open-url" name="url" class="url" value="http://localhost:8080/geoserver/' + id + '">')
     $fieldset.append($url)
     let $check = $('<input type="button" name="check" value="Check for layers">')
     $fieldset.append($check)
