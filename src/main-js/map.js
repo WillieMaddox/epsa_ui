@@ -44,14 +44,14 @@ let view = new ol.View({
     // [-78.87532, 42.884600],
     // [-73.9812, 40.6957],
     // [-105.539, 39.771],
-    // [-105.0, 39.75],
+    [-105.005, 39.76], // downtown Denver, CO
     // [-79.049, 43.146],
     // [-109.55, 31.34], // Douglass, AZ
-    [-111.9796, 40.7867], // Salt Lake City, UT
+    // [-111.9796, 40.7867], // Salt Lake City, UT
     'EPSG:4326', 'EPSG:3857'),
   // center: [-8238000, 4970700],
   // center: [0, 0],
-  zoom: 19
+  zoom: 17
 })
 let map = new ol.Map({
   interactions: ol.interaction.defaults({doubleClickZoom: false}),
