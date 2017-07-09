@@ -90,7 +90,6 @@ module.exports = {
     crossOriginLoading: false
   },
   module: {
-    // noParse: /bower_components\\jsonix\\dist\\Jsonix-min\.js/,
     rules: [
       {
         test: /layerswitcher/,
@@ -115,12 +114,12 @@ module.exports = {
         ]
       // }, {
       //   test: /\.jsx?$/,
+      //   include: path.resolve(__dirname, 'src', 'main-js'),
       //   exclude: ['node_modules', 'bower_components', 'libs'],
       //   use: {
       //     loader: 'babel-loader',
       //     options: {
-      //       presets: ['env'],
-      //       plugins: [require('babel-plugin-transform-object-rest-spread')]
+      //       presets: ['es2015', {modules: false}]
       //     }
       //   }
       }, {
@@ -149,7 +148,6 @@ module.exports = {
             loader: 'json-loader',
             options: {
               outputPath: 'data/',
-              // publicPath: 'data/',
               name: '[name].[ext]'
             }
           }
