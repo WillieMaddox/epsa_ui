@@ -171,7 +171,7 @@ function coordinateFormat (coordinates) {
   let lat = 'Lat: ' + lonlat[1]
   let x = 'X: ' + xytile[0]
   let y = 'Y: ' + xytile[1]
-  let z = 'Z: ' + zoom
+  let z = 'Z: ' + xytile[2]
   return [lon, lat, x, y, z].join('  ')
 }
 
