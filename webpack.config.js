@@ -79,7 +79,7 @@ module.exports = {
       path.join(__dirname, 'src', 'css', 'main.css')
     ],
     vendor: ['jquery', 'jquery-ui', 'openlayers', 'layerswitcher', 'jsts'],
-    wfscontext: ['wfs110context', 'jsonix', 'XLink_1_0', 'shp']
+    wfscontext: ['wfs110context', 'shp']
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -95,12 +95,6 @@ module.exports = {
       {
         test: /layerswitcher/,
         use: ['imports-loader?openlayers']
-      }, {
-        test: /WFS_1_1_0/,
-        use: ['imports-loader?OWS_1_0_0,Filter_1_1_0,GML_3_1_1']
-      }, {
-        test: /WFS_2_0/,
-        use: ['imports-loader?OWS_1_1_0,Filter_2_0,GML_3_1_1']
       }, {
         test: /\.txt$/,
         use: ['raw-loader']
