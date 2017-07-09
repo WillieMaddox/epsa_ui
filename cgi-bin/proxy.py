@@ -16,9 +16,7 @@ import urllib2
 import cgi
 import sys, os
 
-ofs = open('log/proxy.log', 'w') # development
-# ofs = open('../log/proxy.log', 'w') # production
-
+ofs = open('log/proxy.log', 'w')
 ofs.write(os.environ["REQUEST_METHOD"]+'\n')
 if os.environ.has_key("Content-Type"):
     ofs.write(os.environ["CONTENT_TYPE"])
@@ -74,7 +72,7 @@ try:
     else:
         print "Content-Type: text/plain"
         print
-        print "Illegal request DICKS."
+        print "Illegal request."
 except Exception, E:
     print "Status: 500 Unexpected Error"
     print "Content-Type: text/plain"

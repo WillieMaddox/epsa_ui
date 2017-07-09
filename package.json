@@ -9,10 +9,13 @@
   "dependencies": {
     "express": "^4.14.0",
     "express-error-handler": "^1.1.0",
+    "express-grab-body": "^0.1.0",
+    "http-proxy": "^1.16.2",
     "jquery": "^3.2.1",
     "jsts": "^1.4.0",
     "ogc-schemas": "^2.6.1",
     "openlayers": "^4.2.0",
+    "serve-cgi": "^0.6.1",
     "shpjs": "^3.4.0",
     "w3c-schemas": "^1.4.0"
   },
