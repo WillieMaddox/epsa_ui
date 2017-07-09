@@ -127,16 +127,17 @@ module.exports = {
         test: /\.css$/,
         use: cssConfig
       }, {
-        test: /\.(jpe?g|png|gif)$/,
-        // include: path.resolve(__dirname, 'src', 'img'),
+        test: /\.(jpe?g|png|gif|svg)$/,
         use: [
           {
-            loader: 'file-loader',
+            loader: 'url-loader',
             options: {
               outputPath: 'img/',
-              // publicPath: 'dist/',
+              limit: 10000,
               name: '[name].[ext]'
             }
+          }, {
+            loader: 'image-webpack-loader'
           }
         ]
       }, {
