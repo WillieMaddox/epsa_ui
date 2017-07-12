@@ -1,4 +1,4 @@
-# epsa UI
+# OSM Fire
 
 ## Setup
 
@@ -7,3 +7,7 @@
 `cd osmfire`
 
 `git submodule update --init`
+
+`npm install`
+
+`npm run start`
