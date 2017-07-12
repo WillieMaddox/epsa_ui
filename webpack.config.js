@@ -225,6 +225,10 @@ module.exports = {
     contentBase: path.resolve(__dirname, 'dist'),
     publicPath: '/',
     stats: 'errors-only',
-    port: 8050
+    port: 3050,
+    proxy: {
+      '/wfs': 'http://localhost:8080/geoserver/wfs',
+      '/wms': 'http://localhost:8080/geoserver/wms'
+    }
   }
 }

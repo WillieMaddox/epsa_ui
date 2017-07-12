@@ -10,7 +10,7 @@ import map from 'map'
 import shp from 'shp'
 import utils from 'utilities'
 import message from 'messagebar'
-import settings from 'serversettings'
+// import settings from 'serversettings'
 import layertree from 'layertree'
 import WFSContext from 'wfs110context'
 import sensorTemplates from 'stemplate'
@@ -68,22 +68,232 @@ const result = {
     }
   },
 
+  // This was the code that allowed the user to supply
+  // their own url to the remote geo/map server of their choosing.
+  // However, the only way I know to make this work is to use
+  // cgi (i.e. /cgi-bin/proxy.py) as middleware.  I've never
+  // felt comfortable using cgi-bin. All the proxy scripts I've seen
+  // warn about using it in production and how it is a potential
+  // security risks if not set up correctly.
+  // It is disabled for now until I can find a more secure solution.
+
+  // checkWmsLayer: function ($button) {
+  //
+  //   let $form = $button.form()
+  //   $button.button('disable')
+  //   $form.find('.layername').empty()
+  //   $form.find('.format').empty()
+  //   let serverUrl = $form.find('.url').val()
+  //   serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
+  //   $form.find('.url').val(serverUrl)
+  //   serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
+  //   let query = 'SERVICE=WMS&REQUEST=GetCapabilities'
+  //   let url = settings.proxyUrl + serverUrl + query
+  //
+  //   $.ajax({
+  //     type: 'GET',
+  //     url: url
+  //   }).done(function (response) {
+  //     let parser = new ol.format.WMSCapabilities()
+  //     let capabilities = parser.read(response)
+  //     let currentProj = map.getView().getProjection().getCode()
+  //     let crs, i
+  //     let messageText = 'Layers read successfully.'
+  //     if (capabilities.version === '1.3.0') {
+  //       crs = capabilities.Capability.Layer.CRS
+  //     } else {
+  //       crs = [currentProj]
+  //       messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').'
+  //     }
+  //     let layers = capabilities.Capability.Layer.Layer
+  //     if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
+  //       let nLayers = layers.length
+  //       for (i = 0; i < nLayers; i += 1) {
+  //         $form.find('.layername').append(utils.createMenuOption(layers[i].Name))
+  //       }
+  //       let formats = capabilities.Capability.Request.GetMap.Format
+  //       let nFormats = formats.length
+  //       for (i = 0; i < nFormats; i += 1) {
+  //         $form.find('.format').append(utils.createMenuOption(formats[i]))
+  //       }
+  //       message(messageText)
+  //     }
+  //   }).fail(function (response) {
+  //     message('Some unexpected error occurred in checkWmsLayer: (' + response.message + ').')
+  //   }).always(function () {
+  //     $form.find('.layername').selectmenu('refresh')
+  //     $form.find('.format').selectmenu('refresh')
+  //     $button.button('enable')
+  //   })
+  // },
+  // addWmsLayer: function ($form) {
+  //   let params = {
+  //     url: $form.find('.url').val(),
+  //     params: {
+  //       layers: $form.find('.layername').val(),
+  //       format: $form.find('.format').val()
+  //     }
+  //   }
+  //   let layer
+  //   if ($form.find('.tiled').is(':checked')) {
+  //     layer = new ol.layer.Tile({
+  //       source: new ol.source.TileWMS(params),
+  //       name: $form.find('.displayname').val(),
+  //       opacity: 0.7
+  //     })
+  //   } else {
+  //     layer = new ol.layer.Image({
+  //       source: new ol.source.ImageWMS(params),
+  //       name: $form.find('.displayname').val(),
+  //       opacity: 0.7
+  //     })
+  //   }
+  //   map.addLayer(layer)
+  //   message('WMS layer added successfully.')
+  //   return this
+  // },
+  // checkWfsLayer: function ($button) {
+  //
+  //   let $form = $button.form()
+  //   $button.button('disable')
+  //   $form.find('.layername').empty()
+  //   wfsProjections = {}
+  //   let serverUrl = $form.find('.url').val()
+  //   serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
+  //   $form.find('.url').val(serverUrl)
+  //   serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
+  //   let query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities'
+  //   let url = settings.proxyUrl + serverUrl + query
+  //   $.ajax({
+  //     type: 'GET',
+  //     url: url
+  //   }).done(function (response) {
+  //     let unmarshaller = WFSContext.createUnmarshaller()
+  //     let capabilities = unmarshaller.unmarshalDocument(response).value
+  //     let messageText = 'Layers read successfully.'
+  //     if (capabilities.version !== '1.1.0') {
+  //       messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').'
+  //     }
+  //     let layers = capabilities.featureTypeList.featureType
+  //     let nLayers = layers.length
+  //     if (nLayers > 0) {
+  //       const re = /}(.*)/
+  //       for (let i = 0; i < nLayers; i += 1) {
+  //         let name = re.exec(layers[i].name)[1]
+  //         $form.find('.layername').append(utils.createMenuOption(name))
+  //         wfsProjections[name] = layers[i].defaultSRS
+  //       }
+  //       message(messageText)
+  //     }
+  //   }).fail(function (response) {
+  //     message('Some unexpected error occurred in checkWfsLayer: (' + response.message + ').')
+  //   }).always(function () {
+  //     $form.find('.layername').selectmenu('refresh')
+  //     $button.button('enable')
+  //   })
+  // },
+  // addWfsLayer: function ($form) {
+  //
+  //   let t0, t1, nAdd, nBefore, nAfter
+  //   let source, strategy, layer
+  //   let buildQueryString = function (options) {
+  //     let queryArray = []
+  //     queryArray.push('SERVICE=WFS')
+  //     queryArray.push('VERSION=1.1.0')
+  //     queryArray.push('REQUEST=GetFeature')
+  //     if (options.typeName) {
+  //       queryArray.push('TYPENAME=' + options.typeName)
+  //     }
+  //     if (options.proj) {
+  //       queryArray.push('SRSNAME=' + options.proj)
+  //     }
+  //     if (options.extent) {
+  //       queryArray.push('BBOX=' + options.extent.join(','))
+  //     }
+  //     return queryArray.join('&')
+  //   }
+  //   let typeName = $form.find('.layername').val()
+  //   let proj = wfsProjections[typeName]
+  //   let featureProjection
+  //   let formatWFS = new ol.format.WFS()
+  //   let serverUrl = $form.find('.url').val()
+  //   serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
+  //   serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
+  //
+  //   function loadend (response) {
+  //     console.log('*******************************************')
+  //     t0 = new Date().getTime()
+  //     let features = formatWFS.readFeatures(response, {
+  //       dataProjection: proj,
+  //       featureProjection: featureProjection
+  //     })
+  //     t1 = new Date().getTime()
+  //     nAdd = features.length
+  //     console.log('Remaining', source.get('pendingRequests'), 't=', t1 - t0, 'ms n=', nAdd, 'n/t=', nAdd / (t1 - t0))
+  //     nBefore = source.getFeatures().length
+  //     t0 = new Date().getTime()
+  //     source.addFeatures(features)
+  //     t1 = new Date().getTime()
+  //     nAfter = source.getFeatures().length
+  //     console.log('Remaining', source.get('pendingRequests'), 't=', t1 - t0, 'ms n=', nAfter - nBefore, 'n/t=', (nAfter - nBefore) / (t1 - t0))
+  //   }
+  //   function loader (extent, res, mapProj) {
+  //     let query = buildQueryString({typeName: typeName, proj: proj, extent: extent})
+  //     featureProjection = mapProj.getCode()
+  //     $.ajax({
+  //       type: 'GET',
+  //       url: settings.proxyUrl + serverUrl + query,
+  //       beforeSend: function () {
+  //         if (source.get('pendingRequests') === 0) {
+  //           let $progressbar = $("<div class='buffering'></div>")
+  //           $progressbar.append($('#' + layer.get('id') + ' .layertitle'))
+  //           $progressbar.progressbar({value: false})
+  //           $progressbar.insertBefore($('#' + layer.get('id') + ' .layeropacity'))
+  //         }
+  //         source.set('pendingRequests', source.get('pendingRequests') + 1)
+  //         console.log('Pending', source.get('pendingRequests'), 'res', res)
+  //       }
+  //     }).done(loadend).fail(function (error) {
+  //       message('Some unexpected error occurred in addWfsLayer: (' + error.message + ').')
+  //     })
+  //   }
+  //
+  //   if ($form.find('.tiled').is(':checked')) {
+  //     strategy = ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))
+  //   } else {
+  //     strategy = ol.loadingstrategy.bbox
+  //   }
+  //   source = new ol.source.Vector({
+  //     loader: loader,
+  //     strategy: strategy,
+  //     wrapX: false
+  //   })
+  //   source.set('pendingRequests', 0)
+  //   layer = new ol.layer.Image({
+  //     source: new ol.source.ImageVector({
+  //       source: source
+  //     }),
+  //     name: $form.find('.displayname').val(),
+  //     opacity: 0.7
+  //   })
+  //   layertree.addBufferIcon(layer)
+  //   map.addLayer(layer)
+  //   message('WFS layer added successfully.')
+  //   console.log('WFS layer added successfully.')
+  //   return this
+  // },
+
   checkWmsLayer: function ($button) {
 
     let $form = $button.form()
     $button.button('disable')
     $form.find('.layername').empty()
     $form.find('.format').empty()
-    let serverUrl = $form.find('.url').val()
-    serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
-    $form.find('.url').val(serverUrl)
-    serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
     let query = 'SERVICE=WMS&REQUEST=GetCapabilities'
-    let url = settings.proxyUrl + serverUrl + query
 
     $.ajax({
       type: 'GET',
-      url: url
+      url: '/wms?' + query
     }).done(function (response) {
       let parser = new ol.format.WMSCapabilities()
       let capabilities = parser.read(response)
@@ -149,16 +359,11 @@ const result = {
     $button.button('disable')
     $form.find('.layername').empty()
     wfsProjections = {}
-    let serverUrl = $form.find('.url').val()
-    serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
-    $form.find('.url').val(serverUrl)
-    serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
     let query = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities'
-    let url = settings.proxyUrl + serverUrl + query
 
     $.ajax({
       type: 'GET',
-      url: url
+      url: '/wfs?' + query
     }).done(function (response) {
 
       // if (WFSContext === null) {
@@ -213,9 +418,6 @@ const result = {
     let proj = wfsProjections[typeName]
     let featureProjection
     let formatWFS = new ol.format.WFS()
-    let serverUrl = $form.find('.url').val()
-    serverUrl = /^((http)|(https))(:\/\/)/.test(serverUrl) ? serverUrl : 'http://' + serverUrl
-    serverUrl = /\?/.test(serverUrl) ? serverUrl + '&' : serverUrl + '?'
 
     function loadend (response) {
       console.log('*******************************************')
@@ -239,7 +441,7 @@ const result = {
       featureProjection = mapProj.getCode()
       $.ajax({
         type: 'GET',
-        url: settings.proxyUrl + serverUrl + query,
+        url: '/wfs?' + query,
         beforeSend: function () {
           if (source.get('pendingRequests') === 0) {
             let $progressbar = $("<div class='buffering'></div>")
