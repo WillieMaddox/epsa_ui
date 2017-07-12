@@ -80,6 +80,8 @@ const result = {
         this.layer.getSource().getSource().addFeature(selectedFeatures.getArray()[0])
         selectedFeatures.clear()
       }
+      // TODO: .layereditor > form is only valid for feature layers.
+      // BUG: added wms layers will raise TypeError when switching to and from.
       this.editor.$form = $('.layereditor > form').detach()
       layertree.layerEditors[this.layer.get('type')] = this.editor
       this.editor = null
