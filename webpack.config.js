@@ -76,8 +76,8 @@ module.exports = {
   },
   entry: {
     main: [
-      path.join(__dirname, 'src', 'main-js', 'main.js'),
-      path.join(__dirname, 'src', 'css', 'main.css')
+      path.join(__dirname, 'src', 'css', 'main.css'),
+      path.join(__dirname, 'src', 'main-js', 'main.js')
     ],
     vendor: ['jquery', 'jquery-ui', 'openlayers', 'layerswitcher', 'jsts'],
     wfscontext: ['wfs110context', 'shp']
