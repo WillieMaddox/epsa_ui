@@ -5,12 +5,11 @@ const ManifestPlugin = require('webpack-manifest-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin') //installed via npm
 // const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const ChunkManifestPlugin = require('chunk-manifest-webpack-plugin')
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+// const ChunkManifestPlugin = require('chunk-manifest-webpack-plugin')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 
 const indexHtml = path.resolve(__dirname, 'src', 'index.html')
-
 const isProd = process.env.NODE_ENV === 'production'
 console.log(isProd ? 'production' : 'development')
 const cssDev = ['style-loader', 'css-loader']
@@ -79,15 +78,15 @@ module.exports = {
       path.join(__dirname, 'src', 'css', 'main.css'),
       path.join(__dirname, 'src', 'main-js', 'main.js')
     ],
-    vendor: ['jquery', 'jquery-ui', 'openlayers', 'layerswitcher', 'jsts'],
-    wfscontext: ['wfs110context', 'shp']
+    vendor: ['jquery', 'jquery-ui', 'openlayers', 'layerswitcher', 'jsts', 'wfs110context', 'shp']
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: isProd === false,
-    filename: 'main-js/[name]-bundle.js',
+    // filename: 'main-js/[name]-[chunkhash].js', // PROD
+    filename: 'main-js/[name].js', // DEV
     publicPath: '/',
-    chunkFilename: 'main-js/[name]-[chunkhash].js',
+    // chunkFilename: 'main-js/[name]-[chunkhash].js',
     crossOriginLoading: false
   },
   module: {
@@ -134,7 +133,8 @@ module.exports = {
             options: {
               outputPath: 'img/',
               limit: 10000,
-              name: '[name].[ext]'
+              name: '[name].[ext]' // DEV
+              // name: '[name]-[hash].[ext]' // PROD
             }
           }, {
             loader: 'image-webpack-loader'
@@ -169,14 +169,11 @@ module.exports = {
       allChunks: true
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'wfscontext'],
+      names: ['vendor', 'manifest'],
       minChunks: Infinity
     }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'manifest'
-    // }),
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: ['commons', 'vendor', 'bootstrap']
     // }),
     // new webpack.optimize.CommonsChunkPlugin({
     //   name: 'commons',
@@ -194,11 +191,11 @@ module.exports = {
     //   children: true,
     //   filename: 'commonlazy.js'
     // }),
-    new ManifestPlugin(),
-    new ChunkManifestPlugin({
-      filename: 'chunk-manifest.json',
-      manifestVariable: 'webpackManifest'
-    }),
+    // new ManifestPlugin(),
+    // new ChunkManifestPlugin({
+    //   filename: 'chunk-manifest.json',
+    //   manifestVariable: 'webpackManifest'
+    // }),
     // new BundleAnalyzerPlugin({
     //   analyzerMode: 'server'
     // }),
