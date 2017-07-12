@@ -9,6 +9,7 @@ const ChunkManifestPlugin = require('chunk-manifest-webpack-plugin')
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 
+const indexHtml = path.resolve(__dirname, 'src', 'index.html')
 
 const isProd = process.env.NODE_ENV === 'production'
 console.log(isProd ? 'production' : 'development')
@@ -212,7 +213,7 @@ module.exports = {
     //   // }
     // }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'index.html'),
+      template: indexHtml,
       inject: 'body'
       // hash: true
     })
