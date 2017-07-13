@@ -30,7 +30,7 @@ module.exports = {
       path.resolve(__dirname, 'src', 'main-js')
     ],
     alias: {
-      'serversettings': 'settings.dev',  // development
+      // 'serversettings': 'settings.dev',  // development
       // serversettings': './settings.prod',  // production
       'jquery': 'jquery/dist/jquery',
       'jquery-ui': 'jquery-ui/jquery-ui',
@@ -223,10 +223,10 @@ module.exports = {
     contentBase: path.resolve(__dirname, 'dist'),
     publicPath: '/',
     stats: 'errors-only',
-    port: 3050,
-    proxy: {
-      '/wfs': 'http://localhost:8080/geoserver/wfs',
-      '/wms': 'http://localhost:8080/geoserver/wms'
-    }
+    // proxy: {
+    //   '/wfs': 'http://localhost:8080/geoserver/wfs',
+    //   '/wms': 'http://localhost:8080/geoserver/wms'
+    // },
+    port: 3050
   }
 }
