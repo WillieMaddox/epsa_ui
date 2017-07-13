@@ -209,3 +209,7 @@ $unitsSelect.val(scaleLineControl.getUnits())
 $projectionSelect.val(mousePositionControl.getProjection().getCode())
 
 export default map
+
+if (module.hot) {
+  module.hot.accept()
+}

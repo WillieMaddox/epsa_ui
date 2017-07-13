@@ -241,3 +241,7 @@ const result = {
 }
 
 export default result
+
+if (module.hot) {
+  module.hot.accept()
+}

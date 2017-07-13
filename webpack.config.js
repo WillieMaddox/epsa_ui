@@ -75,6 +75,7 @@ module.exports = {
   },
   entry: {
     main: [
+      'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true',
       path.join(__dirname, 'src', 'css', 'main.css'),
       path.join(__dirname, 'src', 'main-js', 'main.js')
     ],
