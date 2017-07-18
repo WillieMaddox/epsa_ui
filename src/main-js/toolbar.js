@@ -9,6 +9,8 @@ import map from 'map'
 import utils from 'utilities'
 import layertree from 'layertree'
 import isPolyValid from 'ispolyvalid'
+import cameraIcon from '../img/camera-normal.png'
+
 // import Collection from 'openlayers/src/ol/collection'
 
 let bitA = 0
@@ -154,7 +156,7 @@ const result = {
             // size: [20, 20],
             color: [255, 0, 0],
             scale: 0.05,
-            src: 'img/camera-normal.png'
+            src: cameraIcon
           }))
         })
       }), 'camera')

@@ -11,6 +11,7 @@ import exists from 'exists'
 import toolbar from 'toolbar'
 import layertree from 'layertree'
 import isPolyValid from 'ispolyvalid'
+import cameraIcon from '../img/camera-normal.png'
 
 // addFormRow = function (labels) {
 //   var $formRow = $("<div class='form-row'>")
@@ -321,7 +322,7 @@ const result = {
               opacity: 0.5,
               scale: 0.05,
               snapToPixel: false,
-              src: './img/camera-normal.png'
+              src: cameraIcon
             }))
           })]
         } else {

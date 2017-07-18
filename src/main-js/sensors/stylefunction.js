@@ -5,12 +5,14 @@
 'use strict'
 import ol from 'openlayers'
 import sensorTemplates from './template'
+import cameraIcon from '../../img/camera-normal.png'
+import radioIcon from '../../img/radio-normal.png'
 
 export default (function () {
 
   const icons = {
-    'camera': './img/camera-normal.png',
-    'radio': './img/radio-normal.png'
+    'camera': cameraIcon,
+    'radio': radioIcon
   }
   let setStyle = function (icon_src) {
     let style = new ol.style.Style({

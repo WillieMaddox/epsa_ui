@@ -12,6 +12,7 @@ import sensorTemplates from 'stemplate'
 import tobjectTemplates from 'ttemplate'
 import sensorStyleFunction from 'sstylefunction'
 import tobjectStyleFunction from 'tstylefunction'
+import cameraIcon from '../img/camera-normal.png'
 
 import 'jquery-ui'
 
@@ -555,7 +556,7 @@ let result = {
                 opacity: 1,
                 scale: 0.05,
                 snapToPixel: false,
-                src: './img/camera-normal.png'
+                src: cameraIcon
               }))
             })
           ]
@@ -663,7 +664,7 @@ let result = {
                 opacity: 0.8,
                 scale: 0.05,
                 snapToPixel: false,
-                src: './img/camera-normal.png'
+                src: cameraIcon
               }))
             })
           ]
