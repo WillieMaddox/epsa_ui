@@ -604,8 +604,7 @@ const result = {
         fr.readAsText(file)
       }
       source = new ol.source.Vector({
-        strategy: ol.loadingstrategy.bbox,
-        format: sourceFormat
+        strategy: ol.loadingstrategy.bbox
       })
       source.set('pendingRequests', 1)
       layer = new ol.layer.Image({
