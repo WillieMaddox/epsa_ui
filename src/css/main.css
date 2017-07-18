@@ -196,19 +196,6 @@ body {
     text-align: right;
     min-width: 7em;
 }
-/*.form-value #geodesic {*/
-    /*box-sizing: border-box;*/
-    /*min-height: 2em;*/
-    /*min-width: 2em;*/
-    /*padding: 0.5em;*/
-    /*!*float: right;*!*/
-    /*!*position: relative;*!*/
-    /*margin: 0;*/
-    /*!*width: 20%;*!*/
-/*}*/
-/*.form-value #feature-name {*/
-    /*font-size: 1em;*/
-/*}*/
 .hole-buttons {
     /*display: inline-block;*/
     /*cursor: pointer;*/
@@ -244,19 +231,16 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
-
 .layertoolbar-container.layertree-buttons {
     box-sizing: border-box;
     border: 1px solid grey;
     height: 2em;
 }
-
 .layertree .layertree-buttons {
     box-sizing: border-box;
     border-bottom: 1px solid grey;
     height: 2em;
 }
-
 .layertoolbar-container.layertree-buttons button,
 .layertree .layertree-buttons button {
     display: inline-block;
@@ -275,7 +259,6 @@ body {
     height: 100%;
     width: 2em;
 }
-
 .layertoolbar-container.layertree-buttons button:hover,
 .layertree .layertree-buttons button:hover {
     background-color: rgba(0,0,0,1);
@@ -305,13 +288,11 @@ body {
     height: calc(30% - 2em);
     overflow-y: auto;
 }
-
 .layertree .layercontainer {
     position: relative;
     height: calc(100% - 2em);
     overflow-y: auto;
 }
-
 .layertree-container .layer,
 .layercontainer .layer {
     box-sizing: border-box;
@@ -484,21 +465,9 @@ fieldset label {
     display: block;
     margin-top: 1em;
 }
-/*.addlayer span.ui-selectmenu-open {*/
-    /*z-index: 9999;*/
-/*}*/
 .overflow {
     max-height: 200px;
 }
-/*.addlayer {*/
-    /*background-color: rgba(255,255,255,1);*/
-    /*transform: translate(-50%, -50%);*/
-    /*display: inline-block;*/
-    /*top: 50%;*/
-    /*left: 50%;*/
-    /*position: relative;*/
-    /*width: 350px;*/
-/*}*/
 .addlayer span.ui-selectmenu-button {
     display: inline-block;
     box-sizing: border-box;
@@ -512,14 +481,6 @@ fieldset label {
     /*min-width: 11.5em;*/
     /*max-width: 11.5em;*/
 }
-/*.toggleable {*/
-    /*background-color: rgba(0,0,0,.5);*/
-    /*top: 0;*/
-    /*z-index: 10;*/
-    /*position: fixed;*/
-    /*width: 100%;*/
-    /*height: 100vh;*/
-/*}*/
 table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
@@ -603,3 +564,38 @@ th, td {
 	color: #FFFFFF;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
 }
+
+/*.form-value #geodesic {*/
+/*box-sizing: border-box;*/
+/*min-height: 2em;*/
+/*min-width: 2em;*/
+/*padding: 0.5em;*/
+/*!*float: right;*!*/
+/*!*position: relative;*!*/
+/*margin: 0;*/
+/*!*width: 20%;*!*/
+/*}*/
+/*.form-value #feature-name {*/
+/*font-size: 1em;*/
+/*}*/
+
+/*.toggleable {*/
+/*background-color: rgba(0,0,0,.5);*/
+/*top: 0;*/
+/*z-index: 10;*/
+/*position: fixed;*/
+/*width: 100%;*/
+/*height: 100vh;*/
+/*}*/
+/*.addlayer span.ui-selectmenu-open {*/
+/*z-index: 9999;*/
+/*}*/
+/*.addlayer {*/
+/*background-color: rgba(255,255,255,1);*/
+/*transform: translate(-50%, -50%);*/
+/*display: inline-block;*/
+/*top: 50%;*/
+/*left: 50%;*/
+/*position: relative;*/
+/*width: 350px;*/
+/*}*/
