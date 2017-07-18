@@ -456,9 +456,6 @@ const result = {
         message('Some unexpected error occurred in addWfsLayer: (' + error.message + ').')
       })
     }
-    // $.when(maybeAsync(1)).then(function (resp) {
-    //     $('#target').append('<p>' + resp + '</p>');
-    // });
 
     if ($form.find('.tiled').is(':checked')) {
       strategy = ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({}))

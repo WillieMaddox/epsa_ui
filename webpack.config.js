@@ -1,12 +1,12 @@
 const path = require('path')
 const webpack = require('webpack') //to access built-in plugins
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const ManifestPlugin = require('webpack-manifest-plugin')
+// const ManifestPlugin = require('webpack-manifest-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin') //installed via npm
 // const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 // const ChunkManifestPlugin = require('chunk-manifest-webpack-plugin')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack-plugin')
 
 const indexHtml = path.resolve(__dirname, 'src', 'index.html')
