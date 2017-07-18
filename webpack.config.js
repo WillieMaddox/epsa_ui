@@ -124,7 +124,7 @@ module.exports = {
       //     }
       //   }
       }, {
-        test: /\.css$/,
+        test: /\.s?css$/,
         use: cssConfig
       }, {
         test: /\.(jpe?g|png|gif|svg)$/,
