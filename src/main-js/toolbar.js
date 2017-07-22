@@ -6,7 +6,7 @@
 
 import ol from 'openlayers'
 import map from 'map'
-import utils from 'utilities'
+import utils from 'utils'
 import layertree from 'layertree'
 import isPolyValid from 'ispolyvalid'
 import cameraIcon from '../img/camera-normal.png'

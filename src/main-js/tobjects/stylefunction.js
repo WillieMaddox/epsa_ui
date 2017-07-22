@@ -4,7 +4,7 @@
 
 'use strict'
 import ol from 'openlayers'
-import exists from '../utils/exists'
+import exists from 'exists'
 import tobjectTemplates from './template'
 
 const tobjectColor = {

@@ -5,7 +5,7 @@
 'use strict'
 
 import $ from 'jquery'
-import utils from './utils'
+import utils from 'utils'
 
 let $selectNode = $('<select id="mouse-projection" title="Units of the cursor coordinates.">')
 $selectNode.append(utils.createMenuOption('EPSG:4326'))

@@ -5,7 +5,7 @@
 'use strict'
 
 import $ from 'jquery'
-import utils from './utils'
+import utils from 'utils'
 
 let $selectNode = $('<select id="map-units" title="Units of the scale line.">')
 $selectNode.append(utils.createMenuOption('nautical', 'nautical mile'))

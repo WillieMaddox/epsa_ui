@@ -5,7 +5,7 @@
 'use strict'
 
 import $ from 'jquery'
-import defaultSensors from '../utils/defaultsensors'
+import defaultSensors from 'defaultsensors'
 
 const sensorProperties = {
   source_height: {
