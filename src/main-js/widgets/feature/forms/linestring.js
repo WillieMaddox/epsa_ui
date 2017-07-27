@@ -295,7 +295,7 @@ const result = {
     }
 
     if (!(feature_type && feature_type in linestringTemplates)) {
-      feature_type = 'generic'
+      feature_type = 'linestring'
     }
     $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
     $featureType.val(feature_type)

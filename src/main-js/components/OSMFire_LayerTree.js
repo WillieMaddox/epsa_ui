@@ -6,7 +6,7 @@
 
 const $ = require('jquery'),
   ol = require('ol'),
-  utils = require('utilities'),
+  utils = require('utils'),
   tobjectTemplates = require('ttemplate'),
   tobjectStyleFunction = require('tstylefunction'),
   sensorTemplates = require('stemplate'),

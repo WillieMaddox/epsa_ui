@@ -1,0 +1,1 @@
+components get loaded immediately when the page loads and on page refreshes.

@@ -55,13 +55,13 @@ body {
 .toolbar .ol-control button:disabled:hover {
     background-color: rgba(0,0,0,.2);
 }
-.ol-addpoint button {
+.toolbar .ol-addpoint button {
     background-image: url(../img/button_addpoint.png);
 }
-.ol-addline button {
+.toolbar .ol-addline button {
     background-image: url(../img/button_addline.png);
 }
-.ol-addpolygon button {
+.toolbar .ol-addpolygon button {
     background-image: url(../img/button_addpolygon.png);
 }
 .toolbar .ol-addaor button {
@@ -134,9 +134,29 @@ body {
 .toolbar .ol-addcamera button.active:hover {
     background-color: rgba(116, 64, 109, 0.5);
 }
-.toolbar .draw-radio button {
+.toolbar .ol-addradio button {
     background-image: url(../img/radio-normal.png);
 }
+.toolbar .ol-addradio button.active {
+    background-color: rgba(64, 116, 109, 1);
+}
+.toolbar .ol-addradio button:hover,
+.toolbar .ol-addradio button.active:hover {
+    background-color: rgba(64, 116, 109, 0.5);
+}
+.toolbar .ol-multiselect button {
+    background-image: url(../img/button_multiselect.png);
+}
+.toolbar .ol-snap button {
+    background-image: url(../img/button_snap.png);
+}
+.toolbar .ol-addhole button {
+    background-image: url(../img/noun_539367_cc.png);
+}
+.toolbar .ol-removehole button {
+    background-image: url(../img/noun_1054716_cc.png);
+}
+
 .sidebar-container .layereditor {
     position: relative;
     box-sizing: border-box;

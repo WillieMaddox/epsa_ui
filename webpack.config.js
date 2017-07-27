@@ -30,8 +30,6 @@ module.exports = {
       path.resolve(__dirname, 'src', 'main-js')
     ],
     alias: {
-      // 'serversettings': 'settings.dev',  // development
-      // serversettings': './settings.prod',  // production
       'jquery': 'jquery/dist/jquery',
       'jquery-ui': 'jquery-ui/jquery-ui',
       'jsonix': 'jsonix/nodejs/scripts/jsonix',
@@ -60,12 +58,43 @@ module.exports = {
       'mouseprojection': 'tools/mouseprojection',
       'mouseunits': 'tools/mouseunits',
       'utils': 'tools/utils',
-      'ttemplate': 'tobjects/template',
-      'tstylefunction': 'tobjects/stylefunction',
-      'stemplate': 'sensors/template',
-      'sstylefunction': 'sensors/stylefunction',
+      // 'pointtemplate': 'widgets/feature/pointtemplate',
+      'polygontemplate': 'widgets/feature/polygontemplate',
+      'linestringtemplate': 'widgets/feature/linestringtemplate',
+      'pointtemplate': 'widgets/feature/templates/point',
+      'sensortemplate': 'widgets/feature/templates/sensor',
+      'cameratemplate': 'widgets/feature/templates/camera',
+      'radiotemplate': 'widgets/feature/templates/radio',
+      'fstylefunction': 'widgets/feature/stylefunction',
+      // 'ttemplate': 'tobjects/template',
+      // 'tstylefunction': 'tobjects/stylefunction',
+      // 'stemplate': 'sensors/template',
+      // 'sstylefunction': 'sensors/stylefunction',
       // 'bingKey': ['bingkey', 'bingkey-sample'],
-      'bingKey': 'bingkey'
+      'bingKey': 'bingkey',
+      'MainCore': 'modules/Core/MainCore',
+      'Logger': 'modules/Core/Logger',
+      'AjaxEngine': 'modules/Core/AjaxEngine',
+      'CookieHandler': 'modules/Core/CookieHandler',
+      'NotificationHandler': 'modules/Core/NotificationHandler',
+      'StorageHandler': 'modules/Core/StorageHandler',
+      'Utilities': 'modules/Core/Utilities',
+      'OL': 'modules/Core/OL',
+      'SandBox': 'modules/SandBox/SandBox',
+      'OSMFire_MouseUnits': 'components/OSMFire_MouseUnits',
+      'OSMFire_MouseProjection': 'components/OSMFire_MouseProjection',
+      'OSMFire_Map': 'components/OSMFire_Map',
+      'OSMFire_MousePosition': 'components/OSMFire_MousePosition',
+      'OSMFire_LayerToolbar': 'components/OSMFire_LayerToolbar',
+      'OSMFire_LayerTree': 'components/OSMFire_LayerTree',
+      'OSMFire_MessageBar': 'components/OSMFire_MessageBar',
+      'NewVectorDialogWidget': 'widgets/NewVectorDialogWidget',
+      'AppTester': 'modules/AppTester/AppTester',
+      'CookieHandlerTester': 'modules/AppTester/CookieHandlerTester',
+      'StorageHandlerTester': 'modules/AppTester/StorageHandlerTester',
+      'Base': 'modules/Base/Base',
+      'GlobalData_Sub': 'modules/GlobalData/GlobalData_Sub',
+      'GlobalData': 'modules/GlobalData/GlobalData'
     }
   },
   stats: {
@@ -124,7 +153,7 @@ module.exports = {
       //     }
       //   }
       }, {
-        test: /\.s?css$/,
+        test: /\.(css|sass|scss)$/,
         use: cssConfig
       }, {
         test: /\.(jpe?g|png|gif|svg)$/,

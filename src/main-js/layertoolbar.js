@@ -10,13 +10,9 @@ import map from 'map'
 import shp from 'shp'
 import utils from 'utils'
 import message from 'messagebar'
-// import settings from 'serversettings'
 import layertree from 'layertree'
 import WFSContext from 'wfs110context'
-import sensorTemplates from 'stemplate'
-import tobjectTemplates from 'ttemplate'
-import sensorStyleFunction from 'sstylefunction'
-import tobjectStyleFunction from 'tstylefunction'
+import featureStyleFunction from 'fstylefunction'
 
 import 'jquery-ui'
 
@@ -30,7 +26,7 @@ const result = {
     $controlDiv.append(this.createButton('add-wms', 'Add WMS Layer', 'addlayer'))
     $controlDiv.append(this.createButton('add-wfs', 'Add WFS Layer', 'addlayer'))
     $controlDiv.append(this.createButton('add-vector', 'Add Vector Layer', 'addlayer'))
-    $controlDiv.append(this.createButton('new-vector', 'New Vector Layer', 'addlayer'))
+    $controlDiv.append(this.createButton('new-vector', 'New Vector Layer', 'newlayer'))
     $controlDiv.append(this.createButton('save-vector', 'Save Vector Layer', 'savelayer'))
     $controlDiv.append(this.createButton('delete-layer', 'Remove Layer', 'deletelayer'))
   },
@@ -56,6 +52,11 @@ const result = {
         if (layer.get('is_dirty') === true) {
           _this.openDialog(elemName, elemTitle)
         }
+      })
+      return $button
+    } else if (elemType === 'newlayer') {
+      $button.on('click', function () {
+        _this.newVectorLayer()
       })
       return $button
     } else if (elemType === 'deletelayer') {
@@ -298,7 +299,7 @@ const result = {
       let parser = new ol.format.WMSCapabilities()
       let capabilities = parser.read(response)
       let currentProj = map.getView().getProjection().getCode()
-      let crs, i
+      let crs
       let messageText = 'Layers read successfully.'
       if (capabilities.version === '1.3.0') {
         crs = capabilities.Capability.Layer.CRS
@@ -308,14 +309,20 @@ const result = {
       }
       let layers = capabilities.Capability.Layer.Layer
       if (layers.length > 0 && crs.indexOf(currentProj) > -1) {
-        let nLayers = layers.length
-        for (i = 0; i < nLayers; i += 1) {
-          $form.find('.layername').append(utils.createMenuOption(layers[i].Name))
+        // let nLayers = layers.length
+        // for (i = 0; i < nLayers; i += 1) {
+        //   $form.find('.layername').append(utils.createMenuOption(layers[i].Name))
+        // }
+        for (let layer of layers) {
+          $form.find('.layername').append(utils.createMenuOption(layer.Name))
         }
         let formats = capabilities.Capability.Request.GetMap.Format
-        let nFormats = formats.length
-        for (i = 0; i < nFormats; i += 1) {
-          $form.find('.format').append(utils.createMenuOption(formats[i]))
+        // let nFormats = formats.length
+        // for (i = 0; i < nFormats; i += 1) {
+        //   $form.find('.format').append(utils.createMenuOption(formats[i]))
+        // }
+        for (let format of formats) {
+          $form.find('.format').append(utils.createMenuOption(format))
         }
         message(messageText)
       }
@@ -377,13 +384,18 @@ const result = {
         messageText += ' Warning! Projection compatibility could not be checked due to version mismatch (' + capabilities.version + ').'
       }
       let layers = capabilities.featureTypeList.featureType
-      let nLayers = layers.length
-      if (nLayers > 0) {
+      // let nLayers = layers.length
+      if (layers.length > 0) {
         const re = /}(.*)/
-        for (let i = 0; i < nLayers; i += 1) {
-          let name = re.exec(layers[i].name)[1]
+        // for (let i = 0; i < nLayers; i += 1) {
+        //   let name = re.exec(layers[i].name)[1]
+        //   $form.find('.layername').append(utils.createMenuOption(name))
+        //   wfsProjections[name] = layers[i].defaultSRS
+        // }
+        for (let layer of layers) {
+          let name = re.exec(layer.name)[1]
           $form.find('.layername').append(utils.createMenuOption(name))
-          wfsProjections[name] = layers[i].defaultSRS
+          wfsProjections[name] = layer.defaultSRS
         }
         message(messageText)
       }
@@ -575,7 +587,6 @@ const result = {
       // layer.buildHeaders();
       layer.set('name', displayname)
       console.log('addVectorLayer loadEnd')
-      // _this.identifyLayer(layer);
       // _this.styleDefault(layer);
     }
 
@@ -621,28 +632,7 @@ const result = {
       return error
     }
   },
-  newVectorLayer: function ($form) {
-    let geomType = $form.find('.geomtype').val()
-    let layerType = $form.find('.layertype').val()
-    let geomTypes = []
-    let sourceTypes = {}
-    let layerName
-    let styleFunction
-    if (layerType === 'feature') {
-      geomTypes = ['point', 'line', 'polygon', 'geomcollection']
-      sourceTypes = Object.keys(tobjectTemplates)
-      layerName = geomType
-      styleFunction = tobjectStyleFunction
-    } else if (layerType === 'sensor') {
-      geomTypes = ['point']
-      sourceTypes = Object.keys(sensorTemplates)
-      layerName = layerType
-      styleFunction = sensorStyleFunction
-    }
-    if (sourceTypes.indexOf(geomType) === -1 && geomTypes.indexOf(geomType) === -1) {
-      message('Unrecognized layer type.')
-      return false
-    }
+  newVectorLayer: function () {
     let source = new ol.source.Vector({
       wrapX: false
     })
@@ -650,11 +640,9 @@ const result = {
     let layer = new ol.layer.Image({
       source: new ol.source.ImageVector({
         source: source,
-        style: styleFunction
+        style: featureStyleFunction
       }),
-      name: $form.find('.displayname').val() || layerName + ' Layer',
-      type: layerType,
-      geomtype: geomType,
+      name: 'New Feature Layer',
       opacity: 0.6
     })
     layertree.addBufferIcon(layer)
@@ -716,8 +704,6 @@ const result = {
       $dialog = this.createAddWfsDialog($fieldset, elemName, elemTitle)
     } else if (elemName === 'add-vector') {
       $dialog = this.createAddVectorDialog($fieldset, elemName, elemTitle)
-    } else if (elemName === 'new-vector') {
-      $dialog = this.createNewVectorDialog($fieldset, elemName, elemTitle)
     } else if (elemName === 'save-vector') {
       $dialog = this.createSaveVectorDialog($fieldset, elemName, elemTitle)
     } else {
@@ -770,23 +756,6 @@ const result = {
     })
     return $dialog
   },
-  createNewVectorDialog: function ($fieldset, elemName, elemTitle) {
-    this.createDisplayNameNodes($fieldset)
-    this.createLayerTypeNodes($fieldset)
-    this.createGeomTypeNodes($fieldset)
-    let $dialog = this.createDialog($fieldset, elemName, elemTitle, this.newVectorLayer)
-    $('.layertype').selectmenu().on('selectmenuchange', function () {
-      let $geomType = $(this).parent().find('.geomtype')
-      if ($(this).val() === 'sensor') {
-        $geomType.val('point')
-        $geomType.selectmenu('refresh')
-        $geomType.selectmenu('disable')
-      } else if ($(this).val() === 'feature') {
-        $geomType.selectmenu('enable')
-      }
-    })
-    return $dialog
-  },
   createSaveVectorDialog: function ($fieldset, elemName, elemTitle) {
     this.createFileTypeNodes($fieldset)
     this.createProjectionNodes($fieldset)
@@ -803,22 +772,6 @@ const result = {
   createDisplayNameNodes: function ($fieldset) {
     $fieldset.append($('<label for="open-displayname">Display Name</label>'))
     $fieldset.append($('<input type="text" id="open-displayname" name="displayname" class="displayname">'))
-  },
-  createLayerTypeNodes: function ($fieldset) {
-    $fieldset.append($('<label for="open-layertype">Layer Type</label>'))
-    let $selectNode = $('<select id="open-layertype" name="layertype" class="layertype ui-selectmenu">')
-    $selectNode.append(utils.createMenuOption('feature', 'Feature'))
-    $selectNode.append(utils.createMenuOption('sensor', 'Sensor'))
-    $fieldset.append($selectNode)
-  },
-  createGeomTypeNodes: function ($fieldset) {
-    $fieldset.append($('<label for="open-geomtype">Geometry Type</label>'))
-    let $selectNode = $('<select id="open-geomtype" name="geomtype" class="geomtype ui-selectmenu">')
-    $selectNode.append(utils.createMenuOption('geomcollection', 'Geometry Collection'))
-    $selectNode.append(utils.createMenuOption('polygon', 'Polygon'))
-    $selectNode.append(utils.createMenuOption('line', 'Line'))
-    $selectNode.append(utils.createMenuOption('point', 'Point'))
-    $fieldset.append($selectNode)
   },
   createServerUrlNodes: function ($fieldset, id) {
     let _this = this
@@ -1088,6 +1041,12 @@ const result = {
 // $.when(maybeAsync(0), $.get('/data/people.json')).then(function (resp1, resp2) {
 //     console.log("Both operations are done", resp1, resp2);
 // });
+
+//*
+// someCode();
+/*/
+// someOtherCode();
+//*/
 
 export default result
 

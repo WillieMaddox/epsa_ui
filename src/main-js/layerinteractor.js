@@ -11,18 +11,31 @@ import exists from 'exists'
 import toolbar from 'toolbar'
 import layertree from 'layertree'
 import isPolyValid from 'ispolyvalid'
+import featureStyleFunction from 'fstylefunction'
+
 import cameraIcon from '../img/camera-normal.png'
 
-// addFormRow = function (labels) {
-//   var $formRow = $("<div class='form-row'>")
-//   for (let label of labels) {
-//     $formRow.append(this.formElements[label])
-//   }
-//   return $formRow
-// }
-// createDrawPolygonNodes = function () {}
-// createDrawLinestringNodes = function () {}
-// createDrawPointNodes = function () {}
+let editors = {}
+import(/* webpackChunkName: "polygon", webpackMode: "lazy" */'./widgets/feature/forms/polygon')
+  .then(module => {
+    const editor = module.default
+    editor.init()
+    editors['polygon'] = editor
+    //TODO: maybe have .init() return "this".  Then maybe we can combine all three lines into one?
+    // editors['polygon'] = module.default.init()
+  })
+import(/* webpackChunkName: "linestring", webpackMode: "lazy" */'./widgets/feature/forms/linestring')
+  .then(module => {
+    const editor = module.default
+    editor.init()
+    editors['linestring'] = editor
+  })
+import(/* webpackChunkName: "point", webpackMode: "lazy" */'./widgets/feature/forms/point')
+  .then(module => {
+    const editor = module.default
+    editor.init()
+    editors['point'] = editor
+  })
 
 let highlight = null
 let highlightTextStyleCache = {}
@@ -71,6 +84,7 @@ const result = {
     })
 
     layertree.deselectEventEmitter.on('change', function () {
+      console.log(layertree.selectedLayer)
       if (layertree.selectedLayer) {
         console.log('layerinteractor: deselected layer YES')
       } else {
@@ -81,17 +95,13 @@ const result = {
         this.layer.getSource().getSource().addFeature(selectedFeatures.getArray()[0])
         selectedFeatures.clear()
       }
-      // TODO: .layereditor > form is only valid for feature layers.
-      // BUG: added wms layers will raise TypeError when switching to and from.
-      this.editor.$form = $('.layereditor > form').detach()
-      layertree.layerEditors[this.layer.get('type')] = this.editor
-      this.editor = null
     }, this)
 
     layertree.selectEventEmitter.on('change', function () {
       this.layer = layertree.getLayerById(layertree.selectedLayer.id)
-      textStyleKey = this.layer.get('textstyle')
-      geomStyleKey = this.layer.get('geomstyle')
+      console.log(this.layer)
+      // textStyleKey = this.layer.get('textstyle')
+      // geomStyleKey = this.layer.get('geomstyle')
       this.layer.on('propertychange', function (evt) {
         if (evt.key === 'textstyle') {
           textStyleKey = this.get('textstyle')
@@ -112,15 +122,6 @@ const result = {
       $('.resetbutton').click(function () {
         highlightGeomStyleCache = {}
       })
-      // if (this.layer.get('type') === 'feature') {
-      //     this.editor = featureeditor
-      // }
-      this.editor = layertree.layerEditors[this.layer.get('type')]
-      this.editor.$form.appendTo($('.layereditor'))
-      if (!(this.editor.isStyled)) {
-        this.editor.styleForm()
-      }
-      this.editor.deactivateForm()
     }, this)
   },
   textStyle: function (text) {
@@ -143,18 +144,27 @@ const result = {
     const _this = this
     const overlayStyleFunction = (function () {
       return function (feature) {
-        let retval
-        const textkey = feature.get(textStyleKey) ? feature.get(textStyleKey).toString() : ''
         const geomkey = feature.get(geomStyleKey)
+        const textkey = feature.get(textStyleKey) ? feature.get(textStyleKey).toString() : ''
+        let retval
+
+        // Reading from the featureStyleFunction here for the cases when we fire a drawend.
+        // If you change this make sure you can still end newly drawn features.
+        if (!highlightGeomStyleCache[geomkey]) {
+          highlightGeomStyleCache[geomkey] = _this.setFeatureStyle(featureStyleFunction(feature)[0], geomkey)
+        }
+        retval = [highlightGeomStyleCache[geomkey]]
 
         if (!highlightTextStyleCache[textkey]) {
           highlightTextStyleCache[textkey] = _this.textStyle(textkey)
         }
         if ($('#' + _this.layer.get('id') + '-hovervisible').is(':checked')) {
-          retval = [highlightGeomStyleCache[geomkey], highlightTextStyleCache[textkey]]
-        } else {
-          retval = [highlightGeomStyleCache[geomkey]]
+          retval.push(highlightTextStyleCache[textkey])
         }
+
+        // console.log(geomStyleKey, textStyleKey)
+        // console.log(geomkey, textkey)
+        // console.log(retval)
         return retval
       }
     })()
@@ -200,12 +210,14 @@ const result = {
         }
       }
     }).bind(this), {
+      hitTolerance: 10,
       layerFilter: (function (layer) {
         if (this.layer) {
           return layer === this.layer
         }
       }).bind(this)
     })
+    // I wonder if we can use destructuring here. i.e. [feature, layer] = featureAndLayer
     if (!(exists(featureAndLayer))) {
       featureAndLayer = {}
       featureAndLayer.feature = smallestFeature
@@ -218,72 +230,68 @@ const result = {
         const sf = featureAndLayer.layer.getSource().getStyleFunction()
         const styles = sf(feature)
         const style = styles[styles.length - 1].clone()
-        if (text === 'camera') {
-          highlightGeomStyleCache[text] = this.setSensorStyle(style)
-        } else {
-          highlightGeomStyleCache[text] = this.setFeatureStyle(style)
-        }
+        highlightGeomStyleCache[text] = this.setFeatureStyle(style, text)
       }
     } else {
       feature = null
     }
-    // return feature;
     this.setMouseCursor(feature)
     this.displayFeatureInfo(feature)
   },
-  setSensorStyle: function (style) {
-    if (style) {
-      const image = style.getImage()
-      if (exists(image)) {
-        image.setOpacity(1)
-        image.setScale(0.3)
-        if (image.getImage().tagName === 'IMG') {
-          image.setOpacity(0.5)
+  setFeatureStyle: function (style, text) {
+    if (text === 'camera') {
+      if (style) {
+        const image = style.getImage()
+        if (exists(image)) {
+          image.setOpacity(1)
+          image.setScale(0.3)
+          if (image.getImage().tagName === 'IMG') {
+            image.setOpacity(0.5)
+          }
         }
       }
-    }
-    return style
-  },
-  setFeatureStyle: function (style) {
-    if (style) {
-      let image
-      let fill
-      let radius
-      let stroke
-      let width
-      let color
+    } else {
 
-      image = style.getImage()
-      if (exists(image)) {
-        fill = image.getFill()
+      if (style) {
+        let image
+        let fill
+        let radius
+        let stroke
+        let width
+        let color
+
+        image = style.getImage()
+        if (exists(image)) {
+          fill = image.getFill()
+          if (exists(fill)) {
+            color = fill.getColor()
+            color[3] = 0.1
+            fill.setColor(color)
+          }
+          stroke = image.getStroke()
+          if (exists(stroke)) {
+            width = stroke.getWidth()
+            width = width + 1
+            stroke.setWidth(width)
+          }
+          radius = image.getRadius()
+          if (exists(radius)) {
+            radius = radius + 2
+          }
+          image.setRadius(radius)
+        }
+        fill = style.getFill()
         if (exists(fill)) {
           color = fill.getColor()
-          color[3] = 0.1
+          color[3] = 0.4
           fill.setColor(color)
         }
-        stroke = image.getStroke()
+        stroke = style.getStroke()
         if (exists(stroke)) {
           width = stroke.getWidth()
           width = width + 1
           stroke.setWidth(width)
         }
-        radius = image.getRadius()
-        if (exists(radius)) {
-          radius = radius + 2
-        }
-        image.setRadius(radius)
-      }
-      fill = style.getFill()
-      if (exists(fill)) {
-        color = fill.getColor()
-        color[3] = 0.4
-        fill.setColor(color)
-      }
-      stroke = style.getStroke()
-      if (exists(stroke)) {
-        width = stroke.getWidth()
-        width = width + 1
-        stroke.setWidth(width)
       }
     }
     return style
@@ -305,6 +313,32 @@ const result = {
       }
       highlight = feature
     }
+  },
+  loadEditor: function (feature) {
+    const geom_type = feature.getGeometry().getType()
+    const geom_map = {
+      'Polygon': 'polygon',
+      'LineString': 'linestring',
+      'Point': 'point'
+    }
+    this.editor = editors[geom_map[geom_type]]
+    this.editor.$form.appendTo($('.layereditor'))
+    if (!(this.editor.isStyled)) {
+      this.editor.styleForm()
+    }
+    this.editor.deactivateForm()
+
+  },
+  unloadEditor: function () {
+    // TODO: .layereditor > form is only valid for feature layers.
+    // BUG: added wms layers will raise TypeError when switching to and from.
+    // Now that the editor is based on feature instead of layer, this may have fixed itself.
+    // Need to check.
+    this.editor.$form = $('.layereditor > form').detach()
+    const feature_type = this.editor.getFeatureType()
+    editors[feature_type] = this.editor
+    this.editor = null
+    console.log(feature_type, 'editor unloaded')
   },
   addInteractions: function () {
     const _this = this
@@ -351,6 +385,7 @@ const result = {
         console.log('manual deselect:', feature.get('name'), feature.getRevision())
         _this.editor.loadFeature(feature)
         _this.editor.deactivateForm()
+        _this.unloadEditor()
         _this.layer.getSource().getSource().addFeature(feature)
         // _this.activeFeatures.push(feature);
 
@@ -376,6 +411,7 @@ const result = {
         _this.modify.setActive(true)
         //translate.setActive(true);
         console.log('manual select:  ', feature.get('name'), feature.getRevision())
+        _this.loadEditor(feature)
         _this.editor.activateForm(feature)
         _this.layer.getSource().getSource().removeFeature(feature)
         // _this.activeFeatures.push(feature);
@@ -428,15 +464,14 @@ const result = {
           selectedFeature = selectedFeatures.getArray()[0]
           _this.editor.loadFeature(selectedFeature)
           _this.editor.deactivateForm()
+          _this.unloadEditor()
           console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())
-
-          // var selectedLayer = _this.layertree.getLayerById(_this.layertree.selectedLayer.id);
-          // selectedLayer.getSource().getSource().addFeature(feature);
-          // _this.activeFeatures.push(feature);
-
-          // selectedFeatures.clear()
-        } else {
+          _this.layer.getSource().getSource().addFeature(selectedFeature)
+          selectedFeatures.clear()
+        } else if (selectedFeatures.getArray().length >= 2) {
           console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
+        } else {
+          console.log('no need to deselect.')
         }
 
         // translate.setActive(false);
@@ -451,6 +486,7 @@ const result = {
           selectedFeatures.push(toolbar.addedFeature)
           selectedFeature = toolbar.addedFeature
 
+          _this.loadEditor(selectedFeature)
           _this.editor.activateForm(selectedFeature)
           console.log('auto select:  ', selectedFeature.get('name'), selectedFeature.getRevision())
         } else {

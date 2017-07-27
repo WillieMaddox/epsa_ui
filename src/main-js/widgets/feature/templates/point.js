@@ -5,7 +5,7 @@
 'use strict'
 
 const pointTemplates = {
-  'generic': {
+  'point': {
     'color': [218, 188, 163]
   }
 }

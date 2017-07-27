@@ -49,6 +49,14 @@ utils.FID = (function () {
   }
 })()
 
+utils.capitalizeFirstLetter = function (str, flip) {
+  if (flip) {
+    return str.charAt(0).toLowerCase() + str.slice(1)
+  } else {
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
+}
+
 utils.log10Slider = function (pval) {
   let lval = 0
   if (pval > 0.1) {

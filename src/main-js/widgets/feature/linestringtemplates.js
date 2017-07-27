@@ -3,7 +3,7 @@
  */
 
 const lineStringTemplates = {
-  'generic': {
+  'linestring': {
     'color': [218, 188, 163]
   },
   'road': {

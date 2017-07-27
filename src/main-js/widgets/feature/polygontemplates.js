@@ -3,7 +3,7 @@
  */
 
 const polygonTemplates = {
-  'generic': {
+  'polygon': {
     'color': [218, 188, 163],
     'fillopacity': 0.5
   },

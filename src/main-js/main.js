@@ -4,16 +4,7 @@ import layertree from 'layertree'
 import layertoolbar from 'layertoolbar'
 import toolbar from 'toolbar'
 import layerinteractor from 'layerinteractor'
-import featureeditor from 'featureeditor'
-import cameraeditor from 'cameraeditor'
 
-String.prototype.capitalizeFirstLetter = function (flip) {
-  if (flip) {
-    return this.charAt(0).toLowerCase() + this.slice(1)
-  } else {
-    return this.charAt(0).toUpperCase() + this.slice(1)
-  }
-}
 ol.layer.Image.prototype.buildHeaders = function () {
   let features = this.getSource().getSource().getFeatures()
   let len = features.length
@@ -40,6 +31,7 @@ ol.layer.Image.prototype.buildHeaders = function () {
   }
   return this
 }
+
 ol.interaction.ChooseHole = function (opt_options) {
 
   this.emitter = new ol.Observable()
@@ -75,6 +67,7 @@ ol.interaction.ChooseHole = function (opt_options) {
   })
 }
 ol.inherits(ol.interaction.ChooseHole, ol.interaction.Pointer)
+
 ol.control.Interaction = function (opt_options) {
   let options = opt_options || {}
   let controlDiv = document.createElement('div')
@@ -149,10 +142,6 @@ layertree.init()
 layertoolbar.init()
 toolbar.init()
 layerinteractor.init()
-featureeditor.init()
-cameraeditor.init()
-layertree.layerEditors['feature'] = featureeditor
-layertree.layerEditors['sensor'] = cameraeditor
 
 /*********** WFS-T *************/
 // let dirty = {};
@@ -339,6 +328,22 @@ layertree.layerEditors['sensor'] = cameraeditor
         }
     });
      **/
+
+//register StorageHandler with MainCore
+// OSMFire_Core.StorageHandler.register = (function() {
+//   OSMFire_Core.registerModule(OSMFire_Core.StorageHandler)
+// })()
+//add error handling to all methods of StorageHandler, in case localStorage not available
+// if (OSMFire_Core.Utilitizes) {
+//   OSMFire_Core.Utilitizes.addLocalStorageCheck(OSMFire_Core.StorageHandler)
+// }
+// OSMFire_Core.StorageHandler.clearLocalStorage()
+// OSMFire_Core.initializeAllModules()
+// OSMFire_Core.initializeAllComponents()
+// uncomment below if you'd like to run some unit test and then see results in the console
+// remember that running tests deletes all the cookie and localstorage values for the this app
+// OSMFire_Core.runAllUnitTests();
+// OSMFire_Core.handlePageChange(location.pathname)
 
 
 if (module.hot) {
