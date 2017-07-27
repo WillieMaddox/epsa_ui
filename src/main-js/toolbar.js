@@ -660,10 +660,9 @@ const result = {
     })
 
     controlDiv.appendChild(controlButton)
-    let holeControl = new ol.control.Control({
+    return new ol.control.Control({
       element: controlDiv
     })
-    return holeControl
   },
 
   addRemoveHoleControl: function () {
@@ -677,10 +676,9 @@ const result = {
     })
 
     controlDiv.appendChild(controlButton)
-    let holeControl = new ol.control.Control({
+    return new ol.control.Control({
       element: controlDiv
     })
-    return holeControl
   },
 
   handleEvents: function (interaction, feature_type) {
