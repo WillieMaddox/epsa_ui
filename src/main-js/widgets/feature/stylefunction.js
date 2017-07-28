@@ -180,7 +180,7 @@ const result = (function () {
   }
   return function (feature) {
     let geom = feature.getGeometry().getType().replace(/Multi/, '')
-    let type = feature.get('type') || type.toLowerCase()
+    let type = feature.get('type') || geom.toLowerCase()
 
     if (geom === 'Polygon') {
       if (feature_templates['Polygon'] === null) {

@@ -103,10 +103,6 @@ let result = {
 
       let $layerRow1 = $("<div class='layerrow layerrow1'>")
 
-      // let $layerVisibleLabel = $("<label for='"+lid+"-layervisible' class='visible layervisible'>");
-      // let $layerVisible = $("<input type='checkbox' id='"+lid+"-layervisible' class='checkboxradio' checked>");
-      // let $layerTitle = $("<div id='"+lid+"-layertitle' class='layertitle'>" + layer.get('name') + "</div>");
-      // let $layerOpacity = $("<div id='"+lid+"-layeropacity' class='layeropacity'>");
       $layerRow1.append($("<label for='" + lid + "-layervisible' class='visible layervisible'>"))
       $layerRow1.append($("<input type='checkbox' id='" + lid + "-layervisible' class='checkboxradio' checked>"))
       $layerRow1.append($("<div id='" + lid + "-layertitle' class='layertitle'>" + layer.get('name') + '</div>'))
@@ -237,7 +233,8 @@ let result = {
         $('#' + lid + '-hoverselect').selectmenu()
         $('#' + lid + '-colorcontrol').controlgroup()
         $('#' + lid + '-resetbutton').button().on('click', function (event) {
-          _this.styleDefault(layer, 'type')
+          layer.getSource().setStyle(featureStyleFunction)
+          layer.set('textstyle', 'name')
           layer.set('geomstyle', 'type')
           handler(event, {
             stopProp: true
@@ -273,7 +270,7 @@ let result = {
               }
             }
             if (refresh) {
-              _this.styleDefault(layer)
+              layer.getSource().setStyle(featureStyleFunction)
               let id = '#' + evt.target.get('id')
               let $hoverSelect = $(id + '-hoverselect')
               let $colorSelect = $(id + '-colorselect')
@@ -423,12 +420,6 @@ let result = {
 
   getLayerById: function (id) {
     const layers = map.getLayers().getArray()
-    // const len = layers.length
-    // for (let i = 0; i < len; i += 1) {
-    //   if (layers[i].get('id') === id) {
-    //     return layers[i]
-    //   }
-    // }
     for (let layer of layers) {
       if (layer.get('id') === id) {
         return layer
@@ -436,98 +427,7 @@ let result = {
     }
     return false
   },
-  // identifyLayer: function (layer) {
-  //
-  //   let geomType = null
-  //   let geomTypes = []
-  //   let geomTypesDefault = ['point', 'line', 'polygon', 'geomcollection']
-  //   let geomTypeIsVerified = false
-  //
-  //   let layerType
-  //   let layerTypes = []
-  //   let layerTypesDefault = {
-  //     'feature': Object.keys(tobjectTemplates),
-  //     'sensor': Object.keys(sensorTemplates)
-  //   }
-  //   let layerTypeIsVerified = false
-  //
-  //   let getLayerType = function (featureType) {
-  //     for (let ltype in layerTypesDefault) {
-  //       for (let ftype in layerTypesDefault[ltype]) {
-  //         if (featureType === layerTypesDefault[ltype][ftype]) {
-  //           return ltype
-  //         }
-  //       }
-  //     }
-  //   }
-  //   let getGeometryType = function (geomType) {
-  //     if (geomType.endsWith('Point')) {
-  //       return 'point'
-  //     } else if (geomType.endsWith('LineString')) {
-  //       return 'line'
-  //     } else if (geomType.endsWith('Polygon')) {
-  //       return 'polygon'
-  //     } else {
-  //       return 'geomcollection'
-  //     }
-  //   }
-  //   if (geomTypesDefault.indexOf(layer.get('geomtype')) >= 0) {
-  //     geomTypes.push(layer.get('geomtype'))
-  //     geomTypeIsVerified = true
-  //   }
-  //   if (Object.keys(layerTypesDefault).indexOf(layer.get('type')) >= 0) {
-  //     layerTypes.push(layer.get('type'))
-  //     layerTypeIsVerified = true
-  //   }
-  //   layer.getSource().getSource().forEachFeature(function (feature) {
-  //     if (!(geomTypeIsVerified)) {
-  //       geomType = getGeometryType(feature.getGeometry().getType())
-  //       if (geomTypes.indexOf(geomType) === -1) {
-  //         geomTypes.push(geomType)
-  //
-  //         if (geomTypes.length > 1) {
-  //           geomTypes = ['geomcollection']
-  //           geomTypeIsVerified = true
-  //         }
-  //       }
-  //     }
-  //     if (!(layerTypeIsVerified)) {
-  //       layerType = getLayerType(feature.get('type'))
-  //       if (layerType && layerTypes.indexOf(layerType) === -1) {
-  //         layerTypes.push(layerType)
-  //
-  //         if (layerTypes.length > 1) {
-  //           layerTypes = ['feature']
-  //           layerTypeIsVerified = true
-  //         }
-  //       }
-  //     }
-  //     if (geomTypeIsVerified && layerTypeIsVerified) {
-  //       return true
-  //     }
-  //   })
-  //   if (geomTypes.length === 1) {
-  //     layer.set('geomtype', geomTypes[0])
-  //   }
-  //   if (layerTypes.length === 1) {
-  //     layer.set('type', layerTypes[0])
-  //   } else {
-  //     layer.set('type', 'feature')
-  //   }
-  //
-  //   layer.set('geomtype', 'geomcollection')
-  //   layer.set('type', 'feature')
-  //   return layer
-  // },
 
-  styleDefault: function (layer) {
-    layer.getSource().setStyle(featureStyleFunction)
-    // if (layer.get('type') === 'feature') {
-    //   layer.getSource().setStyle(tobjectStyleFunction)
-    // } else if (layer.get('type') === 'sensor') {
-    //   layer.getSource().setStyle(sensorStyleFunction)
-    // }
-  },
   styleGraduated: function (layer, attribute) {
     const attributeArray = []
     layer.getSource().getSource().forEachFeature(function (feat) {

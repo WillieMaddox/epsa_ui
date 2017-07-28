@@ -113,11 +113,7 @@ let callback = function(sandBox) {
         // });
       }
       function loadEnd(evt) {
-        // $('#' + layer.get('id') + ' .layertitle').unwrap();
-        // layer.buildHeaders();
         console.log('addVectorLayer loadEnd')
-        // _this.identifyLayer(layer);
-        // _this.styleDefault(layer);
       }
       function errorHandler(evt) {
         if (evt.target.error.name == 'NotReadableError') {

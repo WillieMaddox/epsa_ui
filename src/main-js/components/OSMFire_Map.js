@@ -156,8 +156,8 @@ let callback = function(sandBox) {
         // map.addInteraction(ol.interaction.defaults({doubleClickZoom: false}));
         map.addControl(new ol.control.Attribution())
         map.addControl(new ol.control.Zoom())
-        for (let layer in defaultLayers) {
-          map.addLayer(defaultLayers[layer])
+        for (let layer of defaultLayers) {
+          map.addLayer(layer)
         }
 
         // let view = new ol.View({

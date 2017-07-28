@@ -45,7 +45,6 @@ let callback = function(sandBox) {
     buttonType: 'addlayer',
     buttonId: 'new-vector',
     moduleId: 'newVectorWidget',
-    moduleDef: 'Widgets/NewVectorDialogWidget',
     containerId: 'new-vector-container',
     defId: 'NewVectorDefID',
     title: 'New Vector Layer'
@@ -122,7 +121,7 @@ let callback = function(sandBox) {
       //   return false
       // }
       return $button
-    },
+    // },
     // registerForEvents: function() {
     //   sandBox.addEventHandlerToElement('addwms-button', 'click', this.handleAddWMSButtonClick)
     //   sandBox.addEventHandlerToElement('addwfs-button', 'click', this.handleAddWFSButtonClick)
@@ -150,7 +149,6 @@ let callback = function(sandBox) {
     //   sandBox.contextObj.loadAndRender()
     // },
     // handleNewVectorButtonClick: function() {
-    //   // require(['NewVectorDialogWidget']);
     //   ButtonWidgetObjID = 'newvector'
     //   sandBox.contextObj.loadAndRender()
     // },
@@ -167,9 +165,9 @@ let callback = function(sandBox) {
     //     this.render()
     //   }
     // },
-    render: function(moduleId) {
-      OSMFire_Core.getComponentByID(moduleId).render()
-    },
+    // render: function(moduleId) {
+    //   OSMFire_Core.getComponentByID(moduleId).render()
+    }
   }
 }
 

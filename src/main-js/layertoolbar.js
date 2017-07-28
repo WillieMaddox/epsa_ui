@@ -583,11 +583,8 @@ const result = {
     }
 
     function loadEnd () {
-      // $('#' + layer.get('id') + ' .layertitle').unwrap();
-      // layer.buildHeaders();
       layer.set('name', displayname)
       console.log('addVectorLayer loadEnd')
-      // _this.styleDefault(layer);
     }
 
     function errorHandler (evt) {
@@ -633,16 +630,21 @@ const result = {
     }
   },
   newVectorLayer: function () {
-    let source = new ol.source.Vector({
+    const source = new ol.source.Vector({
       wrapX: false
     })
     source.set('pendingRequests', 0)
-    let layer = new ol.layer.Image({
+    const layer = new ol.layer.Image({
       source: new ol.source.ImageVector({
         source: source,
         style: featureStyleFunction
       }),
       name: 'New Feature Layer',
+      //TODO: leave this in here and commented out for now.
+      //as a reminder.  need to check and make sure we aren't
+      //using these parameters anywhere else in the application.
+      // type: layerType,
+      // geomtype: geomType,
       opacity: 0.6
     })
     layertree.addBufferIcon(layer)

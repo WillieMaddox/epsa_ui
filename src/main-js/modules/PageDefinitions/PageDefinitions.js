@@ -33,13 +33,6 @@
     // cssFile: "NotificationWidget.css",
     // cssPath: "css/"
   }
-  const NewVectorWidgetDefinition = {
-    componentID: 'newVectorWidget',
-    scriptFile: 'NewVectorDialogWidget.js',
-    scriptPath: '/src/js/Widgets/'
-    // cssFile: "NotificationWidget.css",
-    // cssPath: "css/"
-  }
   OSMFire_Core.saveValueToLocalStorage(OSMFire_GlobalData.getFavouritesPageObjDefID(),
     FavouritesPageDefinition)
   OSMFire_Core.saveValueToLocalStorage(OSMFire_GlobalData.getNoficationWidgetDefID(),
@@ -50,6 +43,4 @@
     AddWfsWidgetDefinition)
   OSMFire_Core.saveValueToLocalStorage(OSMFire_GlobalData.getButtonWidgetDefID('AddVectorDefID'),
     AddVectorWidgetDefinition)
-  OSMFire_Core.saveValueToLocalStorage(OSMFire_GlobalData.getButtonWidgetDefID('NewVectorDefID'),
-    NewVectorWidgetDefinition)
 })()

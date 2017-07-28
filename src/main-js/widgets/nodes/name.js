@@ -23,9 +23,9 @@ const result = {
     $featureName.removeClass('ui-state-disabled')
     $featureName.val(feature.get('name'))
   },
-  changeFeatureType: function (feature_type, polygonTemplates) {
+  changeFeatureType: function (feature_type, feature_templates) {
     const $featureName = $('#feature-name')
-    for (let key in polygonTemplates) {
+    for (let key in feature_templates) {
       if ($featureName.val().startsWith(utils.capitalizeFirstLetter(key))) {
         $featureName.val($featureName.val().replace(utils.capitalizeFirstLetter(key), utils.capitalizeFirstLetter(feature_type)))
       }

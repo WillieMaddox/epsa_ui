@@ -485,7 +485,6 @@ const result = {
         if (toolbar.addedFeature) {
           selectedFeatures.push(toolbar.addedFeature)
           selectedFeature = toolbar.addedFeature
-
           _this.loadEditor(selectedFeature)
           _this.editor.activateForm(selectedFeature)
           console.log('auto select:  ', selectedFeature.get('name'), selectedFeature.getRevision())
