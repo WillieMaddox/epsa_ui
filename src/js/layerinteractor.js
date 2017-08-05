@@ -316,7 +316,7 @@ const result = {
     }
     this.editor = new editors[geom_map[geom_type]]
     this.editor.$form = this.editor.createForm()
-    $('.layereditor').append(this.editor.$form)
+    $('.featureeditor').append(this.editor.$form)
     this.editor.styleForm()
   },
   unloadEditor: function () {
@@ -324,8 +324,8 @@ const result = {
     // BUG: added wms layers will raise TypeError when switching to and from.
     // Now that the editor is based on feature instead of layer, this may have fixed itself.
     // Need to check.
-    // this.editor.$form = $('.layereditor > form').detach()
-    $('.layereditor > form').remove()
+    // this.editor.$form = $('.featureeditor > form').detach()
+    $('.featureeditor > form').remove()
     const feature_type = this.editor.type
     // editors[feature_type] = this.editor
     this.editor = null
