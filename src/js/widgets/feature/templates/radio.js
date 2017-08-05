@@ -6,11 +6,11 @@
 
 import $ from 'jquery'
 import defaultRadios from '../defaultradios'
-import sensorProperties from './sensor'
+import sensor_properties from './sensor'
 
 // import radioIcon from '../../img/radio-normal.png'
 
-const radioProperties = {
+const radio_properties = {
   icon: '../../img/radio-normal.png',
   // icon: radioIcon,
   defaultsensor: 'TR1',
@@ -18,13 +18,13 @@ const radioProperties = {
   pattern: 'pattern'
 }
 
-const radioTemplate = {
-  properties: $.extend({}, sensorProperties, radioProperties),
+const radio_template = {
+  properties: $.extend({}, sensor_properties, radio_properties),
   defaultSensors: null
 }
 
 defaultRadios(function (data) {
-  radioTemplate.defaultSensors = data
+  radio_template.defaultSensors = data
 })
 
-export default radioTemplate
+export default radio_template

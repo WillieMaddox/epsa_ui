@@ -3,11 +3,11 @@
  */
 
 'use strict'
-import defaultCameras from '../../../data/default_cameras.json'
+import default_cameras from '../../../data/default_cameras.json'
 
 const result = function (callback) {
-  if (defaultCameras) {
-    callback(defaultCameras)
+  if (default_cameras) {
+    callback(default_cameras)
   }
 }
 

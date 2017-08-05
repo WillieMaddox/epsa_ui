@@ -3,11 +3,11 @@
  */
 
 'use strict'
-import defaultRadios from '../../../data/default_radios.json'
+import default_radios from '../../../data/default_radios.json'
 
 const result = function (callback) {
-  if (defaultRadios) {
-    callback(defaultRadios)
+  if (default_radios) {
+    callback(default_radios)
   }
 }
 

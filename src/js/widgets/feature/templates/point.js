@@ -4,10 +4,10 @@
 
 'use strict'
 
-const pointTemplates = {
+const point_templates = {
   'point': {
     'color': [218, 188, 163]
   }
 }
 
-export default pointTemplates
+export default point_templates

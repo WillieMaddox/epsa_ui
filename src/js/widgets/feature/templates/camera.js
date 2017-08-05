@@ -6,11 +6,11 @@
 
 import $ from 'jquery'
 import defaultCameras from '../defaultcameras'
-import sensorProperties from './sensor'
+import sensor_properties from './sensor'
 
 // import cameraIcon from '../../img/camera-normal.png'
 
-const cameraProperties = {
+const camera_properties = {
   icon: '../../img/camera-normal.png',
   // icon: cameraIcon,
   defaultsensor: 'TC1',
@@ -18,13 +18,13 @@ const cameraProperties = {
   fov: 'wide'
 }
 
-const cameraTemplate = {
-  properties: $.extend({}, sensorProperties, cameraProperties),
+const camera_template = {
+  properties: $.extend({}, sensor_properties, camera_properties),
   defaultSensors: null
 }
 
 defaultCameras(function (data) {
-  cameraTemplate.defaultSensors = data
+  camera_template.defaultSensors = data
 })
 
-export default cameraTemplate
+export default camera_template

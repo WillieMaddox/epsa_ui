@@ -4,7 +4,7 @@
 
 'use strict'
 
-const sensorProperties = {
+const sensor_properties = {
   source_height: {
     units: 'meter',
     value: 3
@@ -33,4 +33,4 @@ const sensorProperties = {
   }
 }
 
-export default sensorProperties
+export default sensor_properties
