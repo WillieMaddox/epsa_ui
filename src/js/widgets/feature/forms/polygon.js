@@ -11,7 +11,7 @@ import Measure from '../nodes/measure'
 import Type from '../nodes/featuretype'
 import Hole from '../nodes/hole'
 
-const formElements = {}
+const form_elements = {}
 
 class Polygon {
   constructor () {
@@ -31,7 +31,7 @@ class Polygon {
   createForm () {
     const $form = $("<form id='featureproperties' class='form'>")
     for (let label in this.form_nodes) {
-      formElements[label] = this.form_nodes[label].createNode()
+      form_elements[label] = this.form_nodes[label].createNode()
     }
     for (let row_node_labels of this.form_node_labels) {
       $form.append(this.addFormRow(row_node_labels))
@@ -41,7 +41,7 @@ class Polygon {
   addFormRow (labels) {
     const $formRow = $("<div class='form-row'>")
     for (let label of labels) {
-      $formRow.append(formElements[label])
+      $formRow.append(form_elements[label])
     }
     return $formRow
   }

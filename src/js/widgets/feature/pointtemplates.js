@@ -11,7 +11,7 @@ import defaultRadios from './defaultradios'
 // import cameraIcon from '../../img/camera-normal.png'
 // import radioIcon from '../../img/radio-normal.png'
 
-const sensorProperties = {
+const sensor_properties = {
   source_height: {
     units: 'meter',
     value: 3
@@ -39,7 +39,7 @@ const sensorProperties = {
     value: 0
   }
 }
-const cameraProperties = {
+const camera_properties = {
   type: 'camera',
   icon: '../../img/camera-normal.png',
   // icon: cameraIcon,
@@ -47,7 +47,7 @@ const cameraProperties = {
   option: 'A1',
   fov: 'wide'
 }
-const radioProperties = {
+const radio_properties = {
   type: 'radio',
   icon: '../../img/radio-normal.png',
   // icon: radioIcon,
@@ -56,28 +56,28 @@ const radioProperties = {
   pattern: 'pattern'
 }
 
-const pointTemplates = {
+const point_templates = {
   'point': {
     'color': [218, 188, 163]
   },
   'camera': {
     geometry_type: 'Point',
-    properties: $.extend({}, sensorProperties, cameraProperties),
+    properties: $.extend({}, sensor_properties, camera_properties),
     defaultSensors: null
   },
   'radio': {
     geometry_type: 'Point',
-    properties: $.extend({}, sensorProperties, radioProperties),
+    properties: $.extend({}, sensor_properties, radio_properties),
     defaultSensors: null
   }
 }
 
 defaultCameras(function (data) {
-  pointTemplates['camera'].defaultSensors = data
+  point_templates['camera'].defaultSensors = data
 })
 
 defaultRadios(function (data) {
-  pointTemplates['radio'].defaultSensors = data
+  point_templates['radio'].defaultSensors = data
 })
 
-export default pointTemplates
+export default point_templates
