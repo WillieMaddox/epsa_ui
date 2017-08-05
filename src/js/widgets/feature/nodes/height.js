@@ -84,22 +84,51 @@ const result = (function () {
       const $heightSpinner = $('#height-spinner')
       $heightSpinner.spinner('disable')
       $heightSlider.slider('disable')
-
-      // },
-      // registerForEvents: function () {
-      //   sandBox.addEventHandlerToElement('measure-units', 'change', this.handleMeasureUnitsChanged)
-      // },
-      // unregisterFromEvents: function () {
-      //   sandBox.removeEventHandlerFromElement('measure-units', 'change', this.handleMeasureUnitsChanged)
-      // },
-      // handleMeasureUnitsChanged: function (e) {
-      //   sandBox.publishCustomEvent({
-      //     type: 'measureunits-Changed',
-      //     data: this.value
-      //   })
-      //   e.preventDefault()
-      //   e.stopPropagation()
     }
+    // registerForEvents () {
+    //   sandBox.addEventHandlerToElement('height-slider', 'slide', this.handleHeightSliderSlide)
+    //   sandBox.addEventHandlerToElement('height-slider', 'slidechange', this.handleHeightSliderChange)
+    //   sandBox.addEventHandlerToElement('height-spinner', 'spin', this.handleHeightSpinnerSpin)
+    //   sandBox.addEventHandlerToElement('height-spinner', 'spinchange', this.handleHeightSpinnerChange)
+    // }
+    // unregisterFromEvents () {
+    //   sandBox.removeEventHandlerFromElement('height-slider', 'slide', this.handleHeightSliderSlide)
+    //   sandBox.removeEventHandlerFromElement('height-slider', 'slidechange', this.handleHeightSliderChange)
+    //   sandBox.removeEventHandlerFromElement('height-spinner', 'spin', this.handleHeightSpinnerSpin)
+    //   sandBox.removeEventHandlerFromElement('height-spinner', 'spinchange', this.handleHeightSpinnerChange)
+    // }
+    // handleHeightSliderSlide (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'heightslider-Slid',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
+    // handleHeightSliderChange (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'heightslider-Changed',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
+    // handleHeightSpinnerSpin (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'heightspinner-Spun',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
+    // handleHeightSpinnerChange (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'heightspinner-Changed',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
   }
   return Height
 })()
