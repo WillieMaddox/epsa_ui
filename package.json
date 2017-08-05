@@ -21,6 +21,7 @@
     "w3c-schemas": "^1.4.0"
   },
   "devDependencies": {
+    "awesome-typescript-loader": "^3.2.2",
     "babel-cli": "^6.24.1",
     "babel-core": "^6.25.0",
     "babel-eslint": "^7.2.3",
@@ -66,7 +67,9 @@
     "path": "^0.12.7",
     "request": "^2.81.0",
     "rimraf": "^2.6.1",
+    "source-map-loader": "^0.2.1",
     "style-loader": "^0.18.2",
+    "typescript": "^2.4.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "url-loader": "^0.5.9",
     "vm": "^0.1.0",

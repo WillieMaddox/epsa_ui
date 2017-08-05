@@ -22,7 +22,7 @@ const cssConfig = isProd ? cssProd : cssDev
 
 module.exports = {
   resolve: {
-    extensions: ['.js', '.json', '.css'],
+    extensions: ['.ts', '.tsx', '.js', '.json', '.css'],
     modules: [
       'node_modules',
       'bower_components',
@@ -124,9 +124,13 @@ module.exports = {
         test: /\.txt$/,
         use: ['raw-loader']
       }, {
+        test: /\.tsx?$/,
+        use: ['awesome-typescript-loader']
+      }, {
         test: /\.jsx?$/, // both .js and .jsx
         include: path.resolve(__dirname, 'src', 'js'),
         exclude: /node_modules/,
+        // exclude: ['node_modules', 'bower_components', 'libs'],
         enforce: 'pre',
         use: [
           {
@@ -136,18 +140,13 @@ module.exports = {
               // publicPath: '/dist',
               name: '[name].[ext]'
             }
+          // }, {
+          //   loader: 'babel-loader',
+          //   options: {
+          //     presets: ['es2015', {modules: false}]
+          //   }
           }
         ]
-      // }, {
-      //   test: /\.jsx?$/,
-      //   include: path.resolve(__dirname, 'src', 'js'),
-      //   exclude: ['node_modules', 'bower_components', 'libs'],
-      //   use: {
-      //     loader: 'babel-loader',
-      //     options: {
-      //       presets: ['es2015', {modules: false}]
-      //     }
-      //   }
       }, {
         test: /\.(css|sass|scss)$/,
         use: cssConfig
