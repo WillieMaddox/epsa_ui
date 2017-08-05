@@ -18,22 +18,15 @@ import cameraIcon from '../img/camera-normal.png'
 let editors = {}
 import(/* webpackChunkName: "polygon", webpackMode: "lazy" */'./widgets/feature/forms/polygon')
   .then(module => {
-    // const Editor = module.default
-    // editor.init()
-    editors['polygon'] = module.default
     //TODO: maybe have .init() return "this".  Then maybe we can combine all three lines into one?
-    // editors['polygon'] = module.default.init()
+    editors['polygon'] = module.default
   })
 import(/* webpackChunkName: "linestring", webpackMode: "lazy" */'./widgets/feature/forms/linestring')
   .then(module => {
-    // const editor = module.default
-    // editor.init()
     editors['linestring'] = module.default
   })
 import(/* webpackChunkName: "point", webpackMode: "lazy" */'./widgets/feature/forms/point')
   .then(module => {
-    // const editor = module.default
-    // editor.init()
     editors['point'] = module.default
   })
 
@@ -325,11 +318,6 @@ const result = {
     this.editor.$form = this.editor.createForm()
     $('.layereditor').append(this.editor.$form)
     this.editor.styleForm()
-    // this.editor.$form.appendTo($('.layereditor'))
-    // if (!(this.editor.isStyled)) {
-    //   this.editor.styleForm()
-    // }
-    // this.editor.deactivateForm()
   },
   unloadEditor: function () {
     // TODO: .layereditor > form is only valid for feature layers.
