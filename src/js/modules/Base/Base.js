@@ -1,5 +1,5 @@
-let OSMFire_Base = (function() {
-  function getBaseModule() {
+const result = (function () {
+  function getBaseModule () {
     if (typeof jQuery !== 'undefined') {
       return jQuery
     } else {
@@ -10,3 +10,5 @@ let OSMFire_Base = (function() {
     getBaseModule: getBaseModule
   }
 })()
+
+export default result

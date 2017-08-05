@@ -1,9 +1,12 @@
 import $ from 'jquery'
 import ol from 'openlayers'
 import layertree from 'layertree'
+import OSMFire_Core from 'MainCore'
 import layertoolbar from 'layertoolbar'
 import featuretoolbar from 'featuretoolbar'
 import layerinteractor from 'layerinteractor'
+
+import 'Logger'
 
 ol.layer.Image.prototype.buildHeaders = function () {
   let features = this.getSource().getSource().getFeatures()
@@ -141,6 +144,9 @@ layertree.init()
 layertoolbar.init()
 featuretoolbar.init()
 layerinteractor.init()
+
+OSMFire_Core.initializeAllModules()
+OSMFire_Core.initializeAllComponents()
 
 /*********** WFS-T *************/
 // let dirty = {}

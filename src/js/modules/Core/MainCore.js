@@ -1,31 +1,37 @@
 'use strict'
-let OSMFire_Core = (function(mainCore) {
-  let $ = null,
-    registeredModules = [],
+
+import $ from 'jquery'
+import SandBox from 'SandBox'
+// import OSMFire_Base from 'Base'
+
+let OSMFire_Core = {}
+
+OSMFire_Core = (function (mainCore) {
+  let registeredModules = [],
     registeredComponents = [],
     fileLoadDelayTime = 300,
     timerCounter = 0,
     recursiveMaxCounter = 3,
     loadedComponentcallbackFunc
 
-  mainCore.registeredComponents = registeredComponents
-  mainCore.jQuery;
+  mainCore.registeredComponents = registeredComponents;
+
   //core initializing itself
-  (function Core_initialize() {
+  (function Core_initialize () {
     mainCore.debug = true
-    try {
-      // get jQuery from the base module loader
-      mainCore.jQuery = $ = OSMFire_Base.getBaseModule()
-    } catch (e) {
-      if (mainCore.debug) {
-        console.error('Base Module has not been defined!!!')
-      }
-    }
+    // try {
+    //   // get jQuery from the base module loader
+    //   mainCore.jQuery = $ = OSMFire_Base.getBaseModule()
+    // } catch (e) {
+    //   if (mainCore.debug) {
+    //     console.error('Base Module has not been defined!!!')
+    //   }
+    // }
     if (mainCore.debug) {
       console.log('%c Core Module has been initialized...', 'color:blue')
     }
   })()
-  mainCore.toggleDebug = function() {
+  mainCore.toggleDebug = function () {
     mainCore.debug = !mainCore.debug
     if (mainCore.debug) {
       mainCore.log(1, 'Application debug has been turned on...', 'blue')
@@ -33,10 +39,10 @@ let OSMFire_Core = (function(mainCore) {
       console.log('%c Application debug has been turned off...', 'color:orange')
     }
   }
-  mainCore.getDebugFlag = function() {
+  mainCore.getDebugFlag = function () {
     return mainCore.debug
   }
-  mainCore.checkIfArray = function(value) {
+  mainCore.checkIfArray = function (value) {
     if (mainCore.Utilitizes && mainCore.Utilitizes.checkIfArray) {
       return mainCore.Utilitizes.checkIfArray(value)
     } else {
@@ -44,23 +50,23 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // modules
-  mainCore.registerModule = function(module) {
+  mainCore.registerModule = function (module) {
     registeredModules.push(module)
   }
-  mainCore.getAppModulesCount = function() {
+  mainCore.getAppModulesCount = function () {
     return registeredModules.length
   }
-  mainCore.initializeAllModules = function() {
+  mainCore.initializeAllModules = function () {
     for (let module of registeredModules) {
       module.initialize()
     }
   }
-  mainCore.removeRegisteredModule = function(index) {
+  mainCore.removeRegisteredModule = function (index) {
     registeredModules.splice(index, 1)
   }
   // progressive enhancement
   // sandbox
-  mainCore.log = function(severity, msg, color) {
+  mainCore.log = function (severity, msg, color) {
     // if the logging module has been loaded, then use its full functionality
     // otherwise just log a simple message
     if (mainCore.LoggingHandler && mainCore.LoggingHandler.log) {
@@ -73,7 +79,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // components
-  mainCore.registerComponent = function(containerID, componentID, createFunc) {
+  mainCore.registerComponent = function (containerID, componentID, createFunc) {
     let containerElem, componentObj
     //setting context for the sandbox
     if ($) {
@@ -95,19 +101,19 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // unused?
-  mainCore.unregisterComponentByName = function(name) {
+  mainCore.unregisterComponentByName = function (name) {
     for (let component of registeredComponents) {
       if (component.name === name) {
         component = null
       }
     }
   }
-  mainCore.resetComponentInfo = function() {
+  mainCore.resetComponentInfo = function () {
     timerCounter = 0
     loadedComponentcallbackFunc = null
   }
   // not used?
-  mainCore.destroyAllComponents = function(removeFromDom) {
+  mainCore.destroyAllComponents = function (removeFromDom) {
     this.log(1, 'Destroying all components...', 'orange')
     let lastIndex = registeredComponents.length - 1
     try {
@@ -119,7 +125,7 @@ let OSMFire_Core = (function(mainCore) {
     }
     this.log(1, 'All components have been destroyed...', 'orange')
   }
-  mainCore.initializeComponent = function(componentID, callbackFunc) {
+  mainCore.initializeComponent = function (componentID, callbackFunc) {
     let args = arguments
     try {
       timerCounter++
@@ -129,7 +135,7 @@ let OSMFire_Core = (function(mainCore) {
       mainCore.resetComponentInfo()
     } catch (e) {
       if (timerCounter < recursiveMaxCounter) {
-        window.setTimeout(function() {
+        window.setTimeout(function () {
           mainCore.initializeComponent.apply(null, args)
         }, fileLoadDelayTime)
       } else {
@@ -139,7 +145,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // main
-  mainCore.initializeAllComponents = function() {
+  mainCore.initializeAllComponents = function () {
     this.log(1, 'Initializing all components...', 'orange')
     try {
       for (let component of registeredComponents) {
@@ -150,7 +156,7 @@ let OSMFire_Core = (function(mainCore) {
     }
     this.log(1, 'All components have been initialized...', 'orange')
   }
-  mainCore.getComponentByID = function(componentID) {
+  mainCore.getComponentByID = function (componentID) {
     for (let component of this.registeredComponents) {
       if (component.id === componentID) {
         return component
@@ -159,7 +165,7 @@ let OSMFire_Core = (function(mainCore) {
     return false
   }
   // sandbox
-  mainCore.getComponentObjAndCallback = function(ComponentObjID, callbackFunc) {
+  mainCore.getComponentObjAndCallback = function (ComponentObjID, callbackFunc) {
     try {
       // load Component object definition from storage
       mainCore.loadPageDefinitionFromStorageAndCallBack(ComponentObjID, callbackFunc)
@@ -168,26 +174,27 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.loadComponent = function(ComponentDefID) {
+  mainCore.loadComponent = function (ComponentDefID) {
     // get the value of Component object definition from storage
     let ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID)
     if (!ComponentDef) {
       // if Component definition is not in the storage then the page object definitions probably needs to be loaded
-      mainCore.loadPageDefinitionsFileAndCallBack(function() {
-        mainCore.getComponentObjAndCallback(ComponentDefID, mainCore.loadComponentFiles)
+      mainCore.loadPageDefinitionsFileAndCallBack(function () {
+        mainCore.getComponentObjAndCallback(ComponentDefID,
+          mainCore.loadComponentFiles)
       })
     } else {
       mainCore.loadComponentFiles(ComponentDef)
     }
   }
   // sandbox
-  mainCore.loadComponentAndCallback = function(ComponentDefID, callbackFunc) {
+  mainCore.loadComponentAndCallback = function (ComponentDefID, callbackFunc) {
     // get the value of Component object definition from storage
     let ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID)
     loadedComponentcallbackFunc = callbackFunc
     if (!ComponentDef) {
       // if Component definition is not in the storage then the page object definitions probably needs to be loaded
-      mainCore.loadPageDefinitionsFileAndCallBack(function() {
+      mainCore.loadPageDefinitionsFileAndCallBack(function () {
         mainCore.getComponentObjAndCallback(ComponentDefID,
           mainCore.loadComponentFilesAndInitializeWithCallBack)
       })
@@ -195,13 +202,13 @@ let OSMFire_Core = (function(mainCore) {
       mainCore.loadComponentFilesAndInitializeWithCallBack(ComponentDef)
     }
   }
-  mainCore.loadComponentFilesAndInitializeWithCallBack = function(pageDefinitionObj, callbackFunc) {
+  mainCore.loadComponentFilesAndInitializeWithCallBack = function (pageDefinitionObj, callbackFunc) {
     loadedComponentcallbackFunc = callbackFunc || loadedComponentcallbackFunc
     if (pageDefinitionObj && typeof pageDefinitionObj === 'object') {
       if (pageDefinitionObj.scriptFile && pageDefinitionObj.scriptPath) {
         mainCore.loadJSfileFromObjDefAndCallBack(
           pageDefinitionObj.scriptFile,
-          pageDefinitionObj.scriptPath, function() {
+          pageDefinitionObj.scriptPath, function () {
             mainCore.initializeComponent(
               pageDefinitionObj.componentID,
               loadedComponentcallbackFunc)
@@ -219,7 +226,7 @@ let OSMFire_Core = (function(mainCore) {
       mainCore.log(3, 'Component definition was not found, cannot render page; from mainCore.loadComponentFilesAndInitializeWithCallBack')
     }
   }
-  mainCore.loadComponentFiles = function(pageDefinitionObj) {
+  mainCore.loadComponentFiles = function (pageDefinitionObj) {
     if (pageDefinitionObj && typeof pageDefinitionObj === 'object') {
       if (pageDefinitionObj.scriptFile && pageDefinitionObj.scriptPath) {
         mainCore.loadJSfileFromObjDef(pageDefinitionObj.scriptFile, pageDefinitionObj.scriptPath)
@@ -237,7 +244,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.loadCSSfileFromObjDef = function(fileName, filePath) {
+  mainCore.loadCSSfileFromObjDef = function (fileName, filePath) {
     // if file has already been loaded, then nothing to do
     if (mainCore.confirmFileLoad(fileName, 'css')) {
       return true
@@ -245,7 +252,7 @@ let OSMFire_Core = (function(mainCore) {
       mainCore.loadFile(fileName, 'css', filePath)
     }
   }
-  mainCore.loadJSfileFromObjDef = function(fileName, filePath) {
+  mainCore.loadJSfileFromObjDef = function (fileName, filePath) {
     // if file has already been loaded, then nothing to do
     if (mainCore.confirmFileLoad(fileName, 'js')) {
       return true
@@ -254,7 +261,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.loadJSfileFromObjDefAndCallBack = function(fileName, filePath, callbackFunc) {
+  mainCore.loadJSfileFromObjDefAndCallBack = function (fileName, filePath, callbackFunc) {
     // if file has already been loaded, then nothing to do
     if (mainCore.confirmFileLoad(fileName, 'js')) {
       return true
@@ -262,7 +269,7 @@ let OSMFire_Core = (function(mainCore) {
       mainCore.loadFileAndCallBack(fileName, 'js', filePath, callbackFunc)
     }
   }
-  mainCore.confirmFileLoad = function(fileName, fileType) {
+  mainCore.confirmFileLoad = function (fileName, fileType) {
     let fileLoaded
     if (mainCore.Utilitizes && mainCore.Utilitizes.getFileInHead) {
       fileLoaded = mainCore.Utilitizes.getFileInHead(fileName, fileType)
@@ -283,7 +290,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.loadFile = function(fileName, fileType, filePath) {
+  mainCore.loadFile = function (fileName, fileType, filePath) {
     if (mainCore.Utilitizes && mainCore.Utilitizes.Load_JS_CSS) {
       mainCore.Utilitizes.Load_JS_CSS(fileName, fileType, filePath)
     } else {
@@ -291,14 +298,14 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.removeFile = function(fileName, fileType) {
+  mainCore.removeFile = function (fileName, fileType) {
     if (mainCore.Utilitizes && mainCore.Utilitizes.Load_JS_CSS) {
       mainCore.Utilitizes.Remove_JS_CSS(fileName, fileType)
     } else {
       mainCore.log(3, 'Cannot remove file; from mainCore.removeFile')
     }
   }
-  mainCore.loadFileAndCallBack = function(fileName, fileType, filePath, callbackFunc) {
+  mainCore.loadFileAndCallBack = function (fileName, fileType, filePath, callbackFunc) {
     mainCore.loadFile(fileName, fileType, filePath)
     if (mainCore.confirmFileLoad(fileName, fileType)) {
       callbackFunc()
@@ -307,38 +314,38 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.loadPageDefinitions = function() {
-    let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
-      pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
-    if (pageDefinitionsFileName && pageDefinitionsFilePath) {
-      mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
-      mainCore.removeFile(pageDefinitionsFileName, 'js')
-    } else {
-      mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitions')
-    }
-  }
+  // mainCore.loadPageDefinitions = function () {
+  //   let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
+  //     pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
+  //   if (pageDefinitionsFileName && pageDefinitionsFilePath) {
+  //     mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
+  //     mainCore.removeFile(pageDefinitionsFileName, 'js')
+  //   } else {
+  //     mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitions')
+  //   }
+  // }
   // sandbox
-  mainCore.loadPageDefinitionsFileAndCallBack = function(callbackFunc) {
-    let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
-      pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
-    if (pageDefinitionsFileName && pageDefinitionsFilePath) {
-      mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
-      if (mainCore.confirmFileLoad(pageDefinitionsFileName, 'js')) {
-        callbackFunc()
-        mainCore.removeFile(pageDefinitionsFileName, 'js')
-      } else {
-        mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
-      }
-    } else {
-      mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
-    }
-  }
-  mainCore.loadPageDefinitionFromStorageAndCallBack = function(pageObjDefName, callbackFunc) {
+  // mainCore.loadPageDefinitionsFileAndCallBack = function (callbackFunc) {
+  //   let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
+  //     pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
+  //   if (pageDefinitionsFileName && pageDefinitionsFilePath) {
+  //     mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
+  //     if (mainCore.confirmFileLoad(pageDefinitionsFileName, 'js')) {
+  //       callbackFunc()
+  //       mainCore.removeFile(pageDefinitionsFileName, 'js')
+  //     } else {
+  //       mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
+  //     }
+  //   } else {
+  //     mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
+  //   }
+  // }
+  mainCore.loadPageDefinitionFromStorageAndCallBack = function (pageObjDefName, callbackFunc) {
     let pageDefinitionObj, args = arguments
     pageDefinitionObj = mainCore.getValueForKeyAsObjectFromStorage(pageObjDefName)
     if (!pageDefinitionObj && timerCounter < recursiveMaxCounter) {
       timerCounter++
-      window.setTimeout(function() {
+      window.setTimeout(function () {
         mainCore.loadPageDefinitionFromStorageAndCallBack.apply(null, args)
       }, fileLoadDelayTime)
     } else if (timerCounter >= recursiveMaxCounter) {
@@ -349,14 +356,14 @@ let OSMFire_Core = (function(mainCore) {
       callbackFunc(pageDefinitionObj)
     }
   }
-  mainCore.testLocalStorage = function() {
+  mainCore.testLocalStorage = function () {
     if (mainCore.Utilitizes && mainCore.Utilitizes.testLocalStorage) {
       return mainCore.Utilitizes.testLocalStorage()
     } else {
       mainCore.log(3, 'cannot check if array; from mainCore.testLocalStorage')
     }
   }
-  mainCore.saveValueToLocalStorage = function(key, value, encode) {
+  mainCore.saveValueToLocalStorage = function (key, value, encode) {
     if (mainCore.StorageHandler && mainCore.StorageHandler.saveValueToLocalStorage && key && typeof key === 'string' && value) {
       mainCore.StorageHandler.saveValueToLocalStorage(key, value, encode)
     } else {
@@ -364,7 +371,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.getValueForKeyAsObjectFromStorage = function(ObjName) {
+  mainCore.getValueForKeyAsObjectFromStorage = function (ObjName) {
     if (mainCore.StorageHandler && mainCore.StorageHandler.getValueForKeyAsObject) {
       return mainCore.StorageHandler.getValueForKeyAsObject(ObjName)
     } else {
@@ -372,7 +379,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.getCookieValueAsArray = function(cookieName) {
+  mainCore.getCookieValueAsArray = function (cookieName) {
     if (mainCore.CookieHandler && mainCore.CookieHandler.getCookieValueAsArray) {
       return mainCore.CookieHandler.getCookieValueAsArray(cookieName)
     } else {
@@ -380,7 +387,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.populateCookie =function(cookieName, value) {
+  mainCore.populateCookie = function (cookieName, value) {
     if (mainCore.CookieHandler && mainCore.CookieHandler.populateCookie) {
       mainCore.CookieHandler.populateCookie(cookieName, value)
     } else {
@@ -388,7 +395,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   // sandbox
-  mainCore.removeValueByValueFromCookie = function(cookieName, value) {
+  mainCore.removeValueByValueFromCookie = function (cookieName, value) {
     if (mainCore.CookieHandler && mainCore.CookieHandler.removeValueByValue) {
       mainCore.CookieHandler.removeValueByValue(cookieName, value)
     } else {
@@ -396,7 +403,7 @@ let OSMFire_Core = (function(mainCore) {
     }
   }
   //unit tests can still run even if the application fails catastrophically
-  mainCore.runAllUnitTests = function() {
+  mainCore.runAllUnitTests = function () {
     if (typeof OSMFire_Core.AppTester !== 'undefined') {
       try {
         OSMFire_Core.AppTester.runAllUnitTests()
@@ -411,10 +418,10 @@ let OSMFire_Core = (function(mainCore) {
 })(OSMFire_Core || {}) // using loose augmentation of OSMFire_Core
 
 // DOM related functionality
-OSMFire_Core = (function(Core) {
-  let $ = Core.jQuery
+OSMFire_Core = (function (Core) {
+  // let $ = Core.jQuery
   // sandbox
-  let updateElement = function(containerID, newStructure) {
+  let updateElement = function (containerID, newStructure) {
     let containerElem
     if (typeof containerID === 'string') {
       containerElem = Core.getElement(containerID)
@@ -428,7 +435,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let applyElementCSSClass = function(elementID, className) {
+  let applyElementCSSClass = function (elementID, className) {
     let elem
     if (!className) {
       Core.log(3, 'No class name has been provided, exiting module!')
@@ -438,7 +445,7 @@ OSMFire_Core = (function(Core) {
     Core.setClassName(elem, className)
   }
   // sandbox
-  let getParentNode = function(elem) {
+  let getParentNode = function (elem) {
     if ($) {
       return $(elem).parent()[0]
     } else {
@@ -446,7 +453,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let setElement = function(containerID, elem) {
+  let setElement = function (containerID, elem) {
     if ($) {
       $(containerID).append(elem)
     } else {
@@ -454,14 +461,14 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let getElement = function(elemID) {
+  let getElement = function (elemID) {
     if ($) {
       return $('#' + elemID)[0]
     } else {
       return document.getElementById(elemID)
     }
   }
-  let setInnerHTML = function(container, newStructure) {
+  let setInnerHTML = function (container, newStructure) {
     if ($) {
       try { // to deal with jQuery 1.8 error when component is generated dynamically
         $(container).html(newStructure)
@@ -472,7 +479,7 @@ OSMFire_Core = (function(Core) {
       container.innerHTML = newStructure
     }
   }
-  let setClassName = function(elem, className) {
+  let setClassName = function (elem, className) {
     if ($) {
       $(elem).addClass(className)
     } else {
@@ -480,7 +487,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let getChildOfParentByID = function(parentElem, childID) {
+  let getChildOfParentByID = function (parentElem, childID) {
     childID = '#' + childID
     if ($) {
       try {
@@ -494,7 +501,7 @@ OSMFire_Core = (function(Core) {
   }
   // graceful degradation and progressive enhancement
   // sandbox
-  let removeComponentFromDom = function(elementID) {
+  let removeComponentFromDom = function (elementID) {
     let childElem
     elementID = '#' + elementID
     if ($) {
@@ -505,7 +512,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let createDocumentLevelComponent = function(componentViewStr) {
+  let createDocumentLevelComponent = function (componentViewStr) {
     let mainComponentContainer
     mainComponentContainer = document.createElement('DIV')
     mainComponentContainer.innerHTML = componentViewStr
@@ -527,17 +534,17 @@ OSMFire_Core = (function(Core) {
 })(OSMFire_Core) // using tight augmentation
 
 // Openlayers related functionality
-OSMFire_Core = (function(Core) {
-  let getMap = function() {
+OSMFire_Core = (function (Core) {
+  let getMap = function () {
     return Core.OL.getMap()
   }
-  let setMap = function(map) {
+  let setMap = function (map) {
     Core.OL.setMap(map)
   }
-  let getView = function() {
+  let getView = function () {
     return Core.OL.getView()
   }
-  let addControl = function(control) {
+  let addControl = function (control) {
     Core.OL.addControl(control)
   }
   let getMouseProjection = function () {
@@ -597,10 +604,10 @@ OSMFire_Core = (function(Core) {
 })(OSMFire_Core) // using tight augmentation
 
 // event related functionality augmentation
-OSMFire_Core = (function(Core) {
-  let $ = Core.jQuery
+OSMFire_Core = (function (Core) {
+  // let $ = Core.jQuery
   // sandbox
-  let addEventHandlerToElement = function(elem, event, callbackFunc) {
+  let addEventHandlerToElement = function (elem, event, callbackFunc) {
     if (!elem) {
       Core.log(3, 'Element is not passed in, from addEventHandlerToElement')
       throw new Error('Element not found')
@@ -616,7 +623,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let removeEventHandlerFromElement = function(elem, event, callbackFunc) {
+  let removeEventHandlerFromElement = function (elem, event, callbackFunc) {
     if (!elem) {
       Core.log(3, 'Element is not found, from removeEventHandlerFromElement')
       throw new Error('Element not found')
@@ -633,7 +640,7 @@ OSMFire_Core = (function(Core) {
   }
   //registering and publishing events
   // sandbox
-  let registerForCustomEvents = function(componentID, eventsObj) {
+  let registerForCustomEvents = function (componentID, eventsObj) {
     if (typeof componentID === 'string' && typeof eventsObj === 'object') {
       for (let component of Core.registeredComponents) {
         if (component.id === componentID) {
@@ -645,7 +652,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let unregisterCustomEvent = function(componentID, eventType) {
+  let unregisterCustomEvent = function (componentID, eventType) {
     if (typeof componentID === 'string' && typeof eventType === 'string') {
       for (let component of Core.registeredComponents) {
         if (component.id === componentID) {
@@ -666,7 +673,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let unregisterAllCustomEvents = function(componentID) {
+  let unregisterAllCustomEvents = function (componentID) {
     if (typeof componentID === 'string') {
       for (let component of Core.registeredComponents) {
         if (component && component.id) {
@@ -681,7 +688,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let publishCustomEvent = function(eventObj) {
+  let publishCustomEvent = function (eventObj) {
     for (let component of Core.registeredComponents) {
       if (component.events && component.events[eventObj.type]) {
         component.events[eventObj.type](eventObj.data)
@@ -689,7 +696,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let addToHistory = function(dataObj) {
+  let addToHistory = function (dataObj) {
     // if history object is supported
     if (window.history && history.pushState) {
       history.pushState(dataObj, dataObj.url, dataObj.url)
@@ -698,7 +705,7 @@ OSMFire_Core = (function(Core) {
       Core.log(3, 'History API is not supported; from addToHistory')
     }
   }
-  let getFromHistory = function(e) {
+  let getFromHistory = function (e) {
     // if history object is supported
     if (window.history && history.pushState) {
       if (e.state) {
@@ -714,11 +721,11 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  let loadPage = function(url) {
+  let loadPage = function (url) {
     location.href = url
   }
   // sandbox
-  let message = function(msg) {
+  let message = function (msg) {
     // TODO: Make this work as a component.
     // OSMFire_MessageBar(msg)
   }
@@ -739,10 +746,10 @@ OSMFire_Core = (function(Core) {
 
 //we separate sub-modules in core based on functionality for easy maintenance
 // AJAX functionality related augmentation
-OSMFire_Core = (function(Core) {
-  let $ = Core.jQuery
+OSMFire_Core = (function (Core) {
+  // let $ = Core.jQuery
   // sandbox
-  Core.makeAjaxCall = function(url, theQuery, method, handler) {
+  Core.makeAjaxCall = function (url, theQuery, method, handler) {
     if ($ && Core.jQueryAjaxEngine && Core.jQueryAjaxEngine.makeAjaxCall) {
       Core.jQueryAjaxEngine.makeAjaxCall(url, theQuery, method, handler)
     } else {
@@ -750,7 +757,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  Core.loadPageByAjax = function(apiURL, QueryStr, callbackFunc, page, method) {
+  Core.loadPageByAjax = function (apiURL, QueryStr, callbackFunc, page, method) {
     if ($ && Core.jQueryAjaxEngine && Core.jQueryAjaxEngine.loadPageByAjax) {
       Core.jQueryAjaxEngine.loadPageByAjax(apiURL, QueryStr, callbackFunc, page, method)
     } else {
@@ -758,7 +765,7 @@ OSMFire_Core = (function(Core) {
     }
   }
   // sandbox
-  Core.getJSONObj = function(url, callbackFunc) {
+  Core.getJSONObj = function (url, callbackFunc) {
     if ($ && Core.jQueryAjaxEngine && Core.jQueryAjaxEngine.getJSONObj) {
       Core.jQueryAjaxEngine.getJSONObj(url, callbackFunc)
     } else {
@@ -769,15 +776,15 @@ OSMFire_Core = (function(Core) {
 })(OSMFire_Core) // using tight augmentation
 
 // custom event handlers in core, core registering for events
-OSMFire_Core = (function(Core) {
-  Core.handleImageClick = function(data) {
+OSMFire_Core = (function (Core) {
+  Core.handleImageClick = function (data) {
     Core.log(1, '  we Got click from image', 'green')
   }
-  Core.handleFavlinkClick = function(data) {
+  Core.handleFavlinkClick = function (data) {
     Core.log(1, '  we Got click from Link', 'green')
   }
   //broadcasting that the page has changed
-  Core.handlePageChange = function(pageURL) {
+  Core.handlePageChange = function (pageURL) {
     Core.publishCustomEvent({
       type: 'page-Changed',
       data: pageURL
@@ -789,12 +796,12 @@ OSMFire_Core = (function(Core) {
   }
   Core.registeredComponents.push(Core)
   // to be initialized as a component
-  Core.init = function() {
+  Core.init = function () {
     Core.id = 'mainCore'
     Core.registerForCustomEvents('mainCore', events)
     Core.log(1, 'Core is listening to custom events now...', 'purple')
   }
-  Core.destroy = function() {
+  Core.destroy = function () {
     Core.log(1, 'Core has been destroyed...', 'purple')
     delete Core.registeredComponents[0]
   }
@@ -804,3 +811,5 @@ OSMFire_Core = (function(Core) {
   }, location.pathname, location.pathname) // add current page to history object
   return Core
 })(OSMFire_Core)
+
+export default OSMFire_Core

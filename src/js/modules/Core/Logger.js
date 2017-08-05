@@ -1,8 +1,10 @@
+import OSMFire_Core from 'MainCore'
+
 // using simple sub-module augmentation
-OSMFire_Core.LoggingHandler = (function() {
+OSMFire_Core.LoggingHandler = (function () {
   let self = {},
     messageParam, colorParam
-  self.logMessage = function(severity, message, color) {
+  self.logMessage = function (severity, message, color) {
     // if no severity number was possed in, then give the message and warn the user
     if (typeof severity === 'string') {
       message = severity
@@ -29,11 +31,11 @@ OSMFire_Core.LoggingHandler = (function() {
       // do something else
     }
   }
-  self.initialize = function() {
+  self.initialize = function () {
     OSMFire_Core.log(1, 'LoggingHandler Module has been initialized...', 'blue')
   }
   // register with MainCore
-  self.register = (function() {
+  self.register = (function () {
     OSMFire_Core.registerModule(self)
   })()
   return {
