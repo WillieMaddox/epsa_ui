@@ -5,11 +5,11 @@
 'use strict'
 
 import $ from 'jquery'
-import polygon_templates from '../polygontemplates'
 import Name from '../nodes/name'
-import Measure from '../nodes/measure'
 import Type from '../nodes/featuretype'
 import Hole from '../nodes/hole'
+import Measure from '../nodes/measure'
+import polygon_templates from '../polygontemplates'
 
 const form_elements = {}
 
@@ -18,8 +18,8 @@ class Polygon {
     this.type = 'polygon'
     this.form_nodes = {
       'name': new Name(polygon_templates),
-      'measure': new Measure('Polygon'),
       'type': new Type(polygon_templates),
+      'measure': new Measure('Polygon'),
       'hole': new Hole()
     }
     this.form_node_labels = [

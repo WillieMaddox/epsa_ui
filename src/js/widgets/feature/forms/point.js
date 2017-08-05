@@ -5,9 +5,9 @@
 'use strict'
 
 import $ from 'jquery'
-import point_templates from '../pointtemplates'
 import Name from '../nodes/name'
 import Type from '../nodes/featuretype'
+import point_templates from '../pointtemplates'
 
 const form_elements = {}
 

@@ -5,10 +5,10 @@
 'use strict'
 
 import $ from 'jquery'
-import linestring_templates from '../linestringtemplates'
 import Name from '../nodes/name'
-import Measure from '../nodes/measure'
 import Type from '../nodes/featuretype'
+import Measure from '../nodes/measure'
+import linestring_templates from '../linestringtemplates'
 
 const form_elements = {}
 
@@ -17,8 +17,8 @@ class LineString {
     this.type = 'linestring'
     this.form_nodes = {
       'name': new Name(linestring_templates),
-      'measure': new Measure('LineString'),
-      'type': new Type(linestring_templates)
+      'type': new Type(linestring_templates),
+      'measure': new Measure('LineString')
     }
     this.form_node_labels = [
       ['name'],
