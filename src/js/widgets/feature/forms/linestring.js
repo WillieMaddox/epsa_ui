@@ -9,8 +9,8 @@ import ol from 'openlayers'
 // import map from 'map'
 import utils from 'utils'
 import linestringTemplates from '../linestringtemplates'
-import name from '../../nodes/name'
-import measure from '../../nodes/measure'
+import name from '../nodes/name'
+import measure from '../nodes/measure'
 
 const formElements = {}
 const wgs84Sphere = new ol.Sphere(6378137)

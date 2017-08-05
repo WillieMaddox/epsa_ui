@@ -6,10 +6,10 @@
 
 import $ from 'jquery'
 import polygon_templates from '../polygontemplates'
-import Name from '../../nodes/name'
-import Measure from '../../nodes/measure'
-import Type from '../../nodes/featuretype'
-import Hole from '../../nodes/hole'
+import Name from '../nodes/name'
+import Measure from '../nodes/measure'
+import Type from '../nodes/featuretype'
+import Hole from '../nodes/hole'
 
 const formElements = {}
 

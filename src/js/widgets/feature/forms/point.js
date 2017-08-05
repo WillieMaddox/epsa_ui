@@ -7,7 +7,7 @@
 import $ from 'jquery'
 import utils from 'utils'
 import pointTemplates from '../pointtemplates'
-import name from '../../nodes/name'
+import name from '../nodes/name'
 const formElements = {}
 
 const result = {
