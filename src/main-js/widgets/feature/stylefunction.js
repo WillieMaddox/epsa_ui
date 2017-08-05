@@ -5,9 +5,9 @@
 'use strict'
 import ol from 'openlayers'
 
-import lineStringTemplates from './linestringtemplates'
-import polygonTemplates from './polygontemplates'
-import pointTemplates from './pointtemplates'
+import linestring_templates from './linestringtemplates'
+import polygon_templates from './polygontemplates'
+import point_templates from './pointtemplates'
 
 import cameraIcon from '../../../img/camera-normal.png'
 import radioIcon from '../../../img/radio-normal.png'
@@ -184,17 +184,17 @@ const result = (function () {
 
     if (geom === 'Polygon') {
       if (feature_templates['Polygon'] === null) {
-        feature_templates['Polygon'] = polygonTemplates
+        feature_templates['Polygon'] = polygon_templates
       }
     }
     if (geom === 'LineString') {
       if (feature_templates['LineString'] === null) {
-        feature_templates['LineString'] = lineStringTemplates
+        feature_templates['LineString'] = linestring_templates
       }
     }
     if (geom === 'Point') {
       if (feature_templates['Point'] === null) {
-        feature_templates['Point'] = pointTemplates
+        feature_templates['Point'] = point_templates
       }
     }
     return setStyle(geom, type)

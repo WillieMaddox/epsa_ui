@@ -2,7 +2,7 @@
  * Created by maddoxw on 7/18/17.
  */
 
-const polygonTemplates = {
+const polygon_templates = {
   'polygon': {
     'color': [218, 188, 163],
     'fillopacity': 0.5
@@ -33,4 +33,4 @@ const polygonTemplates = {
   }
 }
 
-export default polygonTemplates
+export default polygon_templates
