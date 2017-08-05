@@ -20,7 +20,7 @@ body {
     width: 400px;
     height: 100%;
 }
-.sidebar-container .toolbar {
+.sidebar-container .featuretoolbar {
     box-sizing: border-box;
     display: table;
     padding-left: .2em;
@@ -28,13 +28,13 @@ body {
     height: 2em;
 }
 
-.toolbar .ol-control {
+.featuretoolbar .ol-control {
     display: table-cell;
     position: static;
     padding: 0;
     height: 2em;
 }
-.toolbar .ol-control button {
+.featuretoolbar .ol-control button {
     border-radius: 0;
     display: inline-block;
     vertical-align: middle;
@@ -44,116 +44,116 @@ body {
     background-color: rgba(219, 63, 63, .5);
     width: 2em;
 }
-.toolbar .ol-control button:hover {
+.featuretoolbar .ol-control button:hover {
     background-color: rgba(219,63,63,1);
 }
-.toolbar .ol-control button.active,
-.toolbar .ol-control button.active:hover {
+.featuretoolbar .ol-control button.active,
+.featuretoolbar .ol-control button.active:hover {
     background-color: rgba(234,129,8,1);
 }
-.toolbar .ol-control button:disabled,
-.toolbar .ol-control button:disabled:hover {
+.featuretoolbar .ol-control button:disabled,
+.featuretoolbar .ol-control button:disabled:hover {
     background-color: rgba(0,0,0,.2);
 }
-.toolbar .ol-addpoint button {
+.featuretoolbar .ol-addpoint button {
     background-image: url(../img/button_addpoint.png);
 }
-.toolbar .ol-addline button {
+.featuretoolbar .ol-addline button {
     background-image: url(../img/button_addline.png);
 }
-.toolbar .ol-addpolygon button {
+.featuretoolbar .ol-addpolygon button {
     background-image: url(../img/button_addpolygon.png);
 }
-.toolbar .ol-addaor button {
+.featuretoolbar .ol-addaor button {
     background-image: url(../img/aor_temp.png);
 }
-.toolbar .ol-addaor button.active {
+.featuretoolbar .ol-addaor button.active {
     background-color: rgba(0, 0, 0, 1);
 }
-.toolbar .ol-addaor button:hover,
-.toolbar .ol-addaor button.active:hover {
+.featuretoolbar .ol-addaor button:hover,
+.featuretoolbar .ol-addaor button.active:hover {
     background-color: rgba(0, 0, 0, 0.5);
 }
-.toolbar .ol-addbuilding button {
+.featuretoolbar .ol-addbuilding button {
     background-image: url(../img/building_temp.png);
 }
-.toolbar .ol-addbuilding button.active {
+.featuretoolbar .ol-addbuilding button.active {
     background-color: rgba(128, 128, 128, 1);
 }
-.toolbar .ol-addbuilding button:hover,
-.toolbar .ol-addbuilding button.active:hover {
+.featuretoolbar .ol-addbuilding button:hover,
+.featuretoolbar .ol-addbuilding button.active:hover {
     background-color: rgba(128, 128, 128, 0.5);
 }
-.toolbar .ol-addherbage button {
+.featuretoolbar .ol-addherbage button {
     background-image: url(../img/herbage2_temp.png);
 }
-.toolbar .ol-addherbage button.active {
+.featuretoolbar .ol-addherbage button.active {
     background-color: rgba(0, 200, 0, 1);
 }
-.toolbar .ol-addherbage button:hover,
-.toolbar .ol-addherbage button.active:hover {
+.featuretoolbar .ol-addherbage button:hover,
+.featuretoolbar .ol-addherbage button.active:hover {
     background-color: rgba(0, 200, 0, 0.5);
 }
-.toolbar .ol-addwater button {
+.featuretoolbar .ol-addwater button {
     background-image: url(../img/water_temp.png);
 }
-.toolbar .ol-addwater button.active {
+.featuretoolbar .ol-addwater button.active {
     background-color: rgba(0, 0, 200, 1);
 }
-.toolbar .ol-addwater button:hover,
-.toolbar .ol-addwater button.active:hover {
+.featuretoolbar .ol-addwater button:hover,
+.featuretoolbar .ol-addwater button.active:hover {
     background-color: rgba(0, 0, 200, 0.5);
 }
-.toolbar .ol-addwall button {
+.featuretoolbar .ol-addwall button {
     background-image: url(../img/wall_temp.png);
 }
-.toolbar .ol-addwall button.active {
+.featuretoolbar .ol-addwall button.active {
     background-color: rgba(64, 64, 64, 1);
 }
-.toolbar .ol-addwall button:hover,
-.toolbar .ol-addwall button.active:hover {
+.featuretoolbar .ol-addwall button:hover,
+.featuretoolbar .ol-addwall button.active:hover {
     background-color: rgba(64, 64, 64, 0.5);
 }
-.toolbar .ol-addroad button {
+.featuretoolbar .ol-addroad button {
     background-image: url(../img/road2_temp.png);
 }
-.toolbar .ol-addroad button.active {
+.featuretoolbar .ol-addroad button.active {
     background-color: rgba(192, 51, 52, 1);
 }
-.toolbar .ol-addroad button:hover,
-.toolbar .ol-addroad button.active:hover {
+.featuretoolbar .ol-addroad button:hover,
+.featuretoolbar .ol-addroad button.active:hover {
     background-color: rgba(192, 51, 52, 0.5);
 }
-.toolbar .ol-addcamera button {
+.featuretoolbar .ol-addcamera button {
     background-image: url(../img/camera-normal.png);
 }
-.toolbar .ol-addcamera button.active {
+.featuretoolbar .ol-addcamera button.active {
     background-color: rgba(116, 64, 109, 1);
 }
-.toolbar .ol-addcamera button:hover,
-.toolbar .ol-addcamera button.active:hover {
+.featuretoolbar .ol-addcamera button:hover,
+.featuretoolbar .ol-addcamera button.active:hover {
     background-color: rgba(116, 64, 109, 0.5);
 }
-.toolbar .ol-addradio button {
+.featuretoolbar .ol-addradio button {
     background-image: url(../img/radio-normal.png);
 }
-.toolbar .ol-addradio button.active {
+.featuretoolbar .ol-addradio button.active {
     background-color: rgba(64, 116, 109, 1);
 }
-.toolbar .ol-addradio button:hover,
-.toolbar .ol-addradio button.active:hover {
+.featuretoolbar .ol-addradio button:hover,
+.featuretoolbar .ol-addradio button.active:hover {
     background-color: rgba(64, 116, 109, 0.5);
 }
-.toolbar .ol-multiselect button {
+.featuretoolbar .ol-multiselect button {
     background-image: url(../img/button_multiselect.png);
 }
-.toolbar .ol-snap button {
+.featuretoolbar .ol-snap button {
     background-image: url(../img/button_snap.png);
 }
-.toolbar .ol-addhole button {
+.featuretoolbar .ol-addhole button {
     background-image: url(../img/noun_539367_cc.png);
 }
-.toolbar .ol-removehole button {
+.featuretoolbar .ol-removehole button {
     background-image: url(../img/noun_1054716_cc.png);
 }
 
@@ -242,7 +242,7 @@ body {
 }
 .layertoolbar-container .ol-unselectable,
 .layertree .ol-unselectable,
-.toolbar .ol-unselectable {
+.featuretoolbar .ol-unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

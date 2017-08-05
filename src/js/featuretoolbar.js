@@ -1,5 +1,5 @@
 /**
- * Created by maddoxw on 7/23/16.
+ * Created by maddoxw on 8/5/17.
  */
 
 'use strict'
@@ -21,7 +21,7 @@ let drawControls = new ol.Collection()
 
 const result = {
   init: function () {
-    this.toolbar = document.getElementById('toolbar')
+    this.toolbar = document.getElementById('featuretoolbar')
     this.controls = new ol.Collection()
     // this.activeControl = null;
     this.active = false
@@ -31,7 +31,7 @@ const result = {
   },
   addControl: function (control) {
     if (!(control instanceof ol.control.Control)) {
-      throw new Error('Only controls can be added to the toolbar.')
+      throw new Error('Only controls can be added to the featuretoolbar.')
     }
     if (control.get('button_type') === 'radio') {
       control.on('change:active', function () {
@@ -278,7 +278,7 @@ const result = {
 
       this.addedFeature = evt.feature
       activeControl.set('active', false)
-      console.log('toolbar interaction drawend')
+      console.log('featuretoolbar interaction drawend')
     }, this)
     return interaction
   }

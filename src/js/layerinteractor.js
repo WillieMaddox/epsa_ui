@@ -8,7 +8,7 @@ import $ from 'jquery'
 import ol from 'openlayers'
 import map from 'map'
 import exists from 'exists'
-import toolbar from 'toolbar'
+import featuretoolbar from 'featuretoolbar'
 import layertree from 'layertree'
 import isPolyValid from 'ispolyvalid'
 import featureStyleFunction from 'fstylefunction'
@@ -369,8 +369,8 @@ const result = {
       toggleCondition: ol.events.condition.never,
       condition: function (evt) {
         if (ol.events.condition.singleClick(evt) || ol.events.condition.doubleClick(evt)) {
-          if (toolbar.addedFeature || _this.autoselect) {
-            toolbar.addedFeature = null
+          if (featuretoolbar.addedFeature || _this.autoselect) {
+            featuretoolbar.addedFeature = null
             _this.autoselect = false
             return false
           }
@@ -456,10 +456,10 @@ const result = {
     }
     $(document).on('keydown', remove)
 
-    toolbar.drawEventEmitter.on('change', function () {
+    featuretoolbar.drawEventEmitter.on('change', function () {
       let selectedFeatures = _this.select.getFeatures()
       let selectedFeature
-      if (toolbar.active === true) {
+      if (featuretoolbar.active === true) {
         map.un('pointermove', _this.hoverDisplay)
 
         if (selectedFeatures.getArray().length === 1) {
@@ -484,9 +484,9 @@ const result = {
         _this.modify.setActive(true)
         // translate.setActive(true);
 
-        if (toolbar.addedFeature) {
-          selectedFeatures.push(toolbar.addedFeature)
-          selectedFeature = toolbar.addedFeature
+        if (featuretoolbar.addedFeature) {
+          selectedFeatures.push(featuretoolbar.addedFeature)
+          selectedFeature = featuretoolbar.addedFeature
           _this.loadEditor(selectedFeature)
           _this.editor.activateForm(selectedFeature)
           console.log('auto select:  ', selectedFeature.get('name'), selectedFeature.getRevision())

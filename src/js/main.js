@@ -2,7 +2,7 @@ import $ from 'jquery'
 import ol from 'openlayers'
 import layertree from 'layertree'
 import layertoolbar from 'layertoolbar'
-import toolbar from 'toolbar'
+import featuretoolbar from 'featuretoolbar'
 import layerinteractor from 'layerinteractor'
 
 ol.layer.Image.prototype.buildHeaders = function () {
@@ -139,7 +139,7 @@ ol.control.Interaction.prototype.setMap = function (map) {
 
 layertree.init()
 layertoolbar.init()
-toolbar.init()
+featuretoolbar.init()
 layerinteractor.init()
 
 /*********** WFS-T *************/
