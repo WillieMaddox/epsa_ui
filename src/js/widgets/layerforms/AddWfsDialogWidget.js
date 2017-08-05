@@ -5,12 +5,12 @@
 'use strict'
 
 const $ = require('jquery')
-const utils = require('src/main-js/tools/utils')
-const WFSContext = require('src/main-js/WFS110Context')
+const utils = require('utils')
+const WFSContext = require('WFS110Context')
 const settings = require('serversettings')
 const OSMFire_Core = require('MainCore')
 
-require('bower_components/jquery-ui/jquery-ui')
+require('jquery-ui')
 
 let callback = function(sandBox) {
 

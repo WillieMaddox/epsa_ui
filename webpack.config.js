@@ -27,7 +27,7 @@ module.exports = {
       'node_modules',
       'bower_components',
       path.resolve(__dirname, 'libs'),
-      path.resolve(__dirname, 'src', 'main-js')
+      path.resolve(__dirname, 'src', 'js')
     ],
     alias: {
       'jquery': 'jquery/dist/jquery',
@@ -102,17 +102,17 @@ module.exports = {
     main: [
       'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=true',
       path.join(__dirname, 'src', 'css', 'main.css'),
-      path.join(__dirname, 'src', 'main-js', 'main.js')
+      path.join(__dirname, 'src', 'js', 'main.js')
     ],
     vendor: ['jquery', 'jquery-ui', 'openlayers', 'layerswitcher', 'jsts', 'wfs110context', 'shp']
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: isProd === false,
-    // filename: 'main-js/[name]-[chunkhash].js', // PROD
-    filename: 'main-js/[name].js', // DEV
+    // filename: 'js/[name]-[chunkhash].js', // PROD
+    filename: 'js/[name].js', // DEV
     publicPath: '/',
-    // chunkFilename: 'main-js/[name]-[chunkhash].js',
+    // chunkFilename: 'js/[name]-[chunkhash].js',
     crossOriginLoading: false
   },
   module: {
@@ -125,7 +125,7 @@ module.exports = {
         use: ['raw-loader']
       }, {
         test: /\.jsx?$/, // both .js and .jsx
-        include: path.resolve(__dirname, 'src', 'main-js'),
+        include: path.resolve(__dirname, 'src', 'js'),
         exclude: /node_modules/,
         enforce: 'pre',
         use: [
@@ -140,7 +140,7 @@ module.exports = {
         ]
       // }, {
       //   test: /\.jsx?$/,
-      //   include: path.resolve(__dirname, 'src', 'main-js'),
+      //   include: path.resolve(__dirname, 'src', 'js'),
       //   exclude: ['node_modules', 'bower_components', 'libs'],
       //   use: {
       //     loader: 'babel-loader',

@@ -5,10 +5,10 @@
 'use strict'
 
 const $ = require('jquery')
-const utils = require('src/main-js/tools/utils')
+const utils = require('utils')
 const OSMFire_Core = require('MainCore')
 
-require('bower_components/jquery-ui/jquery-ui')
+require('jquery-ui')
 
 let callback = function(sandBox) {
 

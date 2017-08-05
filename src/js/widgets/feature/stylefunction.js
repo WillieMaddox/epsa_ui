@@ -12,8 +12,8 @@ import point_templates from './pointtemplates'
 import cameraIcon from '../../../img/camera-normal.png'
 import radioIcon from '../../../img/radio-normal.png'
 
-// import cameraIcon from './src/main-js/img/camera-normal.png',
-// import radioIcon from './src/main-js/img/radio-normal.png'
+// import cameraIcon from './src/js/img/camera-normal.png',
+// import radioIcon from './src/js/img/radio-normal.png'
 
 const result = (function () {
 
