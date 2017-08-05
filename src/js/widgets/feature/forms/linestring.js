@@ -49,7 +49,6 @@ class LineString {
     }
   }
   activateForm (feature) {
-    $('#featureproperties').show()
     for (let label in this.form_nodes) {
       this.form_nodes[label].activateNode(feature)
     }
@@ -63,7 +62,6 @@ class LineString {
     for (let label in this.form_nodes) {
       this.form_nodes[label].deactivateNode()
     }
-    $('.form-label').addClass('disabled')
   }
 }
 

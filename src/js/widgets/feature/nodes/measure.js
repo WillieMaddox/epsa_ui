@@ -162,7 +162,6 @@ const result = (function () {
         _this.measureFunc(_this.geometrylistener.target, map.getView().getProjection())
       })
     }
-    // changeFeatureType (feature_type, feature_templates) {}
     loadFeature (feature) {}
     deactivateNode () {
       const $geodesic = $('#geodesic')

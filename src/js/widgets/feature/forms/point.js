@@ -46,7 +46,6 @@ class Point {
     }
   }
   activateForm (feature) {
-    $('#featureproperties').show()
     for (let label in this.form_nodes) {
       this.form_nodes[label].activateNode(feature)
     }
@@ -60,7 +59,6 @@ class Point {
     for (let label in this.form_nodes) {
       this.form_nodes[label].deactivateNode()
     }
-    $('.form-label').addClass('disabled')
   }
 }
 

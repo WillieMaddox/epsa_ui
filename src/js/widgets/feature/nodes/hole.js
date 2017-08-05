@@ -437,7 +437,6 @@ const result = (function () {
         }
       }
     }
-    // changeFeatureType (feature_type) {}
     loadFeature (feature) {}
     deactivateNode () {
       $('.ol-addhole').button('disable')

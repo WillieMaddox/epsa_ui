@@ -9,6 +9,11 @@ const result = (function () {
     constructor (feature_templates) {
       console.log('featuretype constructor() called')
       this.feature_templates = feature_templates
+
+      // sandBox.addEventHandlerToParent('click', this.handleMainContainerClicked)
+      // this.registerForCustomEvents()
+      // sandBox.contextObj = this
+      // sandBox.log(1, 'featuretype constructor() called...', 'blue')
     }
     destroy (removeComponent) {
       console.log('destroy', removeComponent)
@@ -27,7 +32,6 @@ const result = (function () {
           'ui-selectmenu-button': 'menuselect'
         },
         change: function (event, data) {
-          // _this.changeFeatureType(data.item.value)
           $('#feature-type').val(data.item.value)
         }
       })
@@ -46,9 +50,6 @@ const result = (function () {
       $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
       $featureType.val(feature_type)
     }
-    // changeFeatureType (feature_type) {
-    //   $('#feature-type').val(feature_type)
-    // }
     loadFeature (feature) {
       if (feature.get('type')) {
         feature.set('type', $('#feature-type').val())
