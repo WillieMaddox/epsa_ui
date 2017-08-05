@@ -5,115 +5,63 @@
 'use strict'
 
 import $ from 'jquery'
-import utils from 'utils'
-import pointTemplates from '../pointtemplates'
-import name from '../nodes/name'
-const formElements = {}
+import point_templates from '../pointtemplates'
+import Name from '../nodes/name'
+import Type from '../nodes/featuretype'
 
-const result = {
-  init: function () {
-    this.isStyled = false
-    this.$form = this.createForm()
-  },
-  createForm: function () {
-    formElements.featurename = name.init()
-    formElements.featuretype = this.createFeatureTypeNodes()
+const form_elements = {}
+
+class Point {
+  constructor () {
+    this.type = 'point'
+    this.form_nodes = {
+      'name': new Name(point_templates),
+      'type': new Type(point_templates)
+    }
+    this.form_node_labels = [
+      ['name'],
+      ['type']
+    ]
+  }
+  createForm () {
     const $form = $("<form id='featureproperties' class='form'>")
-    $form.append(this.addFormRow(['featurename']))
-    $form.append(this.addFormRow(['featuretype']))
+    for (let label in this.form_nodes) {
+      form_elements[label] = this.form_nodes[label].createNode()
+    }
+    for (let row_node_labels of this.form_node_labels) {
+      $form.append(this.addFormRow(row_node_labels))
+    }
     return $form
-  },
-  getFeatureType: function () {
-    return 'point'
-  },
-  styleForm: function () {
-    const _this = this
-    $('#measure-units').selectmenu({
-      classes: {
-        'ui-selectmenu-button': 'menuselect'
-      }
-    })
-    $('#feature-type').selectmenu({
-      classes: {
-        'ui-selectmenu-button': 'menuselect'
-      }
-    }).on('change', function () {
-      _this.changeFeatureType(this.value)
-    })
-    this.isStyled = true
-  },
-  addFormRow: function (labels) {
+  }
+  addFormRow (labels) {
     const $formRow = $("<div class='form-row'>")
     for (let label of labels) {
-      $formRow.append(formElements[label])
+      $formRow.append(form_elements[label])
     }
     return $formRow
-  },
-  createFeatureTypeNodes: function () {
-    const $formElem = $("<div class='form-elem'>")
-    const $formValue = $("<div class='form-value'>")
-    $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"))
-    //TODO: Consider using <datalist> instead of <select>. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
-    $formValue.append($("<select id='feature-type'>"))
-    $formElem.append($formValue)
-    return $formElem
-  },
-
-  formatPosition: function (point, sourceProj) {
-    const geom = point.clone().transform(sourceProj, 'EPSG:4326')
-    const coords = geom.getCoordinates()
-    const coord_x = coords[0].toFixed(6)
-    const coord_y = coords[1].toFixed(6)
-    const output = coord_x + ', ' + coord_y
-    $('#measure').html(output)
-  },
-
-  activateForm: function (feature) {
-
-    const $featureType = $('#feature-type')
-    let feature_type = feature.get('type')
-
+  }
+  styleForm () {
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].styleNode()
+    }
+  }
+  activateForm (feature) {
     $('#featureproperties').show()
-
-    name.activateNode(feature)
-
-    $('#feature-type-label').removeClass('disabled')
-    $featureType.selectmenu('enable')
-    for (let key in pointTemplates) {
-      $featureType.append(utils.createMenuOption(key))
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].activateNode(feature)
     }
-
-    if (!(feature_type && feature_type in pointTemplates)) {
-      feature_type = 'point'
+  }
+  loadFeature (feature) {
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].loadFeature(feature)
     }
-    $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
-    $featureType.val(feature_type)
-  },
-  changeFeatureType: function (feature_type) {
-    name.changeFeatureType(feature_type, pointTemplates)
-
-    $('#feature-type').val(feature_type)
-    return this
-  },
-  loadFeature: function (feature) {
-    name.loadFeature(feature)
-    if (feature.get('type')) {
-      feature.set('type', $('#feature-type').val())
+  }
+  deactivateForm () {
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].deactivateNode()
     }
-  },
-  deactivateForm: function () {
-
-    const $featureType = $('#feature-type')
-
-    name.deactivateNode()
-
-    $featureType.empty()
-    $featureType.val('')
-    $('#feature-type-button').find('.ui-selectmenu-text').html('&nbsp;')
-    $featureType.selectmenu('disable')
-
     $('.form-label').addClass('disabled')
   }
 }
 
-export default result
+export default Point
