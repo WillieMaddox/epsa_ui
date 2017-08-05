@@ -5,134 +5,107 @@
 'use strict'
 
 import $ from 'jquery'
-import ol from 'openlayers'
-import utils from 'utils'
-import polygonTemplates from '../polygontemplates'
-import name from '../../nodes/name'
-import measure from '../../nodes/measure'
+import polygon_templates from '../polygontemplates'
+import Name from '../../nodes/name'
+import Measure from '../../nodes/measure'
+import Type from '../../nodes/featuretype'
+import Hole from '../../nodes/hole'
 
 const formElements = {}
 
-const wgs84Sphere = new ol.Sphere(6378137)
-
-function formatArea (geom, sourceProj) {
-
-  const getPolygonArea = function (polygon) {
-    let area = 0
-    let isExterior = true
-    if ($('#geodesic').is(':checked')) {
-      const poly = polygon.clone().transform(sourceProj, 'EPSG:4326')
-      poly.getLinearRings().forEach(function (ring) {
-        if (isExterior) { // assume the first ring is the exterior ring.
-          area += Math.abs(wgs84Sphere.geodesicArea(ring.getCoordinates()))
-          isExterior = false
-        } else {
-          area -= Math.abs(wgs84Sphere.geodesicArea(ring.getCoordinates()))
-        }
-      })
-    } else {
-      area = polygon.getArea()
+class Polygon {
+  constructor () {
+    this.type = 'polygon'
+    this.form_nodes = {
+      'name': new Name(polygon_templates),
+      'measure': new Measure('Polygon'),
+      'type': new Type(polygon_templates),
+      'hole': new Hole()
     }
-    return area
+    this.form_node_labels = [
+      ['name'],
+      ['measure'],
+      ['type', 'hole']
+    ]
   }
-
-  let area = 0
-  if (geom.getType() === 'MultiPolygon') {
-    geom.getPolygons().forEach(function (poly) {
-      area += getPolygonArea(poly)
-    })
-  } else {
-    area = getPolygonArea(geom)
-  }
-  let output
-  const squared = '2'
-  if (area > 100000) {
-    output = (Math.round(area / 1000000 * 100) / 100) + ' km' + squared.sup()
-  } else {
-    output = (Math.round(area * 100) / 100) + ' m' + squared.sup()
-  }
-  $('#measure').html(output)
-  // return output
-}
-
-const result = {
-  init: function () {
-    this.isStyled = false
-    this.$form = this.createForm()
-  },
-  createForm: function () {
-    formElements.featurename = name.init()
-    formElements.measure = measure.init('Polygon', 'Area')
-    formElements.featuretype = this.createFeatureTypeNodes()
-    // formElements.hole = this.createHoleNodes()
-    formElements.height = this.createHeightNodes()
-    formElements.thickness = this.createThicknessNodes()
+  createForm () {
     const $form = $("<form id='featureproperties' class='form'>")
-    $form.append(this.addFormRow(['featurename']))
-    $form.append(this.addFormRow(['measure']))
-    $form.append(this.addFormRow(['featuretype']))
-    $form.append(this.addFormRow(['height']))
-    $form.append(this.addFormRow(['thickness']))
+    for (let label in this.form_nodes) {
+      formElements[label] = this.form_nodes[label].createNode()
+    }
+    for (let row_node_labels of this.form_node_labels) {
+      $form.append(this.addFormRow(row_node_labels))
+    }
     return $form
-  },
-  getFeatureType: function () {
-    return 'polygon'
-  },
-  styleForm: function () {
-
-    const _this = this
-    measure.styleNode()
+  }
+  addFormRow (labels) {
+    const $formRow = $("<div class='form-row'>")
+    for (let label of labels) {
+      $formRow.append(formElements[label])
+    }
+    return $formRow
+  }
+  styleForm () {
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].styleNode()
+    }
+    // const _this = this
     // $('#measure-units').selectmenu({
     //   classes: {
     //     'ui-selectmenu-button': 'menuselect'
     //   }
     // })
     // $('#geodesic').checkboxradio()
-
-    $('#feature-type').selectmenu({
-      classes: {
-        'ui-selectmenu-button': 'menuselect'
-      }
-    }).on('change', function () {
-      _this.changeFeatureType(this.value)
-    })
-
-    $('#draw-hole').button({
-      label: 'Draw'
-    }).on('click', function () {
-      _this.drawHole()
-    })
-    $('#delete-hole').button({
-      label: 'Delete'
-    }).on('click', function () {
-      _this.deleteHole()
-    })
-
-    $('#height-slider').slider({
-      animate: true,
-      range: 'min',
-      min: 0,
-      max: 100,
-      step: 0.01
-    }).on('slide', function (event, ui) {
-      $('#height-spinner').spinner('value', utils.pow10Slider(ui.value))
-    }).on('slidechange', function (event, ui) {
-      $('#height-spinner').spinner('value', utils.pow10Slider(ui.value))
-    })
-
-    $('#height-spinner').spinner({
-      value: 10,
-      min: 0,
-      max: 1000,
-      step: 0.1
-    }).on('spin', function (event, ui) {
-      $('#height-slider').slider('value', utils.log10Slider(ui.value))
-    }).on('spinchange', function () {
-      if (this.value.length > 0) {
-        $('#height-slider').slider('value', utils.log10Slider(this.value))
-      }
-    })
-
+    // $('#feature-type').selectmenu({
+    //   classes: {
+    //     'ui-selectmenu-button': 'menuselect'
+    //   },
+    //   change: function (event, data) {
+    //     _this.changeFeatureType(data.item.value)
+    //   }
+    // })
+    // $('#feature-type').selectmenu({
+    //   classes: {
+    //     'ui-selectmenu-button': 'menuselect'
+    //   }
+    // }).on('change', function () {
+    //   _this.changeFeatureType(this.value)
+    // })
+    // $('#draw-hole').button({
+    //   label: 'Draw'
+    // }).on('click', function () {
+    //   _this.drawHole()
+    // })
+    // $('#delete-hole').button({
+    //   label: 'Delete'
+    // }).on('click', function () {
+    //   _this.deleteHole()
+    // })
+    // height.styleNode()
+    // $('#height-slider').slider({
+    //   animate: true,
+    //   range: 'min',
+    //   min: 0,
+    //   max: 100,
+    //   step: 0.01
+    // }).on('slide', function (event, ui) {
+    //   $('#height-spinner').spinner('value', utils.pow10Slider(ui.value))
+    // }).on('slidechange', function (event, ui) {
+    //   $('#height-spinner').spinner('value', utils.pow10Slider(ui.value))
+    // })
+    // $('#height-spinner').spinner({
+    //   value: 10,
+    //   min: 0,
+    //   max: 1000,
+    //   step: 0.1
+    // }).on('spin', function (event, ui) {
+    //   $('#height-slider').slider('value', utils.log10Slider(ui.value))
+    // }).on('spinchange', function () {
+    //   if (this.value.length > 0) {
+    //     $('#height-slider').slider('value', utils.log10Slider(this.value))
+    //   }
+    // })
+    // thickness.styleNode()
     // $('#thickness-slider').slider({
     //     animate: true,
     //     range: "min",
@@ -160,41 +133,30 @@ const result = {
     //         }
     //     }
     // }).spinner("value", 5);
-
-    $('#thickness-slider').slider({
-      animate: true,
-      range: 'min',
-      min: 0,
-      max: 50,
-      step: 0.01
-    }).on('slide', function (event, ui) {
-      $('#thickness-spinner').spinner('value', ui.value)
-    }).on('slidechange', function (event, ui) {
-      $('#thickness-spinner').spinner('value', ui.value)
-    })
-
-    $('#thickness-spinner').spinner({
-      value: 5,
-      min: 0,
-      max: 50,
-      step: 0.01
-    }).on('spin', function (event, ui) {
-      $('#thickness-slider').slider('value', ui.value)
-    }).on('spinchange', function () {
-      if (this.value.length > 0) {
-        $('#thickness-slider').slider('value', this.value)
-      }
-    })
-
-    this.isStyled = true
-  },
-  addFormRow: function (labels) {
-    const $formRow = $("<div class='form-row'>")
-    for (let label of labels) {
-      $formRow.append(formElements[label])
-    }
-    return $formRow
-  },
+    // $('#thickness-slider').slider({
+    //   animate: true,
+    //   range: 'min',
+    //   min: 0,
+    //   max: 50,
+    //   step: 0.01
+    // }).on('slide', function (event, ui) {
+    //   $('#thickness-spinner').spinner('value', ui.value)
+    // }).on('slidechange', function (event, ui) {
+    //   $('#thickness-spinner').spinner('value', ui.value)
+    // })
+    // $('#thickness-spinner').spinner({
+    //   value: 5,
+    //   min: 0,
+    //   max: 50,
+    //   step: 0.01
+    // }).on('spin', function (event, ui) {
+    //   $('#thickness-slider').slider('value', ui.value)
+    // }).on('spinchange', function () {
+    //   if (this.value.length > 0) {
+    //     $('#thickness-slider').slider('value', this.value)
+    //   }
+    // })
+  }
   // createMeasureNodes: function () {
   //   const $formElem = $("<div class='form-elem'>")
   //   const $formValue = $("<div class='form-value'>")
@@ -209,15 +171,14 @@ const result = {
   //   $formElem.append($formValue)
   //   return $formElem
   // },
-  createFeatureTypeNodes: function () {
-    const $formElem = $("<div class='form-elem'>")
-    const $formValue = $("<div class='form-value'>")
-    $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"))
-    //TODO: Consider using <datalist> instead of <select>. See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
-    $formValue.append($("<select id='feature-type'>"))
-    $formElem.append($formValue)
-    return $formElem
-  },
+  // createFeatureTypeNodes: function () {
+  //   const $formElem = $("<div class='form-elem'>")
+  //   const $formValue = $("<div class='form-value'>")
+  //   $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"))
+  //   $formValue.append($("<select id='feature-type'>"))
+  //   $formElem.append($formValue)
+  //   return $formElem
+  // },
   // createHoleNodes: function () {
   //   const $formElem = $("<div class='form-elem'>")
   //   const $formValue = $("<div class='form-value'>")
@@ -229,25 +190,24 @@ const result = {
   //   $formElem.append($formValue)
   //   return $formElem
   // },
-  createHeightNodes: function () {
-    const $formElem = $("<div class='form-elem'>")
-    const $formValue = $("<div class='form-value'>")
-    $formElem.append($("<div id='height-label' class='form-label'>Height</div>"))
-    $formValue.append($("<div id='height-slider'>"))
-    $formValue.append($("<input id='height-spinner'>"))
-    $formElem.append($formValue)
-    return $formElem
-  },
-  createThicknessNodes: function () {
-    const $formElem = $("<div class='form-elem'>")
-    const $formValue = $("<div class='form-value'>")
-    $formElem.append($("<div id='thickness-label' class='form-label'>Thickness</div>"))
-    $formValue.append($("<div id='thickness-slider'>"))
-    $formValue.append($("<input id='thickness-spinner'>"))
-    $formElem.append($formValue)
-    return $formElem
-  },
-
+  // createHeightNodes: function () {
+  //   const $formElem = $("<div class='form-elem'>")
+  //   const $formValue = $("<div class='form-value'>")
+  //   $formElem.append($("<div id='height-label' class='form-label'>Height</div>"))
+  //   $formValue.append($("<div id='height-slider'>"))
+  //   $formValue.append($("<input id='height-spinner'>"))
+  //   $formElem.append($formValue)
+  //   return $formElem
+  // },
+  // createThicknessNodes: function () {
+  //   const $formElem = $("<div class='form-elem'>")
+  //   const $formValue = $("<div class='form-value'>")
+  //   $formElem.append($("<div id='thickness-label' class='form-label'>Thickness</div>"))
+  //   $formValue.append($("<div id='thickness-slider'>"))
+  //   $formValue.append($("<input id='thickness-spinner'>"))
+  //   $formElem.append($formValue)
+  //   return $formElem
+  // },
   // createHoleButton: function (label, title) {
   //   const $buttonElem = $('<button id="' + label + '-hole">')
   //   $buttonElem.addClass('ol-unselectable ol-control hole-buttons')
@@ -255,7 +215,6 @@ const result = {
   //   $buttonElem.attr('title', title)
   //   return $buttonElem
   // },
-
   // drawHole: function () {
   //   const holeStyle = [
   //     new ol.style.Style({
@@ -630,27 +589,23 @@ const result = {
   //   })
   // },
 
-  activateForm: function (feature) {
-
+  activateForm (feature) {
+    $('#featureproperties').show()
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].activateNode(feature)
+    }
     // const _this = this
     // const $measureLabel = $('#measure-label')
     // const $measureUnits = $('#measure-units')
     // const $geodesic = $('#geodesic')
     // let measure
-    const $deleteHole = $('#delete-hole')
-    const $featureType = $('#feature-type')
-    let feature_type = feature.get('type')
-    const $heightSpinner = $('#height-spinner')
-    const $heightSlider = $('#height-slider')
-    const $thicknessSpinner = $('#thickness-spinner')
-    const $thicknessSlider = $('#thickness-slider')
-
-    $('#featureproperties').show()
-
-    name.activateNode(feature)
-
-    measure.activateNode(feature, formatArea)
-
+    // const $deleteHole = $('#delete-hole')
+    // let feature_type = feature.get('type')
+    // const $featureType = $('#feature-type')
+    // const $heightSlider = $('#height-slider')
+    // const $heightSpinner = $('#height-spinner')
+    // const $thicknessSlider = $('#thickness-slider')
+    // const $thicknessSpinner = $('#thickness-spinner')
     // $measureLabel.removeClass('disabled')
     // $measureLabel.html('Area')
     // measure = this.formatArea
@@ -665,121 +620,99 @@ const result = {
     //   $(this).checkboxradio('refresh')
     //   measure(_this.geometrylistener.target, map.getView().getProjection())
     // })
-
-    if (feature.getGeometry().getType().endsWith('Polygon')) {
-      $('#hole-label').removeClass('disabled')
-      $('#draw-hole').button('enable')
-      if (feature.getGeometry().getType() === 'MultiPolygon') {
-        const nPolygons = feature.getGeometry().getPolygons().length
-        for (let i = 0; i < nPolygons; i++) {
-          if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
-            $deleteHole.button('enable')
-          }
-        }
-      } else if (feature.getGeometry().getLinearRingCount() > 1) {
-        $deleteHole.button('enable')
-      }
-    }
-
-    $('#feature-type-label').removeClass('disabled')
-    $featureType.selectmenu('enable')
-    for (let key in polygonTemplates) {
-      $featureType.append(utils.createMenuOption(key))
-    }
-
-    if (!(feature_type && feature_type in polygonTemplates)) {
-      feature_type = 'polygon'
-    }
-    $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
-    $featureType.val(feature_type)
-
-    const feature_properties = polygonTemplates[feature_type]
-
-    if (feature_properties['height']) {
-      $('#height-label').removeClass('disabled')
-      $heightSpinner.spinner('enable')
-      $heightSlider.slider('enable')
-      $heightSpinner.spinner('value', feature.get('height') || feature_properties['height'])
-    }
-
-    if (feature_properties['thickness']) {
-      $('#thickness-label').removeClass('disabled')
-      $thicknessSpinner.spinner('enable')
-      $thicknessSlider.slider('enable')
-      $thicknessSpinner.spinner('value', feature.get('thickness') || feature_properties['thickness'])
-    }
-  },
-  changeFeatureType: function (feature_type) {
-    const feature_properties = polygonTemplates[feature_type]
-
-    name.changeFeatureType(feature_type, polygonTemplates)
-
-    $('#feature-type').val(feature_type)
-
-    const $heightSpinner = $('#height-spinner')
-    const $heightSlider = $('#height-slider')
-    if (!($heightSpinner.spinner('option', 'disabled') || feature_properties['height'])) {
-      $heightSpinner.spinner('value', 0)
-      $heightSlider.slider('value', 0)
-      $heightSpinner.spinner('disable')
-      $heightSlider.slider('disable')
-      $('#height-label').addClass('disabled')
-    } else if ($heightSpinner.spinner('option', 'disabled') && feature_properties['height']) {
-      $heightSpinner.spinner('value', feature_properties['height'])
-      $heightSlider.slider('value', feature_properties['height'])
-      $heightSpinner.spinner('enable')
-      $heightSlider.slider('enable')
-      $('#height-label').removeClass('disabled')
-    }
-
-    const $thicknessSpinner = $('#thickness-spinner')
-    const $thicknessSlider = $('#thickness-slider')
-    if (!($thicknessSpinner.spinner('option', 'disabled') || feature_properties['thickness'])) {
-      $thicknessSpinner.spinner('value', 0)
-      $thicknessSlider.slider('value', 0)
-      $thicknessSpinner.spinner('disable')
-      $thicknessSlider.slider('disable')
-      $('#thickness-label').addClass('disabled')
-    } else if ($thicknessSpinner.spinner('option', 'disabled') && feature_properties['thickness']) {
-      $thicknessSpinner.spinner('value', feature_properties['thickness'])
-      $thicknessSlider.slider('value', feature_properties['thickness'])
-      $thicknessSpinner.spinner('enable')
-      $thicknessSlider.slider('enable')
-      $('#thickness-label').removeClass('disabled')
-    }
+    //TODO: fix hole drawing situation.
+    // if (feature.getGeometry().getType().endsWith('Polygon')) {
+    //   $('#hole-label').removeClass('disabled')
+    //   $('#draw-hole').button('enable')
+    //   if (feature.getGeometry().getType() === 'MultiPolygon') {
+    //     const nPolygons = feature.getGeometry().getPolygons().length
+    //     for (let i = 0; i < nPolygons; i++) {
+    //       if (feature.getGeometry().getPolygon(i).getLinearRingCount() > 1) {
+    //         $deleteHole.button('enable')
+    //       }
+    //     }
+    //   } else if (feature.getGeometry().getLinearRingCount() > 1) {
+    //     $deleteHole.button('enable')
+    //   }
+    // }
+    // $('#feature-type-label').removeClass('disabled')
+    // $featureType.selectmenu('enable')
+    // for (let key in polygonTemplates) {
+    //   $featureType.append(utils.createMenuOption(key))
+    // }
+    // if (!(feature_type && feature_type in polygonTemplates)) {
+    //   feature_type = 'polygon'
+    // }
+    // $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
+    // $featureType.val(feature_type)
+    // const feature_properties = polygonTemplates[feature_type]
+    // if (feature_properties['height']) {
+    //   $('#height-label').removeClass('disabled')
+    //   $heightSpinner.spinner('enable')
+    //   $heightSlider.slider('enable')
+    //   $heightSpinner.spinner('value', feature.get('height') || feature_properties['height'])
+    // }
+    // if (feature_properties['thickness']) {
+    //   $('#thickness-label').removeClass('disabled')
+    //   $thicknessSpinner.spinner('enable')
+    //   $thicknessSlider.slider('enable')
+    //   $thicknessSpinner.spinner('value', feature.get('thickness') || feature_properties['thickness'])
+    // }
+  }
+  changeFeatureType (feature_type) {
+    // name.changeFeatureType(feature_type)
+    // featuretype.changeFeatureType(feature_type)
+    // const feature_properties = polygonTemplates[feature_type]
+    // $('#feature-type').val(feature_type)
+    // height.changeFeatureType(feature_type, polygonTemplates)
+    // const $heightSpinner = $('#height-spinner')
+    // const $heightSlider = $('#height-slider')
+    // if (!($heightSpinner.spinner('option', 'disabled') || feature_properties['height'])) {
+    //   $heightSpinner.spinner('value', 0)
+    //   $heightSlider.slider('value', 0)
+    //   $heightSpinner.spinner('disable')
+    //   $heightSlider.slider('disable')
+    //   $('#height-label').addClass('disabled')
+    // } else if ($heightSpinner.spinner('option', 'disabled') && feature_properties['height']) {
+    //   $heightSpinner.spinner('value', feature_properties['height'])
+    //   $heightSlider.slider('value', feature_properties['height'])
+    //   $heightSpinner.spinner('enable')
+    //   $heightSlider.slider('enable')
+    //   $('#height-label').removeClass('disabled')
+    // }
+    // thickness.changeFeatureType(feature_type, polygonTemplates)
+    // const $thicknessSpinner = $('#thickness-spinner')
+    // const $thicknessSlider = $('#thickness-slider')
+    // if (!($thicknessSpinner.spinner('option', 'disabled') || feature_properties['thickness'])) {
+    //   $thicknessSpinner.spinner('value', 0)
+    //   $thicknessSlider.slider('value', 0)
+    //   $thicknessSpinner.spinner('disable')
+    //   $thicknessSlider.slider('disable')
+    //   $('#thickness-label').addClass('disabled')
+    // } else if ($thicknessSpinner.spinner('option', 'disabled') && feature_properties['thickness']) {
+    //   $thicknessSpinner.spinner('value', feature_properties['thickness'])
+    //   $thicknessSlider.slider('value', feature_properties['thickness'])
+    //   $thicknessSpinner.spinner('enable')
+    //   $thicknessSlider.slider('enable')
+    //   $('#thickness-label').removeClass('disabled')
+    // }
     return this
-  },
-  loadFeature: function (feature) {
-    name.loadFeature(feature)
-    if (feature.get('type')) {
-      feature.set('type', $('#feature-type').val())
+  }
+  loadFeature (feature) {
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].loadFeature(feature)
     }
-
-    // feature.set('height', $('#height-spinner').spinner("value"));
-    const $heightSpinner = $('#height-spinner')
-    if ($heightSpinner.spinner('value')) {
-      feature.set('height', $heightSpinner.spinner('value'))
+  }
+  deactivateForm () {
+    for (let label in this.form_nodes) {
+      this.form_nodes[label].deactivateNode()
     }
-
-    // feature.set('thickness', $('#thickness-spinner').spinner("value"));
-    const $thicknessSpinner = $('#thickness-spinner')
-    if ($thicknessSpinner.spinner('value')) {
-      feature.set('thickness', $thicknessSpinner.spinner('value'))
-    }
-  },
-  deactivateForm: function () {
-
-    const $featureType = $('#feature-type')
-    const $heightSpinner = $('#height-spinner')
-    const $heightSlider = $('#height-slider')
-    const $thicknessSpinner = $('#thickness-spinner')
-    const $thicknessSlider = $('#thickness-slider')
+    // const $featureType = $('#feature-type')
+    // const $heightSlider = $('#height-slider')
+    // const $heightSpinner = $('#height-spinner')
+    // const $thicknessSlider = $('#thickness-slider')
+    // const $thicknessSpinner = $('#thickness-spinner')
     // const $geodesic = $('#geodesic')
-
-    name.deactivateNode()
-
-    measure.deactivateNode()
-
     // $geodesic.off('change')
     // ol.Observable.unByKey(this.geometrylistener)
     // this.geometrylistener = null
@@ -788,27 +721,24 @@ const result = {
     // $('#measure-label').html('Measure')
     // $('#measure-units').selectmenu('disable')
     // $('#measure-units-button').find('.ui-selectmenu-text').html('&nbsp;')
-
-    $featureType.empty()
-    $featureType.val('')
-    $('#feature-type-button').find('.ui-selectmenu-text').html('&nbsp;')
-    $featureType.selectmenu('disable')
-
-    $('.ol-addhole').button('disable')
-    $('.ol-removehole').button('disable')
-
+    // $featureType.empty()
+    // $featureType.val('')
+    // $('#feature-type-button').find('.ui-selectmenu-text').html('&nbsp;')
+    // $featureType.selectmenu('disable')
+    // $('.ol-addhole').button('disable')
+    // $('.ol-removehole').button('disable')
+    // height.deactivateNode()
     // $heightSpinner.spinner("value", null);
     // $heightSlider.slider("value", 0);
-    $heightSpinner.spinner('disable')
-    $heightSlider.slider('disable')
-
+    // $heightSpinner.spinner('disable')
+    // $heightSlider.slider('disable')
+    // thickness.deactivateNode()
     // $thicknessSpinner.spinner("value", null);
     // $thicknessSlider.slider("value", 0);
-    $thicknessSpinner.spinner('disable')
-    $thicknessSlider.slider('disable')
-
+    // $thicknessSpinner.spinner('disable')
+    // $thicknessSlider.slider('disable')
     $('.form-label').addClass('disabled')
   }
 }
 
-export default result
+export default Polygon

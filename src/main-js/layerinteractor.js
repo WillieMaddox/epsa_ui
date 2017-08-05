@@ -18,23 +18,23 @@ import cameraIcon from '../img/camera-normal.png'
 let editors = {}
 import(/* webpackChunkName: "polygon", webpackMode: "lazy" */'./widgets/feature/forms/polygon')
   .then(module => {
-    const editor = module.default
-    editor.init()
-    editors['polygon'] = editor
+    // const Editor = module.default
+    // editor.init()
+    editors['polygon'] = module.default
     //TODO: maybe have .init() return "this".  Then maybe we can combine all three lines into one?
     // editors['polygon'] = module.default.init()
   })
 import(/* webpackChunkName: "linestring", webpackMode: "lazy" */'./widgets/feature/forms/linestring')
   .then(module => {
-    const editor = module.default
-    editor.init()
-    editors['linestring'] = editor
+    // const editor = module.default
+    // editor.init()
+    editors['linestring'] = module.default
   })
 import(/* webpackChunkName: "point", webpackMode: "lazy" */'./widgets/feature/forms/point')
   .then(module => {
-    const editor = module.default
-    editor.init()
-    editors['point'] = editor
+    // const editor = module.default
+    // editor.init()
+    editors['point'] = module.default
   })
 
 let highlight = null
@@ -321,22 +321,25 @@ const result = {
       'LineString': 'linestring',
       'Point': 'point'
     }
-    this.editor = editors[geom_map[geom_type]]
-    this.editor.$form.appendTo($('.layereditor'))
-    if (!(this.editor.isStyled)) {
-      this.editor.styleForm()
-    }
-    this.editor.deactivateForm()
-
+    this.editor = new editors[geom_map[geom_type]]
+    this.editor.$form = this.editor.createForm()
+    $('.layereditor').append(this.editor.$form)
+    this.editor.styleForm()
+    // this.editor.$form.appendTo($('.layereditor'))
+    // if (!(this.editor.isStyled)) {
+    //   this.editor.styleForm()
+    // }
+    // this.editor.deactivateForm()
   },
   unloadEditor: function () {
     // TODO: .layereditor > form is only valid for feature layers.
     // BUG: added wms layers will raise TypeError when switching to and from.
     // Now that the editor is based on feature instead of layer, this may have fixed itself.
     // Need to check.
-    this.editor.$form = $('.layereditor > form').detach()
-    const feature_type = this.editor.getFeatureType()
-    editors[feature_type] = this.editor
+    // this.editor.$form = $('.layereditor > form').detach()
+    $('.layereditor > form').remove()
+    const feature_type = this.editor.type
+    // editors[feature_type] = this.editor
     this.editor = null
     console.log(feature_type, 'editor unloaded')
   },
@@ -376,12 +379,11 @@ const result = {
       }
     })
     this.select.on('select', function (evt) {
-      let feature
       // Handle the deselect first so we can move the feature back to the selected layer.
       if (evt.deselected.length === 1) {
-        feature = evt.deselected[0]
+        let feature = evt.deselected[0]
         _this.modify.setActive(false)
-        // translate.setActive(false);
+        // _this.translate.setActive(false);
         console.log('manual deselect:', feature.get('name'), feature.getRevision())
         _this.editor.loadFeature(feature)
         _this.editor.deactivateForm()
@@ -389,27 +391,27 @@ const result = {
         _this.layer.getSource().getSource().addFeature(feature)
         // _this.activeFeatures.push(feature);
 
-        // transactWFS('insert', evt.feature);
+        // transactWFS('insert', evt.feature)
         // source.once('addfeature', function (evt) {
-        //     var parser = new ol.format.GeoJSON();
-        //     var features = source.getFeatures();
-        //     var featuresGeoJSON = parser.writeFeatures(features, {
-        //         featureProjection: 'EPSG:3857',
-        //     });
-        //     console.log(featuresGeoJSON)
-        //     $.ajax({
-        //         url: 'test_project/features.geojson', // what about aor?
-        //         type: 'POST',
-        //         data: featuresGeoJSON
-        //     }).then(function (response) {
-        //         console.log(response);
-        //     });
-        // });
+        //   const parser = new ol.format.GeoJSON()
+        //   const features = source.getFeatures()
+        //   const featuresGeoJSON = parser.writeFeatures(features, {
+        //     featureProjection: 'EPSG:3857',
+        //   })
+        //   console.log(featuresGeoJSON)
+        //   $.ajax({
+        //     url: 'test_project/features.geojson', // what about aor?
+        //     type: 'POST',
+        //     data: featuresGeoJSON
+        //   }).then(function (response) {
+        //     console.log(response)
+        //   })
+        // })
       }
       if (evt.selected.length === 1) {
-        feature = evt.selected[0]
+        let feature = evt.selected[0]
         _this.modify.setActive(true)
-        //translate.setActive(true);
+        // _this.translate.setActive(true);
         console.log('manual select:  ', feature.get('name'), feature.getRevision())
         _this.loadEditor(feature)
         _this.editor.activateForm(feature)
@@ -439,7 +441,7 @@ const result = {
     // Disable until solution is found.
     //
     // var translate = new ol.interaction.Translate({
-    //     features: select.getFeatures()
+    //   features: select.getFeatures()
     // });
     // map.addInteraction(translate);
     // translate.setActive(false);
