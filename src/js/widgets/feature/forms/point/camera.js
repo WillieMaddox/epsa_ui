@@ -10,7 +10,7 @@ import map from 'map'
 import utils from 'utils'
 import exists from 'exists'
 import * as jsts from 'jsts'
-import cameraTemplates from '../templates/camera'
+import cameraTemplates from '../../templates/camera'
 // import sensorTemplates from '../templates/sensor'
 
 const formElements = {}
