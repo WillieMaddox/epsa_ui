@@ -125,7 +125,8 @@ module.exports = {
         use: ['raw-loader']
       }, {
         test: /\.tsx?$/,
-        use: ['awesome-typescript-loader']
+        use: ['ts-loader']
+        // use: ['awesome-typescript-loader']
       }, {
         test: /\.jsx?$/, // both .js and .jsx
         include: path.resolve(__dirname, 'src', 'js'),
