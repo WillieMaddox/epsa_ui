@@ -50,9 +50,9 @@ class Point {
       this.form_nodes[label].activateNode(feature)
     }
   }
-  loadFeature (feature) {
+  saveFeature (feature) {
     for (let label in this.form_nodes) {
-      this.form_nodes[label].loadFeature(feature)
+      this.form_nodes[label].saveFeature(feature)
     }
   }
   deactivateForm () {

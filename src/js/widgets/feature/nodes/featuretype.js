@@ -50,7 +50,7 @@ const result = (function () {
       $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
       $featureType.val(feature_type)
     }
-    loadFeature (feature) {
+    saveFeature (feature) {
       if (feature.get('type')) {
         feature.set('type', $('#feature-type').val())
       }

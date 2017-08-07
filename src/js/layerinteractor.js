@@ -373,7 +373,7 @@ const result = {
         _this.modify.setActive(false)
         // _this.translate.setActive(false);
         console.log('manual deselect:', feature.get('name'), feature.getRevision())
-        _this.editor.loadFeature(feature)
+        _this.editor.saveFeature(feature)
         _this.editor.deactivateForm()
         _this.unloadEditor()
         _this.layer.getSource().getSource().addFeature(feature)
@@ -452,7 +452,7 @@ const result = {
 
         if (selectedFeatures.getArray().length === 1) {
           selectedFeature = selectedFeatures.getArray()[0]
-          _this.editor.loadFeature(selectedFeature)
+          _this.editor.saveFeature(selectedFeature)
           _this.editor.deactivateForm()
           _this.unloadEditor()
           console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())

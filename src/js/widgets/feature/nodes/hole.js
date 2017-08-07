@@ -437,7 +437,7 @@ const result = (function () {
         }
       }
     }
-    loadFeature (feature) {}
+    saveFeature (feature) {}
     deactivateNode () {
       $('.ol-addhole').button('disable')
       $('.ol-removehole').button('disable')

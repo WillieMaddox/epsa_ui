@@ -671,7 +671,7 @@ const result = {
     $('#camera-hfov').html(fovs['horizontal'])
     $('#camera-vfov').html(fovs['vertical'])
   },
-  loadFeature: function (feature) {
+  saveFeature: function (feature) {
     if (feature.get('name')) {
       feature.set('name', $('#feature-name').val())
     }

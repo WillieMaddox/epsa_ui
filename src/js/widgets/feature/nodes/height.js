@@ -72,7 +72,7 @@ const result = (function () {
         $('#height-label').removeClass('disabled')
       }
     }
-    loadFeature (feature) {
+    saveFeature (feature) {
       // feature.set('height', $('#height-spinner').spinner("value"));
       const $heightSpinner = $('#height-spinner')
       if ($heightSpinner.spinner('value')) {

@@ -71,7 +71,7 @@ const result = (function () {
         $('#thickness-label').removeClass('disabled')
       }
     }
-    loadFeature (feature) {
+    saveFeature (feature) {
       // feature.set('thickness', $('#thickness-spinner').spinner("value"));
       const $thicknessSpinner = $('#thickness-spinner')
       if ($thicknessSpinner.spinner('value')) {

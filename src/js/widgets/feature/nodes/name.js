@@ -38,7 +38,7 @@ const result = (function () {
         }
       }
     }
-    loadFeature (feature) {
+    saveFeature (feature) {
       if (feature.get('name')) {
         feature.set('name', $('#feature-name').val())
       }

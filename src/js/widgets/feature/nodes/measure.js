@@ -153,6 +153,7 @@ const result = (function () {
       $geodesic.checkboxradio('enable')
       $measureUnits.selectmenu('enable')
       this.measureFunc(feature.getGeometry(), map.getView().getProjection())
+      //TODO: Can I use arrow functions here instead of _this?
       this.geometrylistener = feature.getGeometry().on('change', function (evt) {
         _this.measureFunc(evt.target, map.getView().getProjection())
       })
@@ -162,7 +163,7 @@ const result = (function () {
         _this.measureFunc(_this.geometrylistener.target, map.getView().getProjection())
       })
     }
-    loadFeature (feature) {}
+    saveFeature (feature) {}
     deactivateNode () {
       const $geodesic = $('#geodesic')
       $geodesic.off('change')

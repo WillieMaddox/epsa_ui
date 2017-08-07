@@ -63,9 +63,9 @@ const PolygonWidget = function (sandBox) {
         node.activateNode(feature)
       }
     }
-    loadFeature (feature) {
+    saveFeature (feature) {
       for (let node of this.form_nodes) {
-        node.loadFeature(feature)
+        node.saveFeature(feature)
       }
     }
     deactivateForm () {
