@@ -18,7 +18,6 @@ import cameraIcon from '../img/camera-normal.png'
 let editors = {}
 import(/* webpackChunkName: "polygon", webpackMode: "lazy" */'./widgets/feature/forms/polygon')
   .then(module => {
-    //TODO: maybe have .init() return "this".  Then maybe we can combine all three lines into one?
     editors['polygon'] = module.default
   })
 import(/* webpackChunkName: "linestring", webpackMode: "lazy" */'./widgets/feature/forms/linestring')
@@ -40,12 +39,6 @@ const result = {
   init: function () {
 
     const _this = this
-
-    // this.highlight = null;
-    // this.highlightTextStyleCache = {};
-    // this.highlightGeomStyleCache = {};
-    // this.textStyleKey = 'name';
-    // this.geomStyleKey = 'type';
 
     this.autoselect = false
     this.featureOverlay = this.createFeatureOverlay()
@@ -373,7 +366,6 @@ const result = {
         // _this.translate.setActive(false);
         console.log('manual deselect:', feature.get('name'), feature.getRevision())
         _this.editor.saveFeature(feature)
-        // _this.editor.deactivateForm()
         _this.unloadEditor()
         _this.layer.getSource().getSource().addFeature(feature)
         // _this.activeFeatures.push(feature);
@@ -452,7 +444,6 @@ const result = {
         if (selectedFeatures.getArray().length === 1) {
           selectedFeature = selectedFeatures.getArray()[0]
           _this.editor.saveFeature(selectedFeature)
-          // _this.editor.deactivateForm()
           _this.unloadEditor()
           _this.layer.getSource().getSource().addFeature(selectedFeature)
           console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())
