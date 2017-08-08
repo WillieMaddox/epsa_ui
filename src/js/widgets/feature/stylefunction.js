@@ -29,9 +29,9 @@ const result = (function () {
   }
 
   const feature_templates = {
-    'Polygon': null,
-    'LineString': null,
-    'Point': null
+    'Polygon': polygon_templates,
+    'LineString': linestring_templates,
+    'Point': point_templates
   }
 
   function geometryStyle (geom, color = [255, 0, 0], opacity = 0.5) {
@@ -64,7 +64,6 @@ const result = (function () {
         })
       })
     }
-
     return geometry_styles[geom]
   }
 
@@ -110,21 +109,6 @@ const result = (function () {
     let geom = feature.getGeometry().getType().replace(/Multi/, '')
     let type = feature.get('type') || geom.toLowerCase()
 
-    if (geom === 'Polygon') {
-      if (feature_templates['Polygon'] === null) {
-        feature_templates['Polygon'] = polygon_templates
-      }
-    }
-    if (geom === 'LineString') {
-      if (feature_templates['LineString'] === null) {
-        feature_templates['LineString'] = linestring_templates
-      }
-    }
-    if (geom === 'Point') {
-      if (feature_templates['Point'] === null) {
-        feature_templates['Point'] = point_templates
-      }
-    }
     return setStyle(geom, type)
   }
 })()
