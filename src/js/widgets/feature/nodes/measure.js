@@ -145,49 +145,49 @@ const result = (function () {
     loadFeature (feature) {
 
       const _this = this
-      const $measureLabel = $('#measure-label')
-      const $measureUnits = $('#measure-units')
-      const $geodesic = $('#geodesic')
-
-      $measureLabel.removeClass('disabled')
-      $geodesic.checkboxradio('enable')
-      $measureUnits.selectmenu('enable')
+      // const $measureLabel = $('#measure-label')
+      // const $measureUnits = $('#measure-units')
+      // const $geodesic = $('#geodesic')
+      // $measureLabel.removeClass('disabled')
+      // $geodesic.checkboxradio('enable')
+      // $measureUnits.selectmenu('enable')
       this.measureFunc(feature.getGeometry(), map.getView().getProjection())
       //TODO: Can I use arrow functions here instead of _this?
       this.geometrylistener = feature.getGeometry().on('change', function (evt) {
         _this.measureFunc(evt.target, map.getView().getProjection())
       })
-      $geodesic.on('change', function () {
+      $('#geodesic').on('change', function () {
         // For some reason this checkbox doesn't auto reset on change, so we force a refresh here.
         $(this).checkboxradio('refresh')
         _this.measureFunc(_this.geometrylistener.target, map.getView().getProjection())
       })
     }
     saveFeature (feature) {}
-    deactivateNode () {
-      const $geodesic = $('#geodesic')
-      $geodesic.off('change')
-      ol.Observable.unByKey(this.geometrylistener)
-      this.geometrylistener = null
-      $geodesic.checkboxradio('disable')
-      $('#measure').html(null)
-      $('#measure-units').selectmenu('disable')
-      $('#measure-units-button').find('.ui-selectmenu-text').html('&nbsp;')
-      // },
-      // registerForEvents: function () {
-      //   sandBox.addEventHandlerToElement('measure-units', 'change', this.handleMeasureUnitsChanged)
-      // },
-      // unregisterFromEvents: function () {
-      //   sandBox.removeEventHandlerFromElement('measure-units', 'change', this.handleMeasureUnitsChanged)
-      // },
-      // handleMeasureUnitsChanged: function (e) {
-      //   sandBox.publishCustomEvent({
-      //     type: 'measureunits-Changed',
-      //     data: this.value
-      //   })
-      //   e.preventDefault()
-      //   e.stopPropagation()
-    }
+    // deactivateNode () {
+    //   const $geodesic = $('#geodesic')
+    //   $geodesic.off('change')
+    //   $('#geodesic').checkboxradio('disable').off('change')
+    //   // TODO: This unByKey() should probably go into destroy()
+    //   ol.Observable.unByKey(this.geometrylistener)
+    //   this.geometrylistener = null
+    //   $('#measure').html(null)
+    //   $('#measure-units').selectmenu('disable')
+    //   $('#measure-units-button').find('.ui-selectmenu-text').html('&nbsp;')
+    // }
+    // registerForEvents: function () {
+    //   sandBox.addEventHandlerToElement('measure-units', 'change', this.handleMeasureUnitsChanged)
+    // }
+    // unregisterFromEvents: function () {
+    //   sandBox.removeEventHandlerFromElement('measure-units', 'change', this.handleMeasureUnitsChanged)
+    // }
+    // handleMeasureUnitsChanged: function (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'measureunits-Changed',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
   }
   return Measure
 })()

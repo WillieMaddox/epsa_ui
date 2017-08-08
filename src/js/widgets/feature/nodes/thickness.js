@@ -78,28 +78,26 @@ const result = (function () {
         feature.set('thickness', $thicknessSpinner.spinner('value'))
       }
     }
-    deactivateNode () {
-      const $thicknessSlider = $('#thickness-slider')
-      const $thicknessSpinner = $('#thickness-spinner')
-      $thicknessSpinner.spinner('disable')
-      $thicknessSlider.slider('disable')
-
-
-      // },
-      // registerForEvents: function () {
-      //   sandBox.addEventHandlerToElement('measure-units', 'change', this.handleMeasureUnitsChanged)
-      // },
-      // unregisterFromEvents: function () {
-      //   sandBox.removeEventHandlerFromElement('measure-units', 'change', this.handleMeasureUnitsChanged)
-      // },
-      // handleMeasureUnitsChanged: function (e) {
-      //   sandBox.publishCustomEvent({
-      //     type: 'measureunits-Changed',
-      //     data: this.value
-      //   })
-      //   e.preventDefault()
-      //   e.stopPropagation()
-    }
+    // deactivateNode () {
+    //   const $thicknessSlider = $('#thickness-slider')
+    //   const $thicknessSpinner = $('#thickness-spinner')
+    //   $thicknessSpinner.spinner('disable')
+    //   $thicknessSlider.slider('disable')
+    // }
+    // registerForEvents: function () {
+    //   sandBox.addEventHandlerToElement('measure-units', 'change', this.handleMeasureUnitsChanged)
+    // }
+    // unregisterFromEvents: function () {
+    //   sandBox.removeEventHandlerFromElement('measure-units', 'change', this.handleMeasureUnitsChanged)
+    // }
+    // handleMeasureUnitsChanged: function (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'measureunits-Changed',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
   }
   return Thickness
 })()

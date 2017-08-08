@@ -22,10 +22,10 @@ const result = (function () {
     }
     styleNode () {}
     loadFeature (feature) {
-      const $name = $('#feature-name')
-      $('#feature-name-label').removeClass('disabled')
-      $name.removeClass('ui-state-disabled')
-      $name.val(feature.get('name'))
+      // const $name = $('#feature-name')
+      // $('#feature-name-label').removeClass('disabled')
+      // $name.removeClass('ui-state-disabled')
+      $('#feature-name').val(feature.get('name'))
     }
     changeFeatureType (feature_type) {
       const $name = $('#feature-name')
@@ -43,11 +43,25 @@ const result = (function () {
         feature.set('name', $('#feature-name').val())
       }
     }
-    deactivateNode () {
-      const $name = $('#feature-name')
-      $name.val(null)
-      $name.addClass('ui-state-disabled')
-    }
+    // deactivateNode () {
+    //   const $name = $('#feature-name')
+    //   $name.val(null)
+    //   $name.addClass('ui-state-disabled')
+    // }
+    // registerForEvents () {
+    //   sandBox.addEventHandlerToElement('feature-type', 'change', this.handleFeatureTypeChanged)
+    // }
+    // unregisterFromEvents () {
+    //   sandBox.removeEventHandlerFromElement('feature-type', 'change', this.handleFeatureTypeChanged)
+    // }
+    // handleFeatureTypeChanged (e) {
+    //   sandBox.publishCustomEvent({
+    //     type: 'featuretype-Changed',
+    //     data: this.value
+    //   })
+    //   e.preventDefault()
+    //   e.stopPropagation()
+    // }
   }
   return Name
 })()

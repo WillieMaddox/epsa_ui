@@ -1,12 +1,13 @@
 import $ from 'jquery'
 import ol from 'openlayers'
 import layertree from 'layertree'
-import OSMFire_Core from 'MainCore'
 import layertoolbar from 'layertoolbar'
 import featuretoolbar from 'featuretoolbar'
 import layerinteractor from 'layerinteractor'
-
+import OSMFire_Core from 'MainCore'
 import 'Logger'
+import 'Utilities'
+import 'StorageHandler'
 
 ol.layer.Image.prototype.buildHeaders = function () {
   let features = this.getSource().getSource().getFeatures()
@@ -145,6 +146,12 @@ layertoolbar.init()
 featuretoolbar.init()
 layerinteractor.init()
 
+OSMFire_Core.StorageHandler.register = (function () {
+  OSMFire_Core.registerModule(OSMFire_Core.StorageHandler)
+})()
+if (OSMFire_Core.Utilities) {
+  OSMFire_Core.Utilities.addLocalStorageCheck(OSMFire_Core.StorageHandler)
+}
 OSMFire_Core.initializeAllModules()
 OSMFire_Core.initializeAllComponents()
 
@@ -323,23 +330,6 @@ OSMFire_Core.initializeAllComponents()
 //     })
 //   }
 // })
-
-//register StorageHandler with MainCore
-// OSMFire_Core.StorageHandler.register = (function() {
-//   OSMFire_Core.registerModule(OSMFire_Core.StorageHandler)
-// })()
-//add error handling to all methods of StorageHandler, in case localStorage not available
-// if (OSMFire_Core.Utilitizes) {
-//   OSMFire_Core.Utilitizes.addLocalStorageCheck(OSMFire_Core.StorageHandler)
-// }
-// OSMFire_Core.StorageHandler.clearLocalStorage()
-// OSMFire_Core.initializeAllModules()
-// OSMFire_Core.initializeAllComponents()
-// uncomment below if you'd like to run some unit test and then see results in the console
-// remember that running tests deletes all the cookie and localstorage values for the this app
-// OSMFire_Core.runAllUnitTests();
-// OSMFire_Core.handlePageChange(location.pathname)
-
 
 if (module.hot) {
   module.hot.accept()

@@ -422,9 +422,10 @@ const result = (function () {
     }
     loadFeature (feature) {
       const $deleteHole = $('#delete-hole')
+      $deleteHole.button('disable')
       if (feature.getGeometry().getType().endsWith('Polygon')) {
-        $('#hole-label').removeClass('disabled')
-        $('#draw-hole').button('enable')
+        // $('#hole-label').removeClass('disabled')
+        // $('#draw-hole').button('enable')
         if (feature.getGeometry().getType() === 'MultiPolygon') {
           const nPolygons = feature.getGeometry().getPolygons().length
           for (let i = 0; i < nPolygons; i++) {
@@ -438,10 +439,10 @@ const result = (function () {
       }
     }
     saveFeature (feature) {}
-    deactivateNode () {
-      $('.ol-addhole').button('disable')
-      $('.ol-removehole').button('disable')
-    }
+    // deactivateNode () {
+    //   $('.ol-addhole').button('disable')
+    //   $('.ol-removehole').button('disable')
+    // }
     // registerForEvents () {
     //   sandBox.addEventHandlerToElement('draw-hole', 'click', this.handleDrawHoleClicked)
     //   sandBox.addEventHandlerToElement('delete-hole', 'click', this.handleDeleteHoleClicked)

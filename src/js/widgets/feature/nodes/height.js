@@ -79,12 +79,12 @@ const result = (function () {
         feature.set('height', $heightSpinner.spinner('value'))
       }
     }
-    deactivateNode () {
-      const $heightSlider = $('#height-slider')
-      const $heightSpinner = $('#height-spinner')
-      $heightSpinner.spinner('disable')
-      $heightSlider.slider('disable')
-    }
+    // deactivateNode () {
+    //   const $heightSlider = $('#height-slider')
+    //   const $heightSpinner = $('#height-spinner')
+    //   $heightSpinner.spinner('disable')
+    //   $heightSlider.slider('disable')
+    // }
     // registerForEvents () {
     //   sandBox.addEventHandlerToElement('height-slider', 'slide', this.handleHeightSliderSlide)
     //   sandBox.addEventHandlerToElement('height-slider', 'slidechange', this.handleHeightSliderChange)

@@ -316,6 +316,7 @@ const result = {
     }
     this.editor = new editors[geom_map[geom_type]]
     this.editor.$form = this.editor.createForm()
+    //TODO: use this when calling registerComponent
     $('.featureeditor').append(this.editor.$form)
     this.editor.styleForm()
   },
@@ -372,7 +373,7 @@ const result = {
         // _this.translate.setActive(false);
         console.log('manual deselect:', feature.get('name'), feature.getRevision())
         _this.editor.saveFeature(feature)
-        _this.editor.deactivateForm()
+        // _this.editor.deactivateForm()
         _this.unloadEditor()
         _this.layer.getSource().getSource().addFeature(feature)
         // _this.activeFeatures.push(feature);
@@ -451,7 +452,7 @@ const result = {
         if (selectedFeatures.getArray().length === 1) {
           selectedFeature = selectedFeatures.getArray()[0]
           _this.editor.saveFeature(selectedFeature)
-          _this.editor.deactivateForm()
+          // _this.editor.deactivateForm()
           _this.unloadEditor()
           _this.layer.getSource().getSource().addFeature(selectedFeature)
           console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())

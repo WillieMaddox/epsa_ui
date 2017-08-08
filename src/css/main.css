@@ -164,7 +164,7 @@ body {
     height: calc(70% - 2em);
     overflow-y: auto;
 }
-.form .form-row {
+.form-row {
     display: flex;
 }
 .form-row .form-elem {

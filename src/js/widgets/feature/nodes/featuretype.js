@@ -22,7 +22,11 @@ const result = (function () {
       const $formElem = $("<div class='form-elem'>")
       const $formValue = $("<div class='form-value'>")
       $formElem.append($("<div id='feature-type-label' class='form-label'>Feature Type</div>"))
-      $formValue.append($("<select id='feature-type'>"))
+      const $selectNode = $("<select id='feature-type'>")
+      for (let key in this.feature_templates) {
+        $selectNode.append(utils.createMenuOption(key))
+      }
+      $formValue.append($selectNode)
       $formElem.append($formValue)
       return $formElem
     }
@@ -38,30 +42,31 @@ const result = (function () {
     }
     loadFeature (feature) {
       let feature_type = feature.get('type')
-      const $featureType = $('#feature-type')
-      $('#feature-type-label').removeClass('disabled')
-      $featureType.selectmenu('enable')
-      for (let key in this.feature_templates) {
-        $featureType.append(utils.createMenuOption(key))
-      }
-      if (!(feature_type && feature_type in this.feature_templates)) {
-        feature_type = 'polygon'
-      }
+      // const $featureType = $('#feature-type')
+      // $('#feature-type-label').removeClass('disabled')
+      // $featureType.selectmenu('enable')
+      // for (let key in this.feature_templates) {
+      //   $featureType.append(utils.createMenuOption(key))
+      // }
+      // if (!(feature_type && feature_type in this.feature_templates)) {
+      //   feature_type = 'polygon'
+      // }
+      $('#feature-type').val(feature_type)
       $('#feature-type-button').find('.ui-selectmenu-text').text(feature_type)
-      $featureType.val(feature_type)
+      // $('#feature-type').val(feature.get('type'))
     }
     saveFeature (feature) {
       if (feature.get('type')) {
         feature.set('type', $('#feature-type').val())
       }
     }
-    deactivateNode () {
-      const $featureType = $('#feature-type')
-      $featureType.empty()
-      $featureType.val('')
-      $('#feature-type-button').find('.ui-selectmenu-text').html('&nbsp;')
-      $featureType.selectmenu('disable')
-    }
+    // deactivateNode () {
+    //   const $featureType = $('#feature-type')
+    //   $featureType.empty()
+    //   $featureType.val('')
+    //   $('#feature-type-button').find('.ui-selectmenu-text').html('&nbsp;')
+    //   $featureType.selectmenu('disable')
+    // }
     // registerForEvents () {
     //   sandBox.addEventHandlerToElement('feature-type', 'change', this.handleFeatureTypeChanged)
     // }
