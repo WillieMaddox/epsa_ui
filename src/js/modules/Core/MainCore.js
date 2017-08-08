@@ -2,9 +2,10 @@
 
 import $ from 'jquery'
 import SandBox from 'SandBox'
+import OSMFire_GlobalData from 'GlobalData'
 // import OSMFire_Base from 'Base'
 
-let OSMFire_Core = {}
+let OSMFire_Core
 
 OSMFire_Core = (function (mainCore) {
   let registeredModules = [],
@@ -43,8 +44,8 @@ OSMFire_Core = (function (mainCore) {
     return mainCore.debug
   }
   mainCore.checkIfArray = function (value) {
-    if (mainCore.Utilitizes && mainCore.Utilitizes.checkIfArray) {
-      return mainCore.Utilitizes.checkIfArray(value)
+    if (mainCore.Utilities && mainCore.Utilities.checkIfArray) {
+      return mainCore.Utilities.checkIfArray(value)
     } else {
       mainCore.log(3, 'cannot check if array; from mainCore.checkIfArray')
     }
@@ -125,6 +126,10 @@ OSMFire_Core = (function (mainCore) {
     }
     this.log(1, 'All components have been destroyed...', 'orange')
   }
+  mainCore.destroyComponentByID = function (componentID) {
+    this.getComponentByID(componentID).destroy()
+  }
+  // maincore
   mainCore.initializeComponent = function (componentID, callbackFunc) {
     let args = arguments
     try {
@@ -165,26 +170,34 @@ OSMFire_Core = (function (mainCore) {
     return false
   }
   // sandbox
-  mainCore.getComponentObjAndCallback = function (ComponentObjID, callbackFunc) {
-    try {
-      // load Component object definition from storage
-      mainCore.loadPageDefinitionFromStorageAndCallBack(ComponentObjID, callbackFunc)
-    } catch (e) {
-      mainCore.log(3, 'Component definition was not found; from mainCore.getComponentObjAndCallback ' + e.message)
-    }
-  }
-  // sandbox
   mainCore.loadComponent = function (ComponentDefID) {
     // get the value of Component object definition from storage
     let ComponentDef = mainCore.getValueForKeyAsObjectFromStorage(ComponentDefID)
     if (!ComponentDef) {
       // if Component definition is not in the storage then the page object definitions probably needs to be loaded
       mainCore.loadPageDefinitionsFileAndCallBack(function () {
-        mainCore.getComponentObjAndCallback(ComponentDefID,
+        mainCore.loadPageDefinitionFromStorageAndCallBack(ComponentDefID,
           mainCore.loadComponentFiles)
       })
     } else {
       mainCore.loadComponentFiles(ComponentDef)
+    }
+  }
+  mainCore.loadComponentFiles = function (pageDefinitionObj) {
+    if (pageDefinitionObj && typeof pageDefinitionObj === 'object') {
+      if (pageDefinitionObj.scriptFile && pageDefinitionObj.scriptPath) {
+        mainCore.loadJSfileFromObjDef(pageDefinitionObj.scriptFile, pageDefinitionObj.scriptPath)
+      } else {
+        mainCore.log(2, 'Could not load Component script file; from mainCore.loadComponentFiles')
+        return
+      }
+      if (pageDefinitionObj.cssFile && pageDefinitionObj.cssPath) {
+        mainCore.loadCSSfileFromObjDef(pageDefinitionObj.cssFile, pageDefinitionObj.cssPath)
+      } else {
+        mainCore.log(2, 'Could not load Component script file; from mainCore.loadComponentFiles')
+      }
+    } else {
+      mainCore.log(3, 'Component definition was not found, cannot render page; from mainCore.loadComponentFiles')
     }
   }
   // sandbox
@@ -195,13 +208,14 @@ OSMFire_Core = (function (mainCore) {
     if (!ComponentDef) {
       // if Component definition is not in the storage then the page object definitions probably needs to be loaded
       mainCore.loadPageDefinitionsFileAndCallBack(function () {
-        mainCore.getComponentObjAndCallback(ComponentDefID,
+        mainCore.loadPageDefinitionFromStorageAndCallBack(ComponentDefID,
           mainCore.loadComponentFilesAndInitializeWithCallBack)
       })
     } else {
       mainCore.loadComponentFilesAndInitializeWithCallBack(ComponentDef)
     }
   }
+  //maincore.loadComponentAndCallback
   mainCore.loadComponentFilesAndInitializeWithCallBack = function (pageDefinitionObj, callbackFunc) {
     loadedComponentcallbackFunc = callbackFunc || loadedComponentcallbackFunc
     if (pageDefinitionObj && typeof pageDefinitionObj === 'object') {
@@ -226,39 +240,20 @@ OSMFire_Core = (function (mainCore) {
       mainCore.log(3, 'Component definition was not found, cannot render page; from mainCore.loadComponentFilesAndInitializeWithCallBack')
     }
   }
-  mainCore.loadComponentFiles = function (pageDefinitionObj) {
-    if (pageDefinitionObj && typeof pageDefinitionObj === 'object') {
-      if (pageDefinitionObj.scriptFile && pageDefinitionObj.scriptPath) {
-        mainCore.loadJSfileFromObjDef(pageDefinitionObj.scriptFile, pageDefinitionObj.scriptPath)
-      } else {
-        mainCore.log(2, 'Could not load Component script file; from mainCore.loadComponentFiles')
-        return
-      }
-      if (pageDefinitionObj.cssFile && pageDefinitionObj.cssPath) {
-        mainCore.loadCSSfileFromObjDef(pageDefinitionObj.cssFile, pageDefinitionObj.cssPath)
-      } else {
-        mainCore.log(2, 'Could not load Component script file; from mainCore.loadComponentFiles')
-      }
+  mainCore.loadfileFromObjDef = function (fileName, filePath, fileType) {
+    // if file has already been loaded, then nothing to do
+    if (mainCore.confirmFileLoad(fileName, fileType)) {
+      return true
     } else {
-      mainCore.log(3, 'Component definition was not found, cannot render page; from mainCore.loadComponentFiles')
+      mainCore.loadFile(fileName, fileType, filePath)
     }
   }
   // sandbox
   mainCore.loadCSSfileFromObjDef = function (fileName, filePath) {
-    // if file has already been loaded, then nothing to do
-    if (mainCore.confirmFileLoad(fileName, 'css')) {
-      return true
-    } else {
-      mainCore.loadFile(fileName, 'css', filePath)
-    }
+    this.loadfileFromObjDef(fileName, filePath, 'css')
   }
   mainCore.loadJSfileFromObjDef = function (fileName, filePath) {
-    // if file has already been loaded, then nothing to do
-    if (mainCore.confirmFileLoad(fileName, 'js')) {
-      return true
-    } else {
-      mainCore.loadFile(fileName, 'js', filePath)
-    }
+    this.loadfileFromObjDef(fileName, filePath, 'js')
   }
   // sandbox
   mainCore.loadJSfileFromObjDefAndCallBack = function (fileName, filePath, callbackFunc) {
@@ -271,8 +266,8 @@ OSMFire_Core = (function (mainCore) {
   }
   mainCore.confirmFileLoad = function (fileName, fileType) {
     let fileLoaded
-    if (mainCore.Utilitizes && mainCore.Utilitizes.getFileInHead) {
-      fileLoaded = mainCore.Utilitizes.getFileInHead(fileName, fileType)
+    if (mainCore.Utilities && mainCore.Utilities.getFileInHead) {
+      fileLoaded = mainCore.Utilities.getFileInHead(fileName, fileType)
       if (!fileLoaded && timerCounter < recursiveMaxCounter) {
         timerCounter++
         window.setTimeout(mainCore.confirmFileLoad, fileLoadDelayTime, fileName, fileType)
@@ -291,55 +286,50 @@ OSMFire_Core = (function (mainCore) {
   }
   // sandbox
   mainCore.loadFile = function (fileName, fileType, filePath) {
-    if (mainCore.Utilitizes && mainCore.Utilitizes.Load_JS_CSS) {
-      mainCore.Utilitizes.Load_JS_CSS(fileName, fileType, filePath)
+    if (mainCore.Utilities && mainCore.Utilities.Load_JS_CSS) {
+      mainCore.Utilities.Load_JS_CSS(fileName, fileType, filePath)
     } else {
       mainCore.log(3, 'Cannot load file; from mainCore.loadFile')
     }
   }
   // sandbox
   mainCore.removeFile = function (fileName, fileType) {
-    if (mainCore.Utilitizes && mainCore.Utilitizes.Load_JS_CSS) {
-      mainCore.Utilitizes.Remove_JS_CSS(fileName, fileType)
+    if (mainCore.Utilities && mainCore.Utilities.Load_JS_CSS) {
+      mainCore.Utilities.Remove_JS_CSS(fileName, fileType)
     } else {
       mainCore.log(3, 'Cannot remove file; from mainCore.removeFile')
     }
   }
+  // mainCore.loadJSfileFromObjDefAndCallBack
   mainCore.loadFileAndCallBack = function (fileName, fileType, filePath, callbackFunc) {
     mainCore.loadFile(fileName, fileType, filePath)
     if (mainCore.confirmFileLoad(fileName, fileType)) {
       callbackFunc()
     } else {
+      mainCore.removeFile(fileName, fileType)
       mainCore.log(3, 'Cannot load file; from mainCore.loadFileAndCallBack')
     }
   }
   // sandbox
-  // mainCore.loadPageDefinitions = function () {
-  //   let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
-  //     pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
-  //   if (pageDefinitionsFileName && pageDefinitionsFilePath) {
-  //     mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
-  //     mainCore.removeFile(pageDefinitionsFileName, 'js')
-  //   } else {
-  //     mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitions')
-  //   }
-  // }
+  mainCore.loadPageDefinitions = function () {
+    let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
+      pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
+    if (pageDefinitionsFileName && pageDefinitionsFilePath) {
+      mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
+    } else {
+      mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitions')
+    }
+  }
   // sandbox
-  // mainCore.loadPageDefinitionsFileAndCallBack = function (callbackFunc) {
-  //   let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
-  //     pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
-  //   if (pageDefinitionsFileName && pageDefinitionsFilePath) {
-  //     mainCore.loadFile(pageDefinitionsFileName, 'js', pageDefinitionsFilePath)
-  //     if (mainCore.confirmFileLoad(pageDefinitionsFileName, 'js')) {
-  //       callbackFunc()
-  //       mainCore.removeFile(pageDefinitionsFileName, 'js')
-  //     } else {
-  //       mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
-  //     }
-  //   } else {
-  //     mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
-  //   }
-  // }
+  mainCore.loadPageDefinitionsFileAndCallBack = function (callbackFunc) {
+    let pageDefinitionsFileName = OSMFire_GlobalData.getPageDefinitionsFileName(),
+      pageDefinitionsFilePath = OSMFire_GlobalData.getPageDefinitionsFilePath()
+    if (pageDefinitionsFileName && pageDefinitionsFilePath) {
+      mainCore.loadFileAndCallBack(pageDefinitionsFileName, 'js', pageDefinitionsFilePath, callbackFunc)
+    } else {
+      mainCore.log(3, 'Cannot load file; from mainCore.loadPageDefinitionsFileAndCallBack')
+    }
+  }
   mainCore.loadPageDefinitionFromStorageAndCallBack = function (pageObjDefName, callbackFunc) {
     let pageDefinitionObj, args = arguments
     pageDefinitionObj = mainCore.getValueForKeyAsObjectFromStorage(pageObjDefName)
@@ -357,8 +347,8 @@ OSMFire_Core = (function (mainCore) {
     }
   }
   mainCore.testLocalStorage = function () {
-    if (mainCore.Utilitizes && mainCore.Utilitizes.testLocalStorage) {
-      return mainCore.Utilitizes.testLocalStorage()
+    if (mainCore.Utilities && mainCore.Utilities.testLocalStorage) {
+      return mainCore.Utilities.testLocalStorage()
     } else {
       mainCore.log(3, 'cannot check if array; from mainCore.testLocalStorage')
     }
@@ -415,7 +405,7 @@ OSMFire_Core = (function (mainCore) {
     }
   }
   return mainCore
-})(OSMFire_Core || {}) // using loose augmentation of OSMFire_Core
+})(OSMFire_Core || (OSMFire_Core = {})) // using loose augmentation of OSMFire_Core
 
 // DOM related functionality
 OSMFire_Core = (function (Core) {
