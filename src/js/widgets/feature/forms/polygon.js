@@ -31,7 +31,7 @@ class Polygon {
       ['type', 'hole']
     ]
     // sandBox.addEventHandlerToParent('click', this.handleMainContainerClicked)
-    // this.registerForCustomEvents()
+    // this.subscribeToCustomEvents()
     // sandBox.contextObj = this
     // sandBox.log(1, 'featuretype constructor() called...', 'blue')
 

@@ -13,12 +13,7 @@ var SandBox = function (Core, contextElem, componentSelector) {
             Core.message(msg);
         },
         addToHistory: function (data) {
-            if (data && typeof data === 'object') {
-                Core.addToHistory(data);
-            }
-            else {
-                Core.log(3, errStr0 + 'SandBox.addToHistory');
-            }
+            Core.addToHistory(data);
         },
         // component
         createDocumentLevelComponent: function (widgetInnerHTMLStr) {
@@ -88,42 +83,27 @@ var SandBox = function (Core, contextElem, componentSelector) {
             return Core.getElement(elementID);
         },
         setElement: function (containerID, element) {
-            if (element && typeof element === 'object') {
-                Core.setElement(containerID, element);
-            }
-            else {
-                Core.log(3, errStr0 + 'SandBox.setElement');
-            }
+            Core.setElement(containerID, element);
         },
         getElementInContext: function (elementID) {
             return Core.getChildOfParentByID(containerElemContext, elementID);
         },
         getChildOfParent: function (parentElem, childID) {
-            if (parentElem && childID && typeof childID === 'string') {
-                return Core.getChildOfParent(parentElem, childID);
-            }
-            else {
-                Core.log(3, errStr0 + 'SandBox.getChildOfParent');
-            }
+            return Core.getChildOfParent(parentElem, childID);
         },
         getParentNode: function (elem) {
-            if (elem && typeof elem === 'object') {
-                return Core.getParentNode(elem);
-            }
-            else {
-                Core.log(3, 'incorrect parameter passed in; from SandBox.getParentNode');
-            }
+            return Core.getParentNode(elem);
         },
         setElementContext: function (elemID) {
             containerElemContext = Core.getElement(elemID);
         },
         updateElement: function (elementID, newStructure) {
-            if (elementID && (typeof elementID === 'string' || typeof elementID === 'object') && newStructure && typeof newStructure === 'string') {
-                Core.updateElement(elementID, newStructure);
-            }
-            else {
-                Core.log(3, errStr0 + 'SandBox.updateElement');
-            }
+            Core.updateElement(elementID, newStructure);
+            // if (elementID && (typeof elementID === 'string' || typeof elementID === 'object') && newStructure && typeof newStructure === 'string') {
+            //   Core.updateElement(elementID, newStructure)
+            // } else {
+            //   Core.log(3, errStr0 + 'SandBox.updateElement')
+            // }
         },
         // events
         addEventHandlerToElement: function (elementID, event, func) {
@@ -136,6 +116,15 @@ var SandBox = function (Core, contextElem, componentSelector) {
                 Core.log(3, errStr0 + 'SandBox.addEventHandlerToElement');
             }
         },
+        addEventHandlerToParent: function (event, func) {
+            // since we don't have the parent of the parent, then we just do the normal event handling attachment
+            if (func && typeof func === 'function') {
+                Core.addEventHandlerToElement(containerElemContext, event, func);
+            }
+            else {
+                Core.log(3, errStr0 + 'SandBox.addEventHandlerToParent');
+            }
+        },
         removeEventHandlerFromElement: function (elementID, event, func) {
             if (func && typeof func === 'function') {
                 // we do this so we don't traverse the whole DOM, thus increasing performance
@@ -144,15 +133,6 @@ var SandBox = function (Core, contextElem, componentSelector) {
             }
             else {
                 Core.log(3, errStr0 + 'SandBox.removeEventHandlerFromElement');
-            }
-        },
-        addEventHandlerToParent: function (event, func) {
-            // since we don't have the parent of the parent, then we just do the normal event handling attachment
-            if (func && typeof func === 'function') {
-                Core.addEventHandlerToElement(containerElemContext, event, func);
-            }
-            else {
-                Core.log(3, errStr0 + 'SandBox.addEventHandlerToParent');
             }
         },
         removeEventHandlerFromParent: function (event, func) {
