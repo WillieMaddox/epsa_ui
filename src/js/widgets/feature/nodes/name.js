@@ -21,7 +21,7 @@ const result = (function () {
       return $formElem
     }
     styleNode () {}
-    activateNode (feature) {
+    loadFeature (feature) {
       const $name = $('#feature-name')
       $('#feature-name-label').removeClass('disabled')
       $name.removeClass('ui-state-disabled')

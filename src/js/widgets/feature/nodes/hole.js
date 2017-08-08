@@ -420,7 +420,7 @@ const result = (function () {
         label: 'Delete'
       }).on('click', this.deleteHole)
     }
-    activateNode (feature) {
+    loadFeature (feature) {
       const $deleteHole = $('#delete-hole')
       if (feature.getGeometry().getType().endsWith('Polygon')) {
         $('#hole-label').removeClass('disabled')

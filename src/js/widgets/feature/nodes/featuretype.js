@@ -36,7 +36,7 @@ const result = (function () {
         }
       })
     }
-    activateNode (feature) {
+    loadFeature (feature) {
       let feature_type = feature.get('type')
       const $featureType = $('#feature-type')
       $('#feature-type-label').removeClass('disabled')

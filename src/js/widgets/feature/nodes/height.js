@@ -46,7 +46,7 @@ const result = (function () {
         }
       })
     }
-    activateNode (feature) {
+    loadFeature (feature) {
       const $heightSlider = $('#height-slider')
       const $heightSpinner = $('#height-spinner')
       $('#height-label').removeClass('disabled')

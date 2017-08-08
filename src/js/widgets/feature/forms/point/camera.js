@@ -473,7 +473,7 @@ const result = {
     $('#camera-position').html(coord_x + ', ' + coord_y)
   },
 
-  activateForm: function (feature) {
+  loadFeature: function (feature) {
 
     const _this = this
     $('#cameraproperties').show()

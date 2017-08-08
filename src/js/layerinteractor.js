@@ -402,7 +402,7 @@ const result = {
         // _this.translate.setActive(true);
         console.log('manual select:  ', feature.get('name'), feature.getRevision())
         _this.loadEditor(feature)
-        _this.editor.activateForm(feature)
+        _this.editor.loadFeature(feature)
         _this.layer.getSource().getSource().removeFeature(feature)
         // _this.activeFeatures.push(feature);
         _this.hoverDisplay(evt.mapBrowserEvent)
@@ -476,7 +476,7 @@ const result = {
           selectedFeatures.push(featuretoolbar.addedFeature)
           selectedFeature = featuretoolbar.addedFeature
           _this.loadEditor(selectedFeature)
-          _this.editor.activateForm(selectedFeature)
+          _this.editor.loadFeature(selectedFeature)
           console.log('auto select:  ', selectedFeature.get('name'), selectedFeature.getRevision())
         } else {
           console.log('HHHHHHHERREE!!!')

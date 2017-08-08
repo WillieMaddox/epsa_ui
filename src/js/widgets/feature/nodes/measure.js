@@ -142,7 +142,7 @@ const result = (function () {
       })
       $('#geodesic').checkboxradio()
     }
-    activateNode (feature) {
+    loadFeature (feature) {
 
       const _this = this
       const $measureLabel = $('#measure-label')

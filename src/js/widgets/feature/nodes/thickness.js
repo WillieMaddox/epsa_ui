@@ -45,7 +45,7 @@ const result = (function () {
         }
       })
     }
-    activateNode (feature) {
+    loadFeature (feature) {
       const $thicknessSlider = $('#thickness-slider')
       const $thicknessSpinner = $('#thickness-spinner')
       $('#thickness-label').removeClass('disabled')

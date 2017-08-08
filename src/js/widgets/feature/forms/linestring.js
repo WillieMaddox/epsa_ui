@@ -48,9 +48,9 @@ class LineString {
       this.form_nodes[label].styleNode()
     }
   }
-  activateForm (feature) {
+  loadFeature (feature) {
     for (let label in this.form_nodes) {
-      this.form_nodes[label].activateNode(feature)
+      this.form_nodes[label].loadFeature(feature)
     }
   }
   saveFeature (feature) {
