@@ -5,9 +5,8 @@
 'use strict'
 
 const point_templates = {
-  'point': {
+  'generic': {
     'color': [218, 188, 163]
   }
 }
-
 export default point_templates
