@@ -7,7 +7,7 @@ const result = (function () {
 
   class Type {
     constructor (feature_templates) {
-      console.log('featuretype constructor() called')
+      // console.log('featuretype constructor() called')
       this.feature_templates = feature_templates
 
       // sandBox.addEventHandlerToParent('click', this.handleMainContainerClicked)

@@ -14,7 +14,7 @@ const result = (function () {
 
   class Hole {
     constructor () {
-      console.log('hole constructor() called')
+      // console.log('hole constructor() called')
     }
     destroy (removeComponent) {
       console.log('destroy', removeComponent)

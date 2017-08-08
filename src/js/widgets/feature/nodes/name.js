@@ -7,7 +7,7 @@ const result = (function () {
 
   class Name {
     constructor (feature_templates) {
-      console.log('name constructor() called')
+      // console.log('name constructor() called')
       this.feature_templates = feature_templates
     }
     destroy (removeComponent) {

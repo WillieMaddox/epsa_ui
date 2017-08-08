@@ -7,7 +7,7 @@ const result = (function () {
 
   class Height {
     constructor () {
-      console.log('height constructor() called')
+      // console.log('height constructor() called')
     }
     destroy (removeComponent) {
       console.log('destroy', removeComponent)

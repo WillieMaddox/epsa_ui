@@ -111,7 +111,7 @@ const result = (function () {
 
   class Measure {
     constructor (geom_type) {
-      console.log('measure constructor() called')
+      // console.log('measure constructor() called')
       this.measureFunc = measure_func_formats[geom_type]
       this.geom_options = menu_options[geom_type]
       this.label = labels[geom_type]

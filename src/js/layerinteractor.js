@@ -326,10 +326,8 @@ const result = {
     // Need to check.
     // this.editor.$form = $('.featureeditor > form').detach()
     $('.featureeditor > form').remove()
-    const feature_type = this.editor.type
-    // editors[feature_type] = this.editor
+    console.log(this.editor.type, 'editor unloaded')
     this.editor = null
-    console.log(feature_type, 'editor unloaded')
   },
   addInteractions: function () {
     const _this = this
@@ -455,8 +453,8 @@ const result = {
           _this.editor.saveFeature(selectedFeature)
           _this.editor.deactivateForm()
           _this.unloadEditor()
-          console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())
           _this.layer.getSource().getSource().addFeature(selectedFeature)
+          console.log('auto deselect:', selectedFeature.get('name'), selectedFeature.getRevision())
           selectedFeatures.clear()
         } else if (selectedFeatures.getArray().length >= 2) {
           console.log('ERROR: selectedFeatures.getArray().length = ', selectedFeatures.getArray().length)
@@ -464,13 +462,13 @@ const result = {
           console.log('no need to deselect.')
         }
 
-        // translate.setActive(false);
+        // _this.translate.setActive(false);
         _this.modify.setActive(false)
         _this.select.setActive(false)
       } else {
         _this.select.setActive(true)
         _this.modify.setActive(true)
-        // translate.setActive(true);
+        // _this.translate.setActive(true);
 
         if (featuretoolbar.addedFeature) {
           selectedFeatures.push(featuretoolbar.addedFeature)
