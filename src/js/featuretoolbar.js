@@ -11,7 +11,6 @@ import layertree from 'layertree'
 import isPolyValid from 'ispolyvalid'
 // import featureStyleFunction from 'fstylefunction'
 // import cameraIcon from '../img/camera-normal.png'
-
 // import Collection from 'openlayers/src/ol/collection'
 
 let bitA = 0
@@ -71,7 +70,6 @@ const result = {
     let drawPoint = new ol.control.Interaction({
       label: ' ',
       feature_type: 'point',
-      geometry_type: 'Point',
       className: 'ol-addpoint ol-unselectable ol-control',
       interaction: this.handleEvents(new ol.interaction.Draw({type: 'Point'}), 'point')
     }).setDisabled(true)
@@ -79,7 +77,6 @@ const result = {
     let drawLineString = new ol.control.Interaction({
       label: ' ',
       feature_type: 'linestring',
-      geometry_type: 'LineString',
       className: 'ol-addline ol-unselectable ol-control',
       interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'linestring')
     }).setDisabled(true)
@@ -87,7 +84,6 @@ const result = {
     let drawPolygon = new ol.control.Interaction({
       label: ' ',
       feature_type: 'polygon',
-      geometry_type: 'Polygon',
       className: 'ol-addpolygon ol-unselectable ol-control',
       interaction: this.handleEvents(new ol.interaction.Draw({type: 'Polygon'}), 'polygon')
     }).setDisabled(true)
@@ -112,7 +108,6 @@ const result = {
     //     }
     //   }
     // }, this);
-
     // let snapFeature = new ol.control.Interaction({
     //   label: ' ',
     //   tipLabel: 'Snap to paths, and vertices',
@@ -172,7 +167,6 @@ const result = {
     //   interaction: this.handleEvents(new ol.interaction.Draw({type: 'LineString'}), 'road')
     // }).setDisabled(true)
     // drawControls.push(drawRoad)
-
     // let drawCamera = new ol.control.Interaction({
     //   label: ' ',
     //   feature_type: 'camera',
@@ -212,16 +206,15 @@ const result = {
       if (layer instanceof ol.layer.Image) { // feature layer.
 
         drawPoint.setDisabled(false)
-        // drawCamera.setDisabled(false)
         drawLineString.setDisabled(false)
+        drawPolygon.setDisabled(false)
+        // drawCamera.setDisabled(false)
         // drawWall.setDisabled(false)
         // drawRoad.setDisabled(false)
-        drawPolygon.setDisabled(false)
         // drawAOR.setDisabled(false)
         // drawWater.setDisabled(false)
         // drawHerbage.setDisabled(false)
         // drawBuilding.setDisabled(false)
-
         // let layerGeomType = layer.get('geomtype')
         // let layerType = layer.get('type')
         // if (layerType === 'sensor') {

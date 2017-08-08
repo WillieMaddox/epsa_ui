@@ -61,12 +61,10 @@ const point_templates = {
     'color': [218, 188, 163]
   },
   'camera': {
-    geometry_type: 'Point',
     properties: $.extend({}, sensor_properties, camera_properties),
     defaultSensors: null
   },
   'radio': {
-    geometry_type: 'Point',
     properties: $.extend({}, sensor_properties, radio_properties),
     defaultSensors: null
   }
