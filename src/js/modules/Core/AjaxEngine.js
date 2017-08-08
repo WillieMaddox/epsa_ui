@@ -1,14 +1,16 @@
-//****************************************************** 
+import OSMFire_Core from 'MainCore'
+
+//******************************************************
 //Responsible for making AJAX calls to server API
 //******************************************************
 OSMFire_Core.jQueryAjaxEngine = (function () {
   let self = {},
     response, callbackFunc, page
-  self.makeAjaxCall = function(apiURL, QueryStr, callBackFunction, method) {
+  self.makeAjaxCall = function (apiURL, QueryStr, callBackFunction, method) {
     callbackFunc = callBackFunction
     self.makeAjaxCallToServer(apiURL, QueryStr, (method || 'GET'), callbackFunc)
   }
-  self.returnResults = function(handler) {
+  self.returnResults = function (handler) {
     if (response) {
       // return the result back to the caller        
       handler(response)
@@ -16,7 +18,7 @@ OSMFire_Core.jQueryAjaxEngine = (function () {
       self.showErrorMessage('No response has been returned from the AJAX call')
     }
   }
-  self.loadPageByAjax = function(elemToAttachTo, pageSrc, sectionToExtractId, callbackFunc) {
+  self.loadPageByAjax = function (elemToAttachTo, pageSrc, sectionToExtractId, callbackFunc) {
     // if an id was sent then we need to extract only that piece from the loaded page
     if (sectionToExtractId) {
       pageSrc = ' #' + sectionToExtractId
@@ -34,14 +36,14 @@ OSMFire_Core.jQueryAjaxEngine = (function () {
       }
     })
   }
-  self.getJSONObj = function(url, callbackFunc) {
+  self.getJSONObj = function (url, callbackFunc) {
     $.getJSON(url, function(data) {
       callbackFunc(data)
     }).fail(function() {
       self.showErrorMessage('Was not able to load page, from loadJSON method')
     })
   }
-  self.makeAjaxCallToServer = function(url, theQuery, method, handler) {
+  self.makeAjaxCallToServer = function (url, theQuery, method, handler) {
     // need this for IE call
     jQuery.support.cors = true
     $.ajax({
@@ -91,7 +93,7 @@ OSMFire_Core.jQueryAjaxEngine = (function () {
       self.showInfoMessage('Ajax call was initiated', 'orange')
     })
   }
-  self.showErrorMessage = function(message, color) {
+  self.showErrorMessage = function (message, color) {
     let msgColor = color || 'red'
     if (OSMFire_Core.log) {
       OSMFire_Core.log(3, message, msgColor)
@@ -99,7 +101,7 @@ OSMFire_Core.jQueryAjaxEngine = (function () {
       console.error(message)
     }
   }
-  self.showInfoMessage = function(message, color) {
+  self.showInfoMessage = function (message, color) {
     const msgColor = color || 'blue'
     if (OSMFire_Core.log) {
       OSMFire_Core.log(1, message, msgColor)
@@ -107,11 +109,11 @@ OSMFire_Core.jQueryAjaxEngine = (function () {
       console.error(message)
     }
   }
-  self.initialize = function() {
+  self.initialize = function () {
     self.showInfoMessage('AjaxEngine Module has been initialized...')
   }
   // register with MainCore
-  self.register = (function() {
+  self.register = (function () {
     OSMFire_Core.registerModule(self)
   })()
   return {

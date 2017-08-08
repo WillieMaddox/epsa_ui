@@ -1,3 +1,5 @@
+import OSMFire_Core from 'MainCore'
+
 // using simple sub-module augmentation
 OSMFire_Core.CookieHandler = (function () {
   let self = {},
@@ -7,55 +9,55 @@ OSMFire_Core.CookieHandler = (function () {
     domainValue = '',
     cookieValueArray = null,
     cookieEncodeFlag = false
-  self.getCookieDelimiter = function() {
+  self.getCookieDelimiter = function () {
     return cookieDelimiter
   }
-  self.setCookieDelimiter = function(delimiter) {
+  self.setCookieDelimiter = function (delimiter) {
     cookieDelimiter = delimiter
   }
-  self.getCookieLifeSpan = function() {
+  self.getCookieLifeSpan = function () {
     return cookieLifeSpan
   }
-  self.setCookieLifeSpan = function(lifeSpan) {
+  self.setCookieLifeSpan = function (lifeSpan) {
     cookieLifeSpan = lifeSpan
   }
-  self.getCookieDomainValue = function() {
+  self.getCookieDomainValue = function () {
     return domainValue
   }
-  self.setCookieLifeSpan = function(domainVal) {
+  self.setCookieLifeSpan = function (domainVal) {
     domainValue = domainVal
   }
-  self.getPathValue = function() {
+  self.getPathValue = function () {
     return pathValue
   }
-  self.setPathValue = function(pValue) {
+  self.setPathValue = function (pValue) {
     if (pValue) {
       pathValue = pValue
     }
   }
-  self.getEncode_Decode = function(optionalFlag) {
+  self.getEncode_Decode = function (optionalFlag) {
     if (!optionalFlag && optionalFlag !== false) {
       return cookieEncodeFlag
     } else {
       return optionalFlag
     }
   }
-  self.activateEncoding = function(decodeFlag) {
+  self.activateEncoding = function (decodeFlag) {
     cookieEncodeFlag = decodeFlag
   }
-  self.getDomainCookieList = function() {
+  self.getDomainCookieList = function () {
     if (document.cookie) {
       return document.cookie.split(';')
     }
     return null
   }
-  self.resetCookieLifeSpan = function(cookieName, lifeSpan, Opt_decodeFlag) {
+  self.resetCookieLifeSpan = function (cookieName, lifeSpan, Opt_decodeFlag) {
     self.createCookie(cookieName, self.getCookieValueAsString(
       cookieName, Opt_decodeFlag), lifeSpan, null,
     null, null, Opt_decodeFlag)
   }
   // creates the cookie if it doesn't exist, if it does, then adds the value to the cookie
-  self.populateCookie = function(cookieName, value, duration, Opt_encodeFlag) {
+  self.populateCookie = function (cookieName, value, duration, Opt_encodeFlag) {
     let cookieLife = null,
       encode_decodeFlag
     if (!cookieName || !value) {
@@ -81,7 +83,7 @@ OSMFire_Core.CookieHandler = (function () {
     return true
   }
   // Adds a value to the cookie. If the cookie does not exit, it returns null. If it does not have the value, returns false
-  self.addValueToCookie = function(cookieName, value, Opt_encodeFlag) {
+  self.addValueToCookie = function (cookieName, value, Opt_encodeFlag) {
     if (!cookieName || !value) {
       OSMFire_Core.log(3, 'Missing parameters for addValueToCookie method.')
       return false
@@ -102,7 +104,7 @@ OSMFire_Core.CookieHandler = (function () {
       return false
     }
   }
-  self.findValueInCookie = function(cookieName, value, Opt_decodeFlag) {
+  self.findValueInCookie = function (cookieName, value, Opt_decodeFlag) {
     if (!cookieName || !value) {
       OSMFire_Core.log(3, 'Missing parameters for findValueInCookie method.')
       return false
@@ -128,7 +130,7 @@ OSMFire_Core.CookieHandler = (function () {
     }
   }
   // adds a cookie to the browser with the specified name, value and expiry date
-  self.createCookie = function(cookieName, value, Opt_days, Opt_path, Opt_domain, Opt_secureFlag, Opt_encodeFlag) {
+  self.createCookie = function (cookieName, value, Opt_days, Opt_path, Opt_domain, Opt_secureFlag, Opt_encodeFlag) {
     let expires = null,
       secure = null,
       domainName = null,
@@ -173,7 +175,7 @@ OSMFire_Core.CookieHandler = (function () {
     document.cookie = cookieStr
   }
   // returns the value string of a cookie 
-  self.getCookieValueAsString = function(cookieName, Opt_decodeFlag) {
+  self.getCookieValueAsString = function (cookieName, Opt_decodeFlag) {
     if (!cookieName) {
       OSMFire_Core.log(3, 'No cookie name provided to getCookieValueAsString, exiting with error')
       return false
@@ -212,7 +214,7 @@ OSMFire_Core.CookieHandler = (function () {
     return null
   }
   // returns the cookie value string as an array
-  self.getCookieValueAsArray = function(cookieName, Opt_decodeFlag) {
+  self.getCookieValueAsArray = function (cookieName, Opt_decodeFlag) {
     if (!cookieName) {
       OSMFire_Core.log(3, 'No cookie name provided to deleteCookie, exiting with error')
       return false
@@ -246,7 +248,7 @@ OSMFire_Core.CookieHandler = (function () {
     }
   }
   // removes a specified value from the cookie. If the last value in the cookie, removes the cookie all together
-  self.removeValueByValue = function(cookieName, value, Opt_decodeFlag) {
+  self.removeValueByValue = function (cookieName, value, Opt_decodeFlag) {
     let newValueString = '',
       valueInCookie = null,
       encode_decodeFlag
@@ -286,7 +288,7 @@ OSMFire_Core.CookieHandler = (function () {
     }
   }
   // delete the cookie from the browser
-  self.deleteCookie = function(cookieName, Opt_decodeFlag) {
+  self.deleteCookie = function (cookieName, Opt_decodeFlag) {
     if (!cookieName) {
       OSMFire_Core.log(3, 'No cookie name provided to deleteCookie, exiting with error')
       return false
@@ -299,7 +301,7 @@ OSMFire_Core.CookieHandler = (function () {
     self.createCookie(cookieName, '', -1, null, domainValue)
   }
   // this removes all cookies from the browser
-  self.deleteAllCookies = function(Opt_decodeFlag) {
+  self.deleteAllCookies = function (Opt_decodeFlag) {
     let cookieList = self.getDomainCookieList(),
       cookie = null,
       equalSignLocation = null,
@@ -321,11 +323,11 @@ OSMFire_Core.CookieHandler = (function () {
     }
     return true
   }
-  self.initialize = function() {
+  self.initialize = function () {
     OSMFire_Core.log(1, 'CookieHandler Module has been initialized...', 'blue')
   }
   // register with MainCore
-  self.register = (function() {
+  self.register = (function () {
     OSMFire_Core.registerModule(self)
   })()
   //TODO: Clean this up with ES6 object literals.

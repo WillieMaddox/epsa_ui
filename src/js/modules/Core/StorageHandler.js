@@ -1,6 +1,8 @@
+import OSMFire_Core from 'MainCore'
+
 // using simple sub-module augmentation
 OSMFire_Core.StorageHandler = (function () {
-  function getValueForKeyAsString(key, decode) {
+  function getValueForKeyAsString (key, decode) {
     if (!key) {
       throw new Error('no key passed in!')
     }
@@ -21,7 +23,7 @@ OSMFire_Core.StorageHandler = (function () {
     }
   }
 
-  function getValueForKeyAsObject(key, decode) {
+  function getValueForKeyAsObject (key, decode) {
     let valueForKey = localStorage[key]
     if (valueForKey) {
       if (decode) {
@@ -34,7 +36,7 @@ OSMFire_Core.StorageHandler = (function () {
     }
   }
 
-  function checkLocalStorageForKey(key) {
+  function checkLocalStorageForKey (key) {
     // check to see if the key already exits in the database
     if (!key) {
       return false
@@ -44,7 +46,7 @@ OSMFire_Core.StorageHandler = (function () {
     return !!value
   }
 
-  function saveValueToLocalStorage(key, value, encode) {
+  function saveValueToLocalStorage (key, value, encode) {
     if (!key || !value) {
       return false
     }
@@ -58,7 +60,7 @@ OSMFire_Core.StorageHandler = (function () {
     return true
   }
 
-  function replaceValueForKey(key, newValue, encode) {
+  function replaceValueForKey (key, newValue, encode) {
     if (!key || !newValue) {
       return false
     }
@@ -66,7 +68,7 @@ OSMFire_Core.StorageHandler = (function () {
     saveValueToLocalStorage(key, newValue, encode)
   }
 
-  function saveArrayToLocalStorage(key, value, encode) {
+  function saveArrayToLocalStorage (key, value, encode) {
     // if the object is NOT already existing in the database, then save it
     if (checkLocalStorageForKey(key) === false) {
       if (OSMFire_Core.checkIfArray(value)) { //** about using core ifArray function
@@ -85,7 +87,7 @@ OSMFire_Core.StorageHandler = (function () {
   // if the key already exists, then in the case of array of objects, add new object to array, in case of object, replace the object.
   // if the key does not exist, then create the key with the value passed in either as an object or as an array of objects
 
-  function appendObjectToLocalStorageArray(key, objToSave, encode) {
+  function appendObjectToLocalStorageArray (key, objToSave, encode) {
     let valueToStore = null
     if (typeof objToSave !== 'object') {
       OSMFire_Core.log(3, 'DataMismatch, from appendObjectToLocalStorageArray', 'orange')
@@ -112,7 +114,7 @@ OSMFire_Core.StorageHandler = (function () {
   // if the key already exists with a value, then append the string passed to the already existing string value
   // if the key has no value, just add the string as the value of the key in storage
 
-  function appendStringToLocalStorage(key, value, encode) {
+  function appendStringToLocalStorage (key, value, encode) {
     let storedValue = getValueForKeyAsString(key, encode),
       valueToStore
     if (storedValue) {
@@ -126,7 +128,7 @@ OSMFire_Core.StorageHandler = (function () {
     localStorage.setItem(key, valueToStore)
   }
 
-  function appendValueToKey(key, value, encode) {
+  function appendValueToKey (key, value, encode) {
     // if an object has been passed in to be saved
     if (typeof value === 'object') {
       appendObjectToLocalStorageArray(key, value, encode)
@@ -135,16 +137,16 @@ OSMFire_Core.StorageHandler = (function () {
     }
   }
 
-  function removeKeyFromStorage(key) {
+  function removeKeyFromStorage (key) {
     localStorage.removeItem(key)
   }
 
-  function clearLocalStorage() {
+  function clearLocalStorage () {
     localStorage.clear()
   }
 
-  function initialize() {
-    //** using core and in turn utilizes to check local storage
+  function initialize () {
+    //** using core and in turn utilities to check local storage
     if (OSMFire_Core.testLocalStorage()) {
       OSMFire_Core.log(1, 'LocalStorage is available.', 'green')
     } else {
