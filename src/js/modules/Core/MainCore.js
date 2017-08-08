@@ -630,7 +630,7 @@ OSMFire_Core = (function (Core) {
   }
   //registering and publishing events
   // sandbox
-  let registerForCustomEvents = function (componentID, eventsObj) {
+  let subscribeToCustomEvents = function (componentID, eventsObj) {
     if (typeof componentID === 'string' && typeof eventsObj === 'object') {
       for (let component of Core.registeredComponents) {
         if (component.id === componentID) {
@@ -638,11 +638,11 @@ OSMFire_Core = (function (Core) {
         }
       }
     } else {
-      Core.log(3, 'Incorrect parameters passed in, from registerForCustomEvents')
+      Core.log(3, 'Incorrect parameters passed in, from subscribeToCustomEvents')
     }
   }
   // sandbox
-  let unregisterCustomEvent = function (componentID, eventType) {
+  let unsubscribeFromCustomEvent = function (componentID, eventType) {
     if (typeof componentID === 'string' && typeof eventType === 'string') {
       for (let component of Core.registeredComponents) {
         if (component.id === componentID) {
@@ -656,14 +656,14 @@ OSMFire_Core = (function (Core) {
           }
         }
       }
-      Core.log(3, '"' + componentID + '" component was not found; unregisterCustomEvent')
+      Core.log(3, '"' + componentID + '" component was not found; unsubscribeFromCustomEvent')
       return false
     } else {
-      Core.log(3, ' incorrect pareameters have been passed in, from unregisterCustomEvent')
+      Core.log(3, ' incorrect pareameters have been passed in, from unsubscribeFromCustomEvent')
     }
   }
   // sandbox
-  let unregisterAllCustomEvents = function (componentID) {
+  let unsubscribeFromAllCustomEvents = function (componentID) {
     if (typeof componentID === 'string') {
       for (let component of Core.registeredComponents) {
         if (component && component.id) {
@@ -674,7 +674,7 @@ OSMFire_Core = (function (Core) {
         }
       }
     } else {
-      Core.log(3, 'Incorrect parameters passed in, from unregisterCustomEvent')
+      Core.log(3, 'Incorrect parameters passed in, from unsubscribeFromCustomEvent')
     }
   }
   // sandbox
@@ -723,10 +723,10 @@ OSMFire_Core = (function (Core) {
   addEventHandlerToElement(window, 'popstate', getFromHistory)
   Core.addEventHandlerToElement = addEventHandlerToElement
   Core.removeEventHandlerFromElement = removeEventHandlerFromElement
-  Core.registerForCustomEvents = registerForCustomEvents
+  Core.subscribeToCustomEvents = subscribeToCustomEvents
   Core.publishCustomEvent = publishCustomEvent
-  Core.unregisterCustomEvent = unregisterCustomEvent
-  Core.unregisterAllCustomEvents = unregisterAllCustomEvents
+  Core.unsubscribeFromCustomEvent = unsubscribeFromCustomEvent
+  Core.unsubscribeFromAllCustomEvents = unsubscribeFromAllCustomEvents
   Core.addToHistory = addToHistory
   Core.getFromHistory = getFromHistory
   Core.loadPage = loadPage
@@ -788,7 +788,7 @@ OSMFire_Core = (function (Core) {
   // to be initialized as a component
   Core.init = function () {
     Core.id = 'mainCore'
-    Core.registerForCustomEvents('mainCore', events)
+    Core.subscribeToCustomEvents('mainCore', events)
     Core.log(1, 'Core is listening to custom events now...', 'purple')
   }
   Core.destroy = function () {

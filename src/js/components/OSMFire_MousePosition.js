@@ -16,7 +16,7 @@ let callback = function(sandBox) {
     init: function () {
       try {
         sandBox.contextObj = this
-        this.registerForCustomEvents()
+        this.subscribeToCustomEvents()
 
         // sandBox.setMousePosition({'target': 'coordinates'});
 
@@ -36,7 +36,7 @@ let callback = function(sandBox) {
       }
     },
     destroy: function (removeComponent) {
-      sandBox.unregisterAllCustomEvents()
+      sandBox.unsubscribeFromAllCustomEvents()
       if (removeComponent) {
         sandBox.removeComponent('mouse-coordinates-container')
       }
@@ -52,8 +52,8 @@ let callback = function(sandBox) {
       let xyz = 'X, Y, Z: ' + [xytile[0], xytile[1], zoom].join(',  ')
       return [lonlat, xyz].join('    ')
     },
-    registerForCustomEvents: function () {
-      sandBox.registerForCustomEvents({
+    subscribeToCustomEvents: function () {
+      sandBox.subscribeToCustomEvents({
         'mouseprojection-Changed': this.handleMouseProjectionChanged,
       })
     },

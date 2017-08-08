@@ -163,32 +163,23 @@ var SandBox = function (Core, contextElem, componentSelector) {
                 Core.log(3, errStr0 + 'SandBox.removeEventHandlerFromParent');
             }
         },
-        registerForCustomEvents: function (eventsObj) {
-            if (eventsObj && typeof eventsObj === 'object') {
-                Core.registerForCustomEvents(componentID, eventsObj);
+        subscribeToCustomEvents: function (eventsObj) {
+            Core.subscribeToCustomEvents(componentID, eventsObj);
+        },
+        unsubscribeFromCustomEvent: function (eventType) {
+            Core.unsubscribeFromCustomEvent(componentID, eventType);
+        },
+        unsubscribeFromAllCustomEvents: function () {
+            if (Core.unsubscribeFromAllCustomEvents(componentID)) {
+                Core.log(1, 'All events for component ' + componentID + ' have been removed; from SandBox.unsubscribeFromAllCustomEvents', 'green');
             }
             else {
-                Core.log(3, 'incorrect parameter passed in; from SandBox.registerForCustomEvents');
-            }
-        },
-        unregisterCustomEvent: function (eventType) {
-            Core.unregisterCustomEvent(componentID, eventType);
-        },
-        unregisterAllCustomEvents: function () {
-            if (Core.unregisterAllCustomEvents(componentID)) {
-                Core.log(1, 'All events for component ' + componentID + ' have been removed; from SandBox.unregisterAllCustomEvents', 'green');
-            }
-            else {
-                Core.log(2, 'No custom events found for ' + componentID + ' component; from SandBox.unregisterAllCustomEvents');
+                Core.log(2, 'No custom events found for ' + componentID + ' component; from SandBox.unsubscribeFromAllCustomEvents');
             }
         },
         publishCustomEvent: function (eventObj) {
-            if (eventObj && typeof eventObj === 'object') {
-                Core.publishCustomEvent(eventObj);
-            }
-            else {
-                Core.log(3, 'incorrect parameter passed in; from SandBox.publishCustomEvent');
-            }
+            Core.publishCustomEvent(eventObj);
+            Core.log(1, componentID + ' published an event', 'green');
         },
         // cookies and storage
         getValueAsArrayFromCookie: function (cookieName) {

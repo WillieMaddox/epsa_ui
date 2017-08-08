@@ -81,7 +81,7 @@ let callback = function(sandBox) {
     },
     destroy: function (removeComponent) {
       sandBox.contextObj.unregisterFromEvents()
-      sandBox.unregisterAllCustomEvents()
+      sandBox.unsubscribeFromAllCustomEvents()
       if (removeComponent) {
         sandBox.removeComponent('layertree-container')
       }
@@ -632,8 +632,8 @@ let callback = function(sandBox) {
       const num = Math.floor(Math.random() * 16777215).toString(16)
       return '#' + String.prototype.repeat.call('0', 6 - num.length) + num
     },
-    registerForCustomEvents: function () {
-      sandBox.registerForCustomEvents({
+    subscribeToCustomEvents: function () {
+      sandBox.subscribeToCustomEvents({
         'selectedLayer-Changed': this.handleSelectedLayerChanged
       })
     },

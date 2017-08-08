@@ -24,7 +24,7 @@ let callback = function(sandBox) {
       try {
         sandBox.updateElement('map-container', innerHTMLStr)
         sandBox.contextObj = this
-        this.registerForCustomEvents()
+        this.subscribeToCustomEvents()
 
         let thunderforestAttributions = [
           new ol.Attribution({
@@ -312,14 +312,14 @@ let callback = function(sandBox) {
     },
     destroy: function (removeComponent) {
       sandBox.contextObj.unregisterFromEvents()
-      sandBox.unregisterAllCustomEvents()
+      sandBox.unsubscribeFromAllCustomEvents()
       if (removeComponent) {
         sandBox.removeComponent('map-container')
       }
       sandBox.log(1, 'Map component has been destroyed...', 'blue')
     },
-    registerForCustomEvents: function () {
-      sandBox.registerForCustomEvents({
+    subscribeToCustomEvents: function () {
+      sandBox.subscribeToCustomEvents({
         'mouseunits-Changed': this.handleMouseUnitsChanged,
         'newVectorLayer-Submitted': this.handleNewVectorLayerSubmitted,
         'addVectorLayer-Submitted': this.handleAddVectorLayerSubmitted,
