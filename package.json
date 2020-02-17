@@ -75,7 +75,7 @@
     "url-loader": "^0.5.9",
     "vm": "^0.1.0",
     "webpack": "^3.3.0",
-    "webpack-bundle-analyzer": "^2.8.3",
+    "webpack-bundle-analyzer": "^3.6.0",
     "webpack-dev-middleware": "^1.11.0",
     "webpack-dev-server": "^2.6.1",
     "webpack-hot-middleware": "^2.18.2",
